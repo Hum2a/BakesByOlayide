@@ -42,7 +42,7 @@ const HomePage = () => {
       <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
         <nav className="homepage-nav">
           <div className="homepage-logo">
-            <h1>Sweet Delights</h1>
+            <h1>BakesByOlayide</h1>
           </div>
           <button 
             className="mobile-menu-toggle"
@@ -52,82 +52,45 @@ const HomePage = () => {
             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
           <ul className={`homepage-nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-            <li>
-              <a 
-                href="/" 
-                className="active"
-                onClick={() => handleNavLinkClick(() => {})}
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/cakes"
-                onClick={() => handleNavLinkClick(() => {})}
-              >
-                Cakes
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavLinkClick(() => setIsAboutOpen(true));
-                }}
-              >
-                About
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavLinkClick(() => setIsContactOpen(true));
-                }}
-              >
-                Contact
-              </a>
-            </li>
+            <li><a href="/" className="active">Home</a></li>
+            <li><a href="/cakes">Cakes</a></li>
+            <li><a href="#" onClick={(e) => { e.preventDefault(); setIsAboutOpen(true); }}>About</a></li>
+            <li><a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(true); }}>Contact</a></li>
           </ul>
         </nav>
       </header>
 
-      <main className="homepage-main">
-        <section className="homepage-hero">
-          <div className="homepage-hero-content">
-            <h2>Handcrafted Cakes for Every Occasion</h2>
-            <p>Indulge in our delicious, freshly baked creations made with love and the finest ingredients</p>
-            <a href="/cakes" className="homepage-cta-button">View Our Cakes</a>
-          </div>
-        </section>
+      <section className="homepage-hero">
+        <div className="homepage-hero-content">
+          <h2>Artisanal Celebration Cakes</h2>
+          <p>Experience the magic of handcrafted cakes, where every creation tells your unique story</p>
+          <a href="/cakes" className="homepage-cta-button">Explore Our Cakes</a>
+        </div>
+      </section>
 
-        <SignatureCreations />
+      <SignatureCreations />
 
-        <section className="homepage-about-preview">
-          <div className="homepage-about-content">
-            <h2>Our Story</h2>
-            <p>Founded in 2010, Sweet Delights Bakery has been creating memorable moments through our delicious cakes and pastries. Our team of expert bakers combines traditional techniques with modern creativity to bring you the perfect treat for any occasion.</p>
-            <button 
-              className="homepage-learn-more"
-              onClick={() => setIsAboutOpen(true)}
-            >
-              Learn More
-            </button>
-          </div>
-        </section>
+      <section className="homepage-about-preview">
+        <div className="homepage-about-content">
+          <h2>Our Story</h2>
+          <p>BakesByOlayide began as a passion for creating memorable celebrations through exquisite cakes. Each creation is crafted with love, skill, and attention to detail, making your special moments even more extraordinary.</p>
+          <button 
+            className="homepage-learn-more"
+            onClick={() => setIsAboutOpen(true)}
+          >
+            Learn More
+          </button>
+        </div>
+      </section>
 
-        <CakeBuilder onRequestCake={() => setIsContactOpen(true)} />
-      </main>
+      <CakeBuilder onRequestCake={() => setIsContactOpen(true)} />
 
       <footer className="homepage-footer">
         <div className="homepage-footer-content">
           <div className="homepage-footer-section">
             <h3>Contact Us</h3>
             <p><FaPhone /> (123) 456-7890</p>
-            <p><FaEnvelope /> info@sweetdelights.com</p>
+            <p><FaEnvelope /> info@bakesbyolayide.com</p>
             <p><FaMapMarkerAlt /> 123 Bakery Street, Sweet City</p>
           </div>
           <div className="homepage-footer-section">
@@ -140,7 +103,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="homepage-footer-bottom">
-          <p>&copy; 2024 Sweet Delights Bakery. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} BakesByOlayide. All rights reserved.</p>
         </div>
       </footer>
 
