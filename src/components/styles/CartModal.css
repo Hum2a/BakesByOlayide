@@ -8,6 +8,7 @@
   display: flex;
   justify-content: flex-end;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .cart-modal {
@@ -18,6 +19,11 @@
   padding: 2rem;
   overflow-y: auto;
   animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideIn {
@@ -77,6 +83,49 @@
   padding: 1rem;
   border-bottom: 1px solid #eee;
   gap: 1.5rem;
+  animation: slideIn 0.3s ease-out;
+  transform-origin: top;
+  overflow: hidden;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.cart-item.removing {
+  animation: slideOutFade 0.5s ease-out forwards;
+}
+
+@keyframes slideOutFade {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+    max-height: 200px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-bottom-width: 1px;
+  }
+  
+  30% {
+    transform: translateX(5%);
+    opacity: 0.9;
+  }
+  
+  60% {
+    transform: translateX(-110%);
+    opacity: 0;
+    max-height: 200px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-bottom-width: 1px;
+  }
+  
+  100% {
+    transform: translateX(-110%);
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    padding: 0;
+    border-bottom-width: 0;
+  }
 }
 
 .cart-item-image {
@@ -185,7 +234,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   margin: 1.5rem 0;
 }
 

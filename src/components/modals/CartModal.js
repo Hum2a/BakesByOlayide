@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { FaMinus, FaPlus, FaTrash, FaTimes } from 'react-icons/fa';
@@ -7,10 +7,25 @@ import '../styles/CartModal.css';
 const CartModal = ({ onClose }) => {
   const { cart, totalPrice, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
+  const [itemToRemove, setItemToRemove] = useState(null);
 
   const handleCheckout = () => {
     onClose();
     navigate('/checkout');
+  };
+
+  const handleRemoveItem = (itemId) => {
+    setItemToRemove(itemId);
+    setTimeout(() => {
+      removeFromCart(itemId);
+      setItemToRemove(null);
+    }, 500); // Match animation duration
+  };
+
+  const generateParticles = () => {
+    return Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} className="particle" />
+    ));
   };
 
   return (
@@ -34,7 +49,10 @@ const CartModal = ({ onClose }) => {
           <>
             <div className="cart-items">
               {cart.map((item) => (
-                <div key={item.id} className="cart-item">
+                <div 
+                  key={item.id} 
+                  className={`cart-item ${itemToRemove === item.id ? 'removing' : ''}`}
+                >
                   <img src={item.image} alt={item.name} className="cart-item-image" />
                   <div className="cart-item-details">
                     <h3>{item.name}</h3>
@@ -56,11 +74,16 @@ const CartModal = ({ onClose }) => {
                     </div>
                   </div>
                   <button
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => handleRemoveItem(item.id)}
                     className="remove-item"
                   >
                     <FaTrash />
                   </button>
+                  {itemToRemove === item.id && (
+                    <div className="particles-container">
+                      {generateParticles()}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
