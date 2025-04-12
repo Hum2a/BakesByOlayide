@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import CakeCard from '../cards/CakeCard';
+import CakeModal from '../modals/CakeModal';
+import { FaShoppingCart } from 'react-icons/fa';
+import { useCart } from '../../context/CartContext';
 import '../styles/CakePage.css';
 
-const CakePage = () => {
+const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedCake, setSelectedCake] = useState(null);
+  const { totalItems } = useCart();
 
   // Sample cake data - in a real app, this would come from an API or database
   const cakes = [
@@ -12,7 +18,8 @@ const CakePage = () => {
       description: "A timeless vanilla sponge cake with buttercream frosting",
       price: 45.99,
       image: "/images/vanilla-cake.jpg",
-      category: "Classic"
+      category: "Classic",
+      features: ['3 layers of fluffy vanilla cake', 'Vanilla bean buttercream', 'Fresh fruit decoration', 'Serves 8-10 people']
     },
     {
       id: 2,
@@ -20,7 +27,8 @@ const CakePage = () => {
       description: "Rich chocolate cake with layers of fudge and chocolate ganache",
       price: 49.99,
       image: "/images/chocolate-cake.jpg",
-      category: "Chocolate"
+      category: "Chocolate",
+      features: ['3 layers of moist chocolate cake', 'Creamy fudge frosting', 'Chocolate ganache drizzle', 'Serves 8-10 people']
     },
     {
       id: 3,
@@ -68,12 +76,31 @@ const CakePage = () => {
     setActiveCategory(category);
   };
 
+  const handleAddToCart = (cake) => {
+    // Add to cart logic here
+    console.log('Added to cart:', cake);
+  };
+
   return (
     <div className="cakepage-container">
       <header className="cakepage-header">
-        <img src="/images/cake-header.jpg" alt="Cake Header" onClick={() => window.location.href = '/'} className="cakepage-header-image"/>
-        <h1>Our Cakes</h1>
-        <p>Browse our selection of handcrafted cakes</p>
+        <div className="cakepage-header-content">
+          <img src="/images/cake-header.jpg" alt="Cake Header" onClick={() => window.location.href = '/'} className="cakepage-header-image"/>
+          <div className="cakepage-header-text">
+            <h1>Our Cakes</h1>
+            <p>Browse our selection of handcrafted cakes</p>
+          </div>
+          <button 
+            className="cakepage-cart-button" 
+            onClick={onOpenCart}
+            aria-label="Open shopping cart"
+          >
+            <FaShoppingCart />
+            {totalItems > 0 && (
+              <span className="cart-count">{totalItems}</span>
+            )}
+          </button>
+        </div>
       </header>
 
       <div className="cakepage-filters">
@@ -90,18 +117,12 @@ const CakePage = () => {
 
       <div className="cakepage-grid">
         {filteredCakes.map((cake) => (
-          <div className="cakepage-card" key={cake.id}>
-            <div className="cakepage-image">
-              <img src={cake.image} alt={cake.name} />
-            </div>
-            <div className="cakepage-info">
-              <h3>{cake.name}</h3>
-              <p className="cakepage-description">{cake.description}</p>
-              <div className="cakepage-footer">
-                <span className="cakepage-price">${cake.price}</span>
-                <button className="cakepage-order-btn">Order Now</button>
-              </div>
-            </div>
+          <div 
+            key={cake.id} 
+            className="cakepage-card-wrapper"
+            onClick={() => setSelectedCake(cake)}
+          >
+            <CakeCard cake={cake} />
           </div>
         ))}
       </div>
@@ -110,6 +131,14 @@ const CakePage = () => {
         <div className="cakepage-no-results">
           <p>No cakes found in this category.</p>
         </div>
+      )}
+
+      {selectedCake && (
+        <CakeModal
+          cake={selectedCake}
+          onClose={() => setSelectedCake(null)}
+          onAddToCart={handleAddToCart}
+        />
       )}
     </div>
   );
