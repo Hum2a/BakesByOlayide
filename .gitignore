@@ -4,20 +4,251 @@
 /node_modules
 /.pnp
 .pnp.js
+/.yarn
+/yarn.lock
+/package-lock.json
+/.npm
+/.cache
 
 # testing
 /coverage
+/.nyc_output
+/cypress/videos
+/cypress/screenshots
 
 # production
 /build
+/dist
+/out
+/.next
+/.vercel
+/.netlify
 
 # misc
-.DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+.env.test
+.env.production
 
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Build tools
+.eslintcache
+.stylelintcache
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env
+.env.development
+.env.test
+.env.production
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Storybook build outputs
+storybook-static
+
+# Rollup/Vite/Parcel cache
+.cache/
+.temp/
+.tmp/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Serverless directories
+.serverless/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Local Netlify folder
+.netlify
+
+# Local Vercel folder
+.vercel
+
+# Local Firebase folder
+.firebase
+
+# Local Heroku folder
+.heroku
+
+# Local Surge folder
+.surge
+
+# Local Now folder
+.now
+
+# Local Zeit folder
+.zeit
+
+# Local Docker folder
+.docker
+
+# Local Kubernetes folder
+.kube
+
+# Local Terraform folder
+.terraform
+
+# Local Vagrant folder
+.vagrant
+
+# Local VirtualBox folder
+.virtualbox
+
+# Local VMware folder
+.vmware
+
+# Local VirtualEnv folder
+.venv
+env/
+venv/
+ENV/
+
+# Local Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local Ruby cache
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+
+# Local Java cache
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Local C/C++ cache
+*.o
+*.a
+*.so
+*.obj
+*.exe
+*.dll
+*.manifest
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.map
+*.sbr
+*.bsc
+*.suo
+*.ncb
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+*.vcxproj.user.*
+*.vcproj.user
+*.vcproj.user.*
+*.sdf
+*.opensdf
+*.sln.ide
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+*.vcxproj.user.*
+*.vcproj.user
+*.vcproj.user.*
+*.sdf
+*.opensdf
+*.sln.ide
