@@ -1,0 +1,239 @@
+.cakepage-container {
+  padding: 2rem;
+  margin: 0 auto;
+  padding-top: 120px; /* Increased padding to account for fixed navbar */
+  max-width: 1200px;
+}
+
+.cakepage-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.cakepage-header h1 {
+  color: #e67e22;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.cakepage-header p {
+  color: #666;
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cakepage-header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.cakepage-filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.cakepage-filter-btn {
+  padding: 0.8rem 2rem;
+  border: 2px solid #e67e22;
+  background: none;
+  color: #e67e22;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cakepage-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.2);
+}
+
+.cakepage-filter-btn.active {
+  background-color: #e67e22;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+}
+
+.cakepage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 320px);
+  gap: 2.5rem;
+  padding: 0 1rem;
+  width: 100%;
+  min-height: 200px;
+  justify-content: center;
+}
+
+.cakepage-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  height: 480px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.cakepage-card:hover {
+  transform: translateY(-5px);
+}
+
+.cakepage-image {
+  height: 240px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cakepage-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.cakepage-card:hover .cakepage-image img {
+  transform: scale(1.05);
+}
+
+.cakepage-info {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cakepage-info h3 {
+  color: #e67e22;
+  margin-bottom: 0.8rem;
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.cakepage-description {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cakepage-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  margin-top: auto;
+}
+
+.cakepage-price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #e67e22;
+}
+
+.cakepage-order-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.cakepage-order-btn:hover {
+  background-color: #d35400;
+  transform: translateY(-2px);
+}
+
+.cakepage-no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+  width: 100%;
+}
+
+.cakepage-no-results p {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cakepage-container {
+    padding: 1rem;
+    padding-top: 100px;
+  }
+
+  .cakepage-grid {
+    grid-template-columns: repeat(auto-fill, 300px);
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .cakepage-card {
+    width: 300px;
+    height: 460px;
+  }
+
+  .cakepage-image {
+    height: 220px;
+  }
+
+  .cakepage-info {
+    padding: 1.2rem;
+  }
+
+  .cakepage-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .cakepage-description {
+    font-size: 0.9rem;
+  }
+
+  .cakepage-filters {
+    gap: 0.8rem;
+    padding: 0 0.5rem;
+  }
+
+  .cakepage-filter-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+} 

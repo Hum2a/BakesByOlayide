@@ -1,0 +1,126 @@
+/* Cake Design Section */
+.homepage-design-cake {
+  padding: 4rem 2rem;
+  background-color: #fff5ec;
+}
+
+.design-cake-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.design-cake-container h2 {
+  color: #e67e22;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.design-cake-container > p {
+  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.design-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.design-option-group {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.design-option-group:hover {
+  transform: translateY(-5px);
+}
+
+.design-option-group h3 {
+  color: #e67e22;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.option-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.option-button {
+  background: transparent;
+  border: 2px solid #e67e22;
+  color: #e67e22;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.option-button:hover {
+  background: #e67e22;
+  color: white;
+}
+
+.option-button.selected {
+  background: #e67e22;
+  color: white;
+}
+
+.design-submit-button {
+  background: #e67e22;
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+}
+
+.design-submit-button:hover {
+  background: #d35400;
+  transform: translateY(-2px);
+}
+
+.design-submit-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .homepage-design-cake {
+    padding: 3rem 1rem;
+  }
+
+  .design-cake-container h2 {
+    font-size: 2rem;
+  }
+
+  .design-options {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .design-option-group {
+    padding: 1rem;
+  }
+
+  .option-button {
+    padding: 0.6rem 1rem;
+  }
+
+  .design-submit-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    width: 100%;
+  }
+} 
