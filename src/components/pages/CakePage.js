@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CakeCard from '../cards/CakeCard';
 import CakeModal from '../modals/CakeModal';
-import { FaShoppingCart } from 'react-icons/fa';
+import { FaShoppingCart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import '../styles/CakePage.css';
 
 const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCake, setSelectedCake] = useState(null);
+  const [showFilterScroll, setShowFilterScroll] = useState({ left: false, right: true });
+  const filterContainerRef = useRef(null);
   const { totalItems } = useCart();
 
   // Sample cake data - in a real app, this would come from an API or database
@@ -81,11 +83,46 @@ const CakePage = ({ onOpenCart }) => {
     console.log('Added to cart:', cake);
   };
 
+  const scrollFilters = (direction) => {
+    if (filterContainerRef.current) {
+      const scrollAmount = 200;
+      const container = filterContainerRef.current;
+      if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
+  const checkScrollButtons = () => {
+    if (filterContainerRef.current) {
+      const container = filterContainerRef.current;
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      
+      setShowFilterScroll({
+        left: scrollLeft > 0,
+        right: scrollLeft < scrollWidth - clientWidth - 1
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    window.addEventListener('resize', checkScrollButtons);
+    return () => window.removeEventListener('resize', checkScrollButtons);
+  }, []);
+
   return (
     <div className="cakepage-container">
       <header className="cakepage-header">
         <div className="cakepage-header-content">
-          <img src="/images/cake-header.jpg" alt="Cake Header" onClick={() => window.location.href = '/'} className="cakepage-header-image"/>
+          <img 
+            src="/images/cake-header.jpg" 
+            alt="Cake Header" 
+            onClick={() => window.location.href = '/'} 
+            className="cakepage-header-image"
+          />
           <div className="cakepage-header-text">
             <h1>Our Cakes</h1>
             <p>Browse our selection of handcrafted cakes</p>
@@ -103,16 +140,40 @@ const CakePage = ({ onOpenCart }) => {
         </div>
       </header>
 
-      <div className="cakepage-filters">
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`cakepage-filter-btn ${activeCategory === category ? 'active' : ''}`}
-            onClick={() => handleCategoryClick(category)}
+      <div className="cakepage-filters-wrapper">
+        {showFilterScroll.left && (
+          <button 
+            className="filter-scroll-button left"
+            onClick={() => scrollFilters('left')}
+            aria-label="Scroll filters left"
           >
-            {category}
+            <FaChevronLeft />
           </button>
-        ))}
+        )}
+        <div 
+          className="cakepage-filters" 
+          ref={filterContainerRef}
+          onScroll={checkScrollButtons}
+        >
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`cakepage-filter-btn ${activeCategory === category ? 'active' : ''}`}
+              onClick={() => handleCategoryClick(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        {showFilterScroll.right && (
+          <button 
+            className="filter-scroll-button right"
+            onClick={() => scrollFilters('right')}
+            aria-label="Scroll filters right"
+          >
+            <FaChevronRight />
+          </button>
+        )}
       </div>
 
       <div className="cakepage-grid">

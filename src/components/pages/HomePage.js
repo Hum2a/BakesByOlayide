@@ -4,11 +4,13 @@ import About from '../modals/about';
 import Contact from '../modals/contact';
 import CakeBuilder from '../widgets/CakeBuilder';
 import SignatureCreations from '../widgets/SignatureCreations';
+import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 const HomePage = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +28,15 @@ const HomePage = () => {
     };
   }, []);
 
+  const handleMobileMenuClick = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleNavLinkClick = (action) => {
+    setIsMobileMenuOpen(false);
+    action();
+  };
+
   return (
     <div className="homepage-container">
       <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
@@ -33,17 +44,53 @@ const HomePage = () => {
           <div className="homepage-logo">
             <h1>Sweet Delights</h1>
           </div>
-          <ul className="homepage-nav-links">
-            <li><a href="/" className="active">Home</a></li>
-            <li><a href="/cakes">Cakes</a></li>
-            <li><a href="#" onClick={(e) => {
-              e.preventDefault();
-              setIsAboutOpen(true);
-            }}>About</a></li>
-            <li><a href="#" onClick={(e) => {
-              e.preventDefault();
-              setIsContactOpen(true);
-            }}>Contact</a></li>
+          <button 
+            className="mobile-menu-toggle"
+            onClick={handleMobileMenuClick}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+          <ul className={`homepage-nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+            <li>
+              <a 
+                href="/" 
+                className="active"
+                onClick={() => handleNavLinkClick(() => {})}
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/cakes"
+                onClick={() => handleNavLinkClick(() => {})}
+              >
+                Cakes
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavLinkClick(() => setIsAboutOpen(true));
+                }}
+              >
+                About
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavLinkClick(() => setIsContactOpen(true));
+                }}
+              >
+                Contact
+              </a>
+            </li>
           </ul>
         </nav>
       </header>
@@ -79,16 +126,16 @@ const HomePage = () => {
         <div className="homepage-footer-content">
           <div className="homepage-footer-section">
             <h3>Contact Us</h3>
-            <p><i className="fas fa-phone"></i> (123) 456-7890</p>
-            <p><i className="fas fa-envelope"></i> info@sweetdelights.com</p>
-            <p><i className="fas fa-map-marker-alt"></i> 123 Bakery Street, Sweet City</p>
+            <p><FaPhone /> (123) 456-7890</p>
+            <p><FaEnvelope /> info@sweetdelights.com</p>
+            <p><FaMapMarkerAlt /> 123 Bakery Street, Sweet City</p>
           </div>
           <div className="homepage-footer-section">
             <h3>Follow Us</h3>
             <div className="homepage-social-links">
-              <a href="#"><i className="fab fa-facebook"></i></a>
-              <a href="#"><i className="fab fa-instagram"></i></a>
-              <a href="#"><i className="fab fa-twitter"></i></a>
+              <a href="#" aria-label="Facebook"><FaFacebook /></a>
+              <a href="#" aria-label="Instagram"><FaInstagram /></a>
+              <a href="#" aria-label="Twitter"><FaTwitter /></a>
             </div>
           </div>
         </div>

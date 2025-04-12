@@ -247,47 +247,242 @@
   }
 }
 
-/* Responsive Design */
+.cakepage-filters-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.filter-scroll-button {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 2;
+  color: #e67e22;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.filter-scroll-button:hover {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #d35400;
+}
+
+.filter-scroll-button.left {
+  left: 0;
+}
+
+.filter-scroll-button.right {
+  right: 0;
+}
+
+/* Enhanced Mobile Styles */
 @media (max-width: 768px) {
   .cakepage-container {
     padding: 1rem;
-    padding-top: 100px;
+    padding-top: 80px;
+  }
+
+  .cakepage-header {
+    margin-bottom: 2rem;
+  }
+
+  .cakepage-header-content {
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    padding-top: 1rem;
+  }
+
+  .cakepage-cart-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .cakepage-header-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.5rem;
+  }
+
+  .cakepage-header-text h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cakepage-header-text p {
+    font-size: 1rem;
+  }
+
+  .cakepage-filters-wrapper {
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .cakepage-filters {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    padding: 0.5rem 1rem;
+    margin: 0 1.5rem;
+  }
+
+  .cakepage-filters::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .filter-scroll-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+  }
+
+  .cakepage-filter-btn {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .cakepage-filter-btn:last-child {
+    margin-right: 0;
   }
 
   .cakepage-grid {
-    grid-template-columns: repeat(auto-fill, 300px);
+    grid-template-columns: 1fr;
     gap: 1.5rem;
-    padding: 0 0.5rem;
+    padding: 0;
   }
 
   .cakepage-card {
-    width: 300px;
-    height: 460px;
+    width: 100%;
+    height: auto;
+    min-height: 400px;
   }
 
   .cakepage-image {
-    height: 220px;
+    height: 200px;
   }
 
   .cakepage-info {
-    padding: 1.2rem;
+    padding: 1rem;
   }
 
   .cakepage-info h3 {
     font-size: 1.2rem;
+    margin-bottom: 0.5rem;
   }
 
   .cakepage-description {
     font-size: 0.9rem;
+    -webkit-line-clamp: 2;
   }
 
-  .cakepage-filters {
-    gap: 0.8rem;
-    padding: 0 0.5rem;
+  .cakepage-footer {
+    padding-top: 0.8rem;
   }
 
-  .cakepage-filter-btn {
+  .cakepage-price {
+    font-size: 1.2rem;
+  }
+
+  .cakepage-order-btn {
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
   }
-} 
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .cakepage-container {
+    padding-top: 60px;
+  }
+
+  .cakepage-header-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .cakepage-header-text h1 {
+    font-size: 1.8rem;
+  }
+
+  .cakepage-header-text p {
+    font-size: 0.9rem;
+  }
+
+  .cakepage-filter-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .cakepage-image {
+    height: 180px;
+  }
+
+  .cakepage-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .cakepage-price {
+    font-size: 1.1rem;
+  }
+
+  .cakepage-order-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .cakepage-card:hover {
+    transform: none;
+  }
+
+  .cakepage-card:active {
+    transform: scale(0.98);
+  }
+
+  .cakepage-filter-btn:hover {
+    transform: none;
+  }
+
+  .cakepage-filter-btn:active {
+    transform: scale(0.95);
+  }
+
+  .cakepage-order-btn:hover {
+    transform: none;
+  }
+
+  .cakepage-order-btn:active {
+    background-color: #d35400;
+    transform: scale(0.95);
+  }
+
+  .filter-scroll-button:hover {
+    transform: translateY(-50%);
+  }
+
+  .filter-scroll-button:active {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-50%) scale(0.95);
+  }
+}

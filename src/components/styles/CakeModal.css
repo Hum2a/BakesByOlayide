@@ -1,4 +1,4 @@
-.modal-overlay {
+.cakemodal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,18 +12,18 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-.modal-content {
+.cakemodal-content {
   background: white;
   border-radius: 15px;
-  width: 90%;
-  max-width: 1000px;
+  width: 85%;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   animation: slideUp 0.3s ease-out;
 }
 
-.modal-close {
+.cakemodal-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -36,25 +36,25 @@
   z-index: 1;
 }
 
-.modal-close:hover {
+.cakemodal-close:hover {
   color: #e67e22;
 }
 
-.modal-grid {
+.cakemodal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   padding: 2rem;
 }
 
-.modal-image {
+.cakemodal-image {
   position: relative;
   padding-top: 100%;
   border-radius: 10px;
   overflow: hidden;
 }
 
-.modal-image img {
+.cakemodal-image img {
   position: absolute;
   top: 0;
   left: 0;
@@ -63,70 +63,70 @@
   object-fit: cover;
 }
 
-.modal-details {
+.cakemodal-details {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.modal-details h2 {
+.cakemodal-details h2 {
   color: #e67e22;
   font-size: 2rem;
   margin: 0;
 }
 
-.modal-price {
+.cakemodal-price {
   font-size: 1.5rem;
   font-weight: bold;
   color: #e67e22;
   margin: 0;
 }
 
-.modal-description {
+.cakemodal-description {
   color: #666;
   line-height: 1.6;
   margin: 0;
 }
 
-.modal-features {
+.cakemodal-features {
   background: #f9f9f9;
   padding: 1.5rem;
   border-radius: 10px;
 }
 
-.modal-features h3 {
+.cakemodal-features h3 {
   color: #333;
   margin: 0 0 1rem 0;
 }
 
-.modal-features ul {
+.cakemodal-features ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.modal-features li {
+.cakemodal-features li {
   color: #666;
   margin-bottom: 0.5rem;
   padding-left: 1.5rem;
   position: relative;
 }
 
-.modal-features li:before {
+.cakemodal-features li:before {
   content: "✓";
   color: #e67e22;
   position: absolute;
   left: 0;
 }
 
-.modal-actions {
+.cakemodal-actions {
   display: flex;
   gap: 1rem;
   margin-top: auto;
 }
 
-.add-to-cart-btn,
-.customize-btn {
+.cakemodal-add-to-cart-btn,
+.cakemodal-customize-btn {
   padding: 1rem 2rem;
   border: none;
   border-radius: 5px;
@@ -137,23 +137,23 @@
   flex: 1;
 }
 
-.add-to-cart-btn {
+.cakemodal-add-to-cart-btn {
   background-color: #e67e22;
   color: white;
 }
 
-.add-to-cart-btn:hover {
+.cakemodal-add-to-cart-btn:hover {
   background-color: #d35400;
   transform: translateY(-2px);
 }
 
-.customize-btn {
+.cakemodal-customize-btn {
   background-color: white;
   color: #e67e22;
   border: 2px solid #e67e22;
 }
 
-.customize-btn:hover {
+.cakemodal-customize-btn:hover {
   background-color: #fdf2e9;
   transform: translateY(-2px);
 }
@@ -178,22 +178,180 @@
   }
 }
 
+/* Mobile Optimizations */
 @media (max-width: 768px) {
-  .modal-grid {
+  .cakemodal-content {
+    width: 90%;
+    max-width: 500px;
+    max-height: 95vh;
+    border-radius: 12px;
+    margin: 0.5rem;
+  }
+
+  .cakemodal-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: 0.8rem;
+    padding: 0.8rem;
   }
 
-  .modal-details h2 {
-    font-size: 1.5rem;
+  .cakemodal-image {
+    padding-top: 65%;
   }
 
-  .modal-price {
+  .cakemodal-details {
+    gap: 0.8rem;
+  }
+
+  .cakemodal-details h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0;
+  }
+
+  .cakemodal-price {
     font-size: 1.2rem;
+    margin-bottom: 0;
   }
 
-  .modal-actions {
-    flex-direction: column;
+  .cakemodal-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0;
   }
+
+  .cakemodal-features {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  .cakemodal-features h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cakemodal-features li {
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+    padding-left: 1rem;
+  }
+
+  .cakemodal-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .cakemodal-add-to-cart-btn,
+  .cakemodal-customize-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cakemodal-content {
+    width: 92%;
+    max-width: 400px;
+    height: auto;
+    max-height: 95vh;
+    border-radius: 12px;
+    margin: 1rem;
+  }
+
+  .cakemodal-grid {
+    padding: 0.8rem;
+    gap: 0.8rem;
+    height: auto;
+  }
+
+  .cakemodal-image {
+    padding-top: 56%;
+  }
+
+  .cakemodal-details {
+    gap: 0.6rem;
+  }
+
+  .cakemodal-details h2 {
+    font-size: 1.3rem;
+  }
+
+  .cakemodal-price {
+    font-size: 1.1rem;
+  }
+
+  .cakemodal-description {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .cakemodal-features {
+    padding: 0.8rem;
+    margin: 0.3rem 0;
+  }
+
+  .cakemodal-features h3 {
+    font-size: 1rem;
+  }
+
+  .cakemodal-features li {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .cakemodal-actions {
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+    margin-top: auto;
+  }
+
+  .cakemodal-add-to-cart-btn,
+  .cakemodal-customize-btn {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .cakemodal-close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+  .cakemodal-close:hover {
+    color: #666;
+  }
+
+  .cakemodal-close:active {
+    color: #e67e22;
+  }
+
+  .cakemodal-add-to-cart-btn:hover {
+    transform: none;
+  }
+
+  .cakemodal-add-to-cart-btn:active {
+    transform: scale(0.98);
+    background-color: #d35400;
+  }
+
+  .cakemodal-customize-btn:hover {
+    transform: none;
+  }
+
+  .cakemodal-customize-btn:active {
+    transform: scale(0.98);
+    background-color: #fdf2e9;
+  }
+}
+
+/* Prevent body scroll when modal is open */
+.cakemodal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 } 

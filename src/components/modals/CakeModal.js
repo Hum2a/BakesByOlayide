@@ -14,21 +14,21 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
+    <div className="cakemodal-overlay" onClick={onClose}>
+      <div className="cakemodal-content" onClick={e => e.stopPropagation()}>
+        <button className="cakemodal-close" onClick={onClose}>×</button>
         
-        <div className="modal-grid">
-          <div className="modal-image">
+        <div className="cakemodal-grid">
+          <div className="cakemodal-image">
             <img src={cake.image} alt={cake.name} />
           </div>
           
-          <div className="modal-details">
+          <div className="cakemodal-details">
             <h2>{cake.name}</h2>
-            <p className="modal-price">£{cake.price.toFixed(2)}</p>
-            <p className="modal-description">{cake.description}</p>
+            <p className="cakemodal-price">£{cake.price.toFixed(2)}</p>
+            <p className="cakemodal-description">{cake.description}</p>
             
-            <div className="modal-features">
+            <div className="cakemodal-features">
               <h3>Features</h3>
               <ul>
                 <li>Handcrafted with premium ingredients</li>
@@ -38,15 +38,15 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
               </ul>
             </div>
             
-            <div className="modal-actions">
+            <div className="cakemodal-actions">
               <button 
-                className="add-to-cart-btn"
+                className="cakemodal-add-to-cart-btn"
                 onClick={handleAddToCart}
               >
                 Add to Cart
               </button>
               <button 
-                className="customize-btn"
+                className="cakemodal-customize-btn"
                 onClick={() => window.location.href = '/cake-builder'}
               >
                 Customize
