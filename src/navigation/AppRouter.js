@@ -11,7 +11,7 @@ const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       <div>
         <Routes>
           <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
