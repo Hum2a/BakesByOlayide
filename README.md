@@ -13,7 +13,7 @@
 </div>
 
 <div align="center">
-  <img src="docs/images/logo.png" alt="Bakery Logo" width="200"/>
+  <img src="public/images/BYB Logo.png" alt="Bakery Logo" width="200"/>
 </div>
 
 ## 📋 Table of Contents
