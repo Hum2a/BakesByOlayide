@@ -3,7 +3,7 @@ import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory } from 'react-ic
 import { auth } from '../../firebase/firebase';
 import '../styles/ProfileDropdown.css';
 
-const ProfileDropdown = ({ isOpen, onClose }) => {
+const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
@@ -65,18 +65,18 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
       </div>
 
       <div className="profile-dropdown-menu">
-        <a href="/profile" className="dropdown-item">
+        <button className="dropdown-item" onClick={() => onModalOpen('profile')}>
           <FaUser /> My Profile
-        </a>
-        <a href="/orders" className="dropdown-item">
+        </button>
+        <button className="dropdown-item" onClick={() => onModalOpen('orders')}>
           <FaHistory /> Order History
-        </a>
-        <a href="/cart" className="dropdown-item">
+        </button>
+        <button className="dropdown-item" onClick={() => onModalOpen('cart')}>
           <FaShoppingCart /> My Cart
-        </a>
-        <a href="/settings" className="dropdown-item">
+        </button>
+        <button className="dropdown-item" onClick={() => onModalOpen('settings')}>
           <FaCog /> Settings
-        </a>
+        </button>
         <button className="dropdown-item sign-out" onClick={handleSignOut}>
           <FaSignOutAlt /> Sign Out
         </button>

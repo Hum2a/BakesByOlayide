@@ -1,0 +1,107 @@
+.settings-modal {
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.settings-modal h2 {
+  margin: 0 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.settings-section h3 svg {
+  color: #666;
+}
+
+.setting-item {
+  margin-bottom: 1.5rem;
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.setting-item select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
+  background: white;
+  cursor: pointer;
+}
+
+.setting-item button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.change-password {
+  background: #e67e22;
+  color: white;
+}
+
+.change-password:hover {
+  background: #d35400;
+}
+
+.delete-account {
+  background: #f5f5f5;
+  color: #e74c3c;
+}
+
+.delete-account:hover {
+  background: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .settings-modal {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+} 

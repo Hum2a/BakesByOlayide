@@ -4,6 +4,10 @@ import About from '../modals/about';
 import Contact from '../modals/contact';
 import AuthModal from '../modals/AuthModal';
 import ProfileDropdown from '../widgets/ProfileDropdown';
+import ProfileModal from '../modals/ProfileModal';
+import OrderHistoryModal from '../modals/OrderHistoryModal';
+import SettingsModal from '../modals/SettingsModal';
+import CartModal from '../modals/CartModal';
 import CakeBuilder from '../widgets/CakeBuilder';
 import SignatureCreations from '../widgets/SignatureCreations';
 import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter, FaUser } from 'react-icons/fa';
@@ -14,6 +18,7 @@ const HomePage = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -56,6 +61,11 @@ const HomePage = () => {
     e.preventDefault();
     setIsAuthOpen(true);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleModalOpen = (modal) => {
+    setActiveModal(modal);
+    setIsProfileOpen(false);
   };
 
   return (
@@ -152,7 +162,24 @@ const HomePage = () => {
       <About isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       <Contact isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
-      <ProfileDropdown isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <ProfileDropdown 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
+      />
+      
+      {activeModal === 'profile' && (
+        <ProfileModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'orders' && (
+        <OrderHistoryModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'cart' && (
+        <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'settings' && (
+        <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
     </div>
   );
 };
