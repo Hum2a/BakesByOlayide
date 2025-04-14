@@ -6,10 +6,11 @@
 }
 
 .cakepage-header {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 0 1rem;
+  position: relative;
   width: 100%;
+  padding: 2rem 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cakepage-header-content {
@@ -406,6 +407,10 @@
     padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
   }
+
+  .cakepage-logo-image {
+    height: 60px;
+  }
 }
 
 /* Small Mobile Devices */
@@ -448,6 +453,10 @@
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
   }
+
+  .cakepage-logo-image {
+    height: 50px;
+  }
 }
 
 /* Touch Device Optimizations */
@@ -485,4 +494,21 @@
     background: rgba(255, 255, 255, 0.95);
     transform: translateY(-50%) scale(0.95);
   }
+}
+
+.cakepage-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cakepage-logo-image {
+  height: 80px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.cakepage-logo-image:hover {
+  transform: scale(1.05);
 }

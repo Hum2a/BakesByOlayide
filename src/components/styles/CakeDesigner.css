@@ -1,0 +1,194 @@
+.cakedesigner-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cakedesigner-container h2 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.cakedesigner-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+}
+
+.cakedesigner-category {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  min-width: 0; /* Prevents flex items from overflowing */
+}
+
+.cakedesigner-category h3 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.cakedesigner-options-list {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cakedesigner-option {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  align-items: start;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  position: relative;
+}
+
+.cakedesigner-size-inputs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cakedesigner-input-size {
+  width: 80px !important;
+}
+
+.cakedesigner-input-unit {
+  width: 100px !important;
+}
+
+.cakedesigner-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  width: 100%;
+  background-color: white;
+}
+
+.cakedesigner-input:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.cakedesigner-input[type="number"] {
+  width: 120px;
+}
+
+.cakedesigner-input-description {
+  grid-column: 1 / -2;
+}
+
+.cakedesigner-remove-btn {
+  padding: 0.75rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.cakedesigner-remove-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-1px);
+}
+
+.cakedesigner-add-option {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.cakedesigner-add-btn {
+  padding: 0.75rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.cakedesigner-add-btn:hover:not(:disabled) {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+.cakedesigner-add-btn:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.cakedesigner-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.cakedesigner-error {
+  text-align: center;
+  padding: 2rem;
+  color: #e74c3c;
+  background-color: #fde8e8;
+  border-radius: 8px;
+  margin: 1rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .cakedesigner-container {
+    padding: 1rem;
+  }
+
+  .cakedesigner-categories {
+    grid-template-columns: 1fr;
+  }
+
+  .cakedesigner-option,
+  .cakedesigner-add-option {
+    grid-template-columns: 1fr;
+  }
+
+  .cakedesigner-size-inputs {
+    width: 100%;
+  }
+
+  .cakedesigner-input-size,
+  .cakedesigner-input-unit {
+    width: 100% !important;
+  }
+
+  .cakedesigner-input[type="number"] {
+    width: 100%;
+  }
+
+  .cakedesigner-input-description {
+    grid-column: auto;
+  }
+} 

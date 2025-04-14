@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
-import CakeManagement from '../widgets/CakeManagement';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette } from 'react-icons/fa';
+import CakeManagement from '../widgets/admin/CakeManagement';
+import CakeDesigner from '../widgets/admin/CakeDesigner';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -151,6 +152,12 @@ const Admin = () => {
             <FaBirthdayCake /> Cakes
           </button>
           <button
+            className={`nav-item ${activeTab === 'designer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('designer')}
+          >
+            <FaPalette /> Cake Designer
+          </button>
+          <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -262,6 +269,10 @@ const Admin = () => {
 
         {activeTab === 'cakes' && (
           <CakeManagement cakes={cakes} onUpdate={fetchDashboardData} />
+        )}
+
+        {activeTab === 'designer' && (
+          <CakeDesigner />
         )}
 
         {activeTab === 'settings' && (

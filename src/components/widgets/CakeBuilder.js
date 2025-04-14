@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import CartModal from '../modals/CartModal';
+import { db } from '../../firebase/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import '../styles/CakeBuilder.css';
 
 const CakeBuilder = ({ onRequestCake }) => {
@@ -14,43 +16,57 @@ const CakeBuilder = ({ onRequestCake }) => {
   });
   const [showAddedAnimation, setShowAddedAnimation] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [options, setOptions] = useState({
+    sizes: [],
+    flavors: [],
+    frostings: [],
+    decorations: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const prices = {
-    size: {
-      '6"': 30,
-      '8"': 40,
-      '10"': 55,
-      'Custom Size': 70
-    },
-    flavor: {
-      'Vanilla': 0,
-      'Chocolate': 0,
-      'Red Velvet': 5,
-      'Marble': 5,
-      'Carrot': 5
-    },
-    frosting: {
-      'Buttercream': 0,
-      'Cream Cheese': 5,
-      'Chocolate Ganache': 8,
-      'Fondant': 15
-    },
-    decorations: {
-      'Fresh Flowers': 10,
-      'Fresh Fruit': 8,
-      'Sprinkles': 3,
-      'Custom Design': 20
+  useEffect(() => {
+    fetchOptions();
+  }, []);
+
+  const fetchOptions = async () => {
+    try {
+      setLoading(true);
+      const optionsDoc = await getDoc(doc(db, 'cakeOptions', 'customizationOptions'));
+      if (optionsDoc.exists()) {
+        setOptions(optionsDoc.data());
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching options:', err);
+      setError('Failed to load customization options');
+      setLoading(false);
     }
   };
 
   const calculatePrice = () => {
     let total = 0;
-    if (selections.size) total += prices.size[selections.size];
-    if (selections.flavor) total += prices.flavor[selections.flavor];
-    if (selections.frosting) total += prices.frosting[selections.frosting];
-    selections.decorations.forEach(dec => {
-      total += prices.decorations[dec];
+    
+    if (selections.size) {
+      const sizeOption = options.sizes.find(opt => opt.name === selections.size);
+      if (sizeOption) total += sizeOption.price;
+    }
+    
+    if (selections.flavor) {
+      const flavorOption = options.flavors.find(opt => opt.name === selections.flavor);
+      if (flavorOption) total += flavorOption.price;
+    }
+    
+    if (selections.frosting) {
+      const frostingOption = options.frostings.find(opt => opt.name === selections.frosting);
+      if (frostingOption) total += frostingOption.price;
+    }
+    
+    selections.decorations.forEach(decoration => {
+      const decorationOption = options.decorations.find(opt => opt.name === decoration);
+      if (decorationOption) total += decorationOption.price;
     });
+    
     return total;
   };
 
@@ -83,7 +99,7 @@ const CakeBuilder = ({ onRequestCake }) => {
       name: 'Custom Design Cake',
       description: `${selections.size} ${selections.flavor} cake with ${selections.frosting} frosting${selections.decorations.length ? ` and ${selections.decorations.join(', ')}` : ''}`,
       price: calculatePrice(),
-      image: '/images/custom-cake.jpg', // You'll need to add a default image for custom cakes
+      image: '/images/custom-cake.jpg',
       customizations: selections
     };
 
@@ -99,6 +115,22 @@ const CakeBuilder = ({ onRequestCake }) => {
       });
     }, 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="design-cake-container">
+        <div className="loading-spinner">Loading customization options...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="design-cake-container">
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <section className="homepage-design-cake">
@@ -120,14 +152,14 @@ const CakeBuilder = ({ onRequestCake }) => {
           <div className="design-option-group">
             <h3>Size</h3>
             <div className="option-buttons">
-              {Object.keys(prices.size).map(size => (
+              {options.sizes.map(size => (
                 <button
-                  key={size}
-                  className={`option-button ${isOptionSelected('size', size) ? 'selected' : ''}`}
-                  onClick={() => handleSelection('size', size)}
+                  key={size.name}
+                  className={`option-button ${isOptionSelected('size', size.name) ? 'selected' : ''}`}
+                  onClick={() => handleSelection('size', size.name)}
                 >
-                  {size} {size !== 'Custom Size' && `(${size === '6"' ? '8-10' : size === '8"' ? '12-15' : '20-25'} servings)`}
-                  <span className="price-tag">+${prices.size[size]}</span>
+                  {size.name}
+                  <span className="price-tag">+${size.price}</span>
                 </button>
               ))}
             </div>
@@ -136,14 +168,14 @@ const CakeBuilder = ({ onRequestCake }) => {
           <div className="design-option-group">
             <h3>Cake Flavor</h3>
             <div className="option-buttons">
-              {Object.keys(prices.flavor).map(flavor => (
+              {options.flavors.map(flavor => (
                 <button
-                  key={flavor}
-                  className={`option-button ${isOptionSelected('flavor', flavor) ? 'selected' : ''}`}
-                  onClick={() => handleSelection('flavor', flavor)}
+                  key={flavor.name}
+                  className={`option-button ${isOptionSelected('flavor', flavor.name) ? 'selected' : ''}`}
+                  onClick={() => handleSelection('flavor', flavor.name)}
                 >
-                  {flavor}
-                  {prices.flavor[flavor] > 0 && <span className="price-tag">+${prices.flavor[flavor]}</span>}
+                  {flavor.name}
+                  {flavor.price > 0 && <span className="price-tag">+${flavor.price}</span>}
                 </button>
               ))}
             </div>
@@ -152,14 +184,14 @@ const CakeBuilder = ({ onRequestCake }) => {
           <div className="design-option-group">
             <h3>Frosting</h3>
             <div className="option-buttons">
-              {Object.keys(prices.frosting).map(frosting => (
+              {options.frostings.map(frosting => (
                 <button
-                  key={frosting}
-                  className={`option-button ${isOptionSelected('frosting', frosting) ? 'selected' : ''}`}
-                  onClick={() => handleSelection('frosting', frosting)}
+                  key={frosting.name}
+                  className={`option-button ${isOptionSelected('frosting', frosting.name) ? 'selected' : ''}`}
+                  onClick={() => handleSelection('frosting', frosting.name)}
                 >
-                  {frosting}
-                  {prices.frosting[frosting] > 0 && <span className="price-tag">+${prices.frosting[frosting]}</span>}
+                  {frosting.name}
+                  {frosting.price > 0 && <span className="price-tag">+${frosting.price}</span>}
                 </button>
               ))}
             </div>
@@ -168,14 +200,14 @@ const CakeBuilder = ({ onRequestCake }) => {
           <div className="design-option-group">
             <h3>Decorations</h3>
             <div className="option-buttons">
-              {Object.keys(prices.decorations).map(decoration => (
+              {options.decorations.map(decoration => (
                 <button
-                  key={decoration}
-                  className={`option-button ${isOptionSelected('decorations', decoration) ? 'selected' : ''}`}
-                  onClick={() => handleSelection('decorations', decoration)}
+                  key={decoration.name}
+                  className={`option-button ${isOptionSelected('decorations', decoration.name) ? 'selected' : ''}`}
+                  onClick={() => handleSelection('decorations', decoration.name)}
                 >
-                  {decoration}
-                  <span className="price-tag">+${prices.decorations[decoration]}</span>
+                  {decoration.name}
+                  <span className="price-tag">+${decoration.price}</span>
                 </button>
               ))}
             </div>

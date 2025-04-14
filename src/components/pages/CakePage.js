@@ -111,12 +111,9 @@ const CakePage = ({ onOpenCart }) => {
     <div className="cakepage-container">
       <header className="cakepage-header">
         <div className="cakepage-header-content">
-          <img 
-            src="/images/cake-header.jpg" 
-            alt="Cake Header" 
-            onClick={() => window.location.href = '/'} 
-            className="cakepage-header-image"
-          />
+          <div className="cakepage-logo">
+            <img src="/images/Transparent BYB Logo.png" alt="BakesByOlayide Logo" className="cakepage-logo-image" />
+          </div>
           <div className="cakepage-header-text">
             <h1>Our Cakes</h1>
             <p>Browse our selection of handcrafted cakes</p>

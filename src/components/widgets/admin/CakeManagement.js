@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage, auth } from '../../firebase/firebase';
+import { db, storage, auth } from '../../../firebase/firebase';
 import { collection, doc, updateDoc, addDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
-import '../styles/CakeManagement.css';
+import '../../styles/CakeManagement.css';
 
 const CakeManagement = ({ cakes, onUpdate }) => {
   const [showNewCakeForm, setShowNewCakeForm] = useState(false);

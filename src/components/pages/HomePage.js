@@ -73,7 +73,7 @@ const HomePage = () => {
       <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
         <nav className="homepage-nav">
           <div className="homepage-logo">
-            <h1>BakesByOlayide</h1>
+            <img src="/images/Transparent BYB Logo.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
           </div>
           <button 
             className="mobile-menu-toggle"
