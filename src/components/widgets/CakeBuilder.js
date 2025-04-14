@@ -4,6 +4,7 @@ import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import CartModal from '../modals/CartModal';
 import { db } from '../../firebase/firebase';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import CakePreview3D from './CakePreview3D';
 import '../styles/CakeBuilder.css';
 
 const CakeBuilder = ({ onRequestCake }) => {
@@ -29,15 +30,19 @@ const CakeBuilder = ({ onRequestCake }) => {
     const fetchOptions = async () => {
       try {
         setLoading(true);
-        const optionsRef = collection(db, 'cakeOptions');
-        const snapshot = await getDocs(optionsRef);
-        const optionsData = {};
+        const optionsRef = doc(db, 'cakeOptions', 'customizationOptions');
+        const snapshot = await getDoc(optionsRef);
         
-        snapshot.forEach((doc) => {
-          optionsData[doc.id] = doc.data().options;
-        });
-        
-        setOptions(optionsData);
+        if (snapshot.exists()) {
+          setOptions(snapshot.data());
+        } else {
+          setOptions({
+            sizes: [],
+            flavors: [],
+            frostings: [],
+            decorations: []
+          });
+        }
         setError(null);
       } catch (err) {
         console.error('Error fetching options:', err);
@@ -223,6 +228,8 @@ const CakeBuilder = ({ onRequestCake }) => {
         <div className="cake-price-summary">
           <h3>Total Price: ${calculatePrice()}</h3>
         </div>
+
+        <CakePreview3D selections={selections} />
 
         <button 
           className={`design-submit-button ${showAddedAnimation ? 'added' : ''}`}
