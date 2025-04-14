@@ -242,9 +242,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
   <tr>
     <td align="center">
       <a href="https://github.com/Hum2a">
-        <img src="https://github.com/Hum2a.png" width="100px;" alt="Your Name"/>
+        <img src="https://github.com/Hum2a.png" width="100px;" alt="Humza Butt"/>
         <br />
-        <sub><b>Your Name</b></sub>
+        <sub><b>Humza Butt</b></sub>
       </a>
       <br />
       <a href="https://github.com/Hum2a/bakery/commits?author=Hum2a" title="Code">💻</a>
