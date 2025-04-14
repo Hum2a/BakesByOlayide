@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../firebase/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth } from '../firebase/firebase';
 
 const CartContext = createContext();
 
@@ -6,7 +9,7 @@ export const useCart = () => {
   return useContext(CartContext);
 };
 
-// Helper function to get initial cart state from localStorage
+// Helper function to get initial cart state from localStorage (for non-authenticated users)
 const getInitialCartState = () => {
   try {
     const savedCart = localStorage.getItem('cart');
@@ -25,24 +28,78 @@ const getInitialCartState = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  // Initialize state with data from localStorage
-  const initialState = getInitialCartState();
-  const [cart, setCart] = useState(initialState.items);
-  const [totalItems, setTotalItems] = useState(initialState.totalItems);
-  const [totalPrice, setTotalPrice] = useState(initialState.totalPrice);
+  const [cart, setCart] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
+  // Function to save cart to both localStorage and Firebase
+  const saveCart = async (cartItems, userId) => {
     try {
-      localStorage.setItem('cart', JSON.stringify(cart));
-      // Calculate totals
-      const items = cart.reduce((total, item) => total + item.quantity, 0);
-      const price = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-      setTotalItems(items);
-      setTotalPrice(price);
+      // Always save to localStorage
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+
+      // If user is authenticated, save to Firebase
+      if (userId) {
+        const cartRef = doc(db, 'userCarts', userId);
+        await setDoc(cartRef, { items: cartItems }, { merge: true });
+      }
     } catch (error) {
-      console.error('Error saving cart to localStorage:', error);
+      console.error('Error saving cart:', error);
     }
+  };
+
+  // Load cart data when auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      try {
+        setLoading(true);
+        if (user) {
+          // If user is authenticated, try to get cart from Firebase
+          const cartRef = doc(db, 'userCarts', user.uid);
+          const cartDoc = await getDoc(cartRef);
+          
+          if (cartDoc.exists() && cartDoc.data().items) {
+            const firebaseCart = cartDoc.data().items;
+            setCart(firebaseCart);
+            localStorage.setItem('cart', JSON.stringify(firebaseCart));
+          } else {
+            // If no Firebase cart exists, use localStorage cart
+            const localCart = getInitialCartState().items;
+            setCart(localCart);
+            // Save localStorage cart to Firebase
+            if (localCart.length > 0) {
+              await saveCart(localCart, user.uid);
+            }
+          }
+        } else {
+          // If not authenticated, use localStorage
+          const localCart = getInitialCartState().items;
+          setCart(localCart);
+        }
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        // Fallback to localStorage
+        const localCart = getInitialCartState().items;
+        setCart(localCart);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Update totals whenever cart changes
+  useEffect(() => {
+    const items = cart.reduce((total, item) => total + item.quantity, 0);
+    const price = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    setTotalItems(items);
+    setTotalPrice(price);
+
+    // Save cart whenever it changes
+    const user = auth.currentUser;
+    saveCart(cart, user?.uid);
   }, [cart]);
 
   const addToCart = (item) => {
@@ -75,9 +132,18 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
     localStorage.removeItem('cart');
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const cartRef = doc(db, 'userCarts', user.uid);
+        await setDoc(cartRef, { items: [] }, { merge: true });
+      } catch (error) {
+        console.error('Error clearing cart in Firebase:', error);
+      }
+    }
   };
 
   const value = {
@@ -87,8 +153,13 @@ export const CartProvider = ({ children }) => {
     addToCart,
     removeFromCart,
     updateQuantity,
-    clearCart
+    clearCart,
+    loading
   };
+
+  if (loading) {
+    return null; // Or a loading spinner if you prefer
+  }
 
   return (
     <CartContext.Provider value={value}>
