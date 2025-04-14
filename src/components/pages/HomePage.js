@@ -2,15 +2,29 @@ import React, { useState, useEffect } from 'react';
 import '../styles/HomePage.css';
 import About from '../modals/about';
 import Contact from '../modals/contact';
+import AuthModal from '../modals/AuthModal';
+import ProfileDropdown from '../widgets/ProfileDropdown';
 import CakeBuilder from '../widgets/CakeBuilder';
 import SignatureCreations from '../widgets/SignatureCreations';
-import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
+import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter, FaUser } from 'react-icons/fa';
+import { auth } from '../../firebase/firebase';
 
 const HomePage = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,9 +46,16 @@ const HomePage = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleNavLinkClick = (action) => {
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    setIsProfileOpen(!isProfileOpen);
     setIsMobileMenuOpen(false);
-    action();
+  };
+
+  const handleAuthClick = (e) => {
+    e.preventDefault();
+    setIsAuthOpen(true);
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -56,6 +77,27 @@ const HomePage = () => {
             <li><a href="/cakes">Cakes</a></li>
             <li><a href="#" onClick={(e) => { e.preventDefault(); setIsAboutOpen(true); }}>About</a></li>
             <li><a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(true); }}>Contact</a></li>
+            <li className="auth-nav-item">
+              {user ? (
+                <button 
+                  className="auth-nav-button profile-button"
+                  onClick={handleProfileClick}
+                >
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="profile-image" />
+                  ) : (
+                    <FaUser />
+                  )}
+                </button>
+              ) : (
+                <button 
+                  className="auth-nav-button"
+                  onClick={handleAuthClick}
+                >
+                  <FaUser /> Account
+                </button>
+              )}
+            </li>
           </ul>
         </nav>
       </header>
@@ -109,6 +151,8 @@ const HomePage = () => {
 
       <About isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       <Contact isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <ProfileDropdown isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </div>
   );
 };
