@@ -3,7 +3,7 @@ import { useCart } from '../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import CartModal from '../modals/CartModal';
 import { db } from '../../firebase/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import '../styles/CakeBuilder.css';
 
 const CakeBuilder = ({ onRequestCake }) => {
@@ -26,23 +26,29 @@ const CakeBuilder = ({ onRequestCake }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        setLoading(true);
+        const optionsRef = collection(db, 'cakeOptions');
+        const snapshot = await getDocs(optionsRef);
+        const optionsData = {};
+        
+        snapshot.forEach((doc) => {
+          optionsData[doc.id] = doc.data().options;
+        });
+        
+        setOptions(optionsData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching options:', err);
+        setError('Failed to load cake options. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchOptions();
   }, []);
-
-  const fetchOptions = async () => {
-    try {
-      setLoading(true);
-      const optionsDoc = await getDoc(doc(db, 'cakeOptions', 'customizationOptions'));
-      if (optionsDoc.exists()) {
-        setOptions(optionsDoc.data());
-      }
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching options:', err);
-      setError('Failed to load customization options');
-      setLoading(false);
-    }
-  };
 
   const calculatePrice = () => {
     let total = 0;

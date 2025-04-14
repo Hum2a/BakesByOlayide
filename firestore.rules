@@ -10,11 +10,12 @@ service cloud.firestore {
 
     // Allow users to access only their own cart
     match /userCarts/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Allow authenticated users to access cake options
-    match /options/{optionId} {
+    // Allow public read access to cake options
+    match /cakeOptions/{document=**} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid != null;
     }
