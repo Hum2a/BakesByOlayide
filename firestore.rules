@@ -2,37 +2,51 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isDeveloper == true);
+    }
+
+    // Allow users to read and write their own user document
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Allow public read access to cakes collection
     match /cakes/{cakeId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid != null;
+      allow write: if isAdmin();
     }
 
     // Allow users to access only their own cart
     match /userCarts/{userId} {
       allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
     }
 
     // Allow public read access to cake options
     match /cakeOptions/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid != null;
-    }
-
-    // Allow users to read and write their own user document
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow write: if isAdmin();
     }
     
     // Allow users to read and write their own orders
-    match /users/{userId}/orders/{orderId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    match /orders/{orderId} {
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      allow write: if isAdmin();
+      allow create: if request.auth != null;
     }
-    
-    // Default deny all other access
-    match /{document=**} {
-      allow read, write: if false;
+
+    // Allow admins to access all collections
+    match /{collection}/{document=**} {
+      allow read, write: if isAdmin();
     }
   }
 } 
