@@ -2,6 +2,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Allow public read access to cakes collection
+    match /cakes/{cakeId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid != null;
+    }
+
+    // Allow users to access only their own cart
+    match /userCarts/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to access cake options
+    match /options/{optionId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid != null;
+    }
+
     // Allow users to read and write their own user document
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;

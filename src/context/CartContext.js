@@ -39,10 +39,15 @@ export const CartProvider = ({ children }) => {
       // Always save to localStorage
       localStorage.setItem('cart', JSON.stringify(cartItems));
 
-      // If user is authenticated, save to Firebase
+      // Only attempt Firebase save if user is authenticated
       if (userId) {
-        const cartRef = doc(db, 'userCarts', userId);
-        await setDoc(cartRef, { items: cartItems }, { merge: true });
+        try {
+          const cartRef = doc(db, 'userCarts', userId);
+          await setDoc(cartRef, { items: cartItems }, { merge: true });
+        } catch (error) {
+          // If Firebase save fails, just log it - localStorage is our backup
+          console.log('Firebase cart sync failed, using localStorage only:', error.message);
+        }
       }
     } catch (error) {
       console.error('Error saving cart:', error);
@@ -56,21 +61,28 @@ export const CartProvider = ({ children }) => {
         setLoading(true);
         if (user) {
           // If user is authenticated, try to get cart from Firebase
-          const cartRef = doc(db, 'userCarts', user.uid);
-          const cartDoc = await getDoc(cartRef);
-          
-          if (cartDoc.exists() && cartDoc.data().items) {
-            const firebaseCart = cartDoc.data().items;
-            setCart(firebaseCart);
-            localStorage.setItem('cart', JSON.stringify(firebaseCart));
-          } else {
-            // If no Firebase cart exists, use localStorage cart
+          try {
+            const cartRef = doc(db, 'userCarts', user.uid);
+            const cartDoc = await getDoc(cartRef);
+            
+            if (cartDoc.exists() && cartDoc.data().items) {
+              const firebaseCart = cartDoc.data().items;
+              setCart(firebaseCart);
+              localStorage.setItem('cart', JSON.stringify(firebaseCart));
+            } else {
+              // If no Firebase cart exists, use localStorage cart
+              const localCart = getInitialCartState().items;
+              setCart(localCart);
+              // Only try to save to Firebase if we have items
+              if (localCart.length > 0) {
+                await saveCart(localCart, user.uid);
+              }
+            }
+          } catch (error) {
+            // If Firebase fails, fallback to localStorage
+            console.log('Firebase cart sync failed, using localStorage:', error.message);
             const localCart = getInitialCartState().items;
             setCart(localCart);
-            // Save localStorage cart to Firebase
-            if (localCart.length > 0) {
-              await saveCart(localCart, user.uid);
-            }
           }
         } else {
           // If not authenticated, use localStorage
