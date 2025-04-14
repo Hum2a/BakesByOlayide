@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
+import OrderManagement from '../widgets/admin/OrderManagement';
+import UserManagement from '../widgets/admin/UserManagement';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -194,78 +196,9 @@ const Admin = () => {
           </div>
         )}
 
-        {activeTab === 'users' && (
-          <div className="users-section">
-            <h2>User Management</h2>
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(user => (
-                    <tr key={user.id}>
-                      <td>{user.displayName || 'N/A'}</td>
-                      <td>{user.email}</td>
-                      <td>
-                        <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                          {user.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className={`status-toggle ${user.isActive ? 'deactivate' : 'activate'}`}
-                          onClick={() => toggleUserStatus(user.id, user.isActive)}
-                        >
-                          {user.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {activeTab === 'users' && <UserManagement />}
 
-        {activeTab === 'orders' && (
-          <div className="orders-section">
-            <h2>Order Management</h2>
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map(order => (
-                    <tr key={order.id}>
-                      <td>{order.id.slice(0, 8)}...</td>
-                      <td>{order.customerName}</td>
-                      <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                      <td>${order.total.toFixed(2)}</td>
-                      <td>
-                        <span className={`status-badge ${order.status.toLowerCase()}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {activeTab === 'orders' && <OrderManagement />}
 
         {activeTab === 'cakes' && (
           <CakeManagement cakes={cakes} onUpdate={fetchDashboardData} />
