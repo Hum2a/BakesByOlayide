@@ -1,0 +1,97 @@
+.stripe-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading-payment-methods {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.payment-method-selector {
+  margin-bottom: 20px;
+}
+
+.payment-method-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #424770;
+}
+
+.payment-method-dropdown {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 16px;
+  color: #424770;
+  margin-bottom: 20px;
+}
+
+.payment-method-dropdown:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 1px #3182ce;
+}
+
+.card-element-container {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  margin-bottom: 20px;
+}
+
+.save-card-option {
+  margin-bottom: 20px;
+}
+
+.save-card-option label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #424770;
+  cursor: pointer;
+}
+
+.save-card-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.stripe-error {
+  color: #e53e3e;
+  font-size: 14px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 4px;
+}
+
+.stripe-submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.stripe-submit-button:hover {
+  background-color: #2c5282;
+}
+
+.stripe-submit-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+} 
