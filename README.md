@@ -1,70 +1,266 @@
-# Getting Started with Create React App
+# 🍰 Bakery E-commerce Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<div align="center">
 
-## Available Scripts
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/bakery/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
+[![Build Status](https://img.shields.io/github/workflow/status/yourusername/bakery/CI/main?label=CI)](https://github.com/yourusername/bakery/actions)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://github.com/yourusername/bakery/actions)
+[![Dependencies](https://img.shields.io/david/yourusername/bakery.svg)](https://david-dm.org/yourusername/bakery)
+[![Contributors](https://img.shields.io/github/contributors/yourusername/bakery.svg)](https://github.com/yourusername/bakery/graphs/contributors)
+[![Last Commit](https://img.shields.io/github/last-commit/yourusername/bakery/main.svg)](https://github.com/yourusername/bakery/commits/main)
 
-In the project directory, you can run:
+</div>
 
-### `npm start`
+<div align="center">
+  <img src="docs/images/logo.png" alt="Bakery Logo" width="200"/>
+</div>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 📋 Table of Contents
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+<details>
+<summary>Click to expand</summary>
 
-### `npm test`
+- [✨ Features](#-features)
+- [🚀 Getting Started](#-getting-started)
+- [🛠️ Tech Stack](#%EF%B8%8F-tech-stack)
+- [📦 Installation](#-installation)
+- [🔧 Configuration](#-configuration)
+- [📁 Project Structure](#-project-structure)
+- [🧪 Testing](#-testing)
+- [📚 Documentation](#-documentation)
+- [🤝 Contributing](#-contributing)
+- [🔒 Security](#-security)
+- [📄 License](#-license)
+- [👥 Authors](#-authors)
+- [🙏 Acknowledgments](#-acknowledgments)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+</details>
 
-### `npm run build`
+## ✨ Features
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🛍️ User Features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+<details>
+<summary>Click to expand</summary>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Authentication
+- 🔐 Secure login and registration
+- 👥 Guest checkout
+- 🔄 Password reset
+- 🎭 Role-based access
 
-### `npm run eject`
+#### Shopping Experience
+- 🛒 Smart cart system
+- 💳 Multiple payment methods
+- 📦 Order tracking
+- 📱 Mobile-first design
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Product Management
+- 🔍 Advanced search
+- 🏷️ Product categories
+- ⭐ Reviews and ratings
+- 📸 High-quality images
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+</details>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 👨‍💼 Admin Features
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+<details>
+<summary>Click to expand</summary>
 
-## Learn More
+#### Dashboard
+- 📊 Real-time analytics
+- 📈 Sales reports
+- 👥 User management
+- 📦 Inventory control
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### Order Management
+- 📝 Order processing
+- 📦 Pickup scheduling
+- 📧 Automated notifications
+- 📊 Performance metrics
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+</details>
 
-### Code Splitting
+## 🚀 Getting Started
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Prerequisites
 
-### Analyzing the Bundle Size
+| Software | Version | Description |
+|----------|---------|-------------|
+| Node.js  | >=14.0.0 | JavaScript runtime |
+| npm      | >=6.0.0  | Package manager |
+| Git      | >=2.0.0  | Version control |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Quick Start
 
-### Making a Progressive Web App
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/bakery.git
+cd bakery
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Install dependencies
+npm install
 
-### Advanced Configuration
+# Start development server
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🛠️ Tech Stack
 
-### Deployment
+### Frontend
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| React      | UI Framework | 18.x |
+| Redux      | State Management | 4.x |
+| Styled Components | Styling | 5.x |
+| React Router | Navigation | 6.x |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Backend
+| Service | Purpose | Version |
+|---------|---------|---------|
+| Firebase | Backend Services | 9.x |
+| Firestore | Database | 9.x |
+| Firebase Auth | Authentication | 9.x |
+| Firebase Storage | File Storage | 9.x |
 
-### `npm run build` fails to minify
+### DevOps
+| Tool | Purpose | Version |
+|------|---------|---------|
+| GitHub Actions | CI/CD | Latest |
+| ESLint | Code Linting | 8.x |
+| Prettier | Code Formatting | 2.x |
+| Jest | Testing | 27.x |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 📦 Installation
+
+### Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Start development server
+npm start
+```
+
+### Production Setup
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm run start:prod
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+```env
+# Firebase Configuration
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+
+# Stripe Configuration
+REACT_APP_STRIPE_PUBLIC_KEY=your_stripe_public_key
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── auth/           # Authentication components
+│   ├── cart/           # Shopping cart components
+│   ├── checkout/       # Checkout process components
+│   ├── products/       # Product-related components
+│   └── admin/          # Admin dashboard components
+├── pages/              # Page components
+├── hooks/              # Custom React hooks
+├── context/            # React context providers
+├── services/           # API and service functions
+├── utils/              # Utility functions
+├── styles/             # Global styles and themes
+└── assets/             # Static assets
+```
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test -- path/to/test.js
+```
+
+### Test Coverage
+
+| File | % Stmts | % Branch | % Funcs | % Lines |
+|------|---------|----------|---------|---------|
+| All files | 90 | 85 | 92 | 90 |
+| components/ | 92 | 88 | 94 | 92 |
+| services/ | 88 | 82 | 90 | 88 |
+
+## 📚 Documentation
+
+- [API Documentation](docs/api.md)
+- [Component Documentation](docs/components.md)
+- [Deployment Guide](docs/deployment.md)
+- [Contributing Guide](CONTRIBUTING.md)
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## 🔒 Security
+
+For security concerns, please see our [Security Policy](SECURITY.md).
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## 👥 Authors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/yourusername">
+        <img src="https://github.com/yourusername.png" width="100px;" alt="Your Name"/>
+        <br />
+        <sub><b>Your Name</b></sub>
+      </a>
+      <br />
+      <a href="https://github.com/yourusername/bakery/commits?author=yourusername" title="Code">💻</a>
+    </td>
+  </tr>
+</table>
+
+## 🙏 Acknowledgments
+
+- [Firebase](https://firebase.google.com/) for backend services
+- [Stripe](https://stripe.com/) for payment processing
+- [React](https://reactjs.org/) for the amazing framework
+- All our contributors and supporters
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by the Bakery Team</sub>
+</div>
