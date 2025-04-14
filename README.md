@@ -2,13 +2,13 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/bakery/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hum2a/bakery/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/github/workflow/status/yourusername/bakery/CI/main?label=CI)](https://github.com/yourusername/bakery/actions)
-[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://github.com/yourusername/bakery/actions)
-[![Dependencies](https://img.shields.io/david/yourusername/bakery.svg)](https://david-dm.org/yourusername/bakery)
-[![Contributors](https://img.shields.io/github/contributors/yourusername/bakery.svg)](https://github.com/yourusername/bakery/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/yourusername/bakery/main.svg)](https://github.com/yourusername/bakery/commits/main)
+[![Build Status](https://img.shields.io/github/workflow/status/Hum2a/bakery/CI/main?label=CI)](https://github.com/Hum2a/bakery/actions)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://github.com/Hum2a/bakery/actions)
+[![Dependencies](https://img.shields.io/david/Hum2a/bakery.svg)](https://david-dm.org/Hum2a/bakery)
+[![Contributors](https://img.shields.io/github/contributors/Hum2a/bakery.svg)](https://github.com/Hum2a/bakery/graphs/contributors)
+[![Last Commit](https://img.shields.io/github/last-commit/Hum2a/bakery/main.svg)](https://github.com/Hum2a/bakery/commits/main)
 
 </div>
 
@@ -97,7 +97,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/bakery.git
+git clone https://github.com/Hum2a/bakery.git
 cd bakery
 
 # Install dependencies
@@ -241,13 +241,13 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/yourusername">
-        <img src="https://github.com/yourusername.png" width="100px;" alt="Your Name"/>
+      <a href="https://github.com/Hum2a">
+        <img src="https://github.com/Hum2a.png" width="100px;" alt="Your Name"/>
         <br />
         <sub><b>Your Name</b></sub>
       </a>
       <br />
-      <a href="https://github.com/yourusername/bakery/commits?author=yourusername" title="Code">💻</a>
+      <a href="https://github.com/Hum2a/bakery/commits?author=Hum2a" title="Code">💻</a>
     </td>
   </tr>
 </table>
