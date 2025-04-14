@@ -1,3 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +19,89 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent zooming on mobile devices */
+@viewport {
+  width: device-width;
+  zoom: 1.0;
+  min-zoom: 1.0;
+  max-zoom: 1.0;
+  user-zoom: fixed;
+}
+
+/* Ensure proper scaling on mobile devices */
+@media screen and (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Prevent text size adjustment on orientation change */
+@media screen and (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: none;
+    -moz-text-size-adjust: none;
+    -ms-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+}
+
+/* Ensure proper scaling on high-DPI devices */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Prevent unwanted zooming on input focus */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Ensure proper scaling of images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure proper scaling of iframes and other embedded content */
+iframe, embed, object {
+  max-width: 100%;
+}
+
+/* Ensure proper scaling of tables */
+table {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure proper scaling of form elements */
+button, input, select, textarea {
+  max-width: 100%;
+}
+
+/* Ensure proper scaling of containers */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Ensure proper scaling of typography */
+h1, h2, h3, h4, h5, h6, p {
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
 code {
