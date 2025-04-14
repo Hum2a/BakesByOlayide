@@ -31,10 +31,24 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
             <div className="cakemodal-features">
               <h3>Features</h3>
               <ul>
-                <li>Handcrafted with premium ingredients</li>
-                <li>Customizable decorations available</li>
-                <li>Freshly baked to order</li>
-                <li>Available in various sizes</li>
+                {cake.ingredients && cake.ingredients.length > 0 && (
+                  <li>Ingredients: {cake.ingredients.join(', ')}</li>
+                )}
+                {cake.dietaryInfo && cake.dietaryInfo.length > 0 && (
+                  <li>Dietary Information: {cake.dietaryInfo.join(', ')}</li>
+                )}
+                {cake.allergens && cake.allergens.length > 0 && (
+                  <li>Allergens: {cake.allergens.join(', ')}</li>
+                )}
+                {cake.servingSize && (
+                  <li>Serves: {cake.servingSize} people</li>
+                )}
+                {cake.dimensions && (
+                  <li>Size: {cake.dimensions.size}{cake.dimensions.unit} {cake.dimensions.shape}</li>
+                )}
+                {cake.prepTime && (
+                  <li>Preparation Time: {cake.prepTime.value} {cake.prepTime.unit}</li>
+                )}
               </ul>
             </div>
             

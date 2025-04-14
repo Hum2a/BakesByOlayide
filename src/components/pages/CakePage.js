@@ -3,68 +3,42 @@ import CakeCard from '../cards/CakeCard';
 import CakeModal from '../modals/CakeModal';
 import { FaShoppingCart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
+import { db } from '../../firebase/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import '../styles/CakePage.css';
 
 const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCake, setSelectedCake] = useState(null);
   const [showFilterScroll, setShowFilterScroll] = useState({ left: false, right: true });
+  const [cakes, setCakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const filterContainerRef = useRef(null);
   const { totalItems } = useCart();
 
-  // Sample cake data - in a real app, this would come from an API or database
-  const cakes = [
-    {
-      id: 1,
-      name: "Classic Vanilla Cake",
-      description: "A timeless vanilla sponge cake with buttercream frosting",
-      price: 45.99,
-      image: "/images/vanilla-cake.jpg",
-      category: "Classic",
-      features: ['3 layers of fluffy vanilla cake', 'Vanilla bean buttercream', 'Fresh fruit decoration', 'Serves 8-10 people']
-    },
-    {
-      id: 2,
-      name: "Chocolate Fudge Cake",
-      description: "Rich chocolate cake with layers of fudge and chocolate ganache",
-      price: 49.99,
-      image: "/images/chocolate-cake.jpg",
-      category: "Chocolate",
-      features: ['3 layers of moist chocolate cake', 'Creamy fudge frosting', 'Chocolate ganache drizzle', 'Serves 8-10 people']
-    },
-    {
-      id: 3,
-      name: "Red Velvet Cake",
-      description: "Classic red velvet with cream cheese frosting",
-      price: 52.99,
-      image: "/images/red-velvet.jpg",
-      category: "Specialty"
-    },
-    {
-      id: 4,
-      name: "Carrot Cake",
-      description: "Moist carrot cake with cream cheese frosting and walnuts",
-      price: 48.99,
-      image: "/images/carrot-cake.jpg",
-      category: "Classic"
-    },
-    {
-      id: 5,
-      name: "Lemon Drizzle Cake",
-      description: "Zesty lemon cake with lemon glaze",
-      price: 44.99,
-      image: "/images/lemon-cake.jpg",
-      category: "Fruit"
-    },
-    {
-      id: 6,
-      name: "Strawberry Shortcake",
-      description: "Light sponge cake with fresh strawberries and whipped cream",
-      price: 54.99,
-      image: "/images/strawberry-cake.jpg",
-      category: "Fruit"
-    }
-  ];
+  useEffect(() => {
+    const fetchCakes = async () => {
+      try {
+        setLoading(true);
+        const cakesCollection = collection(db, 'cakes');
+        const snapshot = await getDocs(cakesCollection);
+        const cakesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setCakes(cakesData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching cakes:', err);
+        setError('Failed to load cakes. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCakes();
+  }, []);
 
   // Filter cakes based on active category
   const filteredCakes = activeCategory === 'All' 
@@ -112,6 +86,26 @@ const CakePage = ({ onOpenCart }) => {
     window.addEventListener('resize', checkScrollButtons);
     return () => window.removeEventListener('resize', checkScrollButtons);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="cakepage-container">
+        <div className="cakepage-loading">
+          Loading cakes...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="cakepage-container">
+        <div className="cakepage-error">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cakepage-container">

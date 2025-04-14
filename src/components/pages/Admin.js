@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBox, FaChartLine, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome } from 'react-icons/fa';
+import CakeManagement from '../widgets/CakeManagement';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -10,7 +11,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [cakes, setCakes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,7 +36,6 @@ const Admin = () => {
           return;
         }
 
-        // Fetch initial data
         await fetchDashboardData();
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -60,10 +60,10 @@ const Admin = () => {
       const ordersData = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setOrders(ordersData);
 
-      // Fetch products
-      const productsSnapshot = await getDocs(collection(db, 'products'));
-      const productsData = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setProducts(productsData);
+      // Fetch cakes
+      const cakesSnapshot = await getDocs(collection(db, 'cakes'));
+      const cakesData = cakesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setCakes(cakesData);
 
       setLoading(false);
     } catch (error) {
@@ -145,10 +145,10 @@ const Admin = () => {
             <FaShoppingCart /> Orders
           </button>
           <button
-            className={`nav-item ${activeTab === 'products' ? 'active' : ''}`}
-            onClick={() => setActiveTab('products')}
+            className={`nav-item ${activeTab === 'cakes' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cakes')}
           >
-            <FaBox /> Products
+            <FaBirthdayCake /> Cakes
           </button>
           <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
@@ -176,8 +176,8 @@ const Admin = () => {
                 <p>{orders.length}</p>
               </div>
               <div className="stat-card">
-                <h3>Total Products</h3>
-                <p>{products.length}</p>
+                <h3>Total Cakes</h3>
+                <p>{cakes.length}</p>
               </div>
               <div className="stat-card">
                 <h3>Active Users</h3>
@@ -260,38 +260,8 @@ const Admin = () => {
           </div>
         )}
 
-        {activeTab === 'products' && (
-          <div className="products-section">
-            <h2>Product Management</h2>
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map(product => (
-                    <tr key={product.id}>
-                      <td>{product.name}</td>
-                      <td>${product.price.toFixed(2)}</td>
-                      <td>{product.stock}</td>
-                      <td>{product.category}</td>
-                      <td>
-                        <span className={`status-badge ${product.status.toLowerCase()}`}>
-                          {product.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {activeTab === 'cakes' && (
+          <CakeManagement cakes={cakes} onUpdate={fetchDashboardData} />
         )}
 
         {activeTab === 'settings' && (

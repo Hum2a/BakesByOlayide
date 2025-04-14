@@ -1,0 +1,410 @@
+.cakemanagement-section {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cakemanagement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.cakemanagement-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.cakemanagement-add-btn:hover {
+  background-color: #d35400;
+  transform: translateY(-2px);
+}
+
+.cakemanagement-form-container {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.cakemanagement-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cakemanagement-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.cakemanagement-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cakemanagement-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.cakemanagement-form-group label {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.cakemanagement-form-group input[type="text"],
+.cakemanagement-form-group input[type="number"],
+.cakemanagement-form-group select,
+.cakemanagement-form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.cakemanagement-nutritional-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.cakemanagement-dietary-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.cakemanagement-dietary-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+}
+
+.cakemanagement-current-image {
+  margin-top: 1rem;
+}
+
+.cakemanagement-current-image img {
+  max-width: 200px;
+  border-radius: 8px;
+}
+
+.cakemanagement-current-image p {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.cakemanagement-availability-options {
+  display: flex;
+  gap: 2rem;
+}
+
+.cakemanagement-availability-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+}
+
+.cakemanagement-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cakemanagement-save-btn,
+.cakemanagement-cancel-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-save-btn {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+}
+
+.cakemanagement-save-btn:hover {
+  background-color: #d35400;
+}
+
+.cakemanagement-cancel-btn {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cakemanagement-cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.cakemanagement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.cakemanagement-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.cakemanagement-card:hover {
+  transform: translateY(-5px);
+}
+
+.cakemanagement-card-image {
+  height: 200px;
+  overflow: hidden;
+}
+
+.cakemanagement-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cakemanagement-card-content {
+  padding: 1.5rem;
+}
+
+.cakemanagement-card-content h3 {
+  margin: 0 0 0.5rem;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.cakemanagement-price {
+  color: #e67e22;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.cakemanagement-category {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.cakemanagement-status {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.cakemanagement-status-badge.available {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.cakemanagement-status-badge.unavailable {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.cakemanagement-status-badge.featured {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.cakemanagement-card-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cakemanagement-edit-btn,
+.cakemanagement-delete-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-edit-btn {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: none;
+}
+
+.cakemanagement-edit-btn:hover {
+  background-color: #bbdefb;
+}
+
+.cakemanagement-delete-btn {
+  background-color: #ffebee;
+  color: #c62828;
+  border: none;
+}
+
+.cakemanagement-delete-btn:hover {
+  background-color: #ffcdd2;
+}
+
+.cakemanagement-error {
+  background-color: #fee2e2;
+  color: #e74c3c;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.cakemanagement-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.cakemanagement-dimension-inputs,
+.cakemanagement-prep-time-inputs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cakemanagement-dimension-inputs input,
+.cakemanagement-prep-time-inputs input {
+  flex: 1;
+}
+
+.cakemanagement-dimension-inputs select,
+.cakemanagement-prep-time-inputs select {
+  width: auto;
+  min-width: 80px;
+}
+
+.cakemanagement-array-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cakemanagement-array-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cakemanagement-array-field input {
+  flex: 1;
+}
+
+.cakemanagement-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-remove-btn:hover {
+  background-color: #fecaca;
+}
+
+.cakemanagement-add-field-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.cakemanagement-add-field-btn:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #475569;
+}
+
+@media (max-width: 768px) {
+  .cakemanagement-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cakemanagement-nutritional-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cakemanagement-availability-options {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cakemanagement-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cakemanagement-card-image {
+    height: 180px;
+  }
+
+  .cakemanagement-form-actions {
+    flex-direction: column;
+  }
+}
+
+.cakemanagement-debug {
+  background-color: #f0f0f0;
+  color: #666;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: monospace;
+} 
