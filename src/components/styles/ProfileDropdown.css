@@ -117,6 +117,21 @@
   color: #e67e22;
 }
 
+.dropdown-item.admin {
+  color: #3498db;
+  border-top: 1px solid #eee;
+  margin-top: 0.5rem;
+}
+
+.dropdown-item.admin:hover {
+  background: #ebf5fb;
+  color: #2980b9;
+}
+
+.dropdown-item.admin svg {
+  color: #3498db;
+}
+
 .dropdown-item.sign-out {
   color: #e74c3c;
   border-top: 1px solid #eee;

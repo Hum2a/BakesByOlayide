@@ -38,6 +38,8 @@ const AuthModal = ({ isOpen, onClose }) => {
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
           role: 'user',
+          isAdmin: false,
+          isDeveloper: false,
           orders: [],
           cart: [],
           wishlist: [],

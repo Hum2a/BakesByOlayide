@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaBell, FaLock, FaPalette, FaLanguage } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import '../styles/SettingsModal.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     notifications: true,
     theme: 'light',
@@ -13,6 +16,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
     marketingEmails: false
   });
   const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -43,6 +50,44 @@ const SettingsModal = ({ isOpen, onClose }) => {
       });
     } catch (error) {
       console.error('Error updating settings:', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setDeleteError('No user logged in');
+        return;
+      }
+
+      if (!showPasswordInput) {
+        setShowPasswordInput(true);
+        return;
+      }
+
+      // Re-authenticate user
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        password
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Delete user's Firestore data
+      await deleteDoc(doc(db, 'users', user.uid));
+
+      // Delete user's authentication account
+      await deleteUser(user);
+
+      // Navigate to home page after successful deletion
+      navigate('/');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      if (error.code === 'auth/wrong-password') {
+        setDeleteError('Incorrect password. Please try again.');
+      } else {
+        setDeleteError('Failed to delete account. Please try again.');
+      }
     }
   };
 
@@ -137,7 +182,36 @@ const SettingsModal = ({ isOpen, onClose }) => {
             <button className="change-password">Change Password</button>
           </div>
           <div className="setting-item">
-            <button className="delete-account">Delete Account</button>
+            {!deleteConfirm ? (
+              <button 
+                className="delete-account"
+                onClick={() => setDeleteConfirm(true)}
+              >
+                Delete Account
+              </button>
+            ) : (
+              <div className="delete-confirmation">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                {deleteError && <p className="error-message">{deleteError}</p>}
+                <div className="confirmation-buttons">
+                  <button 
+                    className="confirm-delete"
+                    onClick={handleDeleteAccount}
+                  >
+                    Yes, Delete Account
+                  </button>
+                  <button 
+                    className="cancel-delete"
+                    onClick={() => {
+                      setDeleteConfirm(false);
+                      setDeleteError(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

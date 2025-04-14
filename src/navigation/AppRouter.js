@@ -6,6 +6,7 @@ import ShoppingBasket from '../components/pages/ShoppingBasket';
 import Checkout from '../components/pages/Checkout';
 import OrderConfirmation from '../components/pages/OrderConfirmation';
 import CartModal from '../components/modals/CartModal';
+import Admin from '../components/pages/Admin';
 
 const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -19,6 +20,7 @@ const AppRouter = () => {
           <Route path="/basket" element={<ShoppingBasket />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="/admin" element={<Admin />} />
           {/* Add more routes here as we create more pages */}
         </Routes>
 
