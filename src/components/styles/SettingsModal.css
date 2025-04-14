@@ -3,12 +3,16 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .settings-modal h2 {
   margin: 0 0 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+  font-size: 1.75rem;
+  color: #2c3e50;
 }
 
 .settings-section {
@@ -29,11 +33,12 @@
   gap: 0.75rem;
   margin: 0 0 1.5rem;
   font-size: 1.1rem;
-  color: #333;
+  color: #2c3e50;
 }
 
 .settings-section h3 svg {
-  color: #666;
+  color: #3498db;
+  font-size: 1.2rem;
 }
 
 .setting-item {
@@ -49,34 +54,66 @@
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
-  color: #333;
+  color: #34495e;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
 }
 
 .setting-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
+  accent-color: #3498db;
 }
 
 .setting-item select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #333;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #34495e;
   background: white;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setting-item select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  outline: none;
+}
+
+.setting-item textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #34495e;
+  background: white;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.setting-item textarea:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  outline: none;
 }
 
 .setting-item button {
   width: 100%;
   padding: 0.75rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
 }
 
 .change-password {
@@ -88,13 +125,22 @@
   background: #d35400;
 }
 
+.manage-cards, .manage-addresses {
+  background: #3498db;
+  color: white;
+}
+
+.manage-cards:hover, .manage-addresses:hover {
+  background: #2980b9;
+}
+
 .delete-account {
   background: #f5f5f5;
   color: #e74c3c;
 }
 
 .delete-account:hover {
-  background: #f0f0f0;
+  background: #fee2e2;
 }
 
 .delete-confirmation {
@@ -107,7 +153,7 @@
 
 .delete-confirmation p {
   margin: 0 0 1rem;
-  color: #333;
+  color: #34495e;
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -116,6 +162,7 @@
   color: #e74c3c !important;
   font-weight: 500;
   margin-bottom: 1rem !important;
+  font-size: 0.9rem;
 }
 
 .confirmation-buttons {
@@ -135,7 +182,7 @@
 
 .cancel-delete {
   background: #f5f5f5;
-  color: #333;
+  color: #34495e;
   flex: 1;
 }
 
@@ -150,7 +197,7 @@
 .password-input label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #34495e;
   font-size: 0.9rem;
 }
 
@@ -158,10 +205,11 @@
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  color: #333;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #34495e;
   background: white;
+  box-sizing: border-box;
 }
 
 .password-input input:focus {
@@ -170,15 +218,353 @@
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
+.settings-error {
+  background-color: #fee2e2;
+  color: #e74c3c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid #fecaca;
+}
+
+.saved-payment-methods {
+  margin-bottom: 1.5rem;
+}
+
+.saved-payment-methods h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.saved-payment-method {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-number {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #2d3748;
+}
+
+.card-name {
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.card-expiry {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.paypal-email {
+  font-size: 0.95rem;
+  color: #2d3748;
+}
+
+.default-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #ebf8ff;
+  color: #3182ce;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.remove-payment {
+  padding: 0.5rem 1rem !important;
+  background: #fff !important;
+  color: #e53e3e !important;
+  border: 1px solid #e53e3e !important;
+  width: auto !important;
+}
+
+.remove-payment:hover {
+  background: #fff5f5 !important;
+}
+
+.add-payment {
+  background: #3182ce !important;
+  color: white !important;
+  margin-bottom: 1rem;
+}
+
+.add-payment:hover {
+  background: #2c5282 !important;
+}
+
+.new-payment-form {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.new-payment-form h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.payment-form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.save-payment {
+  background: #3182ce !important;
+  color: white !important;
+  flex: 1;
+}
+
+.save-payment:hover {
+  background: #2c5282 !important;
+}
+
+.cancel-payment {
+  background: #e2e8f0 !important;
+  color: #4a5568 !important;
+  flex: 1;
+}
+
+.cancel-payment:hover {
+  background: #cbd5e0 !important;
+}
+
+.saved-addresses {
+  margin-bottom: 1.5rem;
+}
+
+.saved-addresses h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.saved-address {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.address-info {
+  flex: 1;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.address-name {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.address-label {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.address-label.home {
+  background: #e6fffa;
+  color: #319795;
+}
+
+.address-label.work {
+  background: #ebf4ff;
+  color: #4299e1;
+}
+
+.address-label.other {
+  background: #f0fff4;
+  color: #48bb78;
+}
+
+.address-details {
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.address-details p {
+  margin: 0;
+}
+
+.address-phone {
+  color: #718096;
+  margin-top: 0.25rem !important;
+}
+
+.remove-address {
+  padding: 0.5rem 1rem !important;
+  background: #fff !important;
+  color: #e53e3e !important;
+  border: 1px solid #e53e3e !important;
+  width: auto !important;
+  margin-left: 1rem;
+}
+
+.remove-address:hover {
+  background: #fff5f5 !important;
+}
+
+.add-address {
+  background: #3182ce !important;
+  color: white !important;
+  margin-bottom: 1rem;
+}
+
+.add-address:hover {
+  background: #2c5282 !important;
+}
+
+.new-address-form {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.new-address-form h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+.address-details-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.address-form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.save-address {
+  background: #3182ce !important;
+  color: white !important;
+  flex: 1;
+}
+
+.save-address:hover {
+  background: #2c5282 !important;
+}
+
+.cancel-address {
+  background: #e2e8f0 !important;
+  color: #4a5568 !important;
+  flex: 1;
+}
+
+.cancel-address:hover {
+  background: #cbd5e0 !important;
+}
+
 @media (max-width: 768px) {
   .settings-modal {
     width: 100%;
     height: 100%;
     max-height: none;
     border-radius: 0;
+    padding: 1.5rem;
   }
 
   .confirmation-buttons {
     flex-direction: column;
+  }
+
+  .settings-section h3 {
+    font-size: 1rem;
+  }
+
+  .setting-item label {
+    font-size: 0.9rem;
+  }
+
+  .card-details {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-form-buttons {
+    flex-direction: column;
+  }
+
+  .saved-payment-method {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .remove-payment {
+    width: 100% !important;
+  }
+
+  .address-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-form-buttons {
+    flex-direction: column;
+  }
+
+  .saved-address {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .remove-address {
+    width: 100% !important;
+    margin-left: 0;
+  }
+
+  .address-header {
+    justify-content: center;
+  }
+
+  .address-details {
+    text-align: center;
   }
 } 
