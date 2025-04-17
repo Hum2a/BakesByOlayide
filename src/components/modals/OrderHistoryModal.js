@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaShoppingBag, FaCalendarAlt, FaClock, FaBox, FaTruck } from 'react-icons/fa';
+import { FaTimes, FaShoppingBag, FaCalendarAlt, FaClock, FaBox, FaTruck, FaStar } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
-import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, where } from 'firebase/firestore';
+import ReviewModal from './ReviewModal';
 import '../styles/OrderHistoryModal.css';
 
 const OrderHistoryModal = ({ isOpen, onClose }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [reviewedItems, setReviewedItems] = useState(new Set());
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -26,6 +29,7 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
         }));
         
         setOrders(ordersData);
+        await fetchReviewedItems(ordersData);
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {
@@ -37,6 +41,41 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
       fetchOrders();
     }
   }, [isOpen]);
+
+  const fetchReviewedItems = async (orders) => {
+    try {
+      const reviewedSet = new Set();
+      
+      for (const order of orders) {
+        for (const item of order.items) {
+          const reviewsQuery = query(
+            collection(db, 'cakes', item.id, 'reviews'),
+            where('userId', '==', auth.currentUser.uid),
+            where('orderId', '==', order.id)
+          );
+          const reviewsSnapshot = await getDocs(reviewsQuery);
+          
+          if (!reviewsSnapshot.empty) {
+            reviewedSet.add(`${order.id}-${item.id}`);
+          }
+        }
+      }
+      
+      setReviewedItems(reviewedSet);
+    } catch (error) {
+      console.error('Error fetching reviewed items:', error);
+    }
+  };
+
+  const handleReviewClick = (item, orderId) => {
+    setSelectedItem({ ...item, orderId });
+  };
+
+  const handleReviewClose = () => {
+    setSelectedItem(null);
+    // Refresh the reviewed items list
+    fetchReviewedItems(orders);
+  };
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
@@ -134,20 +173,36 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className="order-items-grid">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="order-item-card">
-                        <div className="item-image">
-                          <img src={item.image} alt={item.name} />
-                        </div>
-                        <div className="item-details">
-                          <h4>{item.name}</h4>
-                          <div className="item-meta">
-                            <span className="quantity">Qty: {item.quantity}</span>
-                            <span className="price">${(item.price * item.quantity).toFixed(2)}</span>
+                    {order.items.map((item, index) => {
+                      const isReviewed = reviewedItems.has(`${order.id}-${item.id}`);
+                      
+                      return (
+                        <div key={index} className="order-item-card">
+                          <div className="item-image">
+                            <img src={item.image} alt={item.name} />
+                          </div>
+                          <div className="item-details">
+                            <h4>{item.name}</h4>
+                            <div className="item-meta">
+                              <span className="quantity">Qty: {item.quantity}</span>
+                              <span className="price">${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                            {(order.status?.toLowerCase() === 'completed' || 
+                              order.status?.toLowerCase() === 'confirmed' ||
+                              order.status?.toLowerCase() === 'order confirmed') && (
+                              <button
+                                className={`review-btn ${isReviewed ? 'reviewed' : ''}`}
+                                onClick={() => !isReviewed && handleReviewClick(item, order.id)}
+                                disabled={isReviewed}
+                              >
+                                <FaStar />
+                                {isReviewed ? 'Reviewed' : 'Write Review'}
+                              </button>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="order-footer">
@@ -181,6 +236,15 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
           </div>
         )}
       </div>
+
+      {selectedItem && (
+        <ReviewModal
+          isOpen={true}
+          onClose={handleReviewClose}
+          item={selectedItem}
+          orderId={selectedItem.orderId}
+        />
+      )}
     </div>
   );
 };

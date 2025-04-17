@@ -13,7 +13,6 @@ const AppRouter = () => {
 
   return (
     <Router basename={process.env.PUBLIC_URL}>
-      <div>
         <Routes>
           <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
           <Route path="/cakes" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
@@ -27,7 +26,6 @@ const AppRouter = () => {
         {isCartOpen && (
           <CartModal onClose={() => setIsCartOpen(false)} />
         )}
-      </div>
     </Router>
   );
 };

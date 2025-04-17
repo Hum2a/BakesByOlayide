@@ -1,9 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
+import { db } from '../../firebase/firebase';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { FaStar, FaStarHalf } from 'react-icons/fa';
 import '../styles/CakeModal.css';
 
 const CakeModal = ({ cake, onClose, onAddToCart }) => {
   const { addToCart } = useCart();
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const reviewsRef = collection(db, 'cakes', cake.id, 'reviews');
+        const reviewsQuery = query(reviewsRef, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(reviewsQuery);
+        
+        const reviewsData = querySnapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        }));
+        
+        setReviews(reviewsData);
+        
+        // Calculate average rating
+        if (reviewsData.length > 0) {
+          const totalRating = reviewsData.reduce((acc, review) => acc + review.rating, 0);
+          setAverageRating(totalRating / reviewsData.length);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (cake.id) {
+      fetchReviews();
+    }
+  }, [cake.id]);
 
   const handleAddToCart = () => {
     addToCart(cake);
@@ -11,6 +48,36 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
       onAddToCart();
     }
     onClose();
+  };
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<FaStar key={`star-${i}`} className="star filled" />);
+    }
+
+    if (hasHalfStar) {
+      stars.push(<FaStarHalf key="half-star" className="star filled" />);
+    }
+
+    const remainingStars = 5 - stars.length;
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<FaStar key={`empty-star-${i}`} className="star" />);
+    }
+
+    return stars;
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -25,6 +92,14 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
           
           <div className="cakemodal-details">
             <h2>{cake.name}</h2>
+            <div className="cakemodal-rating">
+              <div className="stars-container">
+                {renderStars(averageRating)}
+              </div>
+              <span className="rating-text">
+                {averageRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+              </span>
+            </div>
             <p className="cakemodal-price">£{cake.price.toFixed(2)}</p>
             <p className="cakemodal-description">{cake.description}</p>
             
@@ -67,6 +142,34 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
               </button>
             </div>
           </div>
+        </div>
+
+        <div className="cakemodal-reviews">
+          <h3>Customer Reviews</h3>
+          {loading ? (
+            <div className="reviews-loading">Loading reviews...</div>
+          ) : reviews.length === 0 ? (
+            <div className="no-reviews">No reviews yet</div>
+          ) : (
+            <div className="reviews-list">
+              {reviews.map((review) => (
+                <div key={review.id} className="review-item">
+                  <div className="review-header">
+                    <div className="reviewer-info">
+                      <span className="reviewer-name">{review.userName}</span>
+                      <span className="review-date">{formatDate(review.createdAt)}</span>
+                    </div>
+                    <div className="review-rating">
+                      {renderStars(review.rating)}
+                    </div>
+                  </div>
+                  {review.review && (
+                    <p className="review-text">{review.review}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
