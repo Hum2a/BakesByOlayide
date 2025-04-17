@@ -1,25 +1,60 @@
 {
   "short_name": "BakesByOlayide",
   "name": "BakesByOlayide | Custom Celebration Cakes",
+  "description": "Exquisite custom cakes and baked goods crafted with love",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/x-icon",
+      "purpose": "any"
     },
     {
-      "src": "logo192.png",
+      "src": "favicon-32x32.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "32x32",
+      "purpose": "any"
     },
     {
-      "src": "logo512.png",
+      "src": "favicon-16x16.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "16x16",
+      "purpose": "any"
+    },
+    {
+      "src": "android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
+  "orientation": "portrait",
   "theme_color": "#e67e22",
-  "background_color": "#fff5ec"
+  "background_color": "#fff5ec",
+  "categories": ["food", "shopping"],
+  "screenshots": [
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Order a Cake",
+      "short_name": "Order",
+      "description": "Order your custom celebration cake",
+      "url": "/order",
+      "icons": [{ "src": "android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }
