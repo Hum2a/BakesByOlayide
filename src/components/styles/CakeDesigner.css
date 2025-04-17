@@ -2,34 +2,64 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
 }
 
 .cakedesigner-container h2 {
   color: #2c3e50;
   margin-bottom: 2rem;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  animation: fadeInDown 0.8s ease-out;
 }
 
 .cakedesigner-categories {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
   gap: 2rem;
+  animation: fadeIn 1s ease-out;
 }
 
 .cakedesigner-category {
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  min-width: 0; /* Prevents flex items from overflowing */
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  min-width: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.cakedesigner-category:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
 .cakedesigner-category h3 {
   color: #2c3e50;
   margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-  border-bottom: 2px solid #f0f0f0;
+  font-size: 1.4rem;
+  border-bottom: 2px solid #e0e0e0;
   padding-bottom: 0.5rem;
+  position: relative;
+}
+
+.cakedesigner-category h3::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: #3498db;
+  transition: width 0.3s ease;
+}
+
+.cakedesigner-category:hover h3::after {
+  width: 100px;
 }
 
 .cakedesigner-options-list {
@@ -45,9 +75,17 @@
   gap: 1rem;
   align-items: start;
   background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.2rem;
+  border-radius: 12px;
   position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.cakedesigner-option:hover {
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transform: translateX(5px);
 }
 
 .cakedesigner-size-inputs {
@@ -66,17 +104,19 @@
 
 .cakedesigner-input {
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 0.9rem;
   width: 100%;
   background-color: white;
+  transition: all 0.3s ease;
 }
 
 .cakedesigner-input:focus {
   border-color: #3498db;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  transform: scale(1.02);
 }
 
 .cakedesigner-input[type="number"] {
@@ -92,19 +132,21 @@
   background-color: #e74c3c;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .cakedesigner-remove-btn:hover {
   background-color: #c0392b;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
 }
 
 .cakedesigner-add-option {
@@ -112,35 +154,41 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
-  padding: 1rem;
+  padding: 1.2rem;
   border-top: 1px solid #eee;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.cakedesigner-add-option:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .cakedesigner-add-btn {
   padding: 0.75rem;
-  background-color: #3498db;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .cakedesigner-add-btn:hover:not(:disabled) {
-  background-color: #2980b9;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
 }
 
 .cakedesigner-add-btn:disabled {
-  background-color: #bdc3c7;
+  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
   cursor: not-allowed;
 }
 
@@ -149,6 +197,7 @@
   padding: 2rem;
   color: #7f8c8d;
   font-size: 1.1rem;
+  animation: pulse 1.5s infinite;
 }
 
 .cakedesigner-error {
@@ -156,9 +205,54 @@
   padding: 2rem;
   color: #e74c3c;
   background-color: #fde8e8;
-  border-radius: 8px;
+  border-radius: 12px;
   margin: 1rem;
   font-size: 1.1rem;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 @media (max-width: 768px) {
