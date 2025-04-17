@@ -165,79 +165,51 @@ const StripePaymentForm = ({ amount, onSuccess, onError }) => {
 
   return (
     <form onSubmit={handleSubmit} className="stripe-form">
-      {loadingPaymentMethods ? (
-        <div className="loading-payment-methods">Loading payment methods...</div>
-      ) : (
-        <>
-          {showSavedCards && (
-            <div className="payment-method-selector">
-              <label>Select Payment Method</label>
-              <select
-                value={selectedPaymentMethod}
-                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                className="payment-method-dropdown"
-              >
-                <option value="new">Use New Card</option>
-                {savedPaymentMethods.map((method) => (
-                  <option key={method.id} value={method.id}>
-                    {`${method.brand} ending in ${method.cardNumber.slice(-4)} (expires ${method.expiryMonth}/${method.expiryYear})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {showNewCardInput && (
-            <>
-              <div className="card-element-container">
-                <CardElement
-                  options={{
-                    style: {
-                      base: {
-                        fontSize: '16px',
-                        color: '#424770',
-                        '::placeholder': {
-                          color: '#aab7c4',
-                        },
-                      },
-                      invalid: {
-                        color: '#9e2146',
-                      },
-                    },
-                  }}
-                />
-              </div>
-              
-              {auth.currentUser && (
-                <div className="save-card-option">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={saveCard}
-                      onChange={(e) => setSaveCard(e.target.checked)}
-                    />
-                    Save card for future payments
-                  </label>
-                </div>
-              )}
-            </>
-          )}
-          
-          {errorMessage && (
-            <div className="stripe-error">
-              {errorMessage}
-            </div>
-          )}
-          
-          <button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="stripe-submit-button"
-          >
-            {isProcessing ? 'Processing...' : 'Pay Now'}
-          </button>
-        </>
+      <div className="card-element-container">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                  color: '#aab7c4',
+                },
+              },
+              invalid: {
+                color: '#9e2146',
+              },
+            },
+          }}
+        />
+      </div>
+      
+      {auth.currentUser && (
+        <div className="save-card-option">
+          <label>
+            <input
+              type="checkbox"
+              checked={saveCard}
+              onChange={(e) => setSaveCard(e.target.checked)}
+            />
+            Save card for future payments
+          </label>
+        </div>
       )}
+      
+      {errorMessage && (
+        <div className="stripe-error">
+          {errorMessage}
+        </div>
+      )}
+      
+      <button
+        type="submit"
+        disabled={!stripe || isProcessing}
+        className="stripe-submit-button"
+      >
+        {isProcessing ? 'Processing...' : 'Pay Now'}
+      </button>
     </form>
   );
 };
