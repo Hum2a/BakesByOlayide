@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { db } from '../../firebase/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import '../styles/Modal.css';
 
 const Contact = ({ isOpen, onClose }) => {
@@ -18,19 +20,31 @@ const Contact = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically handle the form submission
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      message: '',
-      occasion: 'birthday'
-    });
-    onClose();
+    try {
+      // Add the enquiry to Firestore
+      const docRef = await addDoc(collection(db, 'enquiries'), {
+        ...formData,
+        timestamp: new Date(),
+        status: 'new'
+      });
+      
+      console.log('Enquiry stored with ID:', docRef.id);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        occasion: 'birthday'
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error storing enquiry:', error);
+      alert('There was an error submitting your enquiry. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
