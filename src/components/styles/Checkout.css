@@ -288,6 +288,106 @@
   color: white;
 }
 
+.pickup-schedule {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.pickup-schedule h3 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.pickup-schedule h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, #e67e22, #f39c12);
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.schedule-grid .form-group {
+  margin-bottom: 0;
+}
+
+.schedule-grid select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.schedule-grid select:focus {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+  outline: none;
+}
+
+.schedule-grid select:hover {
+  border-color: #d35400;
+}
+
+.pickup-notice {
+  background: #fff5ec;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #e67e22;
+}
+
+.pickup-notice p {
+  margin: 0.5rem 0;
+  color: #e67e22;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pickup-notice p:first-child {
+  margin-top: 0;
+}
+
+.pickup-notice p:last-child {
+  margin-bottom: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 1rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .checkout-container {
     padding: 1rem;
@@ -313,5 +413,512 @@
   .login-option,
   .guest-option {
     padding: 1.5rem;
+  }
+
+  .schedule-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pickup-schedule {
+    padding: 1rem;
+  }
+}
+
+.custom-picker {
+  position: relative;
+  width: 100%;
+}
+
+.picker-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #f5d0b3;
+  border-radius: 8px;
+  background: #fff9f5;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.picker-input:hover {
+  border-color: #e67e22;
+  background: #fff5ec;
+}
+
+.picker-icon {
+  font-size: 1.2rem;
+}
+
+.calendar-popup {
+  width: 100%;
+  max-width: 400px;
+}
+
+.weekday-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff5ec;
+  border-bottom: 1px solid #f5d0b3;
+}
+
+.weekday-name {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e67e22;
+}
+
+.calendar-month {
+  padding: 1rem;
+}
+
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-week:last-child {
+  margin-bottom: 0;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day.empty {
+  background: none;
+  border: none;
+  pointer-events: none;
+}
+
+.calendar-day:not(.empty):not(.disabled):hover {
+  background: #fff5ec;
+  border-color: #e67e22;
+  transform: translateY(-2px);
+}
+
+.day-number {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.month-name {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+  .calendar-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .calendar-day {
+    padding: 0.15rem;
+  }
+
+  .day-number {
+    font-size: 0.9rem;
+  }
+
+  .month-name {
+    font-size: 0.6rem;
+  }
+}
+
+.clock-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+  z-index: 1000;
+  animation: slideDown 0.3s ease-out;
+  border: 1px solid #f5d0b3;
+  overflow: hidden;
+}
+
+.clock-header {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clock-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.close-popup {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.clock-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.clock-time {
+  background: #fff9f5;
+  border: 1px solid #f5d0b3;
+  border-radius: 6px;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.clock-time:hover {
+  background: #fff5ec;
+  border-color: #e67e22;
+  transform: translateY(-2px);
+}
+
+.clock-time.selected {
+  background: #e67e22;
+  border-color: #d35400;
+  color: white;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .clock-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .clock-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calendar-day.disabled {
+  background: #f5f5f5;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.calendar-day.disabled:hover {
+  transform: none;
+  border-color: #e0e0e0;
+  background: #f5f5f5;
+}
+
+.calendar-day.disabled .day-name,
+.calendar-day.disabled .day-number,
+.calendar-day.disabled .month-name {
+  color: #bbb;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.quantity-btn {
+  background: #fff;
+  border: 1px solid #e67e22;
+  color: #e67e22;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+  background: #fff5ec;
+  border-color: #d35400;
+  color: #d35400;
+}
+
+.quantity {
+  font-size: 1rem;
+  color: #2c3e50;
+  min-width: 30px;
+  text-align: center;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.3rem 0.8rem;
+  margin-left: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+.checkout-item-price-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.checkout-item-price {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.add-more-items {
+  text-align: center;
+  margin: 2rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.add-more-button {
+  background: #fff;
+  color: #e67e22;
+  border: 2px solid #e67e22;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-more-button:hover {
+  background: #e67e22;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .checkout-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .checkout-item-price-column {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .quantity-controls {
+    margin-top: 1rem;
+  }
+}
+
+.discount-section {
+  margin: 1.5rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.discount-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.discount-input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.discount-input:focus {
+  outline: none;
+  border-color: #e67e22;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
+}
+
+.apply-discount-btn {
+  padding: 0.8rem 1.5rem;
+  background: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.apply-discount-btn:hover:not(:disabled) {
+  background: #d35400;
+  transform: translateY(-1px);
+}
+
+.apply-discount-btn:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.apply-discount-btn.loading {
+  position: relative;
+  background: #f0f0f0;
+  color: transparent;
+}
+
+.apply-discount-btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #e67e22;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: button-loading-spinner 0.8s linear infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.discount-error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #fde8e8;
+  border-radius: 4px;
+}
+
+.error-icon {
+  font-size: 1rem;
+}
+
+.discount-input:disabled {
+  background: #f9f9f9;
+  cursor: not-allowed;
+}
+
+.applied-discount {
+  background: #fff5ec;
+  border: 1px solid #fbd38d;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.discount-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.discount-label {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.discount-amount {
+  color: #e67e22;
+  font-weight: 600;
+}
+
+.remove-discount-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 0.9rem;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.remove-discount-btn:hover {
+  color: #c0392b;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .discount-input-group {
+    flex-direction: column;
+  }
+
+  .apply-discount-btn {
+    width: 100%;
+  }
+
+  .discount-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
   }
 } 

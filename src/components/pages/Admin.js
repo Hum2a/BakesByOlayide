@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
 import UserManagement from '../widgets/admin/UserManagement';
 import Enquiries from '../widgets/admin/Enquiries';
+import DiscountManagement from '../widgets/admin/DiscountManagement';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -161,6 +162,12 @@ const Admin = () => {
             <FaEnvelope /> Enquiries
           </button>
           <button
+            className={`nav-item ${activeTab === 'discounts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('discounts')}
+          >
+            <FaTag /> Discounts
+          </button>
+          <button
             className={`nav-item ${activeTab === 'designer' ? 'active' : ''}`}
             onClick={() => setActiveTab('designer')}
           >
@@ -212,6 +219,8 @@ const Admin = () => {
         )}
 
         {activeTab === 'enquiries' && <Enquiries />}
+
+        {activeTab === 'discounts' && <DiscountManagement />}
 
         {activeTab === 'designer' && (
           <CakeDesigner />
