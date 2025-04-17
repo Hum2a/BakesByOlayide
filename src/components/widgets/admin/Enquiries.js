@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { FaEnvelope, FaCheck, FaTimes, FaClock, FaReply } from 'react-icons/fa';
+import { collection, getDocs, doc, updateDoc, query, orderBy } from 'firebase/firestore';
+import { FaEnvelope, FaCheck, FaTimes, FaClock, FaReply, FaFilter, FaSearch } from 'react-icons/fa';
 import '../../styles/Enquiries.css';
 
 const Enquiries = () => {
@@ -10,21 +10,23 @@ const Enquiries = () => {
   const [error, setError] = useState(null);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [replyMessage, setReplyMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     fetchEnquiries();
-  }, []);
+  }, [sortBy]);
 
   const fetchEnquiries = async () => {
     try {
       setLoading(true);
-      const enquiriesSnapshot = await getDocs(collection(db, 'enquiries'));
+      const q = query(collection(db, 'enquiries'), orderBy('timestamp', sortBy === 'newest' ? 'desc' : 'asc'));
+      const enquiriesSnapshot = await getDocs(q);
       const enquiriesData = enquiriesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      // Sort by timestamp, newest first
-      enquiriesData.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
       setEnquiries(enquiriesData);
       setLoading(false);
     } catch (error) {
@@ -41,7 +43,7 @@ const Enquiries = () => {
         status: newStatus,
         updatedAt: new Date()
       });
-      await fetchEnquiries(); // Refresh the list
+      await fetchEnquiries();
     } catch (error) {
       console.error('Error updating enquiry status:', error);
       setError('Failed to update enquiry status');
@@ -80,6 +82,17 @@ const Enquiries = () => {
     }
   };
 
+  const filteredEnquiries = enquiries.filter(enquiry => {
+    const matchesSearch = 
+      enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.message.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || enquiry.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   if (loading) {
     return (
       <div className="enquiries-loading">
@@ -101,8 +114,40 @@ const Enquiries = () => {
   return (
     <div className="enquiries-container">
       <h2>Customer Enquiries</h2>
+      
+      <div className="enquiries-controls">
+        <div className="search-box">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search enquiries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <div className="filters">
+          <div className="filter-group">
+            <FaFilter className="filter-icon" />
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="replied">Replied</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          
+          <div className="filter-group">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className="enquiries-list">
-        {enquiries.map(enquiry => (
+        {filteredEnquiries.map(enquiry => (
           <div key={enquiry.id} className="enquiry-card">
             <div className="enquiry-header">
               <div className="enquiry-status">
@@ -164,6 +209,7 @@ const Enquiries = () => {
                   <button
                     className="send-reply-btn"
                     onClick={() => handleReply(enquiry.id)}
+                    disabled={!replyMessage.trim()}
                   >
                     Send Reply
                   </button>
