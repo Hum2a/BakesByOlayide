@@ -12,6 +12,7 @@ import CakeBuilder from '../widgets/CakeBuilder';
 import SignatureCreations from '../widgets/SignatureCreations';
 import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter, FaUser } from 'react-icons/fa';
 import { auth } from '../../firebase/firebase';
+import Footer from '../common/Footer';
 
 const HomePage = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -152,27 +153,7 @@ const HomePage = () => {
 
       {/* <CakeBuilder onRequestCake={() => setIsContactOpen(true)} /> */}
 
-      <footer className="homepage-footer">
-        <div className="homepage-footer-content">
-          <div className="homepage-footer-section">
-            <h3>Contact Us</h3>
-            <p><FaPhone /> (123) 456-7890</p>
-            <p><FaEnvelope /> info@bakesbyolayide.com</p>
-            <p><FaMapMarkerAlt /> 123 Bakery Street, Sweet City</p>
-          </div>
-          <div className="homepage-footer-section">
-            <h3>Follow Us</h3>
-            <div className="homepage-social-links">
-              <a href="#" aria-label="Facebook"><FaFacebook /></a>
-              <a href="#" aria-label="Instagram"><FaInstagram /></a>
-              <a href="#" aria-label="Twitter"><FaTwitter /></a>
-            </div>
-          </div>
-        </div>
-        <div className="homepage-footer-bottom">
-          <p>&copy; {new Date().getFullYear()} BakesByOlayide. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
 
       <About isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       <Contact isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
