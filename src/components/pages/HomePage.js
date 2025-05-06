@@ -117,18 +117,9 @@ const HomePage = () => {
 
       <SignatureCreations />
 
-      <section className="homepage-about-preview">
-        <div className="homepage-about-content">
-          <h2>Our Story</h2>
-          <p>BakesByOlayide began as a passion for creating memorable celebrations through exquisite cakes. Each creation is crafted with love, skill, and attention to detail, making your special moments even more extraordinary.</p>
-          <button 
-            className="homepage-learn-more"
-            onClick={() => setIsAboutOpen(true)}
-          >
-            Learn More
-          </button>
-        </div>
-      </section>
+      <div className="homepage-hero-image">
+        <img src="/images/HeroImage2.png" alt="Hero" />
+      </div>
 
       <CakeBuilder onRequestCake={() => setIsContactOpen(true)} />
 

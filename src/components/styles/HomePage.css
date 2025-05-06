@@ -166,6 +166,20 @@
   background-color: #d35400;
 }
 
+.homepage-hero-image {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+  background: #fff;
+}
+
+.homepage-hero-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+}
+
 /* About Preview Section */
 .homepage-about-preview {
   background-color: #f9f9f9;
