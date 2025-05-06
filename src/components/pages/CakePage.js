@@ -135,6 +135,10 @@ const CakePage = ({ onOpenCart }) => {
           <a href="/guides">Guides</a>
           <a href="/about">Our Story</a>
           <a href="/contact">Contact Us</a>
+          <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
+            <FaShoppingCart />
+            {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
+          </button>
         </nav>
         <div className="cakepage-hero-bgimg-wrap">
           <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />

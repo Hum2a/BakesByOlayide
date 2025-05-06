@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { db } from '../../firebase/firebase';
 import { collection, query, getDocs, orderBy } from 'firebase/firestore';
-import { FaStar, FaStarHalf } from 'react-icons/fa';
+import { FaStar, FaStarHalf, FaChevronRight } from 'react-icons/fa';
 import '../styles/CakeModal.css';
 
-const CakeModal = ({ cake, onClose, onAddToCart }) => {
+const CakeModal = ({ cake, onClose, onAddToCart, allCakes = [], categories = [] }) => {
   const { addToCart } = useCart();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,8 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   const [selectedShapeIdx, setSelectedShapeIdx] = useState(0);
   const [selectedFinishIdx, setSelectedFinishIdx] = useState(0);
   const [notes, setNotes] = useState('');
+  const [occasion, setOccasion] = useState('');
+  const [addon, setAddon] = useState('');
 
   const sizeOptions = Array.isArray(cake.sizes) ? cake.sizes : [];
   const shapeOptions = Array.isArray(cake.shapes) ? cake.shapes : [];
@@ -23,6 +25,18 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   const selectedShape = shapeOptions[selectedShapeIdx] || { price: 0, name: '' };
   const selectedFinish = finishOptions[selectedFinishIdx] || { price: 0, name: '' };
   const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0) + (selectedFinish.price || 0);
+
+  // Breadcrumbs
+  const mainCategory = (cake.categories && cake.categories[0]) || 'Cakes';
+  const breadcrumbs = [
+    'Collections',
+    mainCategory,
+    cake.name
+  ];
+  // Related products (other cakes in the same category)
+  const relatedProducts = (allCakes || [])
+    .filter(c => c.id !== cake.id && c.categories && c.categories.includes(mainCategory))
+    .slice(0, 3);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -109,23 +123,30 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
     <div className="cakemodal-overlay" onClick={onClose}>
       <div className="cakemodal-content" onClick={e => e.stopPropagation()}>
         <button className="cakemodal-close" onClick={onClose}>×</button>
-        
+        <nav className="cakemodal-breadcrumbs">
+          {breadcrumbs.map((crumb, idx) => (
+            <span key={crumb}>
+              {idx > 0 && <FaChevronRight className="cakemodal-breadcrumb-sep" />}
+              <span className="cakemodal-breadcrumb">{crumb}</span>
+            </span>
+          ))}
+        </nav>
         <div className="cakemodal-grid">
           <div className="cakemodal-image">
             <img src={cake.image} alt={cake.name} />
           </div>
-          
           <div className="cakemodal-details">
             <h2>{cake.name}</h2>
-            <div className="cakemodal-rating">
-              <div className="stars-container">
-                {renderStars(averageRating)}
-              </div>
-              <span className="rating-text">
-                {averageRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
-              </span>
+            {cake.subtitle && <div className="cakemodal-subtitle">{cake.subtitle}</div>}
+            <div className="cakemodal-available-sizes">
+              {sizeOptions.length > 0 && (
+                <span>Available in {sizeOptions.map(s => `${s.size}"`).join(', ')}</span>
+              )}
             </div>
-            <p className="cakemodal-price">£{totalPrice.toFixed(2)}</p>
+            <div className="cakemodal-price-row">
+              <span className="cakemodal-price">From £{minPrice.toFixed(2)}</span>
+            </div>
+            <div className="cakemodal-description">{cake.description}</div>
             <div className="cakemodal-selectors">
               {sizeOptions.length > 0 && (
                 <div className="cakemodal-selector-group">
@@ -137,7 +158,7 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                         className={`cakemodal-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedSizeIdx(idx)}
                       >
-                        {size.size}" (£{size.price.toFixed(2)})
+                        {size.size}"
                       </button>
                     ))}
                   </div>
@@ -153,7 +174,7 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                         className={`cakemodal-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
-                        {shape.name} {shape.price ? `(+£${shape.price.toFixed(2)})` : ''}
+                        {shape.name}
                       </button>
                     ))}
                   </div>
@@ -169,71 +190,91 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                         className={`cakemodal-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
-                        {finish.name} {finish.price ? `(+£${finish.price.toFixed(2)})` : ''}
+                        {finish.name}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
+              <div className="cakemodal-selector-group">
+                <span className="cakemodal-selector-label">Occasion:</span>
+                <select
+                  className="cakemodal-dropdown"
+                  value={occasion}
+                  onChange={e => setOccasion(e.target.value)}
+                >
+                  <option value="">Choose</option>
+                  <option value="Birthday">Birthday</option>
+                  <option value="Wedding">Wedding</option>
+                  <option value="Anniversary">Anniversary</option>
+                  <option value="Baby Shower">Baby Shower</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="cakemodal-selector-group">
+                <span className="cakemodal-selector-label">Add ons:</span>
+                <select
+                  className="cakemodal-dropdown"
+                  value={addon}
+                  onChange={e => setAddon(e.target.value)}
+                >
+                  <option value="">Choose</option>
+                  <option value="Candles">Candles</option>
+                  <option value="Cake Topper">Cake Topper</option>
+                  <option value="Gift Wrap">Gift Wrap</option>
+                  <option value="Message Card">Message Card</option>
+                </select>
+              </div>
             </div>
-            <div className="cakemodal-notes-section">
-              <label htmlFor="cakemodal-notes">Additional Notes (optional):</label>
-              <textarea
-                id="cakemodal-notes"
-                className="cakemodal-notes-textarea"
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="E.g. No nuts, write 'Happy Birthday', etc."
-                rows={2}
-              />
-            </div>
-            <p className="cakemodal-description">{cake.description}</p>
-            
-            <div className="cakemodal-features">
-              <h3>Features</h3>
-              <ul>
-                {cake.sizes && cake.sizes.length > 0 && (
-                  <li>
-                    Sizes: {cake.sizes.map(size => `${size.size}\" (£${size.price.toFixed(2)})`).join(', ')}
-                  </li>
-                )}
-                {cake.shapes && cake.shapes.length > 0 && (
-                  <li>
-                    Shapes: {cake.shapes.map(shape => `${shape.name} ${shape.price ? `(+£${shape.price.toFixed(2)})` : ''}`).join(', ')}
-                  </li>
-                )}
-                {cake.categories && cake.categories.length > 0 && (
-                  <li>
-                    Categories: {cake.categories.join(', ')}
-                  </li>
-                )}
-                {cake.ingredients && cake.ingredients.length > 0 && (
-                  <li>Ingredients: {cake.ingredients.join(', ')}</li>
-                )}
-                {cake.dietaryInfo && typeof cake.dietaryInfo === 'object' && Object.values(cake.dietaryInfo).some(Boolean) && (
-                  <li>
-                    Dietary Information: {Object.entries(cake.dietaryInfo).filter(([k, v]) => v).map(([k]) => k.replace(/^is/, '').replace(/([A-Z])/g, ' $1').trim()).join(', ')}
-                  </li>
-                )}
-                {cake.allergens && cake.allergens.length > 0 && (
-                  <li>Allergens: {cake.allergens.join(', ')}</li>
-                )}
-              </ul>
-            </div>
-            
             <div className="cakemodal-actions">
               <button 
-                className="cakemodal-add-to-cart-btn"
+                className="cakemodal-add-to-cart-btn cakemodal-black-btn"
                 onClick={handleAddToCart}
               >
-                Add to Cart
+                Add to Basket
               </button>
+            </div>
+            <div className="cakemodal-ingredients-list">
+              <div><b>Ingredients List:</b></div>
+              <div>
+                {cake.ingredients && cake.ingredients.length > 0 && (
+                  <span>{cake.ingredients.join(', ')}</span>
+                )}
+              </div>
+              {cake.toppings && cake.toppings.length > 0 && (
+                <div><b>Toppings:</b> {cake.toppings.join(', ')}</div>
+              )}
             </div>
           </div>
         </div>
-
+        {relatedProducts.length > 0 && (
+          <div className="cakemodal-related-products">
+            <h3>Related products</h3>
+            <div className="cakemodal-related-grid">
+              {relatedProducts.map(prod => (
+                <div key={prod.id} className="cakemodal-related-card">
+                  <img src={prod.image} alt={prod.name} />
+                  <div className="cakemodal-related-info">
+                    <div className="cakemodal-related-title">{prod.name}</div>
+                    <div className="cakemodal-related-desc">{prod.description}</div>
+                    <div className="cakemodal-related-price">£{(prod.sizes && prod.sizes[0]?.price ? prod.sizes[0].price.toFixed(2) : '0.00')}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Reviews Section */}
         <div className="cakemodal-reviews">
           <h3>Customer Reviews</h3>
+          <div className="cakemodal-rating">
+            <div className="stars-container">
+              {renderStars(averageRating)}
+            </div>
+            <span className="rating-text">
+              {averageRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+            </span>
+          </div>
           {loading ? (
             <div className="reviews-loading">Loading reviews...</div>
           ) : reviews.length === 0 ? (

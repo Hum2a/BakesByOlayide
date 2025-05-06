@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from '../components/pages/HomePage';
-import AboutUs from '../components/pages/AboutUs';
+import DietaryRequirements from '../components/pages/DietaryRequirements';
 import CakePage from '../components/pages/CakePage';
 import ShoppingBasket from '../components/pages/ShoppingBasket';
 import Checkout from '../components/pages/Checkout';
@@ -16,7 +16,7 @@ const AppRouter = () => {
     <Router basename={process.env.PUBLIC_URL}>
         <Routes>
           <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
-          <Route path="/about" element={<AboutUs />} />
+          <Route path="/dietary-requirements" element={<DietaryRequirements />} />
           <Route path="/cakes" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
           <Route path="/basket" element={<ShoppingBasket />} />
           <Route path="/checkout" element={<Checkout />} />

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
-import '../styles/AboutUs.css';
+import '../styles/DietaryRequirements.css';
 
-const AboutUs = () => {
+const DietaryRequirements = () => {
   // Dummy state for header logic (replace with actual logic if needed)
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,8 +19,8 @@ const AboutUs = () => {
   const handleModalOpen = (modal) => setActiveModal(modal);
 
   return (
-    <div className="aboutus-outer-container">
-      <div className="aboutus-header-wrap">
+    <div className="DietaryRequirements-outer-container">
+      <div className="DietaryRequirements-header-wrap">
         <Header
           user={user}
           isScrolled={isScrolled}
@@ -35,16 +35,16 @@ const AboutUs = () => {
           handleModalOpen={handleModalOpen}
         />
       </div>
-      <div className="aboutus-main-wrap">
-        <main className="aboutus-main">
-          <h1 className="aboutus-title">Have any dietary Requirements?</h1>
-          <p className="aboutus-subtitle">
+      <div className="DietaryRequirements-main-wrap">
+        <main className="DietaryRequirements-main">
+          <h1 className="DietaryRequirements-title">Have any dietary Requirements?</h1>
+          <p className="DietaryRequirements-subtitle">
             Having allergies can be deeply frustrating for many. Here at Bakes by Olayide, we want everyone to be able to enjoy cakes and bakes together.
           </p>
-          <div className="aboutus-main-image-wrap">
-            <img src="/images/about/big.png" alt="Dietary Requirements" className="aboutus-main-image" />
+          <div className="DietaryRequirements-main-image-wrap">
+            <img src="/images/about/big.png" alt="Dietary Requirements" className="DietaryRequirements-main-image" />
           </div>
-          <section className="aboutus-content">
+          <section className="DietaryRequirements-content">
             <p>To facilitate this, we have some typical default product lines: sugar- or dairy (and gluten)-free alternatives of many recipes are available. For large and custom orders or events, we are able to make more accommodations if you need.</p>
             <ul>
               <li>Milk alternatives</li>
@@ -62,18 +62,18 @@ const AboutUs = () => {
               If you have any questions regarding how allergens are handled, please send us a lengthy letter.
             </p>
           </section>
-          <section className="aboutus-related-guides">
+          <section className="DietaryRequirements-related-guides">
             <h2>Related Guides</h2>
-            <div className="aboutus-guides-grid">
-              <div className="aboutus-guide-card">
+            <div className="DietaryRequirements-guides-grid">
+              <div className="DietaryRequirements-guide-card">
                 <img src="/images/about/Cherry.png" alt="Planning a Special Occasion?" />
                 <h3>Planning for a Special Occasion?</h3>
               </div>
-              <div className="aboutus-guide-card">
+              <div className="DietaryRequirements-guide-card">
                 <img src="/images/about/scones.png" alt="What cake is right for you?" />
                 <h3>What cake is right for you?</h3>
               </div>
-              <div className="aboutus-guide-card">
+              <div className="DietaryRequirements-guide-card">
                 <img src="/images/about/yorkshires.png" alt="How to care for your bakes" />
                 <h3>How to care for your bakes</h3>
               </div>
@@ -81,11 +81,11 @@ const AboutUs = () => {
           </section>
         </main>
       </div>
-      <div className="aboutus-footer-wrap">
+      <div className="DietaryRequirements-footer-wrap">
         <Footer />
       </div>
     </div>
   );
 };
 
-export default AboutUs;
+export default DietaryRequirements;
