@@ -7,6 +7,7 @@ import { db } from '../../firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import '../styles/CakePage.css';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../common/Footer';
 
 const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -18,6 +19,7 @@ const CakePage = ({ onOpenCart }) => {
   const filterContainerRef = useRef(null);
   const { totalItems } = useCart();
   const navigate = useNavigate();
+  const cakeGridRef = useRef(null);
 
   useEffect(() => {
     const fetchCakes = async () => {
@@ -89,6 +91,15 @@ const CakePage = ({ onOpenCart }) => {
     return () => window.removeEventListener('resize', checkScrollButtons);
   }, []);
 
+  const handleViewCakes = (category) => {
+    setActiveCategory(category);
+    setTimeout(() => {
+      if (cakeGridRef.current) {
+        cakeGridRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   if (loading) {
     return (
       <div className="cakepage-container">
@@ -111,79 +122,64 @@ const CakePage = ({ onOpenCart }) => {
 
   return (
     <div className="cakepage-container">
-      <header className="cakepage-header">
-        <div className="cakepage-header-content">
-          <div className="cakepage-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <img src="/images/Transparent BYB Logo.png" alt="BakesByOlayide Logo" className="cakepage-logo-image" />
-          </div>
-          <div className="cakepage-header-text">
-            <h1>Our Cakes</h1>
-            <p>Browse our selection of handcrafted cakes</p>
-          </div>
-          <button 
-            className="cakepage-cart-button" 
-            onClick={onOpenCart}
-            aria-label="Open shopping cart"
-          >
-            <FaShoppingCart />
-            {totalItems > 0 && (
-              <span className="cart-count">{totalItems}</span>
-            )}
-          </button>
+      <header className="cakepage-hero">
+        <img 
+          src="/logos/LogoYellowLayeredTransparent.png" 
+          alt="Bakes by Olayide Logo" 
+          className="cakepage-hero-logo" 
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/')} 
+        />
+        <nav className="cakepage-hero-nav">
+          <a href="/cakes">Our Range</a>
+          <a href="/guides">Guides</a>
+          <a href="/about">Our Story</a>
+          <a href="/contact">Contact Us</a>
+        </nav>
+        <div className="cakepage-hero-bgimg-wrap">
+          <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />
+          <h1 className="cakepage-hero-title">Our Range</h1>
         </div>
       </header>
 
-      <div className="cakepage-filters-wrapper">
-        {showFilterScroll.left && (
-          <button 
-            className="filter-scroll-button left"
-            onClick={() => scrollFilters('left')}
-            aria-label="Scroll filters left"
-          >
-            <FaChevronLeft />
-          </button>
-        )}
-        <div 
-          className="cakepage-filters" 
-          ref={filterContainerRef}
-          onScroll={checkScrollButtons}
-        >
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`cakepage-filter-btn ${activeCategory === category ? 'active' : ''}`}
-              onClick={() => handleCategoryClick(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-        {showFilterScroll.right && (
-          <button 
-            className="filter-scroll-button right"
-            onClick={() => scrollFilters('right')}
-            aria-label="Scroll filters right"
-          >
-            <FaChevronRight />
-          </button>
-        )}
-      </div>
-
-      <div className="cakepage-grid">
-        {filteredCakes.map((cake) => (
-          <div 
-            key={cake.id} 
-            className="cakepage-card-wrapper"
-            onClick={() => setSelectedCake(cake)}
-          >
-            <CakeCard cake={cake} />
+      <div className="cakepage-collections-list">
+        <h1>Collections</h1>
+        {allCategories.map((category, idx) => (
+          <div className={`cakepage-collection-row${idx % 2 === 1 ? ' reverse' : ''}`} key={category}>
+            <div className="cakepage-collection-info">
+              <h2>{category}</h2>
+              <button className="cakepage-viewcakes-btn" onClick={() => handleViewCakes(category)}>
+                View Cakes
+              </button>
+            </div>
+            <div className="cakepage-collection-image-wrap">
+              {categories.find(cat => cat.name === category)?.image ? (
+                <img 
+                  src={categories.find(cat => cat.name === category).image} 
+                  alt={category} 
+                  className="cakepage-collection-image" 
+                />
+              ) : (
+                <div className="cakepage-collection-no-image">
+                  <span>NO IMAGE UPLOADED</span>
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      {filteredCakes.length === 0 && (
-        <div className="cakepage-no-results">
-          <p>No cakes found in this category.</p>
+      {activeCategory !== 'All' && (
+        <div ref={cakeGridRef} className="cakepage-grid">
+          {filteredCakes.map((cake) => (
+            <div 
+              key={cake.id} 
+              className="cakepage-card-wrapper"
+              onClick={() => { setSelectedCake(cake); }}
+            >
+              <CakeCard cake={cake} />
+            </div>
+          ))}
         </div>
       )}
 
@@ -194,6 +190,8 @@ const CakePage = ({ onOpenCart }) => {
           onAddToCart={handleAddToCart}
         />
       )}
+
+      <Footer />
     </div>
   );
 };

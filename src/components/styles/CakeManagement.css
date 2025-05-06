@@ -528,11 +528,58 @@
 .cakemanagement-category-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 0.5rem 1rem;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 20px;
+}
+
+.cakemanagement-category-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: #fafafa;
+}
+
+.cakemanagement-category-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.cakemanagement-category-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.cakemanagement-category-subtitle {
+  color: #e67e22;
+  font-size: 0.95rem;
+  font-style: italic;
+  margin-top: 0.1rem;
+}
+
+.cakemanagement-edit-category-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: #e3f2fd;
+  color: #1565c0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-edit-category-btn:hover {
+  background-color: #bbdefb;
 }
 
 .cakemanagement-delete-category-btn {
@@ -865,4 +912,16 @@
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .cakemanagement-category-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .cakemanagement-category-img {
+    width: 40px;
+    height: 40px;
+  }
 } 

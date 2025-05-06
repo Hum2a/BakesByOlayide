@@ -45,7 +45,10 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
+  const [newCategorySubtitle, setNewCategorySubtitle] = useState('');
+  const [newCategoryImage, setNewCategoryImage] = useState(null);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const [newShape, setNewShape] = useState({ name: '', price: '' });
 
@@ -324,33 +327,90 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     });
   };
 
+  const handleCategoryImageChange = (e) => {
+    if (e.target.files[0]) {
+      setNewCategoryImage(e.target.files[0]);
+    }
+  };
+
   const handleAddCategory = async (e) => {
     e.preventDefault();
     if (!newCategory.trim()) return;
-
     try {
-      const categoryRef = await addDoc(collection(db, 'categories'), {
+      setLoading(true);
+      let imageUrl = '';
+      if (newCategoryImage) {
+        if (newCategoryImage.size > 5 * 1024 * 1024) {
+          throw new Error('Image size must be less than 5MB');
+        }
+        if (!newCategoryImage.type.startsWith('image/')) {
+          throw new Error('File must be an image');
+        }
+        const storageRef = ref(storage, `categories/${newCategoryImage.name}_${Date.now()}`);
+        await uploadBytes(storageRef, newCategoryImage);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+      let categoryData = {
         name: newCategory.trim(),
-        createdAt: new Date().toISOString()
-      });
-      setCategories([...categories, { id: categoryRef.id, name: newCategory.trim() }]);
+        subtitle: newCategorySubtitle.trim(),
+        image: imageUrl,
+        createdAt: new Date().toISOString(),
+      };
+      let categoryRef;
+      if (editingCategory) {
+        categoryRef = doc(db, 'categories', editingCategory.id);
+        // If replacing image, delete old one
+        if (editingCategory.image && imageUrl && editingCategory.image !== imageUrl) {
+          try {
+            const oldImageRef = ref(storage, editingCategory.image);
+            await deleteObject(oldImageRef);
+          } catch (err) {}
+        }
+        await updateDoc(categoryRef, categoryData);
+        setCategories(categories.map(cat => cat.id === editingCategory.id ? { ...cat, ...categoryData } : cat));
+      } else {
+        categoryRef = await addDoc(collection(db, 'categories'), categoryData);
+        setCategories([...categories, { id: categoryRef.id, ...categoryData }]);
+      }
       setNewCategory('');
+      setNewCategorySubtitle('');
+      setNewCategoryImage(null);
+      setEditingCategory(null);
       setShowCategoryForm(false);
     } catch (error) {
       console.error('Error adding category:', error);
       setError('Failed to add category');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setNewCategory(category.name);
+    setNewCategorySubtitle(category.subtitle || '');
+    setNewCategoryImage(null);
+    setShowCategoryForm(true);
   };
 
   const handleDeleteCategory = async (categoryId) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
-
     try {
+      setLoading(true);
+      const category = categories.find(cat => cat.id === categoryId);
+      if (category && category.image) {
+        try {
+          const imageRef = ref(storage, category.image);
+          await deleteObject(imageRef);
+        } catch (err) {}
+      }
       await deleteDoc(doc(db, 'categories', categoryId));
       setCategories(categories.filter(cat => cat.id !== categoryId));
     } catch (error) {
       console.error('Error deleting category:', error);
       setError('Failed to delete category');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -396,7 +456,19 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         <div className="cakemanagement-categories-list">
           {categories.map((category) => (
             <div key={category.id} className="cakemanagement-category-item">
-              <span>{category.name}</span>
+              {category.image && (
+                <img src={category.image} alt={category.name} className="cakemanagement-category-img" />
+              )}
+              <div className="cakemanagement-category-info">
+                <span className="cakemanagement-category-name">{category.name}</span>
+                {category.subtitle && <span className="cakemanagement-category-subtitle">{category.subtitle}</span>}
+              </div>
+              <button
+                className="cakemanagement-edit-category-btn"
+                onClick={() => handleEditCategory(category)}
+              >
+                <FaEdit />
+              </button>
               <button
                 className="cakemanagement-delete-category-btn"
                 onClick={() => handleDeleteCategory(category.id)}
@@ -408,7 +480,13 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         </div>
         <button
           className="cakemanagement-add-category-btn"
-          onClick={() => setShowCategoryForm(true)}
+          onClick={() => {
+            setShowCategoryForm(true);
+            setEditingCategory(null);
+            setNewCategory('');
+            setNewCategorySubtitle('');
+            setNewCategoryImage(null);
+          }}
         >
           <FaPlus /> Add New Category
         </button>
@@ -416,7 +494,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       {showCategoryForm && (
         <div className="cakemanagement-category-form">
-          <h4>Add New Category</h4>
+          <h4>{editingCategory ? 'Edit Category' : 'Add New Category'}</h4>
           <form onSubmit={handleAddCategory}>
             <input
               type="text"
@@ -425,9 +503,32 @@ const CakeManagement = ({ cakes, onUpdate }) => {
               placeholder="Enter category name"
               required
             />
+            <input
+              type="text"
+              value={newCategorySubtitle}
+              onChange={(e) => setNewCategorySubtitle(e.target.value)}
+              placeholder="Enter category subtitle"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCategoryImageChange}
+            />
+            {editingCategory && editingCategory.image && !newCategoryImage && (
+              <div className="cakemanagement-current-image">
+                <img src={editingCategory.image} alt="Current category" />
+                <p>Current image will be kept if no new image is uploaded</p>
+              </div>
+            )}
             <div className="cakemanagement-category-form-actions">
-              <button type="submit">Add Category</button>
-              <button type="button" onClick={() => setShowCategoryForm(false)}>Cancel</button>
+              <button type="submit">{editingCategory ? 'Update Category' : 'Add Category'}</button>
+              <button type="button" onClick={() => {
+                setShowCategoryForm(false);
+                setEditingCategory(null);
+                setNewCategory('');
+                setNewCategorySubtitle('');
+                setNewCategoryImage(null);
+              }}>Cancel</button>
             </div>
           </form>
         </div>
