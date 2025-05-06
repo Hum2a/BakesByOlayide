@@ -12,14 +12,17 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   const [averageRating, setAverageRating] = useState(0);
   const [selectedSizeIdx, setSelectedSizeIdx] = useState(0);
   const [selectedShapeIdx, setSelectedShapeIdx] = useState(0);
+  const [selectedFinishIdx, setSelectedFinishIdx] = useState(0);
   const [notes, setNotes] = useState('');
 
   const sizeOptions = Array.isArray(cake.sizes) ? cake.sizes : [];
   const shapeOptions = Array.isArray(cake.shapes) ? cake.shapes : [];
+  const finishOptions = Array.isArray(cake.finishes) ? cake.finishes : [];
 
   const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
   const selectedShape = shapeOptions[selectedShapeIdx] || { price: 0, name: '' };
-  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0);
+  const selectedFinish = finishOptions[selectedFinishIdx] || { price: 0, name: '' };
+  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0) + (selectedFinish.price || 0);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -57,6 +60,7 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
       ...cake,
       selectedSize,
       selectedShape,
+      selectedFinish,
       price: totalPrice,
       notes: notes.trim()
     });
@@ -150,6 +154,22 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
                         {shape.name} {shape.price ? `(+£${shape.price.toFixed(2)})` : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {finishOptions.length > 0 && (
+                <div className="cakemodal-selector-group">
+                  <span className="cakemodal-selector-label">Finish:</span>
+                  <div className="cakemodal-selector-options">
+                    {finishOptions.map((finish, idx) => (
+                      <button
+                        key={idx}
+                        className={`cakemodal-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
+                        onClick={() => setSelectedFinishIdx(idx)}
+                      >
+                        {finish.name} {finish.price ? `(+£${finish.price.toFixed(2)})` : ''}
                       </button>
                     ))}
                   </div>

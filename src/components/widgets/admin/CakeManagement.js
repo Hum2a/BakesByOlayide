@@ -19,6 +19,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     sizes: [],
     categories: [],
     shapes: [],
+    finishes: [],
     dimensions: {
       unit: 'inch'
     },
@@ -47,6 +48,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
 
   const [newShape, setNewShape] = useState({ name: '', price: '' });
+
+  const [newFinish, setNewFinish] = useState({ name: '', price: '' });
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -158,6 +161,22 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     setNewCake({
       ...newCake,
       shapes: newCake.shapes.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleAddFinish = () => {
+    if (!newFinish.name.trim() || newFinish.price === '') return;
+    setNewCake({
+      ...newCake,
+      finishes: [...newCake.finishes, { name: newFinish.name.trim(), price: parseFloat(newFinish.price) }]
+    });
+    setNewFinish({ name: '', price: '' });
+  };
+
+  const handleRemoveFinish = (index) => {
+    setNewCake({
+      ...newCake,
+      finishes: newCake.finishes.filter((_, i) => i !== index)
     });
   };
 
@@ -285,6 +304,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       sizes: [],
       categories: [],
       shapes: [],
+      finishes: [],
       servingSize: '',
       dimensions: {
         unit: 'inch'
@@ -680,6 +700,48 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 </div>
               </div>
 
+              <div className="cakemanagement-form-group full-width">
+                <label>Finishes</label>
+                <div className="cakemanagement-finishes">
+                  {newCake.finishes.map((finish, index) => (
+                    <div key={index} className="cakemanagement-finish-item">
+                      <span>{finish.name}</span>
+                      <span className="cakemanagement-finish-price">+£{finish.price.toFixed(2)}</span>
+                      <button
+                        type="button"
+                        className="cakemanagement-remove-finish-btn"
+                        onClick={() => handleRemoveFinish(index)}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="cakemanagement-add-finish">
+                  <input
+                    type="text"
+                    placeholder="Add finish (e.g. Buttercream, Fondant)"
+                    value={newFinish.name}
+                    onChange={(e) => setNewFinish({ ...newFinish, name: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price (£)"
+                    min="0"
+                    step="0.01"
+                    value={newFinish.price}
+                    onChange={(e) => setNewFinish({ ...newFinish, price: e.target.value })}
+                  />
+                  <button
+                    type="button"
+                    className="cakemanagement-add-finish-btn"
+                    onClick={handleAddFinish}
+                  >
+                    <FaPlus /> Add Finish
+                  </button>
+                </div>
+              </div>
+
               <div className="cakemanagement-form-group">
                 <label>Cake Image</label>
                 <input
@@ -751,6 +813,11 @@ const CakeManagement = ({ cakes, onUpdate }) => {
               <div className="cakemanagement-shapes-list">
                 {cake.shapes && cake.shapes.map((shape, idx) => (
                   <span key={idx} className="cakemanagement-shape-badge">{shape.name} +£{shape.price.toFixed(2)}</span>
+                ))}
+              </div>
+              <div className="cakemanagement-finishes-list">
+                {cake.finishes && cake.finishes.map((finish, idx) => (
+                  <span key={idx} className="cakemanagement-finish-badge">{finish.name} +£{finish.price.toFixed(2)}</span>
                 ))}
               </div>
               <p className="cakemanagement-category">{cake.categories.join(', ')}</p>

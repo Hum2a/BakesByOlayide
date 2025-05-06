@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { db } from '../../firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import '../styles/CakePage.css';
+import { useNavigate } from 'react-router-dom';
 
 const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -16,6 +17,7 @@ const CakePage = ({ onOpenCart }) => {
   const [error, setError] = useState(null);
   const filterContainerRef = useRef(null);
   const { totalItems } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCakes = async () => {
@@ -111,7 +113,7 @@ const CakePage = ({ onOpenCart }) => {
     <div className="cakepage-container">
       <header className="cakepage-header">
         <div className="cakepage-header-content">
-          <div className="cakepage-logo">
+          <div className="cakepage-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <img src="/images/Transparent BYB Logo.png" alt="BakesByOlayide Logo" className="cakepage-logo-image" />
           </div>
           <div className="cakepage-header-text">
