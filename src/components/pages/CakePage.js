@@ -40,13 +40,13 @@ const CakePage = ({ onOpenCart }) => {
     fetchCakes();
   }, []);
 
-  // Filter cakes based on active category
-  const filteredCakes = activeCategory === 'All' 
-    ? cakes 
-    : cakes.filter(cake => cake.category === activeCategory);
+  // Update category extraction and filtering:
+  const allCategories = Array.from(new Set(cakes.flatMap(cake => cake.categories || [])));
+  const categories = ['All', ...allCategories];
 
-  // Get unique categories for filter buttons
-  const categories = ['All', ...new Set(cakes.map(cake => cake.category))];
+  const filteredCakes = activeCategory === 'All'
+    ? cakes
+    : cakes.filter(cake => (cake.categories || []).includes(activeCategory));
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category);

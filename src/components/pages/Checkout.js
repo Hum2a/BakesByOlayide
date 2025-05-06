@@ -402,7 +402,10 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          image: item.image
+          image: item.image,
+          selectedSize: item.selectedSize,
+          selectedShape: item.selectedShape,
+          notes: item.notes || ''
         })),
         status: 'confirmed',
         paymentStatus: 'paid',
@@ -439,7 +442,10 @@ const Checkout = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          total: item.price * item.quantity
+          total: item.price * item.quantity,
+          selectedSize: item.selectedSize,
+          selectedShape: item.selectedShape,
+          notes: item.notes || ''
         }))
       };
 
@@ -492,6 +498,15 @@ const Checkout = () => {
                 <img src={item.image} alt={item.name} className="checkout-item-image" />
                 <div className="checkout-item-details">
                   <h3>{item.name}</h3>
+                  {item.selectedSize && (
+                    <div className="checkout-item-option">Size: {item.selectedSize.size}"</div>
+                  )}
+                  {item.selectedShape && (
+                    <div className="checkout-item-option">Shape: {item.selectedShape.name}</div>
+                  )}
+                  {item.notes && (
+                    <div className="checkout-item-notes">Notes: {item.notes}</div>
+                  )}
                   <div className="quantity-controls">
                     <button 
                       className="quantity-btn"

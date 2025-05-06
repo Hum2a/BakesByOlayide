@@ -921,4 +921,18 @@
     gap: 0.5rem;
     text-align: center;
   }
+}
+
+.checkout-item-option {
+  font-size: 0.97rem;
+  color: #666;
+  margin-bottom: 0.2rem;
+}
+
+.checkout-item-notes {
+  font-size: 0.97rem;
+  color: #e67e22;
+  margin-bottom: 0.2rem;
+  font-style: italic;
+  white-space: pre-line;
 } 

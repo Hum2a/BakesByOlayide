@@ -407,4 +407,372 @@
   border-radius: 4px;
   font-size: 0.9rem;
   font-family: monospace;
+}
+
+.cakemanagement-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-category-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-category-checkbox:hover {
+  background-color: #e9ecef;
+}
+
+.cakemanagement-category-checkbox input[type="checkbox"] {
+  margin: 0;
+}
+
+.cakemanagement-add-category-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-add-category-btn:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #475569;
+}
+
+.cakemanagement-category-form {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.cakemanagement-category-form h4 {
+  margin: 0 0 1rem;
+  color: #2c3e50;
+}
+
+.cakemanagement-category-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-category-form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cakemanagement-category-form-actions button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-category-form-actions button[type="submit"] {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+}
+
+.cakemanagement-category-form-actions button[type="submit"]:hover {
+  background-color: #d35400;
+}
+
+.cakemanagement-category-form-actions button[type="button"] {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cakemanagement-category-form-actions button[type="button"]:hover {
+  background-color: #e9ecef;
+}
+
+.cakemanagement-categories-section {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+.cakemanagement-categories-section h3 {
+  margin: 0 0 1rem;
+  color: #2c3e50;
+}
+
+.cakemanagement-categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cakemanagement-category-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+.cakemanagement-delete-category-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-delete-category-btn:hover {
+  background-color: #fecaca;
+}
+
+.cakemanagement-sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-size-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.cakemanagement-size-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cakemanagement-size-name {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.cakemanagement-size-price {
+  color: #e67e22;
+  font-weight: 500;
+}
+
+.cakemanagement-size-servings {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.cakemanagement-remove-size-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-remove-size-btn:hover {
+  background-color: #fecaca;
+}
+
+.cakemanagement-add-size {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cakemanagement-size-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.cakemanagement-size-inputs input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-add-size-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-add-size-btn:hover {
+  background-color: #d35400;
+}
+
+.cakemanagement-sizes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.cakemanagement-size-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.cakemanagement-size-badge span:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.cakemanagement-size-badge span:nth-child(2) {
+  color: #e67e22;
+  font-weight: 500;
+}
+
+.cakemanagement-size-badge span:last-child {
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .cakemanagement-size-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .cakemanagement-size-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+.cakemanagement-shapes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-shape-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-remove-shape-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-remove-shape-btn:hover {
+  background-color: #fecaca;
+}
+
+.cakemanagement-add-shape {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.cakemanagement-add-shape input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-add-shape-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-add-shape-btn:hover {
+  background-color: #d35400;
+}
+
+.cakemanagement-shapes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.cakemanagement-shape-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
 } 

@@ -56,6 +56,15 @@ const CartModal = ({ onClose }) => {
                   <img src={item.image} alt={item.name} className="cart-item-image" />
                   <div className="cart-item-details">
                     <h3>{item.name}</h3>
+                    {item.selectedSize && (
+                      <div className="cart-item-option">Size: {item.selectedSize.size}"</div>
+                    )}
+                    {item.selectedShape && (
+                      <div className="cart-item-option">Shape: {item.selectedShape.name}</div>
+                    )}
+                    {item.notes && (
+                      <div className="cart-item-notes">Notes: {item.notes}</div>
+                    )}
                     <p className="cart-item-price">${item.price.toFixed(2)}</p>
                     <div className="cart-item-quantity">
                       <button

@@ -10,6 +10,16 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
+  const [selectedSizeIdx, setSelectedSizeIdx] = useState(0);
+  const [selectedShapeIdx, setSelectedShapeIdx] = useState(0);
+  const [notes, setNotes] = useState('');
+
+  const sizeOptions = Array.isArray(cake.sizes) ? cake.sizes : [];
+  const shapeOptions = Array.isArray(cake.shapes) ? cake.shapes : [];
+
+  const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
+  const selectedShape = shapeOptions[selectedShapeIdx] || { price: 0, name: '' };
+  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -43,7 +53,13 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
   }, [cake.id]);
 
   const handleAddToCart = () => {
-    addToCart(cake);
+    addToCart({
+      ...cake,
+      selectedSize,
+      selectedShape,
+      price: totalPrice,
+      notes: notes.trim()
+    });
     if (onAddToCart) {
       onAddToCart();
     }
@@ -80,6 +96,11 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
     });
   };
 
+  // Calculate minimum price from sizes
+  const minPrice = Array.isArray(cake.sizes) && cake.sizes.length > 0
+    ? Math.min(...cake.sizes.map(s => s.price))
+    : 0;
+
   return (
     <div className="cakemodal-overlay" onClick={onClose}>
       <div className="cakemodal-content" onClick={e => e.stopPropagation()}>
@@ -100,29 +121,82 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                 {averageRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
               </span>
             </div>
-            <p className="cakemodal-price">£{cake.price.toFixed(2)}</p>
+            <p className="cakemodal-price">£{totalPrice.toFixed(2)}</p>
+            <div className="cakemodal-selectors">
+              {sizeOptions.length > 0 && (
+                <div className="cakemodal-selector-group">
+                  <span className="cakemodal-selector-label">Size:</span>
+                  <div className="cakemodal-selector-options">
+                    {sizeOptions.map((size, idx) => (
+                      <button
+                        key={idx}
+                        className={`cakemodal-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
+                        onClick={() => setSelectedSizeIdx(idx)}
+                      >
+                        {size.size}" (£{size.price.toFixed(2)})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {shapeOptions.length > 0 && (
+                <div className="cakemodal-selector-group">
+                  <span className="cakemodal-selector-label">Shape:</span>
+                  <div className="cakemodal-selector-options">
+                    {shapeOptions.map((shape, idx) => (
+                      <button
+                        key={idx}
+                        className={`cakemodal-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
+                        onClick={() => setSelectedShapeIdx(idx)}
+                      >
+                        {shape.name} {shape.price ? `(+£${shape.price.toFixed(2)})` : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="cakemodal-notes-section">
+              <label htmlFor="cakemodal-notes">Additional Notes (optional):</label>
+              <textarea
+                id="cakemodal-notes"
+                className="cakemodal-notes-textarea"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="E.g. No nuts, write 'Happy Birthday', etc."
+                rows={2}
+              />
+            </div>
             <p className="cakemodal-description">{cake.description}</p>
             
             <div className="cakemodal-features">
               <h3>Features</h3>
               <ul>
+                {cake.sizes && cake.sizes.length > 0 && (
+                  <li>
+                    Sizes: {cake.sizes.map(size => `${size.size}\" (£${size.price.toFixed(2)})`).join(', ')}
+                  </li>
+                )}
+                {cake.shapes && cake.shapes.length > 0 && (
+                  <li>
+                    Shapes: {cake.shapes.map(shape => `${shape.name} ${shape.price ? `(+£${shape.price.toFixed(2)})` : ''}`).join(', ')}
+                  </li>
+                )}
+                {cake.categories && cake.categories.length > 0 && (
+                  <li>
+                    Categories: {cake.categories.join(', ')}
+                  </li>
+                )}
                 {cake.ingredients && cake.ingredients.length > 0 && (
                   <li>Ingredients: {cake.ingredients.join(', ')}</li>
                 )}
-                {cake.dietaryInfo && cake.dietaryInfo.length > 0 && (
-                  <li>Dietary Information: {cake.dietaryInfo.join(', ')}</li>
+                {cake.dietaryInfo && typeof cake.dietaryInfo === 'object' && Object.values(cake.dietaryInfo).some(Boolean) && (
+                  <li>
+                    Dietary Information: {Object.entries(cake.dietaryInfo).filter(([k, v]) => v).map(([k]) => k.replace(/^is/, '').replace(/([A-Z])/g, ' $1').trim()).join(', ')}
+                  </li>
                 )}
                 {cake.allergens && cake.allergens.length > 0 && (
                   <li>Allergens: {cake.allergens.join(', ')}</li>
-                )}
-                {cake.servingSize && (
-                  <li>Serves: {cake.servingSize} people</li>
-                )}
-                {cake.dimensions && (
-                  <li>Size: {cake.dimensions.size}{cake.dimensions.unit} {cake.dimensions.shape}</li>
-                )}
-                {cake.prepTime && (
-                  <li>Preparation Time: {cake.prepTime.value} {cake.prepTime.unit}</li>
                 )}
               </ul>
             </div>
@@ -133,12 +207,6 @@ const CakeModal = ({ cake, onClose, onAddToCart }) => {
                 onClick={handleAddToCart}
               >
                 Add to Cart
-              </button>
-              <button 
-                className="cakemodal-customize-btn"
-                onClick={() => window.location.href = '/cake-builder'}
-              >
-                Customize
               </button>
             </div>
           </div>

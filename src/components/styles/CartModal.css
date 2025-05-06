@@ -260,6 +260,20 @@
   color: white;
 }
 
+.cart-item-option {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 0.2rem;
+}
+
+.cart-item-notes {
+  font-size: 0.95rem;
+  color: #e67e22;
+  margin-bottom: 0.2rem;
+  font-style: italic;
+  white-space: pre-line;
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .cart-modal {
