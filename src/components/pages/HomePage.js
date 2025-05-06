@@ -70,53 +70,48 @@ const HomePage = () => {
 
   return (
     <div className="homepage-container">
-      <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
+      <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`} style={{ background: '#000' }}>
         <nav className="homepage-nav">
           <div className="homepage-logo">
-            <img src="/images/Transparent BYB Logo.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
+            <img src="/logos/LogoYellowLayeredTransparent.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
           </div>
-          <button 
-            className="mobile-menu-toggle"
-            onClick={handleMobileMenuClick}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
-          </button>
-          <ul className={`homepage-nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-            <li><a href="/" className="active">Home</a></li>
-            <li><a href="/cakes">Cakes</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); setIsAboutOpen(true); }}>About</a></li>
-            <li><a href="#" onClick={(e) => { e.preventDefault(); setIsContactOpen(true); }}>Contact</a></li>
-            <li className="auth-nav-item">
-              {user ? (
-                <button 
-                  className="auth-nav-button profile-button"
-                  onClick={handleProfileClick}
-                >
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" className="profile-image" />
-                  ) : (
-                    <FaUser />
-                  )}
-                </button>
-              ) : (
-                <button 
-                  className="auth-nav-button"
-                  onClick={handleAuthClick}
-                >
-                  <FaUser /> Account
-                </button>
-              )}
-            </li>
+          <ul className="homepage-nav-links main-nav-links">
+            <li><a href="/cakes" className="nav-link">Our Range</a></li>
+            <li><a href="/guides" className="nav-link">Guides</a></li>
+            <li><a href="/about" className="nav-link">About Us</a></li>
+            <li><a href="/contact" className="nav-link">Contact Us</a></li>
           </ul>
+          <div className="homepage-nav-icons">
+            {user ? (
+              <button 
+                className="auth-nav-button profile-button"
+                onClick={handleProfileClick}
+              >
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt="Profile" className="profile-image" />
+                ) : (
+                  <FaUser />
+                )}
+              </button>
+            ) : (
+              <button 
+                className="auth-nav-button"
+                onClick={handleAuthClick}
+              >
+                <FaUser /> Account
+              </button>
+            )}
+            <a href="/cart" className="nav-icon-link" aria-label="Cart">
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </a>
+          </div>
         </nav>
       </header>
 
       <section className="homepage-hero">
         <div className="homepage-hero-content">
-          <h2>Artisanal Celebration Cakes</h2>
-          <p>Experience the magic of handcrafted cakes, where every creation tells your unique story</p>
-          <a href="/cakes" className="homepage-cta-button">Explore Our Cakes</a>
+          <h2>Cakes and Bakes for Every Occasion</h2>
+          <a href="/cakes" className="homepage-cta-button">Browse</a>
         </div>
       </section>
 
