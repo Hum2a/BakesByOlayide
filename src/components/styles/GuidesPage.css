@@ -72,7 +72,7 @@
 }
 
 .guide-read-btn {
-  background: #ffe066;
+  background: #F3C307;
   color: #222;
   font-weight: bold;
   border: none;
@@ -87,7 +87,7 @@
 }
 
 .guide-read-btn:hover {
-  background: #ffd700;
+  background: #F3C307;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }
@@ -157,7 +157,7 @@
 }
 
 .guide-signup-form button {
-  background: #ffe066;
+  background: #F3C307;
   color: #222;
   font-weight: bold;
   border: none;

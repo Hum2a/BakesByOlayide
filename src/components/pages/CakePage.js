@@ -124,7 +124,7 @@ const CakePage = ({ onOpenCart }) => {
     <div className="cakepage-container">
       <header className="cakepage-hero">
         <img 
-          src="/logos/LogoYellowLayeredTransparent.png" 
+          src="/logos/LogoYellowTransparent.png" 
           alt="Bakes by Olayide Logo" 
           className="cakepage-hero-logo" 
           style={{ cursor: 'pointer' }}

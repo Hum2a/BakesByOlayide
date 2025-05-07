@@ -17,7 +17,7 @@ const Header = ({
   <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`} style={{ background: '#000' }}>
     <nav className="homepage-nav">
       <div className="homepage-logo">
-        <img src="/logos/LogoYellowLayeredTransparent.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
+        <img src="/logos/LogoYellowTransparent.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
       </div>
       <ul className="homepage-nav-links main-nav-links">
         <li><a href="/cakes" className="nav-link">Our Range</a></li>
