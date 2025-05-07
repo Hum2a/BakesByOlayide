@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from '../components/pages/HomePage';
+import AboutUsPage from '../components/pages/AboutUsPage';
 import GuidesPage from '../components/pages/GuidesPage';
 import DietaryRequirements from '../components/pages/DietaryRequirements';
 import ContactUs from '../components/pages/ContactUs';
@@ -19,6 +20,7 @@ const AppRouter = () => {
         <Routes>
           <Route path="/" element={<HomePage onOpenCart={() => setIsCartOpen(true)} />} />
           <Route path="/guides" element={<GuidesPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
           <Route path="/guides/dietary-requirements" element={<DietaryRequirements />} />
           {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
           <Route path="/contact" element={<ContactUs />} />
