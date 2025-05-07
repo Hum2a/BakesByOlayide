@@ -512,7 +512,7 @@
 
 /* Authentication Button Styles */
 .auth-nav-button {
-  background: linear-gradient(135deg, #e67e22, #d35400);
+  background: transparent;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -522,18 +522,19 @@
   gap: 0.5rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .auth-nav-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background: linear-gradient(135deg, #d35400, #e67e22);
+  background: linear-gradient(135deg, #ffffff, #000000);
 }
 
 .homepage-header.scrolled .auth-nav-button {
-  background: linear-gradient(135deg, #e67e22, #d35400);
+  background: linear-gradient(135deg, #ffffff, #000000);
+  color: black;
 }
 
 @media (max-width: 768px) {
