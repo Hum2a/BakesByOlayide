@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
-import '../styles/HomePage.css';
+import '../styles/Header.css';
 
 const Header = ({
   user,

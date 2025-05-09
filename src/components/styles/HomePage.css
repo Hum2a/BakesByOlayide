@@ -4,7 +4,7 @@
   color: #333;
 }
 
-/* Header and Navigation */
+/* Header and Navigation
 .homepage-header {
   background: #000;
   position: fixed;
@@ -22,24 +22,6 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-}
-
-.homepage-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2.5rem;
-  height: 100%;
-}
-
-.homepage-logo {
-  display: flex;
-  align-items: center;
-  flex: 1 1 0;
-  height: 100%;
 }
 
 .homepage-logo-image {
@@ -133,20 +115,22 @@
 
 .nav-icon-link:hover {
   color: #ffe066;
-}
+} */
 
 /* Hero Section */
 .homepage-hero {
   background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../../../public/images/Hero Image.png');
   background-size: cover;
   background-position: center;
-  height: 100vh;
+  background-attachment: fixed;
+  min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  color: white;
-  padding: 0 1rem;
-  padding-top: 80px;
+  color: #fff;
+  padding: 2rem;
+  position: relative;
 }
 
 .homepage-hero-content {
