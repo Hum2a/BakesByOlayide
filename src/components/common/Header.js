@@ -15,7 +15,7 @@ const Header = ({
   setIsMobileMenuOpen,
   handleModalOpen
 }) => (
-  <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`} style={{ background: '#000' }}>
+  <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
     <nav className="homepage-nav">
       <div className="homepage-logo">
         <img src="/logos/LogoYellowTransparent.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
