@@ -164,7 +164,6 @@
 }
 
 .homepage-hero-image {
-  border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 6px 32px rgba(0,0,0,0.10);
   background: #fff;
@@ -174,7 +173,6 @@
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 18px;
 }
 
 /* About Preview Section */
@@ -557,10 +555,4 @@
     width: 36px;
     height: 36px;
   }
-}
-
-.homepage-guides {
-  max-width: 1200px;
-  margin: 3rem auto 0 auto;
-  padding: 0 1rem 3rem 1rem;
 }

@@ -12,9 +12,7 @@
 }
 
 .homepage-guides {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
 }
 
 .guides-title {
@@ -94,8 +92,8 @@
 
 .guide-banner {
   position: relative;
-  border-radius: 16px;
   overflow: hidden;
+  width: 100%;
   margin-top: 2.5rem;
   min-height: 320px;
   display: flex;
