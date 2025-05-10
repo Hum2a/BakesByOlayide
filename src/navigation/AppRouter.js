@@ -12,6 +12,12 @@ import OrderConfirmation from '../components/pages/OrderConfirmation';
 import CartModal from '../components/modals/CartModal';
 import Admin from '../components/pages/Admin';
 
+// Collections
+import CupcakeCollectionPage from '../components/widgets/collections/CupcakeCollectionPage';
+import LargeCakesCollection from '../components/widgets/collections/LargeCakesCollection';
+import BentoCakewithCupcakesCollection from '../components/widgets/collections/BentoCakewithCupcakesCollection';
+import BrowniesCollection from '../components/widgets/collections/BrowniesCollection';
+
 const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -29,7 +35,11 @@ const AppRouter = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/admin" element={<Admin />} />
-          {/* Add more routes here as we create more pages */}
+          {/* Collections */}
+          <Route path="/collections/cupcakes" element={<CupcakeCollectionPage />} />
+          <Route path="/collections/largecakes" element={<LargeCakesCollection />} />
+          <Route path="/collections/bentocakewithcupcakes" element={<BentoCakewithCupcakesCollection />} />
+          <Route path="/collections/brownies" element={<BrowniesCollection />} />
         </Routes>
 
         {isCartOpen && (
