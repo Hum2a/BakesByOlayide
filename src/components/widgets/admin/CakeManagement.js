@@ -25,6 +25,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [debugInfo, setDebugInfo] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [newCake, setNewCake] = useState({
     name: '',
     description: '',
@@ -46,7 +47,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       isGlutenFree: false,
       isNutFree: false,
       isDairyFree: false
-    }
+    },
+    fillings: []
   });
 
   const [newSize, setNewSize] = useState({
@@ -171,6 +173,40 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     });
   };
 
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setNewCake(prevCake => ({
+      ...prevCake,
+      categories: [category]
+    }));
+  };
+
+  const handleAddFilling = () => {
+    setNewCake({
+      ...newCake,
+      fillings: [...newCake.fillings, { name: '', price: '' }]
+    });
+  };
+
+  const handleRemoveFilling = (index) => {
+    setNewCake({
+      ...newCake,
+      fillings: newCake.fillings.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleFillingChange = (index, field, value) => {
+    const newFillings = [...newCake.fillings];
+    newFillings[index] = {
+      ...newFillings[index],
+      [field]: field === 'price' ? parseFloat(value) : value
+    };
+    setNewCake({
+      ...newCake,
+      fillings: newFillings
+    });
+  };
+
   const handleCakeSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -217,6 +253,11 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           console.error('Error uploading image:', uploadError);
           throw new Error(`Failed to upload image: ${uploadError.message}`);
         }
+      }
+
+      // Ensure category is set
+      if (!newCake.categories || newCake.categories.length === 0) {
+        throw new Error('Category must be selected');
       }
 
       // Filter out empty strings from arrays
@@ -289,6 +330,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     setShowNewCakeForm(false);
     setEditingCake(null);
     setCakeImage(null);
+    setSelectedCategory(null);
     setNewCake({
       name: '',
       description: '',
@@ -311,7 +353,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         isGlutenFree: false,
         isNutFree: false,
         isDairyFree: false
-      }
+      },
+      fillings: []
     });
   };
 
@@ -338,12 +381,44 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
       <div className="cakemanagement-header">
         <h2>Cake Management</h2>
-        <button 
-          className="cakemanagement-add-btn"
-          onClick={() => setShowNewCakeForm(true)}
-        >
-          <FaPlus /> Add New Cake
-        </button>
+        <div className="cakemanagement-add-buttons">
+          <button 
+            className="cakemanagement-add-btn"
+            onClick={() => {
+              handleCategorySelect('Cupcakes');
+              setShowNewCakeForm(true);
+            }}
+          >
+            <FaPlus /> Add Cupcake
+          </button>
+          <button 
+            className="cakemanagement-add-btn"
+            onClick={() => {
+              handleCategorySelect('Brownies');
+              setShowNewCakeForm(true);
+            }}
+          >
+            <FaPlus /> Add Brownie
+          </button>
+          <button 
+            className="cakemanagement-add-btn"
+            onClick={() => {
+              handleCategorySelect('Cookies');
+              setShowNewCakeForm(true);
+            }}
+          >
+            <FaPlus /> Add Cookie
+          </button>
+          <button 
+            className="cakemanagement-add-btn"
+            onClick={() => {
+              setSelectedCategory(null);
+              setShowNewCakeForm(true);
+            }}
+          >
+            <FaPlus /> Add Other
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -354,7 +429,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       {showNewCakeForm && (
         <div className="cakemanagement-form-container">
-          <h3>{editingCake ? 'Edit Cake' : 'Add New Cake'}</h3>
+          <h3>{editingCake ? 'Edit Cake' : `Add New ${selectedCategory || 'Cake'}`}</h3>
           <form onSubmit={handleCakeSubmit} className="cakemanagement-form">
             <div className="cakemanagement-form-grid">
               <div className="cakemanagement-form-group">
@@ -367,26 +442,68 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 />
               </div>
 
-              <div className="cakemanagement-form-group full-width">
-                <label>Categories*</label>
-                <div className="cakemanagement-categories">
-                  {FIXED_CATEGORIES.map((category) => (
-                    <label key={category} className="cakemanagement-category-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={newCake.categories.includes(category)}
-                        onChange={(e) => {
-                          const updatedCategories = e.target.checked
-                            ? [...newCake.categories, category]
-                            : newCake.categories.filter(cat => cat !== category);
-                          setNewCake({ ...newCake, categories: updatedCategories });
-                        }}
-                      />
-                      {category}
-                    </label>
-                  ))}
+              {!selectedCategory && (
+                <div className="cakemanagement-form-group full-width">
+                  <label>Categories*</label>
+                  <div className="cakemanagement-categories">
+                    {FIXED_CATEGORIES.map((category) => (
+                      <label key={category} className="cakemanagement-category-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={newCake.categories.includes(category)}
+                          onChange={(e) => {
+                            const updatedCategories = e.target.checked
+                              ? [...newCake.categories, category]
+                              : newCake.categories.filter(cat => cat !== category);
+                            setNewCake({ ...newCake, categories: updatedCategories });
+                          }}
+                        />
+                        {category}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {selectedCategory === 'Cupcakes' && (
+                <div className="cakemanagement-form-group full-width">
+                  <label>Fillings</label>
+                  <div className="cakemanagement-fillings">
+                    {newCake.fillings.map((filling, index) => (
+                      <div key={index} className="cakemanagement-filling-item">
+                        <input
+                          type="text"
+                          placeholder="Filling name"
+                          value={filling.name}
+                          onChange={(e) => handleFillingChange(index, 'name', e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Price (£)"
+                          min="0"
+                          step="0.01"
+                          value={filling.price}
+                          onChange={(e) => handleFillingChange(index, 'price', e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="cakemanagement-remove-filling-btn"
+                          onClick={() => handleRemoveFilling(index)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      className="cakemanagement-add-filling-btn"
+                      onClick={handleAddFilling}
+                    >
+                      <FaPlus /> Add Filling
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="cakemanagement-form-group full-width">
                 <label>Sizes and Prices*</label>
