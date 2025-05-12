@@ -1,8 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../../../firebase/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import './CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 
 const BentoCakewithCupcakesCollection = () => {
+  const [bentoCakes, setBentoCakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchBentoCakes();
+  }, []);
+
+  const fetchBentoCakes = async () => {
+    try {
+      setLoading(true);
+      const cakesRef = collection(db, 'cakes');
+      const q = query(cakesRef, where('categories', 'array-contains', 'Bento Cake with Cupcakes'));
+      const querySnapshot = await getDocs(q);
+      
+      const bentoCakesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Separate featured and standard bento cakes
+      const featuredBentoCakes = bentoCakesData.filter(bentoCake => bentoCake.featured);
+      const standardBentoCakes = bentoCakesData.filter(bentoCake => !bentoCake.featured);
+
+      setBentoCakes({
+        featured: featuredBentoCakes,
+        standard: standardBentoCakes
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching bento cakes:', error);
+      setError('Failed to load bento cakes. Please try again later.');
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="cupcake-collection-container">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="cupcake-collection-container">{error}</div>;
+  }
+
   return (
     <div className="cupcake-collection-container">
       <div className="cupcake-hero" style={{ backgroundImage: `url('/images/range/BentoCake.png')` }}>
@@ -19,26 +65,34 @@ const BentoCakewithCupcakesCollection = () => {
       <section className="cupcake-section">
         <h2>Featured Flavours</h2>
         <div className="cupcake-flavours-grid">
-          <div className="cupcake-flavour-card">
-            <img src="/images/range/bento-cake-1.jpg" alt="Strawberry Bento" className="cupcake-flavour-img" />
-            <div className="cupcake-flavour-info">
-              <h3>Strawberry Bento</h3>
-              <p>Fresh strawberry cake with vanilla buttercream.</p>
-              <span className="cupcake-flavour-price">From £18</span>
+          {bentoCakes.featured?.map((bentoCake) => (
+            <div className="cupcake-flavour-card" key={bentoCake.id}>
+              <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
+              <div className="cupcake-flavour-info">
+                <h3>{bentoCake.name}</h3>
+                <p>{bentoCake.description}</p>
+                <span className="cupcake-flavour-price">
+                  From £{Math.min(...bentoCake.sizes.map(size => size.price)).toFixed(2)}
+                </span>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
       <section className="cupcake-section">
         <h2>Standard Range</h2>
         <div className="cupcake-standard-grid">
-          <div className="cupcake-standard-card">
-            <img src="/images/range/bento-cake-2.jpg" alt="Chocolate Bento" className="cupcake-standard-img" />
-            <div className="cupcake-standard-info">
-              <h3>Chocolate Bento</h3>
-              <span className="cupcake-standard-price">From £18</span>
+          {bentoCakes.standard?.map((bentoCake) => (
+            <div className="cupcake-standard-card" key={bentoCake.id}>
+              <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-standard-img" />
+              <div className="cupcake-standard-info">
+                <h3>{bentoCake.name}</h3>
+                <span className="cupcake-standard-price">
+                  From £{Math.min(...bentoCake.sizes.map(size => size.price)).toFixed(2)}
+                </span>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
       <Footer />

@@ -1,82 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { db } from '../../../firebase/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import './CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 
-// Placeholder cake data
-const flavoursOfTheSeason = [
-  {
-    name: 'Cinnamon Apple',
-    image: '/images/range/cinnamon-apple.jpg',
-    description: 'Moist apple cupcakes with spiced swirl blend buttercream.',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'White Chocolate and Coconut',
-    image: '/images/range/white-choc-coconut.jpg',
-    description: 'White chocolate cupcakes, coconut topping.',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Berries and Cream',
-    image: '/images/range/berries-cream.jpg',
-    description: 'Berry cupcakes, vanilla cream swirl.',
-    price: 'From £12.50 / 6 box',
-  },
-];
-
-const standardRange = [
-  {
-    name: 'Vanilla Sponge',
-    image: '/images/range/vanilla-sponge.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Chocolate Sponge',
-    image: '/images/range/chocolate-sponge.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Red Velvet',
-    image: '/images/range/red-velvet.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Oreo',
-    image: '/images/range/oreo.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Cookie dough',
-    image: '/images/range/cookie-dough.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Salted Caramel',
-    image: '/images/range/salted-caramel.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Tiramisu',
-    image: '/images/range/tiramisu.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Vegan Vanilla Sponge',
-    image: '/images/range/vegan-vanilla.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-  {
-    name: 'Vegan Chocolate Sponge',
-    image: '/images/range/vegan-chocolate.jpg',
-    price: 'From £12.50 / 6 box',
-  },
-];
-
 const CupcakeCollectionPage = () => {
   const [page, setPage] = useState(1);
+  const [cupcakes, setCupcakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const cakesPerPage = 6;
-  const totalPages = Math.ceil(standardRange.length / cakesPerPage);
-  const paginatedCakes = standardRange.slice((page - 1) * cakesPerPage, page * cakesPerPage);
+
+  useEffect(() => {
+    fetchCupcakes();
+  }, []);
+
+  const fetchCupcakes = async () => {
+    try {
+      setLoading(true);
+      const cakesRef = collection(db, 'cakes');
+      const q = query(cakesRef, where('categories', 'array-contains', 'Cupcakes'));
+      const querySnapshot = await getDocs(q);
+      
+      const cupcakesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Separate seasonal and standard cupcakes
+      const seasonalCupcakes = cupcakesData.filter(cake => cake.isSeasonal);
+      const standardCupcakes = cupcakesData.filter(cake => !cake.isSeasonal);
+
+      setCupcakes({
+        seasonal: seasonalCupcakes,
+        standard: standardCupcakes
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching cupcakes:', error);
+      setError('Failed to load cupcakes. Please try again later.');
+      setLoading(false);
+    }
+  };
+
+  const totalPages = Math.ceil((cupcakes.standard?.length || 0) / cakesPerPage);
+  const paginatedCakes = cupcakes.standard?.slice((page - 1) * cakesPerPage, page * cakesPerPage) || [];
+
+  if (loading) {
+    return <div className="cupcake-collection-container">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="cupcake-collection-container">{error}</div>;
+  }
 
   return (
     <div className="cupcake-collection-container">
@@ -99,13 +75,15 @@ const CupcakeCollectionPage = () => {
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {flavoursOfTheSeason.map((cake, idx) => (
-            <div className="cupcake-flavour-card" key={cake.name}>
+          {cupcakes.seasonal?.map((cake) => (
+            <div className="cupcake-flavour-card" key={cake.id}>
               <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{cake.name}</h3>
                 <p>{cake.description}</p>
-                <span className="cupcake-flavour-price">{cake.price}</span>
+                <span className="cupcake-flavour-price">
+                  From £{Math.min(...cake.sizes.map(size => size.price)).toFixed(2)} / 6 box
+                </span>
               </div>
             </div>
           ))}
@@ -117,11 +95,13 @@ const CupcakeCollectionPage = () => {
         <h2>Standard Range</h2>
         <div className="cupcake-standard-grid">
           {paginatedCakes.map((cake) => (
-            <div className="cupcake-standard-card" key={cake.name}>
+            <div className="cupcake-standard-card" key={cake.id}>
               <img src={cake.image} alt={cake.name} className="cupcake-standard-img" />
               <div className="cupcake-standard-info">
                 <h3>{cake.name}</h3>
-                <span className="cupcake-standard-price">{cake.price}</span>
+                <span className="cupcake-standard-price">
+                  From £{Math.min(...cake.sizes.map(size => size.price)).toFixed(2)} / 6 box
+                </span>
               </div>
             </div>
           ))}
