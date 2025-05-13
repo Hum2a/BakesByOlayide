@@ -1,75 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import '../styles/GuidesPage.css';
-import Header from '../common/Header';
 import Footer from '../common/Footer';
 import Guides from '../widgets/Guides';
-import { auth } from '../../firebase/firebase';
+import { useNavigate } from 'react-router-dom';
+import { FaShoppingCart } from 'react-icons/fa';
+import { useCart } from '../../context/CartContext';
 
 const GuidesPage = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const handleMobileMenuClick = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleProfileClick = (e) => {
-    e.preventDefault();
-    setIsProfileOpen(!isProfileOpen);
-    setIsMobileMenuOpen(false);
-  };
-
-  const handleAuthClick = (e) => {
-    e.preventDefault();
-    // Handle auth click - you might want to add state for auth modal here
-  };
-
-  const handleModalOpen = (modal) => {
-    // Handle modal opening - you might want to add state for different modals here
-    setIsProfileOpen(false);
-  };
+  const navigate = useNavigate();
+  const { totalItems } = useCart();
 
   return (
     <div className="guides-page-container">
-      <Header 
-        user={user}
-        isScrolled={isScrolled}
-        isMobileMenuOpen={isMobileMenuOpen}
-        handleMobileMenuClick={handleMobileMenuClick}
-        handleProfileClick={handleProfileClick}
-        handleAuthClick={handleAuthClick}
-        isProfileOpen={isProfileOpen}
-        setIsProfileOpen={setIsProfileOpen}
-        setIsAuthOpen={() => {}}
-        setIsMobileMenuOpen={setIsMobileMenuOpen}
-        handleModalOpen={handleModalOpen}
-      />
+      {/* CakePage-style Header */}
+      <header className="cakepage-hero">
+        <img 
+          src="/logos/LogoYellowTransparent.png" 
+          alt="Bakes by Olayide Logo" 
+          className="cakepage-hero-logo" 
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/')} 
+        />
+        <nav className="cakepage-hero-nav">
+          <a href="/cakes">Our Range</a>
+          <a href="/guides">Guides</a>
+          <a href="/about">Our Story</a>
+          <a href="/contact">Contact Us</a>
+          <button className="cakepage-cart-button" onClick={() => navigate('/cart')} aria-label="View Cart">
+            <FaShoppingCart />
+            {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
+          </button>
+        </nav>
+        <div className="cakepage-hero-bgimg-wrap">
+          <img src="/images/guide/GuideHeroImage.jpg" alt="Guides" className="cakepage-hero-bgimg" />
+          <h1 className="cakepage-hero-title">Guides</h1>
+        </div>
+      </header>
 
       <main className="guides-page-content">
         <Guides />
