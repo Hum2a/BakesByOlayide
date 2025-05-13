@@ -5,7 +5,7 @@ const SignatureCreations = () => {
   return (
     <section className="homepage-featured-cakes">
       <h2>Our Range</h2>
-      <div className="signature-cake-row">
+      <div className="signature-cake-cards">
         <div className="homepage-cake-card">
           <img src="/range/Cupcakes.png" alt="Cupcakes" />
           <h3>Cupcakes</h3>
@@ -21,8 +21,6 @@ const SignatureCreations = () => {
           <h3>Bento with Cupcakes</h3>
           <a href="/cakes?category=Bento%20with%20Cupcakes" className="signature-browse-btn">Browse</a>
         </div>
-      </div>
-      <div className="signature-cake-row">
         <div className="homepage-cake-card">
           <img src="/range/Brownies.png" alt="Brownies" />
           <h3>Brownies</h3>
