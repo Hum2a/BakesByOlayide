@@ -31,8 +31,6 @@ const guidesData = [
 const Guides = () => {
   return (
     <section className="homepage-guides">
-      {/* Hero Section */}
-
       {/* Intro */}
       <div className="guides-intro guides-intro-centered">
         Below we have some useful guides to help you. Whether it be knowing how we handle allergens to how you can keep your cake well for longer, we have our tips here.<br />

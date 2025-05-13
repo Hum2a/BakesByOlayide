@@ -11,6 +11,8 @@ import CartModal from '../modals/CartModal';
 import CakeBuilder from '../widgets/CakeBuilder';
 import SignatureCreations from '../widgets/SignatureCreations';
 import Guides from '../widgets/Guides';
+import HomepageGuides from '../widgets/HomepageGuides';
+import SubscriptionWidget from '../widgets/SubscriptionWidget';
 import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter, FaUser } from 'react-icons/fa';
 import { auth } from '../../firebase/firebase';
 import Footer from '../common/Footer';
@@ -100,7 +102,9 @@ const HomePage = () => {
         <img src="/images/HeroImage2.png" alt="Hero" />
       </div>
 
-      <Guides />
+      <HomepageGuides />
+
+      <SubscriptionWidget />
 
       {/* <CakeBuilder onRequestCake={() => setIsContactOpen(true)} /> */}
 
