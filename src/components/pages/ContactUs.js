@@ -7,11 +7,11 @@ import Footer from '../common/Footer';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    phone: '',
-    message: '',
-    occasion: 'birthday'
+    subject: '',
+    inquiry: ''
   });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -37,11 +37,11 @@ const ContactUs = () => {
       });
       setSubmitted(true);
       setFormData({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
-        phone: '',
-        message: '',
-        occasion: 'birthday'
+        subject: '',
+        inquiry: ''
       });
     } catch (error) {
       setError('There was an error submitting your enquiry. Please try again.');
@@ -55,28 +55,41 @@ const ContactUs = () => {
       <Header />
       <div className="contactus-header">
         <h1>Contact Us</h1>
-        <p className="contactus-subheading">Let's create something special together</p>
       </div>
-      <div className="contactus-content">
-        <div className="contactus-form-section">
+      <div className="contactus-content contactus-content-centered">
+        <div className="contactus-form-section contactus-form-centered">
           {submitted ? (
             <div className="contactus-success">Thank you for your enquiry! We'll be in touch soon.</div>
           ) : (
             <form onSubmit={handleSubmit} className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Your Name"
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="firstName">First Name</label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
+                    placeholder="Jane"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="lastName">Last Name</label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                    placeholder="Smith"
+                  />
+                </div>
               </div>
               <div className="form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">Email Address</label>
                 <input
                   type="email"
                   id="email"
@@ -84,62 +97,39 @@ const ContactUs = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="your@email.com"
+                  placeholder="email@example.co.uk"
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="phone">Phone Number</label>
+                <label htmlFor="subject">Subject</label>
                 <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="(123) 456-7890"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="occasion">Occasion</label>
-                <select
-                  id="occasion"
-                  name="occasion"
-                  value={formData.occasion}
-                  onChange={handleChange}
-                >
-                  <option value="birthday">Birthday</option>
-                  <option value="wedding">Wedding</option>
-                  <option value="anniversary">Anniversary</option>
-                  <option value="corporate">Corporate Event</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
                   onChange={handleChange}
                   required
-                  placeholder="Tell us about your dream cake..."
-                  rows="4"
+                  placeholder="Multi-Tier Birthday Cake"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="inquiry">Inquiry</label>
+                <textarea
+                  id="inquiry"
+                  name="inquiry"
+                  value={formData.inquiry}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your message"
+                  rows="6"
                 ></textarea>
               </div>
               {error && <div className="contactus-error">{error}</div>}
               <button type="submit" className="submit-button" disabled={loading}>
-                {loading ? 'Sending...' : 'Send Message'}
+                {loading ? 'Sending...' : 'Submit'}
               </button>
             </form>
           )}
-        </div>
-        <div className="contactus-info-section">
-          <div className="modal-contact">
-            <h2>Contact Information</h2>
-            <p>Or reach us directly:</p>
-            <p>📞 (123) 456-7890</p>
-            <p>📧 info@sweetdelights.com</p>
-            <p>📍 123 Bakery Street, Sweet City</p>
-          </div>
         </div>
       </div>
       <Footer />
