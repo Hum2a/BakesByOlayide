@@ -21,7 +21,7 @@ const AboutUsPage = () => {
           <p>I closed down my business and focused on my studies, knowing that I wasn't equipped to do both at the same time. Now that I'm at the end of my education journey, I decided to reopen and rebrand.</p>
           <p>My journey has been nowhere near linear, but I'm grateful for it. Running a business has helped me grow and understand the world around me. I love meeting people and getting to know them. To make cakes and bakes for them. To make their day special, or even just a little sweeter. I hope to continue on this path and scale up to having a storefront one day.<br/>Thanks for joining me on this journey,<br/>Olayide</p>
         </section>
-        <aside className="aboutus-side">
+        {/* <aside className="aboutus-side">
           <div className="aboutus-image-wrapper">
             <img src="/images/about-portrait.png" alt="Olayide portrait" className="aboutus-image" />
           </div>
@@ -37,7 +37,7 @@ const AboutUsPage = () => {
               <button type="submit">Submit</button>
             </form>
           </div>
-        </aside>
+        </aside> */}
       </main>
       <Footer />
     </div>
