@@ -1,13 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import CakeCard from '../cards/CakeCard';
 import CakeModal from '../modals/CakeModal';
-import { FaShoppingCart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaUser } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { db } from '../../firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import '../styles/CakePage.css';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../common/Footer';
+import AuthModal from '../modals/AuthModal';
+import ProfileDropdown from '../widgets/ProfileDropdown';
+import ProfileModal from '../modals/ProfileModal';
+import OrderHistoryModal from '../modals/OrderHistoryModal';
+import SettingsModal from '../modals/SettingsModal';
+import CartModal from '../modals/CartModal';
+import SearchModal from '../modals/SearchModal';
+import { auth } from '../../firebase/firebase';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -41,6 +49,10 @@ const CakePage = ({ onOpenCart }) => {
   const navigate = useNavigate();
   const cakeGridRef = useRef(null);
   const [imageError, setImageError] = useState({});
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchCakes = async () => {
@@ -63,6 +75,14 @@ const CakePage = ({ onOpenCart }) => {
     };
 
     fetchCakes();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Use fixed categories
@@ -116,6 +136,21 @@ const CakePage = ({ onOpenCart }) => {
     navigate(`/collections/${categoryPath}`);
   };
 
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const handleAuthClick = (e) => {
+    e.preventDefault();
+    setIsAuthOpen(true);
+  };
+
+  const handleModalOpen = (modal) => {
+    setActiveModal(modal);
+    setIsProfileOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="cakepage-container">
@@ -151,6 +186,18 @@ const CakePage = ({ onOpenCart }) => {
           <a href="/guides">Guides</a>
           <a href="/about">Our Story</a>
           <a href="/contact">Contact Us</a>
+          <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
+            <FaSearch />
+          </button>
+          {user ? (
+            <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
+              <FaUser />
+            </button>
+          ) : (
+            <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
+              <FaUser />
+            </button>
+          )}
           <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
             <FaShoppingCart />
             {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
@@ -210,6 +257,29 @@ const CakePage = ({ onOpenCart }) => {
           onClose={() => setSelectedCake(null)}
           onAddToCart={handleAddToCart}
         />
+      )}
+
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <ProfileDropdown 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
+      />
+      
+      {activeModal === 'profile' && (
+        <ProfileModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'orders' && (
+        <OrderHistoryModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'cart' && (
+        <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'settings' && (
+        <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'search' && (
+        <SearchModal isOpen={true} onClose={() => setActiveModal(null)} />
       )}
 
       <Footer />
