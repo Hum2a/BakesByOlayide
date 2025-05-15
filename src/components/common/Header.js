@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaUser, FaSearch } from 'react-icons/fa';
 import '../styles/Header.css';
 import SearchModal from '../modals/SearchModal';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({
   user,
@@ -17,13 +18,20 @@ const Header = ({
   handleModalOpen
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
       <header className={`homepage-header ${isScrolled ? 'scrolled' : ''}`}>
         <nav className="homepage-nav">
           <div className="homepage-logo">
-            <img src="/logos/LogoYellowTransparent.png" alt="BakesByOlayide Logo" className="homepage-logo-image" />
+            <img 
+              src="/logos/LogoYellowTransparent.png" 
+              alt="BakesByOlayide Logo" 
+              className="homepage-logo-image" 
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate('/')} 
+            />
           </div>
           <ul className="homepage-nav-links main-nav-links">
             <li><a href="/cakes" className="nav-link">Our Range</a></li>

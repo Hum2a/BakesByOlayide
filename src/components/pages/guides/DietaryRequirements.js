@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../common/Header';
-import Footer from '../common/Footer';
-import '../styles/DietaryRequirements.css';
+import Header from '../../common/Header';
+import Footer from '../../common/Footer';
+import '../../styles/DietaryRequirements.css';
 
 const DietaryRequirements = () => {
   // Dummy state for header logic (replace with actual logic if needed)
