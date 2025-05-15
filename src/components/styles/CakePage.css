@@ -585,8 +585,7 @@
   position: relative;
   width: 100vw;
   min-height: 340px;
-  height: 38vw;
-  max-height: 480px;
+  height: 50vw;
   background: #222;
   overflow: hidden;
   display: flex;
@@ -668,8 +667,7 @@
 }
 .cakepage-hero-bgimg {
   width: 100vw;
-  height: 38vw;
-  max-height: 480px;
+  height: 50vw;
   object-fit: cover;
   object-position: center;
   filter: brightness(0.82);
