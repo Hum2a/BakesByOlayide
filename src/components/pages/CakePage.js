@@ -19,23 +19,47 @@ import { auth } from '../../firebase/firebase';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
-  'Cupcakes',
-  'Large Cakes',
-  'Bento Cake with Cupcakes',
-  'Brownies',
-  'Cookies',
-  'Vegan Range',
-  'Gluten Free',
-  'Subscription Boxes',
+  {
+    name: 'Cupcakes',
+    description: 'Handmade and elegantly decorated cupcakes; perfect for any occasion.',
+    image: '/images/range/Cupcakes.png'
+  },
+  {
+    name: 'Large Cakes',
+    description: 'Personalised and fully customisable celebration cakes made fresh in house.',
+    image: '/images/range/LargeCakes.png'
+  },
+  {
+    name: 'Bento Cake with Cupcakes',
+    description: 'The perfect fusion between cupcakes and celebration cakes: For those who want a little bit of the best of both worlds.',
+    image: '/images/range/BentoCakewithCupcakes.png'
+  },
+  {
+    name: 'Brownies',
+    description: 'Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic’s dream.',
+    image: '/images/range/Brownies.png'
+  },
+  {
+    name: 'Cookies',
+    description: 'Chewy, chocolatey and moorish with Cornish ice-cream, our cookies are the perfect sweet treat.',
+    image: '/images/range/Cookies.png'
+  },
+  {
+    name: 'Vegan Range',
+    description: 'Delightfully sweet plant powered bakes made for you..',
+    image: '/images/range/VeganRange.png'
+  },
+  {
+    name: 'Gluten Free',
+    description: 'Delicious bakes made without gluten so you can eat cakes without worry.',
+    image: '/images/range/GlutenFree.png'
+  },
+  {
+    name: 'Subscription Boxes',
+    description: 'Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.',
+    image: '/images/range/SubscriptionBoxes.png'
+  }
 ];
-
-const getCategoryImagePath = (category) => {
-  // Remove spaces and special characters for file name, or adjust as needed
-  // If your files are e.g. 'Large Cakes.png', use category + '.png'
-  // If your files are e.g. 'LargeCakes.png', use category.replace(/\s+/g, '') + '.png'
-  // Here, we'll use spaces removed and .png
-  return `/images/range/${category.replace(/\s+/g, '')}.png`;
-};
 
 const CakePage = ({ onOpenCart }) => {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -86,7 +110,7 @@ const CakePage = ({ onOpenCart }) => {
   }, []);
 
   // Use fixed categories
-  const categories = ['All', ...FIXED_CATEGORIES];
+  const categories = ['All', ...FIXED_CATEGORIES.map(category => category.name)];
 
   const filteredCakes = activeCategory === 'All'
     ? cakes
@@ -216,24 +240,25 @@ const CakePage = ({ onOpenCart }) => {
       <div className="cakepage-collections-list">
         <h1>Collections</h1>
         {FIXED_CATEGORIES.map((category, idx) => (
-          <div className={`cakepage-collection-row${idx % 2 === 1 ? ' reverse' : ''}`} key={category}>
+          <div className={`cakepage-collection-row${idx % 2 === 1 ? ' reverse' : ''}`} key={category.name}>
             <div className="cakepage-collection-info">
-              <h2>{category}</h2>
-              <button className="cakepage-viewcakes-btn" onClick={() => handleViewCakes(category)}>
+              <h2>{category.name}</h2>
+              <p>{category.description}</p>
+              <button className="cakepage-viewcakes-btn" onClick={() => handleViewCakes(category.name)}>
                 Explore
               </button>
             </div>
             <div className="cakepage-collection-image-wrap">
-              {imageError[category] ? (
+              {imageError[category.name] ? (
                 <div className="cakepage-collection-no-image">
                   <span>NO IMAGE UPLOADED</span>
                 </div>
               ) : (
                 <img
-                  src={getCategoryImagePath(category)}
-                  alt={category}
+                  src={category.image}
+                  alt={category.name}
                   className="cakepage-collection-image"
-                  onError={() => setImageError(prev => ({ ...prev, [category]: true }))}
+                  onError={() => setImageError(prev => ({ ...prev, [category.name]: true }))}
                 />
               )}
             </div>

@@ -759,6 +759,15 @@
   justify-content: center;
   min-width: 180px;
 }
+.cakepage-collection-info h2 {
+  font-family: 'Old Standard TT', serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 120%;
+  letter-spacing: 0%;
+  color: rgba(0, 0, 0, 1);
+
+}
 .cakepage-collection-info h3 {
   font-size: 1.25rem;
   font-family: 'Old Standard TT', serif;
@@ -766,6 +775,17 @@
   margin: 0 0 0.5rem 0;
   color: #111;
 }
+.cakepage-collection-info p {
+  font-family: 'Old Standard TT', serif;
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 150%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+  color: rgba(130, 130, 130, 1);
+
+}
+
 .cakepage-collection-image-wrap {
   flex: 1 1 0;
   display: flex;
@@ -824,13 +844,17 @@
   background: #F3C307;
   color: #000000;
   font-family: 'Old Standard TT', serif;
-  font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 1.2rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(230, 126, 34, 0.08);
   transition: background 0.2s, color 0.2s, transform 0.2s;
+  line-height: 150%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+
 }
 .cakepage-viewcakes-btn:hover {
   background: #d35400;
