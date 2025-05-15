@@ -1,0 +1,103 @@
+/* Terms and Conditions Page Styles */
+
+.terms-root {
+  background: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.terms-hero-section {
+  background: #111;
+  width: 100vw;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.terms-hero-bg {
+  width: 100vw;
+  height: 80px;
+  background: #111;
+}
+
+.terms-title {
+  color: #222;
+  font-family: 'Old Standard TT', serif;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  text-align: center;
+  letter-spacing: 0.01em;
+  background: #fff;
+  padding: 2rem 0 1.5rem 0;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+}
+
+.terms-main {
+  flex: 1;
+  background: #fff;
+  padding: 0 0 2.5rem 0;
+}
+
+.terms-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 0;
+}
+
+.terms-content p {
+  color: #111;
+  font-family: 'Old Standard TT', serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.terms-content h2 {
+  font-size: 1.2rem;
+  font-family: 'Old Standard TT', serif;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem 0;
+  color: #111;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.3rem;
+}
+
+@media (max-width: 900px) {
+  .terms-title {
+    font-size: 2rem;
+    margin: 2rem auto 1.5rem auto;
+    padding: 1.2rem 0 1rem 0;
+  }
+  .terms-content {
+    padding: 1.5rem 0.7rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .terms-title {
+    font-size: 1.2rem;
+    margin: 1.2rem auto 1rem auto;
+    padding: 0.7rem 0 0.5rem 0;
+  }
+  .terms-content {
+    padding: 1rem 0.3rem;
+  }
+  .terms-content p {
+    font-size: 1rem;
+  }
+  .terms-content h2 {
+    font-size: 1rem;
+    padding-bottom: 0.2rem;
+  }
+}

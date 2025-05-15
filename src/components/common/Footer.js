@@ -30,7 +30,7 @@ const Footer = () => (
           <div className="footer-topic">Information</div>
           <a href="/guides">Guides</a>
           <a href="/allergens">Allergen Information</a>
-          <a href="/terms">Terms and Conditions</a>
+          <a href="/terms-and-conditions">Terms and Conditions</a>
         </div>
       </div>
     </div>

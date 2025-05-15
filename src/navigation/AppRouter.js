@@ -12,6 +12,7 @@ import OrderConfirmation from '../components/pages/OrderConfirmation';
 import CartModal from '../components/modals/CartModal';
 import Admin from '../components/pages/Admin';
 import FAQ from '../components/pages/FAQ';
+import TermsAndConditions from '../components/pages/TermsAndConditions';
 
 // Collections
 import CupcakeCollectionPage from '../components/widgets/collections/CupcakeCollectionPage';
@@ -30,6 +31,7 @@ const AppRouter = () => {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/guides/dietary-requirements" element={<DietaryRequirements />} />
           <Route path="/faqs" element={<FAQ />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/cakes" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
