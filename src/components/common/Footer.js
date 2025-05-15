@@ -16,22 +16,21 @@ const Footer = () => (
       </div>
       <div className="footer-links-grid">
         <div className="footer-links-col">
-          <div className="footer-topic">Topic</div>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
+          <div className="footer-topic">About</div>
+          <a href="/about">About Us</a>
+          <a href="/sustainability">Sustainability</a>
         </div>
         <div className="footer-links-col">
-          <div className="footer-topic">Topic</div>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
+          <div className="footer-topic">Help</div>
+          <a href="/contact">Contact Us</a>
+          <a href="/faqs">FAQs</a>
+          <a href="/corporate">Corporate</a>
         </div>
         <div className="footer-links-col">
-          <div className="footer-topic">Topic</div>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
-          <a href="#">Page</a>
+          <div className="footer-topic">Information</div>
+          <a href="/guides">Guides</a>
+          <a href="/allergens">Allergen Information</a>
+          <a href="/terms">Terms and Conditions</a>
         </div>
       </div>
     </div>
