@@ -45,21 +45,29 @@ const DietaryRequirements = () => {
             <img src="/images/about/big.png" alt="Dietary Requirements" className="DietaryRequirements-main-image" />
           </div>
           <section className="DietaryRequirements-content">
-            <p>To facilitate this, we have some typical default product lines: sugar- or dairy (and gluten)-free alternatives of many recipes are available. For large and custom orders or events, we are able to make more accommodations if you need.</p>
+            <p>To facilitate this, we have vegan (animal derived product free- no eggs or dairy) and gluten free alternatives of many mainline products available. For large cakes and custom orders, we are able to make more accommodations if you need.</p>
+            <p>We’d like you to know that in our bakery we handle:</p>
             <ul>
-              <li>Milk alternatives</li>
-              <li>Gluten-free</li>
-              <li>Allergens considered (gluten/nuts/soy)</li>
-              <li>Soy</li>
+              <li>Almonds</li>
+              <li>Cereals containing gluten</li>
+              <li>Eggs</li>
+              <li>Milk</li>
+              <li>Soya</li>
             </ul>
             <p>
-              (Above) and any custom order are vegan except for eggs (which substitute). (These can be substituted with our large adult cakes, or for smaller children's treats just note this when you order). This page can be referenced for custom orders, or for more information before your next party or celebration. This can also be referenced for smaller orders.
+              Almond and soya are used within our vegan range (as milk substitutes). These can be substituted with oat or hemp milk in custom orders. Coconut flour is our flour substitute for our gluten free range as the flavour is subtle and gives gluten free cakes a more similar texture (and taste) to wheat flour cakes. This can also be substituted in custom orders.
             </p>
             <p>
-              We are also mindful of cross-contact and separate trays for catering specific requirements. However, the wider context of the kitchen means that we cannot guarantee 100% freedom from all allergens, but every attempt is made. Please refer to any issued documentation and speak to us directly, especially if you have a nut and sesame allergy.
+              Most of our ingredients are stored separately from our allergen sensitive ingredients. However, the wheat flour used in our standard range is stored with all sugars (aside from powdered), cocoa powder and pigments. Whilst we try to avoid contamination as much as possible, please keep in mind that it can and may occur.
             </p>
             <p>
-              If you have any questions regarding how allergens are handled, please send us a lengthy letter.
+            The same equipment is used for standard, gluten free and vegan cakes. They are machine and hand washed but mixers, bowls, spoons and other apparatus used in the baking process are not specific to dietary requirements. This means if at one point a spatula were used for a set of standard vanilla cupcakes, in the future (after washes) it may be used for gluten free cakes.
+            </p>
+            <p>
+              When contacting us for your custom order, please be sure to clearly explain what allergens you need us to cater for. While we try our best to cater for every allergy, we are not able to cater for those who have airborne allergies to milk, gluten/wheat or eggs. This is because these ingredients are frequently used in our bakery and could potentially trigger a reaction.
+            </p>
+            <p>
+              If you have any questions regarding how allergens are handled, please send an inquiry <a href="/contact">here</a>. Check out our table of specific allergens by recipe <a href="/allergens">here</a>.
             </p>
           </section>
           <section className="DietaryRequirements-related-guides">
