@@ -49,34 +49,38 @@ const GuidesPage = () => {
     <div className="guides-page-container">
       {/* CakePage-style Header */}
       <header className="cakepage-hero">
-        <img 
-          src="/logos/LogoYellowTransparent.png" 
-          alt="Bakes by Olayide Logo" 
-          className="cakepage-hero-logo" 
-          style={{ cursor: 'pointer' }}
-          onClick={() => navigate('/')} 
-        />
         <nav className="cakepage-hero-nav">
-          <a href="/cakes">Our Range</a>
-          <a href="/guides">Guides</a>
-          <a href="/about">Our Story</a>
-          <a href="/contact">Contact Us</a>
-          <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
-            <FaSearch />
-          </button>
-          {user ? (
-            <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
-              <FaUser />
+          <img 
+            src="/logos/LogoYellowTransparent.png" 
+            alt="Bakes by Olayide Logo" 
+            className="cakepage-hero-logo" 
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/')} 
+          />
+          <div className="cakepage-nav-links">
+            <a href="/cakes">Our Range</a>
+            <a href="/guides">Guides</a>
+            <a href="/about">Our Story</a>
+            <a href="/contact">Contact Us</a>
+          </div>
+          <div className="cakepage-nav-icons">
+            <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
+              <FaSearch />
             </button>
-          ) : (
-            <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
-              <FaUser />
+            {user ? (
+              <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
+                <FaUser />
+              </button>
+            ) : (
+              <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
+                <FaUser />
+              </button>
+            )}
+            <button className="cakepage-cart-button" onClick={() => navigate('/cart')} aria-label="View Cart">
+              <FaShoppingCart />
+              {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
             </button>
-          )}
-          <button className="cakepage-cart-button" onClick={() => navigate('/cart')} aria-label="View Cart">
-            <FaShoppingCart />
-            {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
-          </button>
+          </div>
         </nav>
         <div className="cakepage-hero-bgimg-wrap">
           <img src="/images/guide/GuideHeroImage.jpg" alt="Guides" className="cakepage-hero-bgimg" />

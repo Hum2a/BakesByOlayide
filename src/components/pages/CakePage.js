@@ -174,6 +174,7 @@ const CakePage = ({ onOpenCart }) => {
   return (
     <div className="cakepage-container">
       <header className="cakepage-hero">
+      <nav className="cakepage-hero-nav">
         <img 
           src="/logos/LogoYellowTransparent.png" 
           alt="Bakes by Olayide Logo" 
@@ -181,27 +182,30 @@ const CakePage = ({ onOpenCart }) => {
           style={{ cursor: 'pointer' }}
           onClick={() => navigate('/')} 
         />
-        <nav className="cakepage-hero-nav">
-          <a href="/cakes">Our Range</a>
-          <a href="/guides">Guides</a>
-          <a href="/about">Our Story</a>
-          <a href="/contact">Contact Us</a>
-          <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
-            <FaSearch />
-          </button>
-          {user ? (
-            <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
-              <FaUser />
+          <div className="cakepage-nav-links">
+            <a href="/cakes">Our Range</a>
+            <a href="/guides">Guides</a>
+            <a href="/about">Our Story</a>
+            <a href="/contact">Contact Us</a>
+          </div>
+          <div className="cakepage-nav-icons">
+            <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
+              <FaSearch />
             </button>
-          ) : (
-            <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
-              <FaUser />
+            {user ? (
+              <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
+                <FaUser />
+              </button>
+            ) : (
+              <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
+                <FaUser />
+              </button>
+            )}
+            <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
+              <FaShoppingCart />
+              {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
             </button>
-          )}
-          <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
-            <FaShoppingCart />
-            {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
-          </button>
+          </div>
         </nav>
         <div className="cakepage-hero-bgimg-wrap">
           <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />

@@ -594,9 +594,6 @@
   align-items: stretch;
 }
 .cakepage-hero-logo {
-  position: absolute;
-  top: 2.2rem;
-  left: 2.5rem;
   height: auto;
   width: 200px;
   z-index: 3;
@@ -620,8 +617,7 @@
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
-  gap: 2.5rem;
+  justify-content: space-evenly;
   z-index: 3;
 }
 .cakepage-hero-nav a {
@@ -863,4 +859,91 @@
 .cakepage-nav-button:active {
   color: #ffe066;
   background: rgba(255, 224, 102, 0.08);
+}
+
+/* Navigation links group */
+.cakepage-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.cakepage-nav-links a {
+  color: #fff;
+  font-family: 'Old Standard TT', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: color 0.2s;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.cakepage-nav-links a::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  background: #ffe066;
+  transition: width 0.3s;
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+}
+
+.cakepage-nav-links a:hover,
+.cakepage-nav-links a.active {
+  color: #ffe066;
+}
+
+.cakepage-nav-links a:hover::after,
+.cakepage-nav-links a.active::after {
+  width: 100%;
+}
+
+/* Icon buttons group */
+.cakepage-nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .cakepage-nav-links {
+    gap: 1.2rem;
+  }
+  .cakepage-nav-icons {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .cakepage-hero-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+  .cakepage-nav-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .cakepage-nav-icons {
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
 }
