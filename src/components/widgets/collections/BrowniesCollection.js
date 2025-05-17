@@ -139,7 +139,7 @@ const BrowniesCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Brownies</span>
+        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Brownies</span>
       </div>
       <div className="cupcake-description">
         Our brownies are rich, fudgy, and perfect for any chocolate lover. Try our classic and seasonal flavours!

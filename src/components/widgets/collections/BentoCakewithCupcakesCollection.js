@@ -61,7 +61,7 @@ const BentoCakewithCupcakesCollection = () => {
         </div>
       </div>
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Bento Cake with Cupcakes</span>
+        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
       </div>
       <div className="cupcake-description">
         Our Bento Cakes with Cupcakes are a delightful combination for sharing and gifting. Choose your favourite flavours!

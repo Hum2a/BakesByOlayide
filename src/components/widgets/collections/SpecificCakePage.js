@@ -176,14 +176,30 @@ const SpecificCakePage = () => {
       />
       <div className="specific-cake-container">
         <nav className="specific-cake-breadcrumbs">
-          {breadcrumbs.map((crumb, idx) => (
-            <span key={crumb}>
-              {idx > 0 && (
-                <span className="cakemodal-breadcrumb-sep-slash">/</span>
-              )}
-              <span className="cakemodal-breadcrumb">{crumb}</span>
-            </span>
-          ))}
+          {breadcrumbs.map((crumb, idx) => {
+            // Determine if this is the last crumb
+            const isLast = idx === breadcrumbs.length - 1;
+            // Determine link for each crumb
+            let href = null;
+            if (idx === 0) href = "/cakes";
+            if (idx === 1) {
+              // Convert mainCategory to a slug for the URL
+              const slug = mainCategory.replace(/\s+/g, '').toLowerCase();
+              href = `/collections/${slug}`;
+            }
+            return (
+              <span key={crumb}>
+                {idx > 0 && (
+                  <span className="cakemodal-breadcrumb-sep-slash">/</span>
+                )}
+                {href && !isLast ? (
+                  <a href={href} className="cakemodal-breadcrumb-link">{crumb}</a>
+                ) : (
+                  <span className="cakemodal-breadcrumb">{crumb}</span>
+                )}
+              </span>
+            );
+          })}
         </nav>
         <div className="specific-cake-grid">
           <div className="specific-cake-image">

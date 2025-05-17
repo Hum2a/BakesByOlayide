@@ -143,7 +143,7 @@ const LargeCakesCollection = () => {
       </header>
       {/* End CakePage-style Hero Header */}
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Large Cakes</span>
+        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Large Cakes</span>
       </div>
       <div className="cupcake-description">
         Our Large Cakes are perfect for celebrations and special occasions. Choose from a variety of flavours and designs.

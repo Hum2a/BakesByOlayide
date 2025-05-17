@@ -139,7 +139,7 @@ const GlutenFreeCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Gluten Free</span>
+        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Gluten Free</span>
       </div>
       <div className="cupcake-description">
         Our Gluten Free Range offers delicious alternatives that are perfect for those with gluten sensitivities or celiac disease. Made with carefully selected ingredients, these treats are certified gluten-free and equally delightful!

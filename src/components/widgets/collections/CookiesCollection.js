@@ -139,7 +139,7 @@ const CookiesCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Cookies</span>
+        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cookies</span>
       </div>
       <div className="cupcake-description">
         Our cookies are baked fresh daily and come in a variety of flavours. Perfect for snacking or sharing!

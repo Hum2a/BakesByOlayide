@@ -461,4 +461,17 @@
   margin: 0 0.5rem 0 0.5rem;
   vertical-align: middle;
   display: inline-block;
+}
+
+.cakemodal-breadcrumb-link {
+  color: #222;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 32px;
+  font-family: 'Old Standard TT', serif;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+.cakemodal-breadcrumb-link:hover {
+  color: #ffe066;
+  text-decoration: underline;
 } 
