@@ -23,7 +23,7 @@ const SubscriptionWidget = () => {
         <div className="subscription-widget-overlay">
           <h2 className="subscription-widget-title">Cake is an all-year thing.</h2>
           <p className="subscription-widget-desc">
-            Don't make it a one-time affair. Sign up to receive exclusive offers and occasion reminders
+            Don't make it a one-time affair. Sign up to receive exclusive offers and occasion reminders.
           </p>
           {submitted ? (
             <div className="subscription-widget-success">Thank you for subscribing!</div>
