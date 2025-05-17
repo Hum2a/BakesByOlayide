@@ -48,7 +48,7 @@
 
 .search-box input:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
 }
 
@@ -68,7 +68,7 @@
 .product-filter:focus,
 .sort-select:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
 }
 
@@ -144,7 +144,7 @@
 }
 
 .review-item:hover {
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -161,7 +161,7 @@
 
 .product-name {
   font-size: 1.1rem;
-  color: #e67e22;
+  color: #f3c307;
   margin: 0 0 0.5rem 0;
 }
 
@@ -228,7 +228,7 @@
 
 .loading-spinner {
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #e67e22;
+  border-top: 3px solid #f3c307;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -318,7 +318,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.2rem;
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
   border-radius: 8px;
@@ -380,7 +380,7 @@
 .form-group input[type="text"]:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
 }
 
@@ -450,7 +450,7 @@
 
 .form-group.date-time input:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1);
 }
 
@@ -470,7 +470,7 @@
 }
 
 .submit-btn {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
 }

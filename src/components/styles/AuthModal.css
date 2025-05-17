@@ -39,7 +39,7 @@
 }
 
 .auth-modal::-webkit-scrollbar-thumb {
-  background: #e67e22;
+  background: #f3c307;
   border-radius: 4px;
 }
 
@@ -77,7 +77,7 @@
 }
 
 .auth-modal-close:hover {
-  color: #e67e22;
+  color: #f3c307;
   background: #f9f9f9;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .auth-modal-header h2 {
-  color: #e67e22;
+  color: #f3c307;
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
 }
@@ -110,7 +110,7 @@
 }
 
 .auth-toggle-btn:hover {
-  color: #e67e22;
+  color: #f3c307;
 }
 
 .auth-form {
@@ -142,11 +142,11 @@
 
 .auth-input-group input:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
 }
 
 .auth-submit-btn {
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   padding: 0.8rem;
@@ -211,7 +211,7 @@
 
 .auth-google-btn:hover {
   background-color: #f5f5f5;
-  border-color: #e67e22;
+  border-color: #f3c307;
 }
 
 .auth-google-btn:disabled,

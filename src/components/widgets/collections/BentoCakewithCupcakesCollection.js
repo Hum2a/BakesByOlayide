@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import './CupcakeCollectionPage.css';
+import '../../styles/CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 import PageTitle from '../../common/PageTitle';
 import { useNavigate } from 'react-router-dom';

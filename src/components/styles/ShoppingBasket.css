@@ -6,7 +6,7 @@
 
 .shopping-basket h1 {
   text-align: center;
-  color: #e67e22;
+  color: #f3c307;
   margin-bottom: 2rem;
 }
 
@@ -25,7 +25,7 @@
 
 .continue-shopping-btn {
   padding: 0.8rem 1.5rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 5px;
@@ -76,7 +76,7 @@
 }
 
 .cart-item-price {
-  color: #e67e22;
+  color: #f3c307;
   font-weight: bold;
   margin-bottom: 1rem;
 }
@@ -151,7 +151,7 @@
 .checkout-btn {
   width: 100%;
   padding: 1rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 5px;

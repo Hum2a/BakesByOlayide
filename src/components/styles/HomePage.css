@@ -45,7 +45,7 @@
 }
 
 .homepage-header.scrolled .homepage-logo h1 {
-  color: #e67e22;
+  color: #f3c307;
   text-shadow: none;
 }
 
@@ -190,7 +190,7 @@
 }
 
 .homepage-about-content h2 {
-  color: #e67e22;
+  color: #f3c307;
   margin-bottom: 2rem;
 }
 
@@ -199,8 +199,8 @@
   margin-top: 2rem;
   padding: 0.8rem 1.5rem;
   background-color: transparent;
-  border: 2px solid #e67e22;
-  color: #e67e22;
+  border: 2px solid #f3c307;
+  color: #f3c307;
   text-decoration: none;
   font-weight: bold;
   border-radius: 5px;
@@ -209,7 +209,7 @@
 }
 
 .homepage-learn-more:hover {
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
 }
 
@@ -230,7 +230,7 @@
 
 .homepage-footer-section h3 {
   margin-bottom: 1rem;
-  color: #e67e22;
+  color: #f3c307;
 }
 
 .homepage-footer-section p {
@@ -249,7 +249,7 @@
 }
 
 .homepage-social-links a:hover {
-  color: #e67e22;
+  color: #f3c307;
 }
 
 .homepage-footer-bottom {
@@ -485,7 +485,7 @@
   }
 
   .homepage-learn-more:active {
-    background-color: #e67e22;
+    background-color: #f3c307;
     color: white;
   }
 }

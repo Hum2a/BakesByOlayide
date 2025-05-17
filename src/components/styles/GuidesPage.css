@@ -191,12 +191,9 @@
   text-align: center;
 }
 .guides-intro-link {
-  color: #bfa100;
+  color: #f3c307;
   text-decoration: underline;
   font-weight: 500;
-}
-.guides-intro-link:hover {
-  color: #e67e22;
 }
 
 /* --- 2x2 Guides Grid --- */

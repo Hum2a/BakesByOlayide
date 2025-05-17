@@ -11,7 +11,7 @@
 }
 
 .design-cake-container h2 {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
@@ -42,7 +42,7 @@
 }
 
 .design-option-group h3 {
-  color: #e67e22;
+  color: #f3c307;
   margin-bottom: 1rem;
   font-size: 1.3rem;
 }
@@ -58,8 +58,8 @@
   justify-content: space-between;
   align-items: center;
   background: transparent;
-  border: 2px solid #e67e22;
-  color: #e67e22;
+  border: 2px solid #f3c307;
+  color: #f3c307;
   padding: 0.8rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
@@ -69,12 +69,12 @@
 }
 
 .option-button:hover {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
 }
 
 .option-button.selected {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
 }
 
@@ -94,13 +94,13 @@
 }
 
 .cake-price-summary h3 {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 1.5rem;
   margin: 0;
 }
 
 .design-submit-button {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
   padding: 1.2rem 2.5rem;
@@ -215,8 +215,8 @@
   align-items: center;
   gap: 0.8rem;
   background: white;
-  border: 2px solid #e67e22;
-  color: #e67e22;
+  border: 2px solid #f3c307;
+  color: #f3c307;
   padding: 0.8rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
@@ -226,13 +226,13 @@
 }
 
 .cart-preview-button:hover {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   transform: translateY(-2px);
 }
 
 .cart-items-count {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -248,7 +248,7 @@
 
 .cart-preview-button:hover .cart-items-count {
   background: white;
-  color: #e67e22;
+  color: #f3c307;
 }
 
 .cart-total {

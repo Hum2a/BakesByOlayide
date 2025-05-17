@@ -17,7 +17,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 8px;
@@ -142,7 +142,7 @@
 }
 
 .cakemanagement-save-btn {
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
 }
@@ -202,7 +202,7 @@
 }
 
 .cakemanagement-price {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 0.5rem;
@@ -488,7 +488,7 @@
 }
 
 .cakemanagement-category-form-actions button[type="submit"] {
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
 }
@@ -557,7 +557,7 @@
 }
 
 .cakemanagement-category-subtitle {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 0.95rem;
   font-style: italic;
   margin-top: 0.1rem;
@@ -630,7 +630,7 @@
 }
 
 .cakemanagement-size-price {
-  color: #e67e22;
+  color: #f3c307;
   font-weight: 500;
 }
 
@@ -683,7 +683,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 6px;
@@ -719,7 +719,7 @@
 }
 
 .cakemanagement-size-badge span:nth-child(2) {
-  color: #e67e22;
+  color: #f3c307;
   font-weight: 500;
 }
 
@@ -795,7 +795,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 6px;
@@ -843,7 +843,7 @@
 }
 
 .cakemanagement-finish-price {
-  color: #e67e22;
+  color: #f3c307;
   font-weight: 500;
 }
 
@@ -885,7 +885,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 6px;
@@ -937,7 +937,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1075,7 +1075,7 @@
 
 .cakemanagement-related-checkbox:has(input:checked) {
   background-color: #ffe066;
-  border-color: #e67e22;
+  border-color: #f3c307;
 }
 
 .cakemanagement-related-checkbox input:disabled + span,

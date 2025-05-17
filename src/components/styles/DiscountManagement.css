@@ -18,7 +18,7 @@
 }
 
 .add-discount-btn {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
   padding: 0.8rem 1.5rem;
@@ -80,7 +80,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
 }
 
@@ -119,7 +119,7 @@
 }
 
 .save-btn {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
 }
@@ -193,12 +193,12 @@
 
 .edit-btn {
   background: #fff;
-  color: #e67e22;
-  border: 1px solid #e67e22;
+  color: #f3c307;
+  border: 1px solid #f3c307;
 }
 
 .edit-btn:hover {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
 }
 
@@ -223,7 +223,7 @@
 
 .discount-percentage {
   font-size: 1.2rem;
-  color: #e67e22;
+  color: #f3c307;
   font-weight: 600;
 }
 

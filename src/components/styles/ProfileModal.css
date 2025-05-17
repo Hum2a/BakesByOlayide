@@ -113,7 +113,7 @@
 }
 
 .form-actions button:last-child {
-  background: #e67e22;
+  background: #f3c307;
   color: white;
 }
 
@@ -140,7 +140,7 @@
   display: block;
   width: 100%;
   padding: 0.75rem;
-  background: #e67e22;
+  background: #f3c307;
   color: white;
   border: none;
   border-radius: 4px;

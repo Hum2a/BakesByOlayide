@@ -58,7 +58,7 @@
 }
 
 .modal-header h2 {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 2.5rem;
   margin: 0;
 }
@@ -78,7 +78,7 @@
 }
 
 .modal-section h3 {
-  color: #e67e22;
+  color: #f3c307;
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
@@ -109,7 +109,7 @@
 }
 
 .modal-contact h3 {
-  color: #e67e22;
+  color: #f3c307;
   margin-bottom: 1rem;
 }
 
@@ -129,7 +129,7 @@
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-  background: #e67e22;
+  background: #f3c307;
   border-radius: 4px;
 }
 
@@ -343,7 +343,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #e67e22;
+  border-color: #f3c307;
   box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
 }
 
@@ -353,7 +353,7 @@
 }
 
 .submit-button {
-  background-color: #e67e22;
+  background-color: #f3c307;
   color: white;
   border: none;
   padding: 1rem 2rem;

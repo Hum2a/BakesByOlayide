@@ -5,7 +5,7 @@ import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/fires
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaChevronRight } from 'react-icons/fa';
-import './SpecificCakePage.css';
+import '../../styles/SpecificCakePage.css';
 
 const SpecificCakePage = () => {
   const { id } = useParams();
