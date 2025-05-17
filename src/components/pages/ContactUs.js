@@ -63,9 +63,9 @@ const ContactUs = () => {
           {submitted ? (
             <div className="contactus-success">Thank you for your enquiry! We'll be in touch soon.</div>
           ) : (
-            <form onSubmit={handleSubmit} className="contact-form">
-              <div className="form-row">
-                <div className="form-group">
+            <form onSubmit={handleSubmit} className="contactus-form">
+              <div className="contactus-form-row">
+                <div className="contactus-form-group">
                   <label htmlFor="firstName">First Name</label>
                   <input
                     type="text"
@@ -77,7 +77,7 @@ const ContactUs = () => {
                     placeholder="Jane"
                   />
                 </div>
-                <div className="form-group">
+                <div className="contactus-form-group">
                   <label htmlFor="lastName">Last Name</label>
                   <input
                     type="text"
@@ -90,7 +90,7 @@ const ContactUs = () => {
                   />
                 </div>
               </div>
-              <div className="form-group">
+              <div className="contactus-form-group">
                 <label htmlFor="email">Email Address</label>
                 <input
                   type="email"
@@ -102,7 +102,7 @@ const ContactUs = () => {
                   placeholder="email@example.co.uk"
                 />
               </div>
-              <div className="form-group">
+              <div className="contactus-form-group">
                 <label htmlFor="subject">Subject</label>
                 <input
                   type="text"
@@ -114,7 +114,7 @@ const ContactUs = () => {
                   placeholder="Multi-Tier Birthday Cake"
                 />
               </div>
-              <div className="form-group">
+              <div className="contactus-form-group">
                 <label htmlFor="inquiry">Inquiry</label>
                 <textarea
                   id="inquiry"
@@ -127,7 +127,7 @@ const ContactUs = () => {
                 ></textarea>
               </div>
               {error && <div className="contactus-error">{error}</div>}
-              <button type="submit" className="submit-button" disabled={loading}>
+              <button type="submit" className="contactus-submit-button" disabled={loading}>
                 {loading ? 'Sending...' : 'Submit'}
               </button>
             </form>

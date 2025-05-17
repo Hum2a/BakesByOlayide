@@ -45,34 +45,36 @@
   border: none;
 }
 
-.contact-form {
+.contactus-form {
   display: flex;
   flex-direction: column;
   gap: 1.3rem;
   z-index: 2;
 }
 
-.form-row {
+.contactus-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
 }
 
-.form-group {
+.contactus-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-.form-group label {
+.contactus-form-group label {
   font-weight: 400;
-  color: #111;
-  font-size: 1rem;
-  letter-spacing: 0.01em;
+  color: rgba(0, 0, 0, 1);
   margin-bottom: 0.2rem;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 150%;
+  letter-spacing: 0%;
 }
-.form-group input,
-.form-group select,
-.form-group textarea {
+.contactus-form-group input,
+.contactus-form-group select,
+.contactus-form-group textarea {
   padding: 0.85rem 1rem;
   border: none;
   border-radius: 0;
@@ -84,17 +86,17 @@
   outline: none;
   transition: background 0.2s;
 }
-.form-group input:focus,
-.form-group textarea:focus {
+.contactus-form-group input:focus,
+.contactus-form-group textarea:focus {
   background: #ededed;
 }
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.contactus-form-group input::placeholder,
+.contactus-form-group textarea::placeholder {
   color: #bdbdbd;
   opacity: 1;
 }
 
-.submit-button {
+.contactus-submit-button {
   background: #111;
   color: #fff;
   font-weight: 500;
@@ -110,8 +112,8 @@
   display: block;
   text-align: center;
 }
-.submit-button:hover,
-.submit-button:focus {
+.contactus-submit-button:hover,
+.contactus-submit-button:focus {
   background: #222;
   color: #ffe066;
   transform: translateY(-1px) scale(1.01);
@@ -155,7 +157,7 @@
     min-width: 0;
     padding: 2rem 1rem;
   }
-  .form-row {
+  .contactus-form-row {
     grid-template-columns: 1fr;
     gap: 0.8rem;
   }
@@ -170,7 +172,7 @@
   .contactus-form-centered {
     padding: 1.2rem 0.5rem;
   }
-  .form-row {
+  .contactus-form-row {
     grid-template-columns: 1fr;
     gap: 0.7rem;
   }
