@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { db } from '../../../firebase/firebase';
+import { db, auth } from '../../../firebase/firebase';
 import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/firestore';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
@@ -20,6 +20,58 @@ const SpecificCakePage = () => {
   const [notes, setNotes] = useState('');
   const [occasion, setOccasion] = useState('');
   const [addon, setAddon] = useState('');
+
+  // Header modal states
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Header modal handlers
+  const handleMobileMenuClick = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const handleAuthClick = () => {
+    setIsAuthOpen(true);
+  };
+
+  const handleModalOpen = (modalType) => {
+    switch (modalType) {
+      case 'auth':
+        setIsAuthOpen(true);
+        break;
+      case 'profile':
+        setIsProfileOpen(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Handle scroll for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchCake = async () => {
@@ -110,7 +162,18 @@ const SpecificCakePage = () => {
 
   return (
     <div>
-      <Header />
+      <Header 
+        user={user}
+        isScrolled={isScrolled}
+        isMobileMenuOpen={isMobileMenuOpen}
+        handleMobileMenuClick={handleMobileMenuClick}
+        handleProfileClick={handleProfileClick}
+        handleAuthClick={handleAuthClick}
+        isProfileOpen={isProfileOpen}
+        setIsProfileOpen={setIsProfileOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        handleModalOpen={handleModalOpen}
+      />
       <div className="specific-cake-container">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => (

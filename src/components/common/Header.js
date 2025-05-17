@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { FaUser, FaSearch } from 'react-icons/fa';
 import '../styles/Header.css';
 import SearchModal from '../modals/SearchModal';
+import AuthModal from '../modals/AuthModal';
+import ProfileModal from '../modals/ProfileModal';
+import CartModal from '../modals/CartModal';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({
@@ -13,11 +16,12 @@ const Header = ({
   handleAuthClick,
   isProfileOpen,
   setIsProfileOpen,
-  setIsAuthOpen,
   setIsMobileMenuOpen,
   handleModalOpen
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -46,7 +50,7 @@ const Header = ({
             {user ? (
               <button 
                 className="auth-nav-button profile-button"
-                onClick={handleProfileClick}
+                onClick={() => setIsProfileOpen(true)}
               >
                 {user.photoURL ? (
                   <img src={user.photoURL} alt="Profile" className="profile-image" />
@@ -57,18 +61,25 @@ const Header = ({
             ) : (
               <button 
                 className="auth-nav-button"
-                onClick={handleAuthClick}
+                onClick={() => setIsAuthOpen(true)}
               >
                 <FaUser /> Account
               </button>
             )}
-            <a href="/cart" className="nav-icon-link" aria-label="Cart">
+            <button 
+              className="nav-icon-link" 
+              aria-label="Cart"
+              onClick={() => setIsCartOpen(true)}
+            >
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            </a>
+            </button>
           </div>
         </nav>
       </header>
       {isSearchOpen && <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
+      {isAuthOpen && <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />}
+      {isProfileOpen && <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />}
+      {isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
     </>
   );
 };

@@ -49,7 +49,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       isNutFree: false,
       isDairyFree: false
     },
-    fillings: []
+    fillings: [],
+    relatedProducts: []
   });
 
   const [newSize, setNewSize] = useState({
@@ -278,7 +279,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         servingSize: parseInt(newCake.servingSize, 10),
         image: imageUrl || (editingCake ? editingCake.image : null),
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        relatedProducts: Array.isArray(newCake.relatedProducts) ? newCake.relatedProducts.slice(0, 3) : []
       };
 
       if (editingCake) {
@@ -323,7 +325,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
   const handleEditCake = (cake) => {
     setEditingCake(cake);
-    setNewCake(cake);
+    setNewCake({ ...cake, relatedProducts: cake.relatedProducts || [] });
     setShowNewCakeForm(true);
   };
 
@@ -356,7 +358,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         isNutFree: false,
         isDairyFree: false
       },
-      fillings: []
+      fillings: [],
+      relatedProducts: []
     });
   };
 
@@ -777,6 +780,36 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                   >
                     <FaPlus /> Add Finish
                   </button>
+                </div>
+              </div>
+
+              <div className="cakemanagement-form-group full-width">
+                <label>Related Products (max 3)</label>
+                <div className="cakemanagement-related-products-list">
+                  {cakes
+                    .filter(c => !editingCake || c.id !== editingCake.id) // Exclude self when editing
+                    .map(cakeOption => (
+                      <label key={cakeOption.id} className="cakemanagement-related-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)}
+                          disabled={
+                            !(newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)) &&
+                            newCake.relatedProducts && newCake.relatedProducts.length >= 3
+                          }
+                          onChange={e => {
+                            let updated;
+                            if (e.target.checked) {
+                              updated = [...(newCake.relatedProducts || []), cakeOption.id];
+                            } else {
+                              updated = (newCake.relatedProducts || []).filter(id => id !== cakeOption.id);
+                            }
+                            setNewCake({ ...newCake, relatedProducts: updated });
+                          }}
+                        />
+                        {cakeOption.name}
+                      </label>
+                    ))}
                 </div>
               </div>
 
