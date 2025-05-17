@@ -1,17 +1,22 @@
 import React from 'react';
-import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import '../styles/Footer.css';
 
 const Footer = () => (
   <footer className="custom-footer">
     <div className="footer-content">
       <div className="footer-brand-social">
-        <div className="footer-brand">Bakes by Olayide</div>
+        <div className="footer-brand">
+          <img 
+            src="/logos/LogoYellowTransparent.png" 
+            alt="Bakes by Olayide Logo" 
+            className="footer-logo-image"
+          />
+        </div>
         <div className="footer-social">
           <a href="#" aria-label="Facebook"><FaFacebook /></a>
-          <a href="#" aria-label="YouTube"><FaYoutube /></a>
+          <a href="#" aria-label="Tiktok"><FaTiktok /></a>
           <a href="#" aria-label="Instagram"><FaInstagram /></a>
-          <a href="#" aria-label="Twitter"><FaTwitter /></a>
         </div>
       </div>
       <div className="footer-links-grid">
@@ -24,7 +29,7 @@ const Footer = () => (
           <div className="footer-topic">Help</div>
           <a href="/contact">Contact Us</a>
           <a href="/faqs">FAQs</a>
-          <a href="/corporate">Corporate</a>
+          {/* <a href="/corporate">Corporate</a> */}
         </div>
         <div className="footer-links-col">
           <div className="footer-topic">Information</div>

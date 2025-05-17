@@ -31,12 +31,12 @@
   gap: 1.1rem;
 }
 .footer-social a {
-  color: #ffe066;
+  color: #fff;
   font-size: 1.3rem;
   transition: color 0.2s;
 }
 .footer-social a:hover {
-  color: #fff;
+  color: #ffe066;
 }
 .footer-links-grid {
   flex: 3 1 600px;
