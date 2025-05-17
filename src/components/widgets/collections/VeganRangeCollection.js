@@ -148,7 +148,7 @@ const VeganRangeCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {veganProducts.seasonal?.map((product) => (
-            <div className="cupcake-flavour-card" key={product.id}>
+            <div className="cupcake-flavour-card" key={product.id} onClick={() => navigate(`/cakes/${product.id}`)} style={{ cursor: 'pointer' }}>
               <img src={product.image} alt={product.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{product.name}</h3>
@@ -168,7 +168,7 @@ const VeganRangeCollection = () => {
             product.empty ? (
               <div className="cupcake-standard-card empty" key={product.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={product.id}>
+              <div className="cupcake-standard-card" key={product.id} onClick={() => navigate(`/cakes/${product.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={product.image} alt={product.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{product.name}</h3>

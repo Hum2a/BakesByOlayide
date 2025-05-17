@@ -4,11 +4,13 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import './CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 import PageTitle from '../../common/PageTitle';
+import { useNavigate } from 'react-router-dom';
 
 const BentoCakewithCupcakesCollection = () => {
   const [bentoCakes, setBentoCakes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBentoCakes();
@@ -68,7 +70,7 @@ const BentoCakewithCupcakesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {bentoCakes.seasonal?.map((bentoCake) => (
-            <div className="cupcake-flavour-card" key={bentoCake.id}>
+            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{bentoCake.name}</h3>
@@ -85,7 +87,7 @@ const BentoCakewithCupcakesCollection = () => {
         <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {bentoCakes.standard?.map((bentoCake) => (
-            <div className="cupcake-standard-card" key={bentoCake.id}>
+            <div className="cupcake-standard-card" key={bentoCake.id} onClick={() => navigate(`/cake/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-standard-img" />
               <div className="cupcake-standard-info">
                 <h3>{bentoCake.name}</h3>

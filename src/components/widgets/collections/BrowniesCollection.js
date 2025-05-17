@@ -148,7 +148,7 @@ const BrowniesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {brownies.seasonal?.map((brownie) => (
-            <div className="cupcake-flavour-card" key={brownie.id}>
+            <div className="cupcake-flavour-card" key={brownie.id} onClick={() => navigate(`/cakes/${brownie.id}`)} style={{ cursor: 'pointer' }}>
               <img src={brownie.image} alt={brownie.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{brownie.name}</h3>
@@ -168,7 +168,7 @@ const BrowniesCollection = () => {
             brownie.empty ? (
               <div className="cupcake-standard-card empty" key={brownie.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={brownie.id}>
+              <div className="cupcake-standard-card" key={brownie.id} onClick={() => navigate(`/cakes/${brownie.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={brownie.image} alt={brownie.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{brownie.name}</h3>

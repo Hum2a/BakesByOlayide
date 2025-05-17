@@ -14,6 +14,7 @@ import CartModal from '../../modals/CartModal';
 import SearchModal from '../../modals/SearchModal';
 import { auth } from '../../../firebase/firebase';
 import PageTitle from '../../common/PageTitle';
+import CakeModal from '../../modals/CakeModal';
 
 const LargeCakesCollection = () => {
   const [largeCakes, setLargeCakes] = useState([]);
@@ -151,7 +152,7 @@ const LargeCakesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {largeCakes.seasonal?.map((largeCake) => (
-            <div className="cupcake-flavour-card" key={largeCake.id}>
+            <div className="cupcake-flavour-card" key={largeCake.id} onClick={() => navigate(`/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={largeCake.image} alt={largeCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{largeCake.name}</h3>
@@ -171,7 +172,7 @@ const LargeCakesCollection = () => {
             largeCake.empty ? (
               <div className="cupcake-standard-card empty" key={largeCake.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={largeCake.id}>
+              <div className="cupcake-standard-card" key={largeCake.id} onClick={() => navigate(`/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{largeCake.name}</h3>

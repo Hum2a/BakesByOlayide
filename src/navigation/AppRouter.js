@@ -6,6 +6,7 @@ import GuidesPage from '../components/pages/GuidesPage';
 import DietaryRequirements from '../components/pages/guides/DietaryRequirements';
 import ContactUs from '../components/pages/ContactUs';
 import CakePage from '../components/pages/CakePage';
+import SpecificCakePage from '../components/widgets/collections/SpecificCakePage';
 import ShoppingBasket from '../components/pages/ShoppingBasket';
 import Checkout from '../components/pages/Checkout';
 import OrderConfirmation from '../components/pages/OrderConfirmation';
@@ -19,6 +20,10 @@ import CupcakeCollectionPage from '../components/widgets/collections/CupcakeColl
 import LargeCakesCollection from '../components/widgets/collections/LargeCakesCollection';
 import BentoCakewithCupcakesCollection from '../components/widgets/collections/BentoCakewithCupcakesCollection';
 import BrowniesCollection from '../components/widgets/collections/BrowniesCollection';
+import CookiesCollection from '../components/widgets/collections/CookiesCollection';
+import GlutenFreeCollection from '../components/widgets/collections/GlutenFreeCollection';
+import SubscriptionBoxesCollection from '../components/widgets/collections/SubscriptionBoxesCollection';
+import VeganRangeCollection from '../components/widgets/collections/VeganRangeCollection';
 
 const AppRouter = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -35,6 +40,7 @@ const AppRouter = () => {
           {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/cakes" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
+          <Route path="/cakes/:id" element={<SpecificCakePage />} />
           <Route path="/basket" element={<ShoppingBasket />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
@@ -44,6 +50,10 @@ const AppRouter = () => {
           <Route path="/collections/largecakes" element={<LargeCakesCollection />} />
           <Route path="/collections/bentocakewithcupcakes" element={<BentoCakewithCupcakesCollection />} />
           <Route path="/collections/brownies" element={<BrowniesCollection />} />
+          <Route path="/collections/cookies" element={<CookiesCollection />} />
+          <Route path="/collections/glutenfree" element={<GlutenFreeCollection />} />
+          <Route path="/collections/subscriptionboxes" element={<SubscriptionBoxesCollection />} />
+          <Route path="/collections/veganrange" element={<VeganRangeCollection />} />
         </Routes>
 
         {isCartOpen && (
