@@ -3,14 +3,40 @@ import { db } from '../../../firebase/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import './CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
+import { useNavigate } from 'react-router-dom';
+import { FaShoppingCart, FaSearch, FaUser } from 'react-icons/fa';
+import AuthModal from '../../modals/AuthModal';
+import ProfileDropdown from '../../widgets/ProfileDropdown';
+import ProfileModal from '../../modals/ProfileModal';
+import OrderHistoryModal from '../../modals/OrderHistoryModal';
+import SettingsModal from '../../modals/SettingsModal';
+import CartModal from '../../modals/CartModal';
+import SearchModal from '../../modals/SearchModal';
+import { auth } from '../../../firebase/firebase';
+import PageTitle from '../../common/PageTitle';
 
 const LargeCakesCollection = () => {
   const [largeCakes, setLargeCakes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchLargeCakes();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    // Optionally, update totalItems from your cart context/localStorage here
+    return () => unsubscribe();
   }, []);
 
   const fetchLargeCakes = async () => {
@@ -41,6 +67,21 @@ const LargeCakesCollection = () => {
     }
   };
 
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const handleAuthClick = (e) => {
+    e.preventDefault();
+    setIsAuthOpen(true);
+  };
+
+  const handleModalOpen = (modal) => {
+    setActiveModal(modal);
+    setIsProfileOpen(false);
+  };
+
   if (loading) {
     return <div className="cupcake-collection-container">Loading...</div>;
   }
@@ -49,13 +90,57 @@ const LargeCakesCollection = () => {
     return <div className="cupcake-collection-container">{error}</div>;
   }
 
+  const columns = 4; // Match your grid-template-columns
+  const standardCakes = largeCakes.standard || [];
+  const remainder = standardCakes.length % columns;
+  const paddedCakes = remainder === 0
+    ? standardCakes
+    : [...standardCakes, ...Array(columns - remainder).fill({ empty: true, id: `empty-${remainder}` })];
+
   return (
     <div className="cupcake-collection-container">
-      <div className="cupcake-hero" style={{ backgroundImage: `url('/images/range/LargeCakes.png')` }}>
-        <div className="cupcake-hero-overlay">
-          <h1 className="cupcake-hero-title">Large Cakes</h1>
+      <PageTitle title="Large Cakes" />
+      {/* CakePage-style Hero Header */}
+      <header className="cakepage-hero">
+        <nav className="cakepage-hero-nav">
+          <img 
+            src="/logos/LogoYellowTransparent.png" 
+            alt="Bakes by Olayide Logo" 
+            className="cakepage-hero-logo" 
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/')} 
+          />
+          <div className="cakepage-nav-links">
+            <a href="/cakes">Our Range</a>
+            <a href="/guides">Guides</a>
+            <a href="/about">Our Story</a>
+            <a href="/contact">Contact Us</a>
+          </div>
+          <div className="cakepage-nav-icons">
+            <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
+              <FaSearch />
+            </button>
+            {user ? (
+              <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
+                <FaUser />
+              </button>
+            ) : (
+              <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
+                <FaUser />
+              </button>
+            )}
+            <button className="cakepage-cart-button" onClick={() => setIsCartOpen(true)} aria-label="View Cart">
+              <FaShoppingCart />
+              {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
+            </button>
+          </div>
+        </nav>
+        <div className="cakepage-hero-bgimg-wrap">
+          <img src="/images/range/LargeCakes.png" alt="Large Cakes" className="cakepage-hero-bgimg" />
+          <h1 className="cakepage-hero-title">Large Cakes</h1>
         </div>
-      </div>
+      </header>
+      {/* End CakePage-style Hero Header */}
       <div className="cupcake-breadcrumbs">
         <span>Collections</span> / <span>Large Cakes</span>
       </div>
@@ -63,7 +148,7 @@ const LargeCakesCollection = () => {
         Our Large Cakes are perfect for celebrations and special occasions. Choose from a variety of flavours and designs.
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {largeCakes.featured?.map((largeCake) => (
             <div className="cupcake-flavour-card" key={largeCake.id}>
@@ -80,21 +165,50 @@ const LargeCakesCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
-          {largeCakes.standard?.map((largeCake) => (
-            <div className="cupcake-standard-card" key={largeCake.id}>
-              <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
-              <div className="cupcake-standard-info">
-                <h3>{largeCake.name}</h3>
-                <span className="cupcake-standard-price">
-                  From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
-                </span>
+          {paddedCakes.map((largeCake, idx) =>
+            largeCake.empty ? (
+              <div className="cupcake-standard-card empty" key={largeCake.id || idx}></div>
+            ) : (
+              <div className="cupcake-standard-card" key={largeCake.id}>
+                <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
+                <div className="cupcake-standard-info">
+                  <h3>{largeCake.name}</h3>
+                  <span className="cupcake-standard-price">
+                    From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </section>
+      {/* Modals and overlays */}
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <ProfileDropdown 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
+      />
+      {activeModal === 'profile' && (
+        <ProfileModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'orders' && (
+        <OrderHistoryModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'cart' && (
+        <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'settings' && (
+        <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {activeModal === 'search' && (
+        <SearchModal isOpen={true} onClose={() => setActiveModal(null)} />
+      )}
+      {isCartOpen && (
+        <CartModal isOpen={true} onClose={() => setIsCartOpen(false)} />
+      )}
       <Footer />
     </div>
   );

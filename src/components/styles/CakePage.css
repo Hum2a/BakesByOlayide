@@ -163,7 +163,6 @@
 .cakepage-card:hover {
   transform: translateY(-8px) scale(1.025);
   box-shadow: 0 12px 36px rgba(230, 126, 34, 0.18);
-  border-color: #e67e22;
 }
 
 .cakepage-image {
@@ -245,7 +244,6 @@
 }
 
 .cakepage-order-btn:hover {
-  background-color: #e67e22;
   color: #fff;
   transform: translateY(-2px) scale(1.04);
 }
@@ -301,7 +299,6 @@
 .filter-scroll-button:hover {
   background: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  color: #d35400;
 }
 
 .filter-scroll-button.left {
@@ -508,7 +505,6 @@
   }
 
   .cakepage-order-btn:active {
-    background-color: #d35400;
     transform: scale(0.95);
   }
 
@@ -857,8 +853,6 @@
 
 }
 .cakepage-viewcakes-btn:hover {
-  background: #d35400;
-  color: #ffe066;
   transform: translateY(-2px) scale(1.04);
 }
 

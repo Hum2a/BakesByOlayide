@@ -3,6 +3,7 @@ import { db } from '../../../firebase/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import './CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
+import PageTitle from '../../common/PageTitle';
 
 const BentoCakewithCupcakesCollection = () => {
   const [bentoCakes, setBentoCakes] = useState([]);
@@ -51,6 +52,7 @@ const BentoCakewithCupcakesCollection = () => {
 
   return (
     <div className="cupcake-collection-container">
+      <PageTitle title="Bento Cake with Cupcakes" />
       <div className="cupcake-hero" style={{ backgroundImage: `url('/images/range/BentoCake.png')` }}>
         <div className="cupcake-hero-overlay">
           <h1 className="cupcake-hero-title">Bento Cake with Cupcakes</h1>
