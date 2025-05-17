@@ -39,10 +39,8 @@
   background: transparent;
   background-color: transparent;
   border-radius: 10px;
-  width: 260px;
   padding: 1rem;
   overflow: hidden;
-  /* box-shadow: 0 3px 10px rgba(0,0,0,0.1); */
   transition: all 0.3s ease;
   position: relative;
   display: inline-block;
