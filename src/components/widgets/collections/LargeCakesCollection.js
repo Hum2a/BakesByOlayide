@@ -51,12 +51,12 @@ const LargeCakesCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard large cakes
-      const featuredLargeCakes = largeCakesData.filter(largeCake => largeCake.featured);
-      const standardLargeCakes = largeCakesData.filter(largeCake => !largeCake.featured);
+      // Separate seasonal and standard large cakes
+      const seasonalLargeCakes = largeCakesData.filter(largeCake => largeCake.isSeasonal);
+      const standardLargeCakes = largeCakesData.filter(largeCake => !largeCake.isSeasonal);
 
       setLargeCakes({
-        featured: featuredLargeCakes,
+        seasonal: seasonalLargeCakes,
         standard: standardLargeCakes
       });
       setLoading(false);
@@ -150,7 +150,7 @@ const LargeCakesCollection = () => {
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {largeCakes.featured?.map((largeCake) => (
+          {largeCakes.seasonal?.map((largeCake) => (
             <div className="cupcake-flavour-card" key={largeCake.id}>
               <img src={largeCake.image} alt={largeCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">

@@ -1021,4 +1021,30 @@
   .cakemanagement-filling-item input {
     width: 100%;
   }
+}
+
+.cakemanagement-availability-period {
+  display: flex;
+  gap: 2rem;
+  margin-top: 0.5rem;
+}
+
+.cakemanagement-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.cakemanagement-radio-label input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .cakemanagement-availability-period {
+    flex-direction: column;
+    gap: 1rem;
+  }
 } 

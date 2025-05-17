@@ -26,12 +26,12 @@ const BentoCakewithCupcakesCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard bento cakes
-      const featuredBentoCakes = bentoCakesData.filter(bentoCake => bentoCake.featured);
-      const standardBentoCakes = bentoCakesData.filter(bentoCake => !bentoCake.featured);
+      // Separate seasonal and standard bento cakes
+      const seasonalBentoCakes = bentoCakesData.filter(bentoCake => bentoCake.isSeasonal);
+      const standardBentoCakes = bentoCakesData.filter(bentoCake => !bentoCake.isSeasonal);
 
       setBentoCakes({
-        featured: featuredBentoCakes,
+        seasonal: seasonalBentoCakes,
         standard: standardBentoCakes
       });
       setLoading(false);
@@ -65,9 +65,9 @@ const BentoCakewithCupcakesCollection = () => {
         Our Bento Cakes with Cupcakes are a delightful combination for sharing and gifting. Choose your favourite flavours!
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {bentoCakes.featured?.map((bentoCake) => (
+          {bentoCakes.seasonal?.map((bentoCake) => (
             <div className="cupcake-flavour-card" key={bentoCake.id}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -82,7 +82,7 @@ const BentoCakewithCupcakesCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {bentoCakes.standard?.map((bentoCake) => (
             <div className="cupcake-standard-card" key={bentoCake.id}>

@@ -49,12 +49,12 @@ const BrowniesCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard brownies
-      const featuredBrownies = browniesData.filter(brownie => brownie.featured);
-      const standardBrownies = browniesData.filter(brownie => !brownie.featured);
+      // Separate seasonal and standard brownies
+      const seasonalBrownies = browniesData.filter(brownie => brownie.isSeasonal);
+      const standardBrownies = browniesData.filter(brownie => !brownie.isSeasonal);
 
       setBrownies({
-        featured: featuredBrownies,
+        seasonal: seasonalBrownies,
         standard: standardBrownies
       });
       setLoading(false);
@@ -145,9 +145,9 @@ const BrowniesCollection = () => {
         Our brownies are rich, fudgy, and perfect for any chocolate lover. Try our classic and seasonal flavours!
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {brownies.featured?.map((brownie) => (
+          {brownies.seasonal?.map((brownie) => (
             <div className="cupcake-flavour-card" key={brownie.id}>
               <img src={brownie.image} alt={brownie.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -162,7 +162,7 @@ const BrowniesCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {paddedCakes.map((brownie, idx) =>
             brownie.empty ? (

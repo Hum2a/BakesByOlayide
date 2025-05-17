@@ -49,12 +49,12 @@ const VeganRangeCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard vegan products
-      const featuredVeganProducts = veganProductsData.filter(product => product.featured);
-      const standardVeganProducts = veganProductsData.filter(product => !product.featured);
+      // Separate seasonal and standard vegan products
+      const seasonalVeganProducts = veganProductsData.filter(product => product.isSeasonal);
+      const standardVeganProducts = veganProductsData.filter(product => !product.isSeasonal);
 
       setVeganProducts({
-        featured: featuredVeganProducts,
+        seasonal: seasonalVeganProducts,
         standard: standardVeganProducts
       });
       setLoading(false);
@@ -145,9 +145,9 @@ const VeganRangeCollection = () => {
         Our Vegan Range offers delicious plant-based alternatives that are perfect for everyone. Made with the finest ingredients, these treats are 100% vegan and equally delightful!
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {veganProducts.featured?.map((product) => (
+          {veganProducts.seasonal?.map((product) => (
             <div className="cupcake-flavour-card" key={product.id}>
               <img src={product.image} alt={product.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -162,7 +162,7 @@ const VeganRangeCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {paddedProducts.map((product, idx) =>
             product.empty ? (

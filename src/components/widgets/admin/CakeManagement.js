@@ -41,6 +41,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     customizationOptions: [''],
     isAvailable: true,
     featured: false,
+    isSeasonal: false,
     dietaryInfo: {
       isVegetarian: false,
       isVegan: false,
@@ -347,6 +348,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       customizationOptions: [''],
       isAvailable: true,
       featured: false,
+      isSeasonal: false,
       dietaryInfo: {
         isVegetarian: false,
         isVegan: false,
@@ -810,6 +812,30 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                   />
                   Featured Cake
                 </label>
+              </div>
+
+              <div className="cakemanagement-form-group">
+                <label>Availability Period</label>
+                <div className="cakemanagement-availability-period">
+                  <label className="cakemanagement-radio-label">
+                    <input
+                      type="radio"
+                      name="availabilityPeriod"
+                      checked={!newCake.isSeasonal}
+                      onChange={() => setNewCake({...newCake, isSeasonal: false})}
+                    />
+                    Year Round
+                  </label>
+                  <label className="cakemanagement-radio-label">
+                    <input
+                      type="radio"
+                      name="availabilityPeriod"
+                      checked={newCake.isSeasonal}
+                      onChange={() => setNewCake({...newCake, isSeasonal: true})}
+                    />
+                    Seasonal
+                  </label>
+                </div>
               </div>
             </div>
 

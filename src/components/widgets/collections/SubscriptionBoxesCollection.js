@@ -49,12 +49,12 @@ const SubscriptionBoxesCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard subscription boxes
-      const featuredSubscriptionBoxes = subscriptionBoxesData.filter(box => box.featured);
-      const standardSubscriptionBoxes = subscriptionBoxesData.filter(box => !box.featured);
+      // Separate seasonal and standard subscription boxes
+      const seasonalSubscriptionBoxes = subscriptionBoxesData.filter(box => box.isSeasonal);
+      const standardSubscriptionBoxes = subscriptionBoxesData.filter(box => !box.isSeasonal);
 
       setSubscriptionBoxes({
-        featured: featuredSubscriptionBoxes,
+        seasonal: seasonalSubscriptionBoxes,
         standard: standardSubscriptionBoxes
       });
       setLoading(false);
@@ -145,9 +145,9 @@ const SubscriptionBoxesCollection = () => {
         Treat yourself or someone special to a regular delivery of our delicious treats! Our subscription boxes are carefully curated with a selection of our finest products, perfect for gifting or personal indulgence. Choose from monthly, bi-weekly, or weekly deliveries.
       </div>
       <section className="cupcake-section">
-        <h2>Featured Boxes</h2>
+        <h2>Seasonal Boxes</h2>
         <div className="cupcake-flavours-grid">
-          {subscriptionBoxes.featured?.map((box) => (
+          {subscriptionBoxes.seasonal?.map((box) => (
             <div className="cupcake-flavour-card" key={box.id}>
               <img src={box.image} alt={box.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -169,7 +169,7 @@ const SubscriptionBoxesCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Boxes</h2>
+        <h2>Year Round Boxes</h2>
         <div className="cupcake-standard-grid">
           {paddedBoxes.map((box, idx) =>
             box.empty ? (

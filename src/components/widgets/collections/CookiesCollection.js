@@ -49,12 +49,12 @@ const CookiesCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard cookies
-      const featuredCookies = cookiesData.filter(cookie => cookie.featured);
-      const standardCookies = cookiesData.filter(cookie => !cookie.featured);
+      // Separate seasonal and standard cookies
+      const seasonalCookies = cookiesData.filter(cookie => cookie.isSeasonal);
+      const standardCookies = cookiesData.filter(cookie => !cookie.isSeasonal);
 
       setCookies({
-        featured: featuredCookies,
+        seasonal: seasonalCookies,
         standard: standardCookies
       });
       setLoading(false);
@@ -145,9 +145,9 @@ const CookiesCollection = () => {
         Our cookies are baked fresh daily and come in a variety of flavours. Perfect for snacking or sharing!
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {cookies.featured?.map((cookie) => (
+          {cookies.seasonal?.map((cookie) => (
             <div className="cupcake-flavour-card" key={cookie.id}>
               <img src={cookie.image} alt={cookie.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -162,7 +162,7 @@ const CookiesCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {paddedCakes.map((cookie, idx) =>
             cookie.empty ? (

@@ -49,12 +49,12 @@ const GlutenFreeCollection = () => {
         ...doc.data()
       }));
 
-      // Separate featured and standard gluten-free products
-      const featuredGlutenFreeProducts = glutenFreeProductsData.filter(product => product.featured);
-      const standardGlutenFreeProducts = glutenFreeProductsData.filter(product => !product.featured);
+      // Separate seasonal and standard gluten-free products
+      const seasonalGlutenFreeProducts = glutenFreeProductsData.filter(product => product.isSeasonal);
+      const standardGlutenFreeProducts = glutenFreeProductsData.filter(product => !product.isSeasonal);
 
       setGlutenFreeProducts({
-        featured: featuredGlutenFreeProducts,
+        seasonal: seasonalGlutenFreeProducts,
         standard: standardGlutenFreeProducts
       });
       setLoading(false);
@@ -145,9 +145,9 @@ const GlutenFreeCollection = () => {
         Our Gluten Free Range offers delicious alternatives that are perfect for those with gluten sensitivities or celiac disease. Made with carefully selected ingredients, these treats are certified gluten-free and equally delightful!
       </div>
       <section className="cupcake-section">
-        <h2>Featured Flavours</h2>
+        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {glutenFreeProducts.featured?.map((product) => (
+          {glutenFreeProducts.seasonal?.map((product) => (
             <div className="cupcake-flavour-card" key={product.id}>
               <img src={product.image} alt={product.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
@@ -162,7 +162,7 @@ const GlutenFreeCollection = () => {
         </div>
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
+        <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {paddedProducts.map((product, idx) =>
             product.empty ? (
