@@ -63,7 +63,7 @@ const Header = ({
                 className="auth-nav-button"
                 onClick={() => setIsAuthOpen(true)}
               >
-                <FaUser /> Account
+                <FaUser />
               </button>
             )}
             <button 
