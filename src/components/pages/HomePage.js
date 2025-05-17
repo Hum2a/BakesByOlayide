@@ -17,6 +17,7 @@ import { FaBars, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaIns
 import { auth } from '../../firebase/firebase';
 import Footer from '../common/Footer';
 import Header from '../common/Header';
+import PageTitle from '../common/PageTitle';
 
 const HomePage = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -75,6 +76,7 @@ const HomePage = () => {
 
   return (
     <div className="homepage-container">
+      <PageTitle title="Home" />
       <Header 
         user={user}
         isScrolled={isScrolled}

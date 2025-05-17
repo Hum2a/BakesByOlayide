@@ -7,6 +7,9 @@ import StripePaymentForm from '../payment/StripePaymentForm';
 import { auth, db } from '../../firebase/firebase';
 import { doc, setDoc, collection, getDocs, query, where, Timestamp, increment } from 'firebase/firestore';
 import '../styles/Checkout.css';
+import Header from '../common/Header';
+import Footer from '../common/Footer';
+import PageTitle from '../common/PageTitle';
 
 const GuestForm = ({ onSubmit, isLoading }) => (
   <form onSubmit={onSubmit} className="guest-form">
@@ -489,6 +492,8 @@ const Checkout = () => {
 
   return (
     <div className="checkout-container">
+      <PageTitle title="Checkout" />
+      <Header />
       <div className="checkout-content">
         <div className="order-summary">
           <h2>Order Summary</h2>
@@ -662,6 +667,7 @@ const Checkout = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

@@ -13,6 +13,7 @@ import OrderHistoryModal from '../modals/OrderHistoryModal';
 import SettingsModal from '../modals/SettingsModal';
 import CartModal from '../modals/CartModal';
 import SearchModal from '../modals/SearchModal';
+import PageTitle from '../common/PageTitle';
 
 const GuidesPage = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const GuidesPage = () => {
 
   return (
     <div className="guides-page-container">
+      <PageTitle title="Baking Guides" />
       {/* CakePage-style Header */}
       <header className="cakepage-hero">
         <nav className="cakepage-hero-nav">

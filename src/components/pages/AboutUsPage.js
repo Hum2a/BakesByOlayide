@@ -2,10 +2,12 @@ import React from 'react';
 import '../styles/AboutUsPage.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
+import PageTitle from '../common/PageTitle';
 
 const AboutUsPage = () => {
   return (
     <div className="aboutus-page-container">
+      <PageTitle title="About Us" />
       <Header />
       <main className="aboutus-main">
         <section className="aboutus-content">

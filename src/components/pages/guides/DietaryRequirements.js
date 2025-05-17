@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
+import PageTitle from '../../common/PageTitle';
 import '../../styles/DietaryRequirements.css';
 
 const DietaryRequirements = () => {
@@ -20,6 +21,7 @@ const DietaryRequirements = () => {
 
   return (
     <div className="DietaryRequirements-outer-container">
+      <PageTitle title="Dietary Requirements" />
       <div className="DietaryRequirements-header-wrap">
         <Header
           user={user}
@@ -46,7 +48,7 @@ const DietaryRequirements = () => {
           </div>
           <section className="DietaryRequirements-content">
             <p>To facilitate this, we have vegan (animal derived product free- no eggs or dairy) and gluten free alternatives of many mainline products available. For large cakes and custom orders, we are able to make more accommodations if you need.</p>
-            <p>We’d like you to know that in our bakery we handle:</p>
+            <p>We'd like you to know that in our bakery we handle:</p>
             <ul>
               <li>Almonds</li>
               <li>Cereals containing gluten</li>

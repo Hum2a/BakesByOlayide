@@ -4,6 +4,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import '../styles/ContactUs.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
+import PageTitle from '../common/PageTitle';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -52,6 +53,7 @@ const ContactUs = () => {
 
   return (
     <div className="contactus-page">
+      <PageTitle title="Contact Us" />
       <Header />
       <div className="contactus-header">
         <h1>Contact Us</h1>

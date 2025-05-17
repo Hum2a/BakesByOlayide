@@ -10,6 +10,7 @@ import UserManagement from '../widgets/admin/UserManagement';
 import Enquiries from '../widgets/admin/Enquiries';
 import DiscountManagement from '../widgets/admin/DiscountManagement';
 import ReviewManagement from '../widgets/admin/ReviewManagement';
+import PageTitle from '../common/PageTitle';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -121,6 +122,7 @@ const Admin = () => {
 
   return (
     <div className="admin-container">
+      <PageTitle title="Admin Dashboard" />
       <div className="admin-sidebar">
         <div className="admin-header">
           <h2>Admin Dashboard</h2>

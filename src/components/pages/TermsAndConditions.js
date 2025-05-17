@@ -1,10 +1,12 @@
 import React from 'react';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
+import PageTitle from '../common/PageTitle';
 import '../styles/TermsAndConditions.css';
 
 const TermsAndConditions = () => (
   <div className="terms-root">
+    <PageTitle title="Terms and Conditions" />
     <Header />
       <h1 className="terms-title">Terms and Conditions</h1>
     <main className="terms-main">
