@@ -178,7 +178,9 @@ const SpecificCakePage = () => {
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => (
             <span key={crumb}>
-              {idx > 0 && <FaChevronRight className="cakemodal-breadcrumb-sep" />}
+              {idx > 0 && (
+                <span className="cakemodal-breadcrumb-sep-slash">/</span>
+              )}
               <span className="cakemodal-breadcrumb">{crumb}</span>
             </span>
           ))}
