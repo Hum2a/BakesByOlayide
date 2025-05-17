@@ -9,8 +9,6 @@
 
 .DietaryRequirements-header-wrap {
   width: 100%;
-  margin-bottom: 4.5rem;
-  /* No extra margin needed unless you want spacing below header */
 }
 
 .DietaryRequirements-main-wrap {
@@ -19,7 +17,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Optional: add margin-top if you want extra space below header */
 }
 
 .DietaryRequirements-footer-wrap {
@@ -41,19 +38,26 @@
 
 .DietaryRequirements-title {
   text-align: center;
-  font-size: 2.3rem;
-  font-weight: 700;
   margin-bottom: 1.2rem;
   font-family: 'Old Standard TT', serif;
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 100%;
+  letter-spacing: -2%;
 }
 
 .DietaryRequirements-subtitle {
   text-align: center;
-  font-size: 1.1rem;
   color: #444;
   margin-bottom: 2.2rem;
   margin-left: auto;
   margin-right: auto;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+
 }
 
 .DietaryRequirements-main-image-wrap {
@@ -73,6 +77,9 @@
   font-size: 1.05rem;
   color: #222;
   margin-bottom: 2.5rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .DietaryRequirements-content ul {
@@ -87,7 +94,7 @@
 }
 
 .DietaryRequirements-content p {
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.5rem;
   line-height: 1.7;
 }
 
