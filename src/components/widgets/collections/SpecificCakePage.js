@@ -5,7 +5,7 @@ import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/fires
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaChevronRight } from 'react-icons/fa';
-import '../../styles/CakeModal.css';
+import './SpecificCakePage.css';
 
 const SpecificCakePage = () => {
   const { id } = useParams();
@@ -111,8 +111,8 @@ const SpecificCakePage = () => {
   return (
     <div>
       <Header />
-      <div className="cakemodal-content" style={{ margin: '2rem auto', maxWidth: 1100 }}>
-        <nav className="cakemodal-breadcrumbs">
+      <div className="specific-cake-container">
+        <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => (
             <span key={crumb}>
               {idx > 0 && <FaChevronRight className="cakemodal-breadcrumb-sep" />}
@@ -120,31 +120,31 @@ const SpecificCakePage = () => {
             </span>
           ))}
         </nav>
-        <div className="cakemodal-grid">
-          <div className="cakemodal-image">
+        <div className="specific-cake-grid">
+          <div className="specific-cake-image">
             <img src={cake.image} alt={cake.name} />
           </div>
-          <div className="cakemodal-details">
+          <div className="specific-cake-details">
             <h2>{cake.name}</h2>
-            {cake.subtitle && <div className="cakemodal-subtitle">{cake.subtitle}</div>}
-            <div className="cakemodal-available-sizes">
+            {cake.subtitle && <div className="specific-cake-subtitle">{cake.subtitle}</div>}
+            <div className="specific-cake-available-sizes">
               {sizeOptions.length > 0 && (
-                <span>Available in {sizeOptions.map(s => `${s.size}"`).join(', ')}</span>
+                <span>Available in {sizeOptions.map(s => `${s.size}\"`).join(', ')}</span>
               )}
             </div>
-            <div className="cakemodal-price-row">
-              <span className="cakemodal-price">From £{minPrice.toFixed(2)}</span>
+            <div className="specific-cake-price-row">
+              <span className="specific-cake-price">From £{minPrice.toFixed(2)}</span>
             </div>
-            <div className="cakemodal-description">{cake.description}</div>
-            <div className="cakemodal-selectors">
+            <div className="specific-cake-description">{cake.description}</div>
+            <div className="specific-cake-selectors">
               {sizeOptions.length > 0 && (
-                <div className="cakemodal-selector-group">
-                  <span className="cakemodal-selector-label">Size:</span>
-                  <div className="cakemodal-selector-options">
+                <div className="specific-cake-selector-group">
+                  <span className="specific-cake-selector-label">Size:</span>
+                  <div className="specific-cake-selector-options">
                     {sizeOptions.map((size, idx) => (
                       <button
                         key={idx}
-                        className={`cakemodal-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
+                        className={`specific-cake-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedSizeIdx(idx)}
                       >
                         {size.size}"
@@ -154,13 +154,13 @@ const SpecificCakePage = () => {
                 </div>
               )}
               {shapeOptions.length > 0 && (
-                <div className="cakemodal-selector-group">
-                  <span className="cakemodal-selector-label">Shape:</span>
-                  <div className="cakemodal-selector-options">
+                <div className="specific-cake-selector-group">
+                  <span className="specific-cake-selector-label">Shape:</span>
+                  <div className="specific-cake-selector-options">
                     {shapeOptions.map((shape, idx) => (
                       <button
                         key={idx}
-                        className={`cakemodal-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
+                        className={`specific-cake-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
                         {shape.name}
@@ -170,13 +170,13 @@ const SpecificCakePage = () => {
                 </div>
               )}
               {finishOptions.length > 0 && (
-                <div className="cakemodal-selector-group">
-                  <span className="cakemodal-selector-label">Finish:</span>
-                  <div className="cakemodal-selector-options">
+                <div className="specific-cake-selector-group">
+                  <span className="specific-cake-selector-label">Finish:</span>
+                  <div className="specific-cake-selector-options">
                     {finishOptions.map((finish, idx) => (
                       <button
                         key={idx}
-                        className={`cakemodal-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
+                        className={`specific-cake-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
                         {finish.name}
@@ -185,10 +185,10 @@ const SpecificCakePage = () => {
                   </div>
                 </div>
               )}
-              <div className="cakemodal-selector-group">
-                <span className="cakemodal-selector-label">Occasion:</span>
+              <div className="specific-cake-selector-group">
+                <span className="specific-cake-selector-label">Occasion:</span>
                 <select
-                  className="cakemodal-dropdown"
+                  className="specific-cake-dropdown"
                   value={occasion}
                   onChange={e => setOccasion(e.target.value)}
                 >
@@ -200,10 +200,10 @@ const SpecificCakePage = () => {
                   <option value="Other">Other</option>
                 </select>
               </div>
-              <div className="cakemodal-selector-group">
-                <span className="cakemodal-selector-label">Add ons:</span>
+              <div className="specific-cake-selector-group">
+                <span className="specific-cake-selector-label">Add ons:</span>
                 <select
-                  className="cakemodal-dropdown"
+                  className="specific-cake-dropdown"
                   value={addon}
                   onChange={e => setAddon(e.target.value)}
                 >
@@ -215,30 +215,41 @@ const SpecificCakePage = () => {
                 </select>
               </div>
             </div>
-            <div className="cakemodal-ingredients-list">
-              <div><b>Ingredients List:</b></div>
-              <div>
-                {cake.ingredients && cake.ingredients.length > 0 && (
-                  <span>{cake.ingredients.join(', ')}</span>
-                )}
-              </div>
-              {cake.toppings && cake.toppings.length > 0 && (
-                <div><b>Toppings:</b> {cake.toppings.join(', ')}</div>
-              )}
-            </div>
           </div>
         </div>
+        <div className="specific-cake-textareas-row">
+          <div className="specific-cake-textarea-group">
+            <label className="specific-cake-textarea-label">Design Inspirations: (Optional)</label>
+            <input type="file" className="specific-cake-textarea" />
+          </div>
+          <div className="specific-cake-textarea-group">
+            <label className="specific-cake-textarea-label">Additional Notes: (Optional)</label>
+            <textarea className="specific-cake-textarea" placeholder="Type here" />
+          </div>
+        </div>
+        <button className="specific-cake-add-btn">Add to Basket</button>
+        <div className="specific-cake-ingredients-list">
+          <div><b>Ingredients List:</b></div>
+          <div>
+            {cake.ingredients && cake.ingredients.length > 0 && (
+              <span>{cake.ingredients.join(', ')}</span>
+            )}
+          </div>
+          {cake.toppings && cake.toppings.length > 0 && (
+            <div><b>Toppings:</b> {cake.toppings.join(', ')}</div>
+          )}
+        </div>
         {relatedProducts.length > 0 && (
-          <div className="cakemodal-related-products">
+          <div className="specific-cake-related-products">
             <h3>Related products</h3>
-            <div className="cakemodal-related-grid">
+            <div className="specific-cake-related-grid">
               {relatedProducts.map(prod => (
-                <div key={prod.id} className="cakemodal-related-card">
+                <div key={prod.id} className="specific-cake-related-card">
                   <img src={prod.image} alt={prod.name} />
-                  <div className="cakemodal-related-info">
-                    <div className="cakemodal-related-title">{prod.name}</div>
-                    <div className="cakemodal-related-desc">{prod.description}</div>
-                    <div className="cakemodal-related-price">£{(prod.sizes && prod.sizes[0]?.price ? prod.sizes[0].price.toFixed(2) : '0.00')}</div>
+                  <div className="specific-cake-related-info">
+                    <div className="specific-cake-related-title">{prod.name}</div>
+                    <div className="specific-cake-related-desc">{prod.description}</div>
+                    <div className="specific-cake-related-price">£{(prod.sizes && prod.sizes[0]?.price ? prod.sizes[0].price.toFixed(2) : '0.00')}</div>
                   </div>
                 </div>
               ))}
@@ -246,9 +257,9 @@ const SpecificCakePage = () => {
           </div>
         )}
         {/* Reviews Section */}
-        <div className="cakemodal-reviews">
+        <div className="specific-cake-reviews">
           <h3>Customer Reviews</h3>
-          <div className="cakemodal-rating">
+          <div className="specific-cake-rating">
             <div className="stars-container">
               {renderStars(averageRating)}
             </div>
