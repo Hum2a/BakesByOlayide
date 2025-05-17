@@ -4,7 +4,7 @@ import { db, auth } from '../../../firebase/firebase';
 import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/firestore';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
-import { FaStar, FaStarHalf, FaChevronRight } from 'react-icons/fa';
+import { FaStar, FaStarHalf } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 
 const SpecificCakePage = () => {
