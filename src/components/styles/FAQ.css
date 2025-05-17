@@ -72,6 +72,10 @@
   line-height: 1.7;
 }
 
+.faq-text p {
+  margin-bottom: 1.5rem;
+}
+
 .faq-link {
   color: #f3c307;
   text-decoration: underline;
