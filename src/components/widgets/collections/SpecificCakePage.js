@@ -17,6 +17,8 @@ const SpecificCakePage = () => {
   const [selectedSizeIdx, setSelectedSizeIdx] = useState(0);
   const [selectedShapeIdx, setSelectedShapeIdx] = useState(0);
   const [selectedFinishIdx, setSelectedFinishIdx] = useState(0);
+  const [topper, setTopper] = useState('');
+  const [topperPrice, setTopperPrice] = useState(0);
   const [notes, setNotes] = useState('');
   const [occasion, setOccasion] = useState('');
   const [addon, setAddon] = useState('');
@@ -125,7 +127,7 @@ const SpecificCakePage = () => {
   const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
   const selectedShape = shapeOptions[selectedShapeIdx] || { price: 0, name: '' };
   const selectedFinish = finishOptions[selectedFinishIdx] || { price: 0, name: '' };
-  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0) + (selectedFinish.price || 0);
+  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0) + (selectedFinish.price || 0) + (topperPrice || 0);
 
   const mainCategory = (cake.categories && cake.categories[0]) || 'Cakes';
   const breadcrumbs = [
@@ -228,7 +230,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedSizeIdx(idx)}
                       >
-                        {size.size}"
+                        {size.size}" (£{size.price.toFixed(2)})
                       </button>
                     ))}
                   </div>
@@ -244,7 +246,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
-                        {shape.name}
+                        {shape.name} (£{shape.price.toFixed(2)})
                       </button>
                     ))}
                   </div>
@@ -260,7 +262,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
-                        {finish.name}
+                        {finish.name} (£{finish.price.toFixed(2)})
                       </button>
                     ))}
                   </div>
@@ -295,6 +297,43 @@ const SpecificCakePage = () => {
                   <option value="Message Card">Message Card</option>
                 </select>
               </div>
+              <div className="specific-cake-selector-group">
+                <span className="specific-cake-selector-label">Topper:</span>
+                <select
+                  className="specific-cake-dropdown"
+                  value={topper}
+                  onChange={e => {
+                    setTopper(e.target.value);
+                    // Set topper price based on selection
+                    switch(e.target.value) {
+                      case 'Happy Birthday':
+                        setTopperPrice(5.00);
+                        break;
+                      case 'Congratulations':
+                        setTopperPrice(7.00);
+                        break;
+                      case 'Happy Anniversary':
+                        setTopperPrice(6.00);
+                        break;
+                      case 'Baby Shower':
+                        setTopperPrice(8.00);
+                        break;
+                      case 'Custom Message':
+                        setTopperPrice(10.00);
+                        break;
+                      default:
+                        setTopperPrice(0);
+                    }
+                  }}
+                >
+                  <option value="">Choose</option>
+                  <option value="Happy Birthday">Happy Birthday (£5.00)</option>
+                  <option value="Congratulations">Congratulations (£7.00)</option>
+                  <option value="Happy Anniversary">Happy Anniversary (£6.00)</option>
+                  <option value="Baby Shower">Baby Shower (£8.00)</option>
+                  <option value="Custom Message">Custom Message (£10.00)</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -307,6 +346,9 @@ const SpecificCakePage = () => {
             <label className="specific-cake-textarea-label">Additional Notes: (Optional)</label>
             <textarea className="specific-cake-textarea" placeholder="Type here" />
           </div>
+        </div>
+        <div className="specific-cake-total-price">
+          Total Price: £{totalPrice.toFixed(2)}
         </div>
         <button className="specific-cake-add-btn">Add to Basket</button>
         <div className="specific-cake-ingredients-list">

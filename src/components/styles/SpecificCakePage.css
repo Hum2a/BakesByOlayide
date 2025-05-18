@@ -40,16 +40,12 @@
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  background: #f7f7f7;
-  border: 2px solid #eee;
-  min-height: 350px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
 .specific-cake-image img {
-  width: 100%;
+  width: 70%;
   height: auto;
   object-fit: cover;
   border-radius: 16px;
@@ -235,6 +231,18 @@
   background: #ffe066;
   color: #111;
   transform: translateY(-2px) scale(1.01);
+}
+
+.specific-cake-total-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111;
+  text-align: right;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #eee;
 }
 
 .specific-cake-ingredients-list {
