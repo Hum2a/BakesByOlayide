@@ -113,7 +113,7 @@ const FAQ = () => {
               Bakes by Olayide is a fondant-free zone: our founder isn't a fan of it. We don't make realistic cakes either. (There are many great bakers and cake artists who do though!)</p>
 
               <p><b>Where can I find information on allergens?</b><br />
-              You can find information on our handling of allergens <a href="/allergens" className="faq-link">here</a>. We also have a table of all allergens in our bakes <a href="/allergens" className="faq-link">here</a>.</p>
+              You can find information on our handling of allergens <a href="/guides/dietary-requirements" className="faq-link">here</a>. We also have a table of all allergens in our bakes <a href="/allergens" className="faq-link">here</a>.</p>
             </div>
           </div>
         </main>
