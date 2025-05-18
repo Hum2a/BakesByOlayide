@@ -10,6 +10,11 @@
   font-family: 'Old Standard TT', serif;
 }
 
+.contactus-header,
+.contactus-content {
+  flex: 0 0 auto;
+}
+
 .contactus-header {
   width: 100%;
   margin: 3rem auto 2rem auto;
@@ -34,6 +39,7 @@
   align-items: flex-start;
   width: 100%;
   margin: 0 auto;
+  flex: 1 0 auto;
 }
 
 .contactus-form-centered {
