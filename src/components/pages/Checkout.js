@@ -372,7 +372,7 @@ const Checkout = () => {
       <div className="checkout-empty">
         <h2>Your cart is empty</h2>
         <p>Please add some items to your cart before proceeding to checkout.</p>
-        <button onClick={() => navigate('/cakes')} className="return-to-shop">
+        <button onClick={() => navigate('/collections')} className="return-to-shop">
           Return to Shop
         </button>
       </div>
@@ -550,7 +550,7 @@ const Checkout = () => {
           </div>
           <div className="add-more-items">
             <button 
-              onClick={() => navigate('/cakes')} 
+              onClick={() => navigate('/collections')} 
               className="add-more-button"
             >
               Add More Items

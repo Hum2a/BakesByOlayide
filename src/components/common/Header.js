@@ -38,7 +38,7 @@ const Header = ({
             />
           </div>
           <ul className="homepage-nav-links main-nav-links">
-            <li><a href="/cakes" className="nav-link">Our Range</a></li>
+            <li><a href="/collections" className="nav-link">Our Range</a></li>
             <li><a href="/guides" className="nav-link">Guides</a></li>
             <li><a href="/about" className="nav-link">About Us</a></li>
             <li><a href="/contact" className="nav-link">Contact Us</a></li>

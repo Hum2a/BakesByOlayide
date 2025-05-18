@@ -109,7 +109,7 @@ const SubscriptionBoxesCollection = () => {
             onClick={() => navigate('/')} 
           />
           <div className="cakepage-nav-links">
-            <a href="/cakes">Our Range</a>
+            <a href="/collections">Our Range</a>
             <a href="/guides">Guides</a>
             <a href="/about">Our Story</a>
             <a href="/contact">Contact Us</a>
@@ -148,7 +148,7 @@ const SubscriptionBoxesCollection = () => {
         <h2>Seasonal Boxes</h2>
         <div className="cupcake-flavours-grid">
           {subscriptionBoxes.seasonal?.map((box) => (
-            <div className="cupcake-flavour-card" key={box.id} onClick={() => navigate(`/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={box.id} onClick={() => navigate(`/collections/${box.id}`)} style={{ cursor: 'pointer' }}>
               <img src={box.image} alt={box.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{box.name}</h3>
@@ -175,7 +175,7 @@ const SubscriptionBoxesCollection = () => {
             box.empty ? (
               <div className="cupcake-standard-card empty" key={box.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={box.id} onClick={() => navigate(`/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
+              <div className="cupcake-standard-card" key={box.id} onClick={() => navigate(`/collections/${box.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={box.image} alt={box.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{box.name}</h3>

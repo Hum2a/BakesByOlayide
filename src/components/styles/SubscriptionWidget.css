@@ -82,13 +82,14 @@
   text-align: center;
   outline: none;
   transition: background 0.2s;
+  font-family: 'Old Standard TT', serif;
 }
 .subscription-widget-input:focus {
   background: #fffbe6;
 }
 
 .subscription-widget-btn {
-  background: #ffe066;
+  background: #F3C307;
   color: #222;
   font-weight: 500;
   border: none;
@@ -101,9 +102,10 @@
   text-align: center;
   display: inline-block;
   cursor: pointer;
+  font-family: 'Old Standard TT', serif;
 }
 .subscription-widget-btn:hover {
-  background: #ffd700;
+  background: #d4ad06;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }

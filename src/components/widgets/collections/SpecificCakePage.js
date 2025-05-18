@@ -181,7 +181,7 @@ const SpecificCakePage = () => {
             const isLast = idx === breadcrumbs.length - 1;
             // Determine link for each crumb
             let href = null;
-            if (idx === 0) href = "/cakes";
+            if (idx === 0) href = "/collections";
             if (idx === 1) {
               // Convert mainCategory to a slug for the URL
               const slug = mainCategory.replace(/\s+/g, '').toLowerCase();

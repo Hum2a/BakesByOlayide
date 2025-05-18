@@ -61,7 +61,7 @@ const BentoCakewithCupcakesCollection = () => {
         </div>
       </div>
       <div className="cupcake-breadcrumbs">
-        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
+        <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
       </div>
       <div className="cupcake-description">
         Our Bento Cakes with Cupcakes are a delightful combination for sharing and gifting. Choose your favourite flavours!
@@ -70,7 +70,7 @@ const BentoCakewithCupcakesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {bentoCakes.seasonal?.map((bentoCake) => (
-            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{bentoCake.name}</h3>

@@ -94,7 +94,7 @@ const HomePage = () => {
       <section className="homepage-hero">
         <div className="homepage-hero-content">
           <h2>Cakes and Bakes for Every Occasion</h2>
-          <a href="/cakes" className="homepage-cta-button">Browse</a>
+          <a href="/collections" className="homepage-cta-button">Browse</a>
         </div>
       </section>
 

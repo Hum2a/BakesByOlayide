@@ -58,7 +58,7 @@ const FAQ = () => {
               onClick={() => navigate('/')} 
             />
             <div className="cakepage-nav-links">
-              <a href="/cakes">Our Range</a>
+              <a href="/collections">Our Range</a>
               <a href="/guides">Guides</a>
               <a href="/about">Our Story</a>
               <a href="/contact">Contact Us</a>

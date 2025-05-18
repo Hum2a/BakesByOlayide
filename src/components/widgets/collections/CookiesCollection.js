@@ -109,7 +109,7 @@ const CookiesCollection = () => {
             onClick={() => navigate('/')} 
           />
           <div className="cakepage-nav-links">
-            <a href="/cakes">Our Range</a>
+            <a href="/collections">Our Range</a>
             <a href="/guides">Guides</a>
             <a href="/about">Our Story</a>
             <a href="/contact">Contact Us</a>
@@ -139,7 +139,7 @@ const CookiesCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cookies</span>
+        <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cookies</span>
       </div>
       <div className="cupcake-description">
         Our cookies are baked fresh daily and come in a variety of flavours. Perfect for snacking or sharing!
@@ -148,7 +148,7 @@ const CookiesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {cookies.seasonal?.map((cookie) => (
-            <div className="cupcake-flavour-card" key={cookie.id} onClick={() => navigate(`/cakes/${cookie.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={cookie.id} onClick={() => navigate(`/collections/${cookie.id}`)} style={{ cursor: 'pointer' }}>
               <img src={cookie.image} alt={cookie.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{cookie.name}</h3>
@@ -168,7 +168,7 @@ const CookiesCollection = () => {
             cookie.empty ? (
               <div className="cupcake-standard-card empty" key={cookie.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={cookie.id} onClick={() => navigate(`/cakes/${cookie.id}`)} style={{ cursor: 'pointer' }}>
+              <div className="cupcake-standard-card" key={cookie.id} onClick={() => navigate(`/collections/${cookie.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={cookie.image} alt={cookie.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{cookie.name}</h3>

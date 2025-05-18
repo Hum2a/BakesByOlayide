@@ -55,7 +55,7 @@ const ShoppingBasket = () => {
         {cart.length === 0 ? (
           <div className="empty-cart">
             <p>Your basket is empty</p>
-            <button onClick={() => navigate('/cakes')} className="continue-shopping-btn">
+            <button onClick={() => navigate('/collections')} className="continue-shopping-btn">
               Continue Shopping
             </button>
           </div>

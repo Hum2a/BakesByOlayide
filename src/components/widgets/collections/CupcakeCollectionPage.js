@@ -111,7 +111,7 @@ const CupcakeCollectionPage = () => {
             onClick={() => navigate('/')} 
           />
           <div className="cakepage-nav-links">
-            <a href="/cakes">Our Range</a>
+            <a href="/collections">Our Range</a>
             <a href="/guides">Guides</a>
             <a href="/about">Our Story</a>
             <a href="/contact">Contact Us</a>
@@ -142,7 +142,7 @@ const CupcakeCollectionPage = () => {
       </header>
       {/* End CakePage-style Hero Header */}
       <div className="cupcake-breadcrumbs">
-        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cupcakes</span>
+        <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cupcakes</span>
       </div>
       <div className="cupcake-description">
         Cupcakes are sold in three different batch sizes: boxes of 6, 6 and 12. 1 dozen cupcakes is the smallest batch size for a stand-alone order.

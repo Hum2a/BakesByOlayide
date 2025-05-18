@@ -51,19 +51,22 @@
   align-items: flex-start;
 }
 .footer-topic {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
   color: #ffe066;
 }
 .footer-links-col a {
-  color: #ffe066;
+  color: #fff;
   text-decoration: none;
   font-size: 1rem;
   transition: color 0.2s;
 }
 .footer-links-col a:hover {
-  color: #fff;
+  color: #ffe066;
+}
+.footer-logo-image {
+  max-width: 150px;
 }
 @media (max-width: 900px) {
   .footer-content {

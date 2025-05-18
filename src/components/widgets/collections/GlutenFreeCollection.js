@@ -109,7 +109,7 @@ const GlutenFreeCollection = () => {
             onClick={() => navigate('/')} 
           />
           <div className="cakepage-nav-links">
-            <a href="/cakes">Our Range</a>
+            <a href="/collections">Our Range</a>
             <a href="/guides">Guides</a>
             <a href="/about">Our Story</a>
             <a href="/contact">Contact Us</a>
@@ -139,7 +139,7 @@ const GlutenFreeCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <a href="/cakes" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Gluten Free</span>
+        <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Gluten Free</span>
       </div>
       <div className="cupcake-description">
         Our Gluten Free Range offers delicious alternatives that are perfect for those with gluten sensitivities or celiac disease. Made with carefully selected ingredients, these treats are certified gluten-free and equally delightful!
@@ -148,7 +148,7 @@ const GlutenFreeCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {glutenFreeProducts.seasonal?.map((product) => (
-            <div className="cupcake-flavour-card" key={product.id} onClick={() => navigate(`/cakes/${product.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={product.id} onClick={() => navigate(`/collections/${product.id}`)} style={{ cursor: 'pointer' }}>
               <img src={product.image} alt={product.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{product.name}</h3>
@@ -168,7 +168,7 @@ const GlutenFreeCollection = () => {
             product.empty ? (
               <div className="cupcake-standard-card empty" key={product.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={product.id} onClick={() => navigate(`/cakes/${product.id}`)} style={{ cursor: 'pointer' }}>
+              <div className="cupcake-standard-card" key={product.id} onClick={() => navigate(`/collections/${product.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={product.image} alt={product.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{product.name}</h3>

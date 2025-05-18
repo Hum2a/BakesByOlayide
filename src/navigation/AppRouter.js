@@ -59,18 +59,18 @@ const AppRouter = () => {
           {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
 
           {/* --- Cakes & Collections --- */}
-          <Route path="/cakes" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
-          <Route path="/cakes/:id" element={<SpecificCakePage />} />
+          <Route path="/collections" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
+          <Route path="/collections/:id" element={<SpecificCakePage />} />
 
           {/* --- Cake Collections --- */}
           <Route path="/collections/cupcakes" element={<CupcakeCollectionPage />} />
-          <Route path="/collections/largecakes" element={<LargeCakesCollection />} />
-          <Route path="/collections/bentocakewithcupcakes" element={<BentoCakewithCupcakesCollection />} />
+          <Route path="/collections/large-cakes" element={<LargeCakesCollection />} />
+          <Route path="/collections/bento-cake-with-cupcakes" element={<BentoCakewithCupcakesCollection />} />
           <Route path="/collections/brownies" element={<BrowniesCollection />} />
           <Route path="/collections/cookies" element={<CookiesCollection />} />
-          <Route path="/collections/glutenfree" element={<GlutenFreeCollection />} />
-          <Route path="/collections/subscriptionboxes" element={<SubscriptionBoxesCollection />} />
-          <Route path="/collections/veganrange" element={<VeganRangeCollection />} />
+          <Route path="/collections/gluten-free" element={<GlutenFreeCollection />} />
+          <Route path="/collections/subscription-boxes" element={<SubscriptionBoxesCollection />} />
+          <Route path="/collections/vegan-range" element={<VeganRangeCollection />} />
 
           {/* --- Shopping & Orders --- */}
           <Route path="/basket" element={<ShoppingBasket />} />
