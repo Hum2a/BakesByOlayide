@@ -426,7 +426,7 @@
   width: 100vw;
   height: 50vw;
   object-fit: cover;
-  object-position: center 75%; /* Changed from center to center 70% to view from lower position */
+  object-position: center 60%; /* Changed from center to center 70% to view from lower position */
   filter: brightness(0.82);
   position: absolute;
   top: 0;
