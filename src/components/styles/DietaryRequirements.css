@@ -41,7 +41,7 @@
   margin-bottom: 1.2rem;
   font-family: 'Old Standard TT', serif;
   font-weight: 700;
-  font-size: 64px;
+  font-size: 44px;
   line-height: 100%;
   letter-spacing: -2%;
 }
@@ -53,7 +53,7 @@
   margin-left: auto;
   margin-right: auto;
   font-weight: 400;
-  font-size: 24px;
+  font-size: 1.05rem;
   line-height: 150%;
   letter-spacing: 0%;
   vertical-align: middle;
@@ -104,7 +104,7 @@
 
 .DietaryRequirements-related-guides h2 {
   text-align: left;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1.2rem;
   color: #111;
@@ -129,7 +129,7 @@
 
 .DietaryRequirements-guide-card img {
   width: 100%;
-  height: 200px;
+  height: 300px;
   object-fit: cover;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
