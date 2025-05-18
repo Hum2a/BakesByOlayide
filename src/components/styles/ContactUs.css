@@ -7,6 +7,7 @@
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
+  font-family: 'Old Standard TT', serif;
 }
 
 .contactus-header {
@@ -16,13 +17,15 @@
   position: relative;
   z-index: 2;
 }
+
 .contactus-header h1 {
-  font-size: 2.5rem;
-  font-weight: 500;
+  font-size: 44px;
+  font-weight: 700;
   color: #111;
   margin-bottom: 0.5rem;
-  letter-spacing: 0.01em;
-  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: -2%;
+  font-family: 'Old Standard TT', serif;
+  line-height: 100%;
 }
 
 .contactus-content-centered {
@@ -35,8 +38,8 @@
 
 .contactus-form-centered {
   margin: 0 auto;
-  width: 100%;
-  background: #fafafa;
+  width: 66.67%; /* 2/3 of page width */
+  background: #fff;
   border-radius: 0;
   box-shadow: none;
   padding: 2.5rem 2rem 2.5rem 2rem;
@@ -63,15 +66,17 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
 .contactus-form-group label {
   font-weight: 400;
-  color: rgba(0, 0, 0, 1);
+  color: #111;
   margin-bottom: 0.2rem;
-  font-weight: 400;
-  font-size: 26px;
+  font-size: 24px;
   line-height: 150%;
   letter-spacing: 0%;
+  font-family: 'Old Standard TT', serif;
 }
+
 .contactus-form-group input,
 .contactus-form-group select,
 .contactus-form-group textarea {
@@ -81,15 +86,17 @@
   font-size: 1rem;
   background: #f3f3f3;
   color: #111;
-  font-family: inherit;
+  font-family: 'Old Standard TT', serif;
   box-shadow: none;
   outline: none;
   transition: background 0.2s;
 }
+
 .contactus-form-group input:focus,
 .contactus-form-group textarea:focus {
   background: #ededed;
 }
+
 .contactus-form-group input::placeholder,
 .contactus-form-group textarea::placeholder {
   color: #bdbdbd;
@@ -104,14 +111,16 @@
   border: none;
   border-radius: 0;
   padding: 0.95rem 0;
-  margin-top: 0.5rem;
+  margin: 0.5rem auto 0 auto;
   cursor: pointer;
-  width: 100%;
+  width: 66.67%; /* 2/3 of form width */
   transition: background 0.2s, color 0.2s, transform 0.2s;
   letter-spacing: 0.01em;
   display: block;
   text-align: center;
+  font-family: 'Old Standard TT', serif;
 }
+
 .contactus-submit-button:hover,
 .contactus-submit-button:focus {
   background: #222;
@@ -128,7 +137,9 @@
   text-align: center;
   margin-bottom: 1rem;
   box-shadow: 0 2px 8px #2e7d3211;
+  font-family: 'Old Standard TT', serif;
 }
+
 .contactus-error {
   background: #fee2e2;
   color: #e74c3c;
@@ -138,6 +149,7 @@
   margin-bottom: 0.5rem;
   text-align: center;
   box-shadow: 0 2px 8px #e74c3c11;
+  font-family: 'Old Standard TT', serif;
 }
 
 /* Remove info card and yellow accent bars */
@@ -153,28 +165,35 @@
     align-items: stretch;
   }
   .contactus-form-centered {
-    max-width: 100%;
-    min-width: 0;
+    width: 90%;
     padding: 2rem 1rem;
   }
   .contactus-form-row {
     grid-template-columns: 1fr;
     gap: 0.8rem;
   }
+  .contactus-submit-button {
+    width: 90%;
+  }
 }
+
 @media (max-width: 600px) {
   .contactus-header {
     margin: 2rem auto 1.2rem auto;
   }
   .contactus-header h1 {
-    font-size: 2rem;
+    font-size: 32px;
   }
   .contactus-form-centered {
+    width: 95%;
     padding: 1.2rem 0.5rem;
   }
   .contactus-form-row {
     grid-template-columns: 1fr;
     gap: 0.7rem;
+  }
+  .contactus-submit-button {
+    width: 95%;
   }
 }
 
