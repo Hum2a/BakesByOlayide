@@ -48,7 +48,7 @@ const GuidesPage = () => {
 
   return (
     <div className="guides-page-container">
-      <PageTitle title="Baking Guides" />
+      <PageTitle title="Guides" />
       {/* CakePage-style Header */}
       <header className="cakepage-hero">
         <nav className="cakepage-hero-nav">
