@@ -38,10 +38,41 @@ const AUTO_SCROLL_INTERVAL = 3500;
 
 const SignatureCreations = () => {
   const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState('next');
   const timeoutRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
-  const nextSlide = () => setCurrent((prev) => (prev + 1) % cakeData.length);
-  const prevSlide = () => setCurrent((prev) => (prev - 1 + cakeData.length) % cakeData.length);
+  const nextSlide = () => {
+    setDirection('next');
+    setCurrent((prev) => (prev + 1) % cakeData.length);
+  };
+
+  const prevSlide = () => {
+    setDirection('prev');
+    setCurrent((prev) => (prev - 1 + cakeData.length) % cakeData.length);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    const swipeThreshold = 50;
+    const diff = touchStartX.current - touchEndX.current;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+  };
 
   useEffect(() => {
     timeoutRef.current = setTimeout(nextSlide, AUTO_SCROLL_INTERVAL);
@@ -56,10 +87,13 @@ const SignatureCreations = () => {
         {cakeData.map((cake, idx) => (
           <a
             href={cake.link}
-            className={`carousel-slide${idx === current ? ' active' : ''}`}
+            className={`carousel-slide${idx === current ? ' active' : ''}${idx === (current - 1 + cakeData.length) % cakeData.length ? ' prev' : ''}`}
             key={cake.title}
-            style={{ display: idx === current ? 'block' : 'none' }}
+            style={{ display: 'block' }}
             tabIndex={idx === current ? 0 : -1}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <img src={cake.img} alt={cake.alt} />
             <h3>{cake.title}</h3>
@@ -72,7 +106,10 @@ const SignatureCreations = () => {
           <span
             key={idx}
             className={`carousel-dot${idx === current ? ' active' : ''}`}
-            onClick={() => setCurrent(idx)}
+            onClick={() => {
+              setDirection(idx > current ? 'next' : 'prev');
+              setCurrent(idx);
+            }}
           />
         ))}
       </div>
