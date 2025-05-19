@@ -356,8 +356,8 @@
 .homepage-guide-card {
   background: transparent;
   border-radius: 0;
-  width: 48%;
-  max-width: 500px;
+  width: 42%;
+  max-width: 450px;
   min-width: 320px;
   display: flex;
   flex-direction: column;
@@ -367,9 +367,9 @@
 
 .homepage-guide-img {
   width: 100%;
-  height: 400px;
+  height: 320px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 0;
   margin-bottom: 1.5rem;
 }
 
@@ -395,7 +395,7 @@
   color: #222;
   font-weight: 500;
   border: none;
-  border-radius: 2px;
+  border-radius: 0;
   padding: 0.7rem 2.2rem;
   font-size: 1.05rem;
   text-decoration: none;
@@ -420,9 +420,12 @@
     max-width: 100vw;
   }
   .homepage-guide-card {
-    width: 98vw;
-    max-width: 500px;
+    width: 90%;
+    max-width: 450px;
     min-width: 0;
+  }
+  .homepage-guide-img {
+    height: 280px;
   }
 }
 
