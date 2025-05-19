@@ -18,6 +18,13 @@ const FIXED_CATEGORIES = [
   'Subscription Boxes',
 ];
 
+const CATEGORY_TABS = [
+  { key: 'Cupcakes', label: 'Cupcakes' },
+  { key: 'Bento Cake with Cupcakes', label: 'Bento Cake' },
+  { key: 'Brownies', label: 'Brownies' },
+  { key: 'Cookies', label: 'Cookies' },
+];
+
 const CakeManagement = ({ cakes, onUpdate }) => {
   const [showNewCakeForm, setShowNewCakeForm] = useState(false);
   const [editingCake, setEditingCake] = useState(null);
@@ -418,42 +425,25 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
       <div className="cakemanagement-header">
         <h2>Cake Management</h2>
+        <div className="cakemanagement-tabs">
+          {CATEGORY_TABS.map(tab => (
+            <button
+              key={tab.key}
+              className={`cakemanagement-tab-btn${selectedCategory === tab.key ? ' active' : ''}`}
+              onClick={() => {
+                handleCategorySelect(tab.key);
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
         <div className="cakemanagement-add-buttons">
-          <button 
-            className="cakemanagement-add-btn"
-            onClick={() => {
-              handleCategorySelect('Cupcakes');
-              setShowNewCakeForm(true);
-            }}
+          <button
+            className={`cakemanagement-add-btn${showNewCakeForm ? ' open' : ''}`}
+            onClick={() => setShowNewCakeForm(f => !f)}
           >
-            <FaPlus /> Add Cupcake
-          </button>
-          <button 
-            className="cakemanagement-add-btn"
-            onClick={() => {
-              handleCategorySelect('Brownies');
-              setShowNewCakeForm(true);
-            }}
-          >
-            <FaPlus /> Add Brownie
-          </button>
-          <button 
-            className="cakemanagement-add-btn"
-            onClick={() => {
-              handleCategorySelect('Cookies');
-              setShowNewCakeForm(true);
-            }}
-          >
-            <FaPlus /> Add Cookie
-          </button>
-          <button 
-            className="cakemanagement-add-btn"
-            onClick={() => {
-              setSelectedCategory(null);
-              setShowNewCakeForm(true);
-            }}
-          >
-            <FaPlus /> Add Other
+            <FaPlus /> Add {selectedCategory ? CATEGORY_TABS.find(tab => tab.key === selectedCategory).label : 'Cake'}
           </button>
         </div>
       </div>
@@ -465,67 +455,248 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
 
       {showNewCakeForm && (
-        <div className="cakemanagement-form-container">
-          <h3>{editingCake ? 'Edit Cake' : `Add New ${selectedCategory || 'Cake'}`}</h3>
-          <form onSubmit={handleCakeSubmit} className="cakemanagement-form">
-            <div className="cakemanagement-form-grid">
-              <div className="cakemanagement-form-group">
-                <label>Name*</label>
-                <input
-                  type="text"
-                  value={newCake.name}
-                  onChange={(e) => setNewCake({...newCake, name: e.target.value})}
-                  required
-                />
-              </div>
+        <div className={`cakemanagement-form-slide${showNewCakeForm ? ' open' : ''}`}>
+          <div className="cakemanagement-form-container">
+            <button
+              type="button"
+              className="cakemanagement-form-close-btn"
+              onClick={resetForm}
+              aria-label="Close form"
+            >
+              &times;
+            </button>
+            <h3>{editingCake ? 'Edit Cake' : `Add New ${selectedCategory || 'Cake'}`}</h3>
+            <form onSubmit={handleCakeSubmit} className="cakemanagement-form">
+              <div className="cakemanagement-form-grid">
+                <div className="cakemanagement-form-group">
+                  <label>Name*</label>
+                  <input
+                    type="text"
+                    value={newCake.name}
+                    onChange={(e) => setNewCake({...newCake, name: e.target.value})}
+                    required
+                  />
+                </div>
 
-              {!selectedCategory && (
+                {!selectedCategory && (
+                  <div className="cakemanagement-form-group full-width">
+                    <label>Categories*</label>
+                    <div className="cakemanagement-categories">
+                      {FIXED_CATEGORIES.map((category) => (
+                        <label key={category} className="cakemanagement-category-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={newCake.categories.includes(category)}
+                            onChange={(e) => {
+                              const updatedCategories = e.target.checked
+                                ? [...newCake.categories, category]
+                                : newCake.categories.filter(cat => cat !== category);
+                              setNewCake({ ...newCake, categories: updatedCategories });
+                            }}
+                          />
+                          {category}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedCategory === 'Cupcakes' && (
+                  <div className="cakemanagement-form-group full-width">
+                    <label>Fillings</label>
+                    <div className="cakemanagement-fillings">
+                      {newCake.fillings.map((filling, index) => (
+                        <div key={index} className="cakemanagement-filling-item">
+                          <input
+                            type="text"
+                            placeholder="Filling name"
+                            value={filling.name}
+                            onChange={(e) => handleFillingChange(index, 'name', e.target.value)}
+                          />
+                          <input
+                            type="number"
+                            placeholder="Price (£)"
+                            min="0"
+                            step="0.01"
+                            value={filling.price}
+                            onChange={(e) => handleFillingChange(index, 'price', e.target.value)}
+                          />
+                          <button
+                            type="button"
+                            className="cakemanagement-remove-filling-btn"
+                            onClick={() => handleRemoveFilling(index)}
+                          >
+                            <FaTimes />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="cakemanagement-add-filling-btn"
+                        onClick={handleAddFilling}
+                      >
+                        <FaPlus /> Add Filling
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="cakemanagement-form-group full-width">
-                  <label>Categories*</label>
-                  <div className="cakemanagement-categories">
-                    {FIXED_CATEGORIES.map((category) => (
-                      <label key={category} className="cakemanagement-category-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={newCake.categories.includes(category)}
-                          onChange={(e) => {
-                            const updatedCategories = e.target.checked
-                              ? [...newCake.categories, category]
-                              : newCake.categories.filter(cat => cat !== category);
-                            setNewCake({ ...newCake, categories: updatedCategories });
-                          }}
-                        />
-                        {category}
-                      </label>
+                  <label>Sizes and Prices*</label>
+                  <div className="cakemanagement-sizes">
+                    {newCake.sizes.map((size, index) => (
+                      <div key={index} className="cakemanagement-size-item">
+                        <div className="cakemanagement-size-info">
+                          <span className="cakemanagement-size-name">{size.size}"</span>
+                          <span className="cakemanagement-size-price">£{size.price.toFixed(2)}</span>
+                          <span className="cakemanagement-size-servings">({size.servingSize} servings)</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="cakemanagement-remove-size-btn"
+                          onClick={() => handleRemoveSize(index)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
                     ))}
                   </div>
+                  <div className="cakemanagement-add-size">
+                    <div className="cakemanagement-size-inputs">
+                      <input
+                        type="number"
+                        placeholder="Size (inches)"
+                        value={newSize.size}
+                        onChange={(e) => setNewSize({...newSize, size: e.target.value})}
+                        min="1"
+                        step="0.5"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Price (£)"
+                        value={newSize.price}
+                        onChange={(e) => setNewSize({...newSize, price: e.target.value})}
+                        min="0"
+                        step="0.01"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Serving Size"
+                        value={newSize.servingSize}
+                        onChange={(e) => setNewSize({...newSize, servingSize: e.target.value})}
+                        min="1"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="cakemanagement-add-size-btn"
+                      onClick={handleAddSize}
+                    >
+                      <FaPlus /> Add Size
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              {selectedCategory === 'Cupcakes' && (
                 <div className="cakemanagement-form-group full-width">
-                  <label>Fillings</label>
-                  <div className="cakemanagement-fillings">
-                    {newCake.fillings.map((filling, index) => (
-                      <div key={index} className="cakemanagement-filling-item">
+                  <label>Shapes*</label>
+                  <div className="cakemanagement-shapes">
+                    {newCake.shapes.map((shape, index) => (
+                      <div key={index} className="cakemanagement-shape-item">
+                        <span>{shape.name}</span>
+                        <span className="cakemanagement-shape-price">+£{shape.price.toFixed(2)}</span>
+                        <button
+                          type="button"
+                          className="cakemanagement-remove-shape-btn"
+                          onClick={() => handleRemoveShape(index)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cakemanagement-add-shape">
+                    <input
+                      type="text"
+                      placeholder="Add shape (e.g. Round, Square, Heart)"
+                      value={newShape.name}
+                      onChange={(e) => setNewShape({ ...newShape, name: e.target.value })}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price (£)"
+                      min="0"
+                      step="0.01"
+                      value={newShape.price}
+                      onChange={(e) => setNewShape({ ...newShape, price: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="cakemanagement-add-shape-btn"
+                      onClick={handleAddShape}
+                    >
+                      <FaPlus /> Add Shape
+                    </button>
+                  </div>
+                </div>
+
+                <div className="cakemanagement-form-group">
+                  <label>Dimensions*</label>
+                  <div className="cakemanagement-dimensions-inputs">
+                    <input
+                      type="number"
+                      placeholder="Length"
+                      value={newCake.dimensions.length}
+                      onChange={(e) => setNewCake({
+                        ...newCake,
+                        dimensions: { ...newCake.dimensions, length: e.target.value }
+                      })}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Width"
+                      value={newCake.dimensions.width}
+                      onChange={(e) => setNewCake({
+                        ...newCake,
+                        dimensions: { ...newCake.dimensions, width: e.target.value }
+                      })}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Height"
+                      value={newCake.dimensions.height}
+                      onChange={(e) => setNewCake({
+                        ...newCake,
+                        dimensions: { ...newCake.dimensions, height: e.target.value }
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div className="cakemanagement-form-group">
+                  <label>Description*</label>
+                  <textarea
+                    value={newCake.description}
+                    onChange={(e) => setNewCake({...newCake, description: e.target.value})}
+                    required
+                    rows="3"
+                  />
+                </div>
+
+                <div className="cakemanagement-form-group full-width">
+                  <label>Ingredients*</label>
+                  <div className="cakemanagement-array-fields">
+                    {newCake.ingredients.map((ingredient, index) => (
+                      <div key={index} className="cakemanagement-array-field">
                         <input
                           type="text"
-                          placeholder="Filling name"
-                          value={filling.name}
-                          onChange={(e) => handleFillingChange(index, 'name', e.target.value)}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Price (£)"
-                          min="0"
-                          step="0.01"
-                          value={filling.price}
-                          onChange={(e) => handleFillingChange(index, 'price', e.target.value)}
+                          value={ingredient}
+                          onChange={(e) => handleArrayFieldChange('ingredients', index, e.target.value)}
+                          placeholder="Enter ingredient"
                         />
                         <button
                           type="button"
-                          className="cakemanagement-remove-filling-btn"
-                          onClick={() => handleRemoveFilling(index)}
+                          onClick={() => handleArrayFieldRemove('ingredients', index)}
+                          className="cakemanagement-remove-btn"
                         >
                           <FaTimes />
                         </button>
@@ -533,390 +704,219 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                     ))}
                     <button
                       type="button"
-                      className="cakemanagement-add-filling-btn"
-                      onClick={handleAddFilling}
+                      onClick={() => handleArrayFieldAdd('ingredients')}
+                      className="cakemanagement-add-field-btn"
                     >
-                      <FaPlus /> Add Filling
+                      <FaPlus /> Add Ingredient
                     </button>
                   </div>
                 </div>
-              )}
 
-              <div className="cakemanagement-form-group full-width">
-                <label>Sizes and Prices*</label>
-                <div className="cakemanagement-sizes">
-                  {newCake.sizes.map((size, index) => (
-                    <div key={index} className="cakemanagement-size-item">
-                      <div className="cakemanagement-size-info">
-                        <span className="cakemanagement-size-name">{size.size}"</span>
-                        <span className="cakemanagement-size-price">£{size.price.toFixed(2)}</span>
-                        <span className="cakemanagement-size-servings">({size.servingSize} servings)</span>
+                <div className="cakemanagement-form-group full-width">
+                  <label>Allergens</label>
+                  <div className="cakemanagement-array-fields">
+                    {newCake.allergens.map((allergen, index) => (
+                      <div key={index} className="cakemanagement-array-field">
+                        <input
+                          type="text"
+                          value={allergen}
+                          onChange={(e) => handleArrayFieldChange('allergens', index, e.target.value)}
+                          placeholder="Enter allergen"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleArrayFieldRemove('allergens', index)}
+                          className="cakemanagement-remove-btn"
+                        >
+                          <FaTimes />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className="cakemanagement-remove-size-btn"
-                        onClick={() => handleRemoveSize(index)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => handleArrayFieldAdd('allergens')}
+                      className="cakemanagement-add-field-btn"
+                    >
+                      <FaPlus /> Add Allergen
+                    </button>
+                  </div>
                 </div>
-                <div className="cakemanagement-add-size">
-                  <div className="cakemanagement-size-inputs">
+
+                <div className="cakemanagement-form-group full-width">
+                  <label>Customization Options</label>
+                  <div className="cakemanagement-array-fields">
+                    {newCake.customizationOptions.map((option, index) => (
+                      <div key={index} className="cakemanagement-array-field">
+                        <input
+                          type="text"
+                          value={option}
+                          onChange={(e) => handleArrayFieldChange('customizationOptions', index, e.target.value)}
+                          placeholder="Enter customization option"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleArrayFieldRemove('customizationOptions', index)}
+                          className="cakemanagement-remove-btn"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => handleArrayFieldAdd('customizationOptions')}
+                      className="cakemanagement-add-field-btn"
+                    >
+                      <FaPlus /> Add Option
+                    </button>
+                  </div>
+                </div>
+
+                <div className="cakemanagement-form-group full-width">
+                  <label>Finishes</label>
+                  <div className="cakemanagement-finishes">
+                    {newCake.finishes.map((finish, index) => (
+                      <div key={index} className="cakemanagement-finish-item">
+                        <span>{finish.name}</span>
+                        <span className="cakemanagement-finish-price">+£{finish.price.toFixed(2)}</span>
+                        <button
+                          type="button"
+                          className="cakemanagement-remove-finish-btn"
+                          onClick={() => handleRemoveFinish(index)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cakemanagement-add-finish">
                     <input
-                      type="number"
-                      placeholder="Size (inches)"
-                      value={newSize.size}
-                      onChange={(e) => setNewSize({...newSize, size: e.target.value})}
-                      min="1"
-                      step="0.5"
+                      type="text"
+                      placeholder="Add finish (e.g. Buttercream, Fondant)"
+                      value={newFinish.name}
+                      onChange={(e) => setNewFinish({ ...newFinish, name: e.target.value })}
                     />
                     <input
                       type="number"
                       placeholder="Price (£)"
-                      value={newSize.price}
-                      onChange={(e) => setNewSize({...newSize, price: e.target.value})}
                       min="0"
                       step="0.01"
+                      value={newFinish.price}
+                      onChange={(e) => setNewFinish({ ...newFinish, price: e.target.value })}
                     />
-                    <input
-                      type="number"
-                      placeholder="Serving Size"
-                      value={newSize.servingSize}
-                      onChange={(e) => setNewSize({...newSize, servingSize: e.target.value})}
-                      min="1"
-                    />
+                    <button
+                      type="button"
+                      className="cakemanagement-add-finish-btn"
+                      onClick={handleAddFinish}
+                    >
+                      <FaPlus /> Add Finish
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className="cakemanagement-add-size-btn"
-                    onClick={handleAddSize}
-                  >
-                    <FaPlus /> Add Size
-                  </button>
                 </div>
-              </div>
 
-              <div className="cakemanagement-form-group full-width">
-                <label>Shapes*</label>
-                <div className="cakemanagement-shapes">
-                  {newCake.shapes.map((shape, index) => (
-                    <div key={index} className="cakemanagement-shape-item">
-                      <span>{shape.name}</span>
-                      <span className="cakemanagement-shape-price">+£{shape.price.toFixed(2)}</span>
-                      <button
-                        type="button"
-                        className="cakemanagement-remove-shape-btn"
-                        onClick={() => handleRemoveShape(index)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="cakemanagement-add-shape">
-                  <input
-                    type="text"
-                    placeholder="Add shape (e.g. Round, Square, Heart)"
-                    value={newShape.name}
-                    onChange={(e) => setNewShape({ ...newShape, name: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price (£)"
-                    min="0"
-                    step="0.01"
-                    value={newShape.price}
-                    onChange={(e) => setNewShape({ ...newShape, price: e.target.value })}
-                  />
-                  <button
-                    type="button"
-                    className="cakemanagement-add-shape-btn"
-                    onClick={handleAddShape}
-                  >
-                    <FaPlus /> Add Shape
-                  </button>
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group">
-                <label>Dimensions*</label>
-                <div className="cakemanagement-dimensions-inputs">
-                  <input
-                    type="number"
-                    placeholder="Length"
-                    value={newCake.dimensions.length}
-                    onChange={(e) => setNewCake({
-                      ...newCake,
-                      dimensions: { ...newCake.dimensions, length: e.target.value }
-                    })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Width"
-                    value={newCake.dimensions.width}
-                    onChange={(e) => setNewCake({
-                      ...newCake,
-                      dimensions: { ...newCake.dimensions, width: e.target.value }
-                    })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Height"
-                    value={newCake.dimensions.height}
-                    onChange={(e) => setNewCake({
-                      ...newCake,
-                      dimensions: { ...newCake.dimensions, height: e.target.value }
-                    })}
-                  />
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group">
-                <label>Description*</label>
-                <textarea
-                  value={newCake.description}
-                  onChange={(e) => setNewCake({...newCake, description: e.target.value})}
-                  required
-                  rows="3"
-                />
-              </div>
-
-              <div className="cakemanagement-form-group full-width">
-                <label>Ingredients*</label>
-                <div className="cakemanagement-array-fields">
-                  {newCake.ingredients.map((ingredient, index) => (
-                    <div key={index} className="cakemanagement-array-field">
-                      <input
-                        type="text"
-                        value={ingredient}
-                        onChange={(e) => handleArrayFieldChange('ingredients', index, e.target.value)}
-                        placeholder="Enter ingredient"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleArrayFieldRemove('ingredients', index)}
-                        className="cakemanagement-remove-btn"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => handleArrayFieldAdd('ingredients')}
-                    className="cakemanagement-add-field-btn"
-                  >
-                    <FaPlus /> Add Ingredient
-                  </button>
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group full-width">
-                <label>Allergens</label>
-                <div className="cakemanagement-array-fields">
-                  {newCake.allergens.map((allergen, index) => (
-                    <div key={index} className="cakemanagement-array-field">
-                      <input
-                        type="text"
-                        value={allergen}
-                        onChange={(e) => handleArrayFieldChange('allergens', index, e.target.value)}
-                        placeholder="Enter allergen"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleArrayFieldRemove('allergens', index)}
-                        className="cakemanagement-remove-btn"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => handleArrayFieldAdd('allergens')}
-                    className="cakemanagement-add-field-btn"
-                  >
-                    <FaPlus /> Add Allergen
-                  </button>
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group full-width">
-                <label>Customization Options</label>
-                <div className="cakemanagement-array-fields">
-                  {newCake.customizationOptions.map((option, index) => (
-                    <div key={index} className="cakemanagement-array-field">
-                      <input
-                        type="text"
-                        value={option}
-                        onChange={(e) => handleArrayFieldChange('customizationOptions', index, e.target.value)}
-                        placeholder="Enter customization option"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleArrayFieldRemove('customizationOptions', index)}
-                        className="cakemanagement-remove-btn"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => handleArrayFieldAdd('customizationOptions')}
-                    className="cakemanagement-add-field-btn"
-                  >
-                    <FaPlus /> Add Option
-                  </button>
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group full-width">
-                <label>Finishes</label>
-                <div className="cakemanagement-finishes">
-                  {newCake.finishes.map((finish, index) => (
-                    <div key={index} className="cakemanagement-finish-item">
-                      <span>{finish.name}</span>
-                      <span className="cakemanagement-finish-price">+£{finish.price.toFixed(2)}</span>
-                      <button
-                        type="button"
-                        className="cakemanagement-remove-finish-btn"
-                        onClick={() => handleRemoveFinish(index)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="cakemanagement-add-finish">
-                  <input
-                    type="text"
-                    placeholder="Add finish (e.g. Buttercream, Fondant)"
-                    value={newFinish.name}
-                    onChange={(e) => setNewFinish({ ...newFinish, name: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price (£)"
-                    min="0"
-                    step="0.01"
-                    value={newFinish.price}
-                    onChange={(e) => setNewFinish({ ...newFinish, price: e.target.value })}
-                  />
-                  <button
-                    type="button"
-                    className="cakemanagement-add-finish-btn"
-                    onClick={handleAddFinish}
-                  >
-                    <FaPlus /> Add Finish
-                  </button>
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group full-width">
-                <label>Related Products (max 3)</label>
-                <div className="cakemanagement-related-products-list">
-                  {cakes
-                    .filter(c => !editingCake || c.id !== editingCake.id) // Exclude self when editing
-                    .map(cakeOption => (
-                      <label key={cakeOption.id} className="cakemanagement-related-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)}
-                          disabled={
-                            !(newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)) &&
-                            newCake.relatedProducts && newCake.relatedProducts.length >= 3
-                          }
-                          onChange={e => {
-                            let updated;
-                            if (e.target.checked) {
-                              updated = [...(newCake.relatedProducts || []), cakeOption.id];
-                            } else {
-                              updated = (newCake.relatedProducts || []).filter(id => id !== cakeOption.id);
+                <div className="cakemanagement-form-group full-width">
+                  <label>Related Products (max 3)</label>
+                  <div className="cakemanagement-related-products-list">
+                    {cakes
+                      .filter(c => !editingCake || c.id !== editingCake.id) // Exclude self when editing
+                      .map(cakeOption => (
+                        <label key={cakeOption.id} className="cakemanagement-related-checkbox">
+                          <input
+                            type="checkbox"
+                            checked={newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)}
+                            disabled={
+                              !(newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)) &&
+                              newCake.relatedProducts && newCake.relatedProducts.length >= 3
                             }
-                            setNewCake({ ...newCake, relatedProducts: updated });
-                          }}
-                        />
-                        {cakeOption.name}
-                      </label>
-                    ))}
-                </div>
-              </div>
-
-              <div className="cakemanagement-form-group">
-                <label>Cake Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                {editingCake && editingCake.image && (
-                  <div className="cakemanagement-current-image">
-                    <img src={editingCake.image} alt="Current cake" />
-                    <p>Current image will be kept if no new image is uploaded</p>
+                            onChange={e => {
+                              let updated;
+                              if (e.target.checked) {
+                                updated = [...(newCake.relatedProducts || []), cakeOption.id];
+                              } else {
+                                updated = (newCake.relatedProducts || []).filter(id => id !== cakeOption.id);
+                              }
+                              setNewCake({ ...newCake, relatedProducts: updated });
+                            }}
+                          />
+                          {cakeOption.name}
+                        </label>
+                      ))}
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="cakemanagement-form-group availability-options">
-                <label>
+                <div className="cakemanagement-form-group">
+                  <label>Cake Image</label>
                   <input
-                    type="checkbox"
-                    checked={newCake.isAvailable}
-                    onChange={(e) => setNewCake({...newCake, isAvailable: e.target.checked})}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
                   />
-                  Available for Purchase
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={newCake.featured}
-                    onChange={(e) => setNewCake({...newCake, featured: e.target.checked})}
-                  />
-                  Featured Cake
-                </label>
-              </div>
+                  {editingCake && editingCake.image && (
+                    <div className="cakemanagement-current-image">
+                      <img src={editingCake.image} alt="Current cake" />
+                      <p>Current image will be kept if no new image is uploaded</p>
+                    </div>
+                  )}
+                </div>
 
-              <div className="cakemanagement-form-group">
-                <label>Availability Period</label>
-                <div className="cakemanagement-availability-period">
-                  <label className="cakemanagement-radio-label">
+                <div className="cakemanagement-form-group availability-options">
+                  <label>
                     <input
-                      type="radio"
-                      name="availabilityPeriod"
-                      checked={!newCake.isSeasonal}
-                      onChange={() => setNewCake({...newCake, isSeasonal: false})}
+                      type="checkbox"
+                      checked={newCake.isAvailable}
+                      onChange={(e) => setNewCake({...newCake, isAvailable: e.target.checked})}
                     />
-                    Year Round
+                    Available for Purchase
                   </label>
-                  <label className="cakemanagement-radio-label">
+                  <label>
                     <input
-                      type="radio"
-                      name="availabilityPeriod"
-                      checked={newCake.isSeasonal}
-                      onChange={() => setNewCake({...newCake, isSeasonal: true})}
+                      type="checkbox"
+                      checked={newCake.featured}
+                      onChange={(e) => setNewCake({...newCake, featured: e.target.checked})}
                     />
-                    Seasonal
+                    Featured Cake
                   </label>
                 </div>
-              </div>
-            </div>
 
-            <div className="cakemanagement-form-actions">
-              <button type="submit" className="cakemanagement-save-btn">
-                {editingCake ? 'Update Cake' : 'Add Cake'}
-              </button>
-              <button 
-                type="button" 
-                className="cakemanagement-cancel-btn"
-                onClick={resetForm}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+                <div className="cakemanagement-form-group">
+                  <label>Availability Period</label>
+                  <div className="cakemanagement-availability-period">
+                    <label className="cakemanagement-radio-label">
+                      <input
+                        type="radio"
+                        name="availabilityPeriod"
+                        checked={!newCake.isSeasonal}
+                        onChange={() => setNewCake({...newCake, isSeasonal: false})}
+                      />
+                      Year Round
+                    </label>
+                    <label className="cakemanagement-radio-label">
+                      <input
+                        type="radio"
+                        name="availabilityPeriod"
+                        checked={newCake.isSeasonal}
+                        onChange={() => setNewCake({...newCake, isSeasonal: true})}
+                      />
+                      Seasonal
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cakemanagement-form-actions">
+                <button type="submit" className="cakemanagement-save-btn">
+                  {editingCake ? 'Update Cake' : 'Add Cake'}
+                </button>
+                <button 
+                  type="button" 
+                  className="cakemanagement-cancel-btn"
+                  onClick={resetForm}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

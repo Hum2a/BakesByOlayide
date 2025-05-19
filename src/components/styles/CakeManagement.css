@@ -20,15 +20,41 @@
   background-color: #f3c307;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 2px solid #f3c307;
+  transition: all 0.4s ease;
+}
+
+.cakemanagement-add-btn.open {
+  background-color: #fff;
+  color: #f3c307;
+  border: 2px solid #f3c307;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(243,195,7,0.08);
+  transition: all 0.4s ease;
 }
 
 .cakemanagement-add-btn:hover {
-  background-color: #d35400;
-  transform: translateY(-2px);
+  background-color: #ffe066;
+  color: #222;
+  border-color: #f3c307;
+}
+
+.cakemanagement-add-btn:active {
+  background-color: #f3c307;
+  color: #fff;
+  border-color: #d35400;
+  box-shadow: 0 1px 4px rgba(243,195,7,0.15);
+  transform: scale(0.97);
+}
+
+.cakemanagement-add-btn:focus-visible {
+  outline: 2px solid #d35400;
+  outline-offset: 2px;
 }
 
 .cakemanagement-form-container {
@@ -36,6 +62,7 @@
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
+  position: relative;
 }
 
 .cakemanagement-form {
@@ -940,13 +967,26 @@
   background-color: #f3c307;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 2px solid #f3c307;
+}
+
+.cakemanagement-add-btn.open {
+  background-color: #fff;
+  color: #f3c307;
+  border: 2px solid #f3c307;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(243,195,7,0.08);
 }
 
 .cakemanagement-add-btn:hover {
-  background-color: #d35400;
+  background-color: #ffe066;
+  color: #222;
+  border-color: #f3c307;
 }
 
 .cakemanagement-fillings {
@@ -1130,4 +1170,65 @@
 @keyframes fadeInModal {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.cakemanagement-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cakemanagement-tab-btn {
+  background: #f8f9fa;
+  color: #222;
+  border: 1px solid #ddd;
+  border-radius: 6px 6px 0 0;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  outline: none;
+}
+
+.cakemanagement-tab-btn.active {
+  background: #f3c307;
+  color: #fff;
+  border-bottom: 2px solid #f3c307;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.cakemanagement-tab-btn:not(.active):hover {
+  background: #ffe066;
+  color: #222;
+  border-color: #f3c307;
+}
+
+.cakemanagement-form-close-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s;
+}
+
+.cakemanagement-form-close-btn:hover {
+  color: #c0392b;
+}
+
+.cakemanagement-form-slide {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.cakemanagement-form-slide.open {
+  max-height: 2000px; /* Large enough for the form */
+  opacity: 1;
 } 
