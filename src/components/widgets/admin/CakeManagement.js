@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { db, storage, auth } from '../../../firebase/firebase';
 import { collection, doc, updateDoc, addDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaCopy } from 'react-icons/fa';
 import '../../styles/CakeManagement.css';
+import ConfirmModal from './ConfirmModal';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -61,6 +62,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
   const [newShape, setNewShape] = useState({ name: '', price: '' });
   const [newFinish, setNewFinish] = useState({ name: '', price: '' });
+
+  const [confirmModal, setConfirmModal] = useState({ open: false, cakeId: null, imageUrl: null });
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -301,19 +304,28 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   };
 
   const handleDeleteCake = async (cakeId, imageUrl) => {
-    if (!window.confirm('Are you sure you want to delete this cake?')) return;
+    setConfirmModal({ open: true, cakeId, imageUrl });
+  };
 
+  const confirmDelete = async () => {
+    const { cakeId, imageUrl } = confirmModal;
+    setConfirmModal({ open: false, cakeId: null, imageUrl: null });
     try {
       setLoading(true);
-      // Delete image from storage if it exists
+      // Only delete image from storage if no other cakes reference it
       if (imageUrl) {
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef);
+        const cakesCol = collection(db, 'cakes');
+        const cakesSnap = await getDocs(cakesCol);
+        const otherCakesWithImage = cakesSnap.docs.filter(docSnap => {
+          const data = docSnap.data();
+          return docSnap.id !== cakeId && data.image === imageUrl;
+        });
+        if (otherCakesWithImage.length === 0) {
+          const imageRef = ref(storage, imageUrl);
+          await deleteObject(imageRef);
+        }
       }
-
-      // Delete cake document
       await deleteDoc(doc(db, 'cakes', cakeId));
-      // Notify parent component to refresh data
       onUpdate();
     } catch (error) {
       console.error('Error deleting cake:', error);
@@ -327,6 +339,26 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     setEditingCake(cake);
     setNewCake({ ...cake, relatedProducts: cake.relatedProducts || [] });
     setShowNewCakeForm(true);
+  };
+
+  const handleDuplicateCake = async (cake) => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Remove id and timestamps for duplication, but keep image
+      const { id, createdAt, updatedAt, ...cakeData } = cake;
+      await addDoc(collection(db, 'cakes'), {
+        ...cakeData,
+        name: cakeData.name + ' (Copy)',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      onUpdate();
+    } catch (error) {
+      setError('Failed to duplicate cake');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -939,11 +971,26 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 >
                   <FaTrash /> Delete
                 </button>
+                <button
+                  className="cakemanagement-edit-btn"
+                  onClick={() => handleDuplicateCake(cake)}
+                >
+                  <FaCopy /> Duplicate
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Modal for delete confirmation */}
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title="Delete Cake"
+        message="Are you sure you want to delete this cake? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmModal({ open: false, cakeId: null, imageUrl: null })}
+      />
     </div>
   );
 };
