@@ -25,10 +25,18 @@
   font-weight: 400;
   color: #ffe066;
   margin-bottom: 1.2rem;
+  position: relative;
+}
+.footer-brand::after {
+  content: "Est 2025";
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
 }
 .footer-social {
   display: flex;
   gap: 1.1rem;
+  margin-top: 0.5rem;
 }
 .footer-social a {
   color: #fff;
@@ -49,6 +57,7 @@
   flex-direction: column;
   gap: 0.7rem;
   align-items: flex-start;
+  padding-left: 1rem;
 }
 .footer-topic {
   font-size: 1.3rem;
@@ -66,7 +75,7 @@
   color: #ffe066;
 }
 .footer-logo-image {
-  max-width: 150px;
+  max-width: 180px;
 }
 @media (max-width: 900px) {
   .footer-content {
