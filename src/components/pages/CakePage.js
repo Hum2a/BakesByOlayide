@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import CakeCard from '../cards/CakeCard';
 import CakeModal from '../modals/CakeModal';
-import { FaShoppingCart, FaSearch, FaUser } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { db } from '../../firebase/firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -78,6 +78,7 @@ const CakePage = ({ onOpenCart }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [user, setUser] = useState(null);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const fetchCakes = async () => {
@@ -208,114 +209,143 @@ const CakePage = ({ onOpenCart }) => {
           style={{ cursor: 'pointer' }}
           onClick={() => navigate('/')} 
         />
-          <div className="cakepage-nav-links">
-            <a href="/collections">Our Range</a>
-            <a href="/guides">Guides</a>
-            <a href="/about">Our Story</a>
-            <a href="/contact">Contact Us</a>
-          </div>
-          <div className="cakepage-nav-icons">
-            <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
-              <FaSearch />
-            </button>
-            {user ? (
-              <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
-                <FaUser />
-              </button>
-            ) : (
-              <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
-                <FaUser />
-              </button>
-            )}
-            <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
-              <FaShoppingCart />
-              {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
-            </button>
-          </div>
-        </nav>
-        <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />
-          <h1 className="cakepage-hero-title">Our Range</h1>
+        <button
+          className="cakepage-mobile-menu-toggle"
+          aria-label="Open menu"
+          onClick={() => setIsMobileNavOpen(true)}
+        >
+          <FaBars />
+        </button>
+        <div className="cakepage-nav-links">
+          <a href="/collections">Our Range</a>
+          <a href="/guides">Guides</a>
+          <a href="/about">Our Story</a>
+          <a href="/contact">Contact Us</a>
         </div>
-      </header>
-
-      <div className="cakepage-collections-list">
-        <h1>Collections</h1>
-        {FIXED_CATEGORIES.map((category, idx) => (
-          <div className={`cakepage-collection-row${idx % 2 === 1 ? ' reverse' : ''}`} key={category.name}>
-            <div className="cakepage-collection-info">
-              <h2>{category.name}</h2>
-              <p>{category.description}</p>
-              <button className="cakepage-viewcakes-btn" onClick={() => handleViewCakes(category.name)}>
-                Explore
+        <div className="cakepage-nav-icons">
+          <button className="cakepage-nav-button" onClick={() => handleModalOpen('search')} aria-label="Search">
+            <FaSearch />
+          </button>
+          {user ? (
+            <button className="cakepage-nav-button" onClick={handleProfileClick} aria-label="Account">
+              <FaUser />
+            </button>
+          ) : (
+            <button className="cakepage-nav-button" onClick={handleAuthClick} aria-label="Login">
+              <FaUser />
+            </button>
+          )}
+          <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
+            <FaShoppingCart />
+            {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
+          </button>
+        </div>
+      </nav>
+      {isMobileNavOpen && (
+        <div className="cakepage-mobile-nav-overlay">
+          <button
+            className="cakepage-mobile-menu-close"
+            aria-label="Close menu"
+            onClick={() => setIsMobileNavOpen(false)}
+          >
+            <FaTimes />
+          </button>
+          <ul className="cakepage-mobile-nav-links">
+            <li><a href="/collections" onClick={() => setIsMobileNavOpen(false)}>Our Range</a></li>
+            <li><a href="/guides" onClick={() => setIsMobileNavOpen(false)}>Guides</a></li>
+            <li><a href="/about" onClick={() => setIsMobileNavOpen(false)}>Our Story</a></li>
+            <li><a href="/contact" onClick={() => setIsMobileNavOpen(false)}>Contact Us</a></li>
+            <li>
+              <button className="cakepage-cart-button" onClick={() => { setIsMobileNavOpen(false); onOpenCart(); }} aria-label="View Cart">
+                <FaShoppingCart />
               </button>
-            </div>
-            <div className="cakepage-collection-image-wrap">
-              {imageError[category.name] ? (
-                <div className="cakepage-collection-no-image">
-                  <span>NO IMAGE UPLOADED</span>
-                </div>
-              ) : (
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="cakepage-collection-image"
-                  onError={() => setImageError(prev => ({ ...prev, [category.name]: true }))}
-                />
-              )}
-            </div>
+            </li>
+          </ul>
+        </div>
+      )}
+      <div className="cakepage-hero-bgimg-wrap">
+        <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />
+        <h1 className="cakepage-hero-title">Our Range</h1>
+      </div>
+    </header>
+
+    <div className="cakepage-collections-list">
+      <h1>Collections</h1>
+      {FIXED_CATEGORIES.map((category, idx) => (
+        <div className={`cakepage-collection-row${idx % 2 === 1 ? ' reverse' : ''}`} key={category.name}>
+          <div className="cakepage-collection-info">
+            <h2>{category.name}</h2>
+            <p>{category.description}</p>
+            <button className="cakepage-viewcakes-btn" onClick={() => handleViewCakes(category.name)}>
+              Explore
+            </button>
+          </div>
+          <div className="cakepage-collection-image-wrap">
+            {imageError[category.name] ? (
+              <div className="cakepage-collection-no-image">
+                <span>NO IMAGE UPLOADED</span>
+              </div>
+            ) : (
+              <img
+                src={category.image}
+                alt={category.name}
+                className="cakepage-collection-image"
+                onError={() => setImageError(prev => ({ ...prev, [category.name]: true }))}
+              />
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {activeCategory !== 'All' && (
+      <div ref={cakeGridRef} className="cakepage-grid">
+        {filteredCakes.map((cake) => (
+          <div 
+            key={cake.id} 
+            className="cakepage-card-wrapper"
+            onClick={() => { setSelectedCake(cake); }}
+          >
+            <CakeCard cake={cake} />
           </div>
         ))}
       </div>
+    )}
 
-      {activeCategory !== 'All' && (
-        <div ref={cakeGridRef} className="cakepage-grid">
-          {filteredCakes.map((cake) => (
-            <div 
-              key={cake.id} 
-              className="cakepage-card-wrapper"
-              onClick={() => { setSelectedCake(cake); }}
-            >
-              <CakeCard cake={cake} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {selectedCake && (
-        <CakeModal
-          cake={selectedCake}
-          onClose={() => setSelectedCake(null)}
-          onAddToCart={handleAddToCart}
-        />
-      )}
-
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
-      <ProfileDropdown 
-        isOpen={isProfileOpen} 
-        onClose={() => setIsProfileOpen(false)}
-        onModalOpen={handleModalOpen}
+    {selectedCake && (
+      <CakeModal
+        cake={selectedCake}
+        onClose={() => setSelectedCake(null)}
+        onAddToCart={handleAddToCart}
       />
-      
-      {activeModal === 'profile' && (
-        <ProfileModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
-      {activeModal === 'orders' && (
-        <OrderHistoryModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
-      {activeModal === 'cart' && (
-        <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
-      {activeModal === 'settings' && (
-        <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
-      {activeModal === 'search' && (
-        <SearchModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
+    )}
 
-      <Footer />
-    </div>
-  );
+    <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+    <ProfileDropdown 
+      isOpen={isProfileOpen} 
+      onClose={() => setIsProfileOpen(false)}
+      onModalOpen={handleModalOpen}
+    />
+    
+    {activeModal === 'profile' && (
+      <ProfileModal isOpen={true} onClose={() => setActiveModal(null)} />
+    )}
+    {activeModal === 'orders' && (
+      <OrderHistoryModal isOpen={true} onClose={() => setActiveModal(null)} />
+    )}
+    {activeModal === 'cart' && (
+      <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
+    )}
+    {activeModal === 'settings' && (
+      <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
+    )}
+    {activeModal === 'search' && (
+      <SearchModal isOpen={true} onClose={() => setActiveModal(null)} />
+    )}
+
+    <Footer />
+  </div>
+);
 };
 
 export default CakePage;

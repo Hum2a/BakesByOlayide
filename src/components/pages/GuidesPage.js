@@ -3,7 +3,7 @@ import '../styles/GuidesPage.css';
 import Footer from '../common/Footer';
 import Guides from '../widgets/Guides';
 import { useNavigate } from 'react-router-dom';
-import { FaShoppingCart, FaSearch, FaUser } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import { auth } from '../../firebase/firebase';
 import AuthModal from '../modals/AuthModal';
@@ -22,6 +22,7 @@ const GuidesPage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [user, setUser] = useState(null);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -59,6 +60,13 @@ const GuidesPage = () => {
             style={{ cursor: 'pointer' }}
             onClick={() => navigate('/')} 
           />
+          <button
+            className="cakepage-mobile-menu-toggle"
+            aria-label="Open menu"
+            onClick={() => setIsMobileNavOpen(true)}
+          >
+            <FaBars />
+          </button>
           <div className="cakepage-nav-links">
             <a href="/collections">Our Range</a>
             <a href="/guides">Guides</a>
@@ -84,6 +92,28 @@ const GuidesPage = () => {
             </button>
           </div>
         </nav>
+        {isMobileNavOpen && (
+          <div className="cakepage-mobile-nav-overlay">
+            <button
+              className="cakepage-mobile-menu-close"
+              aria-label="Close menu"
+              onClick={() => setIsMobileNavOpen(false)}
+            >
+              <FaTimes />
+            </button>
+            <ul className="cakepage-mobile-nav-links">
+              <li><a href="/collections" onClick={() => setIsMobileNavOpen(false)}>Our Range</a></li>
+              <li><a href="/guides" onClick={() => setIsMobileNavOpen(false)}>Guides</a></li>
+              <li><a href="/about" onClick={() => setIsMobileNavOpen(false)}>Our Story</a></li>
+              <li><a href="/contact" onClick={() => setIsMobileNavOpen(false)}>Contact Us</a></li>
+              <li>
+                <button className="cakepage-cart-button" onClick={() => { setIsMobileNavOpen(false); navigate('/cart'); }} aria-label="View Cart">
+                  <FaShoppingCart />
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
         <div className="cakepage-hero-bgimg-wrap">
           <img src="/images/guide/GuideHeroImage.jpg" alt="Guides" className="guidespage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Guides</h1>

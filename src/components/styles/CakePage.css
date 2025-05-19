@@ -564,16 +564,140 @@
 
 @media (max-width: 600px) {
   .cakepage-container {
-    padding: 4.5rem 0.5rem 2rem 0.5rem;
+    padding: 0.5rem 0.2rem 1rem 0.2rem;
+    max-width: 100vw;
+    width: 100vw;
+    overflow-x: hidden;
+  }
+  .cakepage-hero {
+    min-height: 80px;
+    height: auto;
+    max-height: none;
+    padding: 0;
+  }
+  .cakepage-hero-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: static;
+    padding: 0.5rem 0;
+  }
+  .cakepage-hero-logo {
+    width: 90px;
+    height: auto;
+    margin: 0.5rem auto 0.2rem auto;
+    display: block;
+  }
+  .cakepage-nav-links {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    width: 100%;
+    align-items: center;
+  }
+  .cakepage-nav-links a {
+    font-size: 1.1rem;
+    padding: 0.4rem 0;
+    width: 100%;
+    text-align: center;
+  }
+  .cakepage-nav-icons {
+    gap: 0.7rem;
+    margin: 0.5rem 0 0 0;
+    justify-content: center;
+  }
+  .cakepage-hero-bgimg-wrap {
+    height: 90px;
+    min-height: 60px;
+  }
+  .cakepage-hero-bgimg {
+    height: 90px;
+    min-height: 60px;
+    width: 100vw;
+    object-fit: cover;
+  }
+  .cakepage-hero-title {
+    font-size: 1.1rem;
+    padding: 0.2rem 0.5rem;
+  }
+  .cakepage-collections-list {
+    gap: 1rem;
+    margin: 1.2rem auto 2rem auto;
+    padding: 0 0.2rem;
+  }
+  .cakepage-collections-list > h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.2rem;
+  }
+  .cakepage-collection-row, .cakepage-collection-row.reverse {
+    flex-direction: column !important;
+    gap: 0.5rem;
+    align-items: stretch;
+    padding: 0.5rem 0;
+  }
+  .cakepage-collection-info h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+  .cakepage-collection-info p {
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+  }
+  .cakepage-collection-image,
+  .cakepage-collection-no-image {
+    width: 100%;
+    height: 90px;
+    max-width: 100vw;
+    border-radius: 6px;
+  }
+  .cakepage-viewcakes-btn {
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+    margin-top: 0.5rem;
+    border-radius: 4px;
   }
   .cakepage-grid {
+    grid-template-columns: 1fr;
     gap: 0.7rem;
+    padding: 0;
+    margin: 1rem 0 1rem 0;
   }
-  .cakepage-info {
-    padding: 1.2rem 0.7rem 1rem 0.7rem;
+  .cakepage-card-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+  .cakepage-card {
+    min-height: 260px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.08);
   }
   .cakepage-image {
-    height: 120px;
+    height: 90px;
+    border-radius: 8px 8px 0 0;
+  }
+  .cakepage-info {
+    padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+  }
+  .cakepage-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .cakepage-description {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 2;
+    margin-bottom: 0.5rem;
+  }
+  .cakepage-footer {
+    padding-top: 0.5rem;
+  }
+  .cakepage-price {
+    font-size: 1rem;
+  }
+  .cakepage-order-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.85rem;
+    border-radius: 4px;
   }
 }
 
@@ -1003,5 +1127,139 @@
     justify-content: center;
     gap: 1rem;
     margin-top: 0.5rem;
+  }
+}
+
+.cakepage-hero-overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  width: 100%;
+}
+.cakepage-mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .cakepage-nav-links,
+  .cakepage-nav-icons {
+    display: none !important;
+  }
+  .cakepage-mobile-menu-toggle {
+    display: block;
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2.2rem;
+    z-index: 3;
+    cursor: pointer;
+  }
+}
+
+.cakepage-mobile-nav-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 80vw;
+  max-width: 350px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  animation: slideInRight 0.35s cubic-bezier(0.4,0.2,0.2,1);
+}
+@keyframes slideInRight {
+  from { right: -100vw; opacity: 0; }
+  to { right: 0; opacity: 1; }
+}
+.cakepage-mobile-menu-close {
+  background: none;
+  border: none;
+  color: #222;
+  font-size: 2.2rem;
+  margin: 1.2rem 1.5rem 0 0;
+  align-self: flex-end;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.cakepage-mobile-menu-close:hover {
+  color: #f3c307;
+}
+.cakepage-mobile-nav-links {
+  list-style: none;
+  padding: 2.5rem 2rem 0 2rem;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.cakepage-mobile-nav-links li a, .cakepage-mobile-nav-links li button {
+  color: #222;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.7rem 0;
+  display: block;
+  border-bottom: 1px solid #f3c30722;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  transition: color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.cakepage-mobile-nav-links li a:hover, .cakepage-mobile-nav-links li button:hover {
+  color: #f3c307;
+  background: #fffbe6;
+}
+
+@media (max-width: 600px) {
+  .cakepage-hero {
+    min-height: 180px;
+    height: 220px;
+    max-height: none;
+    padding: 0;
+    position: relative;
+  }
+  .cakepage-hero-bgimg-wrap {
+    height: 180px;
+    min-height: 120px;
+    position: relative;
+  }
+  .cakepage-hero-bgimg {
+    height: 180px;
+    min-height: 120px;
+    width: 100vw;
+    object-fit: cover;
+  }
+  .cakepage-hero-overlay-content {
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+  }
+  .cakepage-hero-logo {
+    width: 90px;
+    height: auto;
+    margin: 0.5rem auto 0.2rem auto;
+    display: block;
+  }
+  .cakepage-hero-title {
+    font-size: 1.3rem;
+    padding: 0.2rem 0.5rem;
+    margin-top: 0.5rem;
+    text-align: center;
   }
 }

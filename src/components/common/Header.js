@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaUser, FaSearch } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUser, FaSearch } from 'react-icons/fa';
 import '../styles/Header.css';
 import SearchModal from '../modals/SearchModal';
 import AuthModal from '../modals/AuthModal';
@@ -22,6 +22,7 @@ const Header = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -43,6 +44,13 @@ const Header = ({
             <li><a href="/about" className="nav-link">About Us</a></li>
             <li><a href="/contact" className="nav-link">Contact Us</a></li>
           </ul>
+          <button
+            className="mobile-menu-toggle"
+            aria-label="Open menu"
+            onClick={() => setIsMobileNavOpen(true)}
+          >
+            <FaBars />
+          </button>
           <div className="homepage-nav-icons">
             <button className="nav-icon-link" aria-label="Search" onClick={() => setIsSearchOpen(true)}>
               <FaSearch />
@@ -74,6 +82,23 @@ const Header = ({
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             </button>
           </div>
+          {isMobileNavOpen && (
+            <div className="mobile-nav-overlay">
+              <button
+                className="mobile-menu-close"
+                aria-label="Close menu"
+                onClick={() => setIsMobileNavOpen(false)}
+              >
+                <FaTimes />
+              </button>
+              <ul className="mobile-nav-links">
+                <li><a href="/collections" onClick={() => setIsMobileNavOpen(false)}>Our Range</a></li>
+                <li><a href="/guides" onClick={() => setIsMobileNavOpen(false)}>Guides</a></li>
+                <li><a href="/about" onClick={() => setIsMobileNavOpen(false)}>About Us</a></li>
+                <li><a href="/contact" onClick={() => setIsMobileNavOpen(false)}>Contact Us</a></li>
+              </ul>
+            </div>
+          )}
         </nav>
       </header>
       {isSearchOpen && <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
