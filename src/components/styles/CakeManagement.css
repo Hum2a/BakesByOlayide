@@ -58,11 +58,13 @@
 }
 
 .cakemanagement-form-container {
+  position: relative;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
   background: #f8f9fa;
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
-  position: relative;
 }
 
 .cakemanagement-form {
@@ -1223,12 +1225,12 @@
 }
 
 .cakemanagement-form-slide {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
-}
-.cakemanagement-form-slide.open {
-  max-height: 2000px; /* Large enough for the form */
+  max-height: none;
   opacity: 1;
+  overflow: visible;
+  transition: opacity 0.4s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.cakemanagement-form-slide:not(.open) {
+  opacity: 0;
+  pointer-events: none;
 } 
