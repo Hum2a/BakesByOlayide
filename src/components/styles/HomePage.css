@@ -26,8 +26,9 @@
 }
 
 .homepage-hero h2 {
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin-bottom: 1rem;
+  font-weight: 400;
 }
 
 .homepage-hero p {
@@ -37,17 +38,15 @@
 
 .homepage-cta-button {
   display: inline-block;
-  padding: 1rem 2rem;
+  padding: 1rem 1.7rem;
   background-color: #f3c307;
   color: black;
   font-weight: 400;
   text-decoration: none;
-  border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: opacity 0.3s;
 }
 
 .homepage-cta-button:hover {
-  background-color: #f3c307;
   opacity: 0.9;
 }
 
@@ -278,6 +277,7 @@
 
   .homepage-hero h2 {
     font-size: 2rem;
+    font-weight: 400;
     line-height: 1.2;
     margin-bottom: 1.5rem;
   }
