@@ -70,7 +70,7 @@
 }
 
 .guide-read-btn {
-  background: #ffd700;
+  background: #f3c307;
   color: #222;
   font-weight: bold;
   border: none;
@@ -92,7 +92,8 @@
 }
 
 .guide-read-btn:hover {
-  background: #F3C307;
+  background: #f3c307;
+  opacity: 0.9;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }
@@ -162,7 +163,7 @@
 }
 
 .guide-signup-form button {
-  background: #F3C307;
+  background: #f3c307;
   color: #222;
   font-weight: bold;
   border: none;
@@ -174,7 +175,8 @@
 }
 
 .guide-signup-form button:hover {
-  background: #ffd700;
+  background: #f3c307;
+  opacity: 0.9;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }
@@ -248,7 +250,7 @@
   line-height: 1.6;
 }
 .guide-read-btn {
-  background: #ffd700;
+  background: #f3c307;
   color: #222;
   font-weight: bold;
   border: none;
@@ -268,7 +270,8 @@
   text-align: left;
 }
 .guide-read-btn:hover {
-  background: #F3C307;
+  background: #f3c307;
+  opacity: 0.9;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }
@@ -388,7 +391,7 @@
 }
 
 .homepage-guide-btn {
-  background: #ffe066;
+  background: #f3c307;
   color: #222;
   font-weight: 500;
   border: none;
@@ -403,7 +406,8 @@
 }
 
 .homepage-guide-btn:hover {
-  background: #ffd700;
+  background: #f3c307;
+  opacity: 0.9;
   color: #000;
   transform: translateY(-2px) scale(1.04);
 }

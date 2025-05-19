@@ -6,7 +6,7 @@
 
 /* Hero Section */
 .homepage-hero {
-  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../../../public/images/Hero Image.png');
+  background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('../../../public/images/Hero Image.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -38,7 +38,7 @@
 .homepage-cta-button {
   display: inline-block;
   padding: 1rem 2rem;
-  background-color: #F3C307;
+  background-color: #f3c307;
   color: black;
   font-weight: 400;
   text-decoration: none;
@@ -47,7 +47,8 @@
 }
 
 .homepage-cta-button:hover {
-  background-color: #d35400;
+  background-color: #f3c307;
+  opacity: 0.9;
 }
 
 .homepage-hero-image {
@@ -90,7 +91,7 @@
 }
 
 .homepage-about-content h2 {
-  color: #F3C307;
+  color: #f3c307;
   margin-bottom: 2rem;
 }
 
@@ -99,8 +100,8 @@
   margin-top: 2rem;
   padding: 0.8rem 1.5rem;
   background-color: transparent;
-  border: 2px solid #F3C307;
-  color: #F3C307;
+  border: 2px solid #f3c307;
+  color: #f3c307;
   text-decoration: none;
   font-weight: bold;
   border-radius: 5px;
@@ -109,7 +110,7 @@
 }
 
 .homepage-learn-more:hover {
-  background-color: #F3C307;
+  background-color: #f3c307;
   color: white;
 }
 
@@ -130,7 +131,7 @@
 
 .homepage-footer-section h3 {
   margin-bottom: 1rem;
-  color: #F3C307;
+  color: #f3c307;
 }
 
 .homepage-footer-section p {
@@ -149,7 +150,7 @@
 }
 
 .homepage-social-links a:hover {
-  color: #F3C307;
+  color: #f3c307;
 }
 
 .homepage-footer-bottom {
@@ -384,7 +385,7 @@
   }
 
   .homepage-cta-button:active {
-    background-color: #d35400;
+    background-color: #f3c307;
   }
 
   .homepage-learn-more:active {
@@ -412,11 +413,11 @@
 .auth-nav-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background: #F3C307;
+  background: #f3c307;
 }
 
 .homepage-header.scrolled .auth-nav-button {
-  background: #F3C307;
+  background: #f3c307;
   color: black;
 }
 
