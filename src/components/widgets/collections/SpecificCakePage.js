@@ -185,8 +185,13 @@ const SpecificCakePage = () => {
             let href = null;
             if (idx === 0) href = "/collections";
             if (idx === 1) {
-              // Convert mainCategory to a slug for the URL
-              const slug = mainCategory.replace(/\s+/g, '').toLowerCase();
+              // Convert mainCategory to kebab case for the URL
+              const slug = mainCategory
+                .toLowerCase()
+                .replace(/\s+/g, '-')  // Replace spaces with hyphens
+                .replace(/[^a-z0-9-]/g, '') // Remove any non-alphanumeric characters except hyphens
+                .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+                .replace(/^-|-$/g, ''); // Remove leading and trailing hyphens
               href = `/collections/${slug}`;
             }
             return (
@@ -216,7 +221,7 @@ const SpecificCakePage = () => {
               )}
             </div>
             <div className="specific-cake-price-row">
-              <span className="specific-cake-price">From £{minPrice.toFixed(2)}</span>
+              <span className="specific-cake-price">From £{totalPrice.toFixed(2)}</span>
             </div>
             <div className="specific-cake-description">{cake.description}</div>
             <div className="specific-cake-selectors">
@@ -230,7 +235,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedSizeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedSizeIdx(idx)}
                       >
-                        {size.size}" (£{size.price.toFixed(2)})
+                        {size.size}"
                       </button>
                     ))}
                   </div>
@@ -246,7 +251,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
-                        {shape.name} (£{shape.price.toFixed(2)})
+                        {shape.name}
                       </button>
                     ))}
                   </div>
@@ -262,7 +267,7 @@ const SpecificCakePage = () => {
                         className={`specific-cake-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
-                        {finish.name} (£{finish.price.toFixed(2)})
+                        {finish.name}
                       </button>
                     ))}
                   </div>
@@ -281,20 +286,6 @@ const SpecificCakePage = () => {
                   <option value="Anniversary">Anniversary</option>
                   <option value="Baby Shower">Baby Shower</option>
                   <option value="Other">Other</option>
-                </select>
-              </div>
-              <div className="specific-cake-selector-group">
-                <span className="specific-cake-selector-label">Add ons:</span>
-                <select
-                  className="specific-cake-dropdown"
-                  value={addon}
-                  onChange={e => setAddon(e.target.value)}
-                >
-                  <option value="">Choose</option>
-                  <option value="Candles">Candles</option>
-                  <option value="Cake Topper">Cake Topper</option>
-                  <option value="Gift Wrap">Gift Wrap</option>
-                  <option value="Message Card">Message Card</option>
                 </select>
               </div>
               <div className="specific-cake-selector-group">
@@ -334,6 +325,20 @@ const SpecificCakePage = () => {
                   <option value="Custom Message">Custom Message (£10.00)</option>
                 </select>
               </div>
+              <div className="specific-cake-selector-group">
+                <span className="specific-cake-selector-label">Add ons:</span>
+                <select
+                  className="specific-cake-dropdown"
+                  value={addon}
+                  onChange={e => setAddon(e.target.value)}
+                >
+                  <option value="">Choose</option>
+                  <option value="Candles">Candles</option>
+                  <option value="Cake Topper">Cake Topper</option>
+                  <option value="Gift Wrap">Gift Wrap</option>
+                  <option value="Message Card">Message Card</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -355,11 +360,47 @@ const SpecificCakePage = () => {
           <div><b>Ingredients List:</b></div>
           <div>
             {cake.ingredients && cake.ingredients.length > 0 && (
-              <span>{cake.ingredients.join(', ')}</span>
+              cake.ingredients.map((ingredient, index) => {
+                const allergens = [
+                  'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
+                  'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
+                ];
+                // Replace allergen words with bolded spans
+                let formatted = ingredient;
+                allergens.forEach(allergen => {
+                  const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
+                  formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);
+                });
+                return (
+                  <span key={index}>
+                    <span dangerouslySetInnerHTML={{ __html: formatted }} />
+                    {index < cake.ingredients.length - 1 ? ', ' : ''}
+                  </span>
+                );
+              })
             )}
           </div>
           {cake.toppings && cake.toppings.length > 0 && (
-            <div><b>Toppings:</b> {cake.toppings.join(', ')}</div>
+            <div>
+              <b>Toppings:</b>{' '}
+              {cake.toppings.map((topping, index) => {
+                const allergens = [
+                  'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
+                  'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
+                ];
+                let formatted = topping;
+                allergens.forEach(allergen => {
+                  const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
+                  formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);
+                });
+                return (
+                  <span key={index}>
+                    <span dangerouslySetInnerHTML={{ __html: formatted }} />
+                    {index < cake.toppings.length - 1 ? ', ' : ''}
+                  </span>
+                );
+              })}
+            </div>
           )}
         </div>
         {relatedProducts.length > 0 && (
