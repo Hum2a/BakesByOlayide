@@ -93,7 +93,9 @@ const HomePage = () => {
 
       <section className="homepage-hero">
         <div className="homepage-hero-content">
-          <h2>Cakes and Bakes for Every Occasion</h2>
+          <h2>Cakes and Bakes for
+            <br />
+           Every Occasion</h2>
           <a href="/collections" className="homepage-cta-button">Browse</a>
         </div>
       </section>
