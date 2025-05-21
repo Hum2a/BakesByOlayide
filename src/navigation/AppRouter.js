@@ -12,6 +12,7 @@ import TermsAndConditions from '../components/pages/TermsAndConditions';
 // --- Guides ---
 import GuidesPage from '../components/pages/GuidesPage';
 import DietaryRequirements from '../components/pages/guides/DietaryRequirements';
+import PricingGuide from '../components/pages/guides/PricingGuide';
 // import SpecialOccasions from '../components/pages/guides/SpecialOccasions';
 
 // --- Cakes & Collections ---
@@ -56,6 +57,7 @@ const AppRouter = () => {
           {/* --- Guides --- */}
           <Route path="/guides" element={<GuidesPage />} />
           <Route path="/guides/dietary-requirements" element={<DietaryRequirements />} />
+          <Route path="/guides/pricing" element={<PricingGuide />} />
           {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
 
           {/* --- Cakes & Collections --- */}
