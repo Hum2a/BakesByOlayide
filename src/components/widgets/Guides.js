@@ -26,6 +26,12 @@ const guidesData = [
     description: "No one likes a dry cake. With our tips you can keep your bakes in good condition for longer.",
     link: '/guides/cake-care',
   },
+  // {
+  //   image: '/images/guide/picnic.png',
+  //   title: 'Pricing Guide',
+  //   description: 'See our full price list for cupcakes, cakes, add-ons, and more. Transparent pricing for every occasion.',
+  //   link: '/guides/pricing',
+  // },
 ];
 
 const Guides = () => {
@@ -38,7 +44,7 @@ const Guides = () => {
       </div>
       {/* Guides Grid: 2x2 */}
       <div className="guides-grid-2x2">
-        {[0, 1].map(row => (
+        {Array.from({ length: Math.ceil(guidesData.length / 2) }).map((_, row) => (
           <div className="guides-row" key={row}>
             {[0, 1].map(col => {
               const idx = row * 2 + col;
