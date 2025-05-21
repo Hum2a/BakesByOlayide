@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import OrderHistoryModal from '../modals/OrderHistoryModal';
 import { auth } from '../../firebase/firebase';
@@ -12,6 +12,36 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const { orderId, total, items, guestInfo } = location.state || {};
   const [showOrderHistory, setShowOrderHistory] = useState(false);
+
+  useEffect(() => {
+    const sendConfirmationEmail = async () => {
+      if (guestInfo?.email) {
+        try {
+          const response = await fetch('/api/send-order-confirmation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderId,
+              customerName: `${guestInfo.firstName} ${guestInfo.lastName}`,
+              customerEmail: guestInfo.email,
+              items,
+              total
+            }),
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to send confirmation email');
+          }
+        } catch (error) {
+          console.error('Error sending confirmation email:', error);
+        }
+      }
+    };
+
+    sendConfirmationEmail();
+  }, [orderId, items, total, guestInfo]);
 
   return (
     <div className="order-confirmation-container">
