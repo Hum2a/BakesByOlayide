@@ -1,17 +1,17 @@
 .newsletter-container {
-  background: #111;
-  color: #fff;
+  background: #fff;
+  color: #111;
   border-radius: 12px;
   padding: 2rem 1.5rem;
   margin: 2rem 0;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
 .newsletter-container h2 {
   color: #F3C307;
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -1px;
 }
 
@@ -24,21 +24,22 @@
 .newsletter-add-input {
   flex: 1;
   padding: 0.7rem 1rem;
-  border: none;
+  border: 2px solid #ffe066;
   border-radius: 6px;
   font-size: 1rem;
-  background: #222;
-  color: #fff;
+  background: #fff;
+  color: #111;
   outline: none;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  transition: background 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: border-color 0.2s, background 0.2s;
 }
 .newsletter-add-input:focus {
-  background: #181818;
+  border-color: #F3C307;
+  background: #fffbe6;
 }
 
 .newsletter-add-btn {
-  background: #F3C307;
+  background: #ffe066;
   color: #111;
   font-weight: 600;
   border: none;
@@ -47,15 +48,16 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .newsletter-add-btn:hover {
-  background: #ffe066;
-  color: #111;
+  background: #F3C307;
+  color: #000;
 }
 
 .newsletter-add-error {
   color: #e74c3c;
-  background: #2d0909;
+  background: #fde8e8;
   border-radius: 6px;
   padding: 0.5rem 1rem;
   margin-bottom: 0.7rem;
@@ -73,10 +75,10 @@
 .newsletter-table {
   width: 100%;
   border-collapse: collapse;
-  background: #222;
+  background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .newsletter-table th,
@@ -86,7 +88,7 @@
 }
 
 .newsletter-table th {
-  background: #F3C307;
+  background: #ffe066;
   color: #111;
   font-weight: 700;
   font-size: 1.05rem;
@@ -94,7 +96,7 @@
 }
 
 .newsletter-table tr {
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #eee;
 }
 
 .newsletter-table tr:last-child {
@@ -102,16 +104,16 @@
 }
 
 .newsletter-table td {
-  color: #fff;
+  color: #111;
   font-size: 1rem;
 }
 
 .newsletter-table tr:nth-child(even) {
-  background: #181818;
+  background: #f9f9f9;
 }
 
 .newsletter-table tr:hover {
-  background: #333;
+  background: #fffbe6;
   transition: background 0.2s;
 }
 
@@ -134,22 +136,24 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 .newsletter-action-btn.activate {
-  background: #388e3c;
-  color: #fff;
+  background: #ffe066;
+  color: #111;
 }
 .newsletter-action-btn.deactivate {
   background: #e74c3c;
   color: #fff;
 }
 .newsletter-action-btn.delete {
-  background: #222;
-  color: #fff;
+  background: #fff;
+  color: #e74c3c;
   border: 1px solid #e74c3c;
 }
 .newsletter-action-btn.activate:hover {
-  background: #43a047;
+  background: #F3C307;
+  color: #000;
 }
 .newsletter-action-btn.deactivate:hover {
   background: #c0392b;
