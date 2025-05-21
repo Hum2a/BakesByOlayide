@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes } from 'react-icons/fa';
+import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes, FaFileInvoice } from 'react-icons/fa';
+import InvoiceModal from './InvoiceModal';
 import '../../styles/OrderManagement.css';
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [invoiceUrl, setInvoiceUrl] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -116,6 +119,11 @@ const OrderManagement = () => {
     }
   };
 
+  const handleViewInvoice = (url) => {
+    setInvoiceUrl(url);
+    setInvoiceModalOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -153,6 +161,7 @@ const OrderManagement = () => {
               <th>Items</th>
               <th>Total</th>
               <th>Status</th>
+              <th>Invoice</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -197,6 +206,20 @@ const OrderManagement = () => {
                       <span>{statusInfo.label}</span>
                     </span>
                   </td>
+                  <td className="order-invoice">
+                    {order.invoiceRef ? (
+                      <button
+                        className="invoice-link-btn"
+                        onClick={() => handleViewInvoice(order.invoiceRef)}
+                        title="View Invoice"
+                        type="button"
+                      >
+                        <FaFileInvoice style={{ marginRight: '0.4em' }} />View Invoice
+                      </button>
+                    ) : (
+                      <span style={{ color: '#bbb' }}>N/A</span>
+                    )}
+                  </td>
                   <td className="order-actions">
                     <select
                       value={order.status}
@@ -215,6 +238,11 @@ const OrderManagement = () => {
           </tbody>
         </table>
       </div>
+      <InvoiceModal
+        isOpen={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        invoiceUrl={invoiceUrl}
+      />
     </div>
   );
 };
