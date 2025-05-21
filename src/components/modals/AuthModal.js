@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup,
-  signOut
+  signOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../../firebase/firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -17,6 +18,9 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,6 +84,21 @@ const AuthModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setResetMessage('');
+    setError('');
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      setResetMessage('Password reset email sent! Please check your inbox.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -88,79 +107,121 @@ const AuthModal = ({ isOpen, onClose }) => {
         <button className="auth-modal-close" onClick={onClose}>
           <FaTimes />
         </button>
-        
         <div className="auth-modal-header">
-          <h2>{isLogin ? 'Login' : 'Register'}</h2>
-          <button 
-            className="auth-toggle-btn"
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
-          </button>
+          <h2>{showForgotPassword ? 'Reset Password' : isLogin ? 'Login' : 'Register'}</h2>
+          {!showForgotPassword && (
+            <button 
+              className="auth-toggle-btn"
+              onClick={() => setIsLogin(!isLogin)}
+            >
+              {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
+            </button>
+          )}
         </div>
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="auth-error">{error}</div>}
-          
-          <div className="auth-input-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="auth-input-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          {!isLogin && (
+        {showForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="auth-form">
+            {resetMessage && <div className="auth-error" style={{ color: 'green', background: '#e8f5e9' }}>{resetMessage}</div>}
+            {error && <div className="auth-error">{error}</div>}
             <div className="auth-input-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="resetEmail">Email</label>
               <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                type="email"
+                id="resetEmail"
+                value={resetEmail}
+                onChange={e => setResetEmail(e.target.value)}
                 required
                 disabled={loading}
               />
             </div>
-          )}
-
-          <button 
-            type="submit" 
-            className="auth-submit-btn"
-            disabled={loading}
-          >
-            {loading ? 'Processing...' : (isLogin ? 'Login' : 'Register')}
-          </button>
-
-          <div className="auth-divider">
-            <span>or</span>
-          </div>
-
-          <button
-            type="button"
-            className="auth-google-btn"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <FaGoogle /> Continue with Google
-          </button>
-        </form>
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Reset Email'}
+            </button>
+            <button
+              type="button"
+              className="auth-toggle-btn"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setResetEmail('');
+                setResetMessage('');
+                setError('');
+              }}
+              style={{ marginTop: '0.5rem' }}
+            >
+              Back to Login
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && <div className="auth-error">{error}</div>}
+            <div className="auth-input-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="auth-input-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            {!isLogin && (
+              <div className="auth-input-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            )}
+            {isLogin && (
+              <button
+                type="button"
+                className="auth-toggle-btn"
+                style={{ textAlign: 'right', marginBottom: '0.5rem' }}
+                onClick={() => {
+                  setShowForgotPassword(true);
+                  setError('');
+                  setResetMessage('');
+                }}
+              >
+                Forgot Password?
+              </button>
+            )}
+            <button 
+              type="submit" 
+              className="auth-submit-btn"
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : (isLogin ? 'Login' : 'Register')}
+            </button>
+            <div className="auth-divider">
+              <span>or</span>
+            </div>
+            <button
+              type="button"
+              className="auth-google-btn"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <FaGoogle /> Continue with Google
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
