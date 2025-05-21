@@ -10,6 +10,7 @@ import UserManagement from '../widgets/admin/UserManagement';
 import Enquiries from '../widgets/admin/Enquiries';
 import DiscountManagement from '../widgets/admin/DiscountManagement';
 import ReviewManagement from '../widgets/admin/ReviewManagement';
+import NewsletterManagement from '../widgets/admin/NewsletterManagement';
 import PageTitle from '../common/PageTitle';
 import '../styles/Admin.css';
 
@@ -183,6 +184,12 @@ const Admin = () => {
             <FaPalette /> Cake Designer
           </button>
           <button
+            className={`nav-item ${activeTab === 'newsletter' ? 'active' : ''}`}
+            onClick={() => setActiveTab('newsletter')}
+          >
+            <FaEnvelope /> Newsletter
+          </button>
+          <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -236,6 +243,8 @@ const Admin = () => {
         {activeTab === 'designer' && (
           <CakeDesigner />
         )}
+
+        {activeTab === 'newsletter' && <NewsletterManagement />}
 
         {activeTab === 'settings' && (
           <div className="settings-section">

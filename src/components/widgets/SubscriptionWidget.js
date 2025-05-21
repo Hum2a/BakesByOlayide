@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
 import '../styles/SubscriptionWidget.css';
+import { db } from '../../firebase/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const SubscriptionWidget = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can add your subscription logic here
-    setSubmitted(true);
-    setEmail('');
+    setError(null);
+    try {
+      // Save to Firestore: 'newsletter' collection, email as doc ID
+      await setDoc(doc(db, 'newsletter', email), {
+        email,
+        subscribedAt: new Date(),
+        optedIn: true
+      });
+      // TODO: Call backend to add to Zoho
+      setSubmitted(true);
+      setEmail('');
+    } catch (err) {
+      setError('Failed to subscribe. Please try again.');
+      console.error(err);
+    }
   };
 
   return (
@@ -38,6 +53,7 @@ const SubscriptionWidget = () => {
                 required
               />
               <button type="submit" className="subscription-widget-btn">Sign Up</button>
+              {error && <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>}
             </form>
           )}
         </div>
