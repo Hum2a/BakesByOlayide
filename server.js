@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
+const { sendOrderConfirmation, sendEnquiryConfirmation, sendPasswordReset } = require('./src/utils/emailService');
 
 const app = express();
 
@@ -15,6 +16,40 @@ app.use(express.static('build'));
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
+});
+
+// Email routes
+app.post('/api/send-order-confirmation', async (req, res) => {
+  try {
+    const orderDetails = req.body;
+    const result = await sendOrderConfirmation(orderDetails);
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending order confirmation:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/send-enquiry-confirmation', async (req, res) => {
+  try {
+    const enquiryDetails = req.body;
+    const result = await sendEnquiryConfirmation(enquiryDetails);
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending enquiry confirmation:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/send-password-reset', async (req, res) => {
+  try {
+    const { email, resetLink } = req.body;
+    const result = await sendPasswordReset(email, resetLink);
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending password reset:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post('/api/create-payment-intent', async (req, res) => {
