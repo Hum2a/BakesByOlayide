@@ -14,9 +14,9 @@ const Footer = () => (
           />
         </div>
         <div className="footer-social">
-          <a href="https://www.facebook.com/bakesbyolayide" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook /></a>
-          <a href="https://www.tiktok.com/@bakesbyolayide" target="_blank" rel="noopener noreferrer" aria-label="Tiktok"><FaTiktok /></a>
-          <a href="https://www.instagram.com/bakesbyolayide" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
+          <a href="https://www.facebook.com/share/1KrsjH6Htr/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook /></a>
+          <a href="https://www.tiktok.com/@bakesbyolayide?_t=ZN-8wSvwOIbiMQ&_r=1" target="_blank" rel="noopener noreferrer" aria-label="Tiktok"><FaTiktok /></a>
+          <a href="https://www.instagram.com/bakesbyolayide?igsh=MW1oM3drOTJkeGkzYw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
         </div>
       </div>
       <div className="footer-links-grid">
