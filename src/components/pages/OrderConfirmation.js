@@ -7,6 +7,8 @@ import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import '../styles/OrderConfirmation.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,7 +19,7 @@ const OrderConfirmation = () => {
     const sendConfirmationEmail = async () => {
       if (guestInfo?.email) {
         try {
-          const response = await fetch('/api/send-order-confirmation', {
+          const response = await fetch(`${API_BASE_URL}/api/send-order-confirmation`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

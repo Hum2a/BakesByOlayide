@@ -4,6 +4,8 @@ import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import './StripePaymentForm.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+
 const StripePaymentForm = ({ amount, onSuccess, onError, customerName, customerEmail }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -125,7 +127,7 @@ const StripePaymentForm = ({ amount, onSuccess, onError, customerName, customerE
 
       // Create payment intent
       console.log('Creating payment intent with amount:', amount);
-      const response = await fetch('/api/create-payment-intent', {
+      const response = await fetch(`${API_BASE_URL}/api/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
