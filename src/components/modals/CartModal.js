@@ -65,7 +65,7 @@ const CartModal = ({ onClose }) => {
                     {item.notes && (
                       <div className="cart-item-notes">Notes: {item.notes}</div>
                     )}
-                    <p className="cart-item-price">${item.price.toFixed(2)}</p>
+                    <p className="cart-item-price">£{item.price.toFixed(2)}</p>
                     <div className="cart-item-quantity">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -100,7 +100,7 @@ const CartModal = ({ onClose }) => {
             <div className="cart-summary">
               <div className="summary-row">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>£{totalPrice.toFixed(2)}</span>
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
@@ -108,7 +108,7 @@ const CartModal = ({ onClose }) => {
               </div>
               <div className="summary-row total">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>£{totalPrice.toFixed(2)}</span>
               </div>
               <button className="checkout-btn" onClick={handleCheckout}>
                 Proceed to Checkout

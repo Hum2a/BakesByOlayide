@@ -197,9 +197,7 @@ const OrderManagement = () => {
                       </div>
                     ))}
                   </td>
-                  <td className="order-total">
-                    ${order.total.toFixed(2)}
-                  </td>
+                  <td className="order-total">£{order.total.toFixed(2)}</td>
                   <td className="order-status">
                     <span className={`status-badge ${statusInfo.class}`}>
                       {statusInfo.icon}

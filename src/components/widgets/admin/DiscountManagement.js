@@ -338,10 +338,10 @@ const DiscountManagement = () => {
               <p>{discount.description}</p>
               <p className="discount-percentage">{discount.percentage}% OFF</p>
               {discount.minPurchase && (
-                <p className="min-purchase">Min. Purchase: ${discount.minPurchase}</p>
+                <p className="min-purchase">Min. Purchase: £{discount.minPurchase}</p>
               )}
               {discount.maxDiscount && (
-                <p className="max-discount">Max. Discount: ${discount.maxDiscount}</p>
+                <p className="max-discount">Max. Discount: £{discount.maxDiscount}</p>
               )}
               {discount.expiryDate ? (
                 <p className="expiry-date">Expires: {new Date(discount.expiryDate).toLocaleDateString()}</p>

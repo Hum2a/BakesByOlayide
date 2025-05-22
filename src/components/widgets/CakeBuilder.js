@@ -154,7 +154,7 @@ const CakeBuilder = ({ onRequestCake }) => {
           >
             <FaShoppingCart />
             <span className="cart-items-count">{totalItems}</span>
-            <span className="cart-total">${totalPrice.toFixed(2)}</span>
+            <span className="cart-total">£{totalPrice.toFixed(2)}</span>
           </button>
         </div>
         <p>Create your perfect cake with our easy customization options</p>
@@ -170,7 +170,7 @@ const CakeBuilder = ({ onRequestCake }) => {
                   onClick={() => handleSelection('size', size.name)}
                 >
                   {size.name}
-                  <span className="price-tag">+${size.price}</span>
+                  <span className="price-tag">+£{size.price}</span>
                 </button>
               ))}
             </div>
@@ -186,7 +186,7 @@ const CakeBuilder = ({ onRequestCake }) => {
                   onClick={() => handleSelection('flavor', flavor.name)}
                 >
                   {flavor.name}
-                  {flavor.price > 0 && <span className="price-tag">+${flavor.price}</span>}
+                  {flavor.price > 0 && <span className="price-tag">+£{flavor.price}</span>}
                 </button>
               ))}
             </div>
@@ -202,7 +202,7 @@ const CakeBuilder = ({ onRequestCake }) => {
                   onClick={() => handleSelection('frosting', frosting.name)}
                 >
                   {frosting.name}
-                  {frosting.price > 0 && <span className="price-tag">+${frosting.price}</span>}
+                  {frosting.price > 0 && <span className="price-tag">+£{frosting.price}</span>}
                 </button>
               ))}
             </div>
@@ -218,7 +218,7 @@ const CakeBuilder = ({ onRequestCake }) => {
                   onClick={() => handleSelection('decorations', decoration.name)}
                 >
                   {decoration.name}
-                  <span className="price-tag">+${decoration.price}</span>
+                  <span className="price-tag">+£{decoration.price}</span>
                 </button>
               ))}
             </div>
@@ -226,7 +226,7 @@ const CakeBuilder = ({ onRequestCake }) => {
         </div>
 
         <div className="cake-price-summary">
-          <h3>Total Price: ${calculatePrice()}</h3>
+          <h3>Total Price: £{calculatePrice()}</h3>
         </div>
 
         <CakePreview3D selections={selections} />
