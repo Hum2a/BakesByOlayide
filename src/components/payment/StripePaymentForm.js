@@ -4,7 +4,7 @@ import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import './StripePaymentForm.css';
 
-const StripePaymentForm = ({ amount, onSuccess, onError }) => {
+const StripePaymentForm = ({ amount, onSuccess, onError, customerName, customerEmail }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -84,6 +84,7 @@ const StripePaymentForm = ({ amount, onSuccess, onError }) => {
     event.preventDefault();
     
     if (!stripe || !elements) {
+      console.log('Stripe.js has not loaded yet.');
       return;
     }
 
@@ -92,13 +93,15 @@ const StripePaymentForm = ({ amount, onSuccess, onError }) => {
 
     try {
       let paymentMethodId;
+      console.log('Selected payment method:', selectedPaymentMethod);
 
-      if (selectedPaymentMethod === 'new') {
+      if (selectedPaymentMethod === 'new' || selectedPaymentMethod === 'card') {
         // Create a new payment method
         const { error: createError, paymentMethod } = await stripe.createPaymentMethod({
           type: 'card',
           card: elements.getElement(CardElement),
         });
+        console.log('Created payment method:', paymentMethod, 'Error:', createError);
 
         if (createError) {
           throw new Error(createError.message);
@@ -113,6 +116,7 @@ const StripePaymentForm = ({ amount, onSuccess, onError }) => {
       } else {
         // Use existing payment method
         const savedMethod = savedPaymentMethods.find(method => method.id === selectedPaymentMethod);
+        console.log('Using saved payment method:', savedMethod);
         if (!savedMethod) {
           throw new Error('Selected payment method not found');
         }
@@ -120,41 +124,44 @@ const StripePaymentForm = ({ amount, onSuccess, onError }) => {
       }
 
       // Create payment intent
+      console.log('Creating payment intent with amount:', amount);
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          amount,
-          payment_method_id: paymentMethodId
-        }),
+        body: JSON.stringify({ amount }),
       });
 
       const data = await response.json();
+      console.log('Payment intent response:', data);
 
       if (data.error) {
         throw new Error(data.error);
       }
 
       // Confirm the payment
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-        data.clientSecret,
-        {
-          payment_method: paymentMethodId,
+      console.log('Confirming card payment with clientSecret:', data.clientSecret);
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: { name: customerName || '', email: customerEmail || '' }
         }
-      );
+      });
+      console.log('Confirm card payment result:', paymentIntent, 'Error:', confirmError);
 
       if (confirmError) {
         throw new Error(confirmError.message);
       }
 
       if (paymentIntent.status === 'succeeded') {
+        console.log('Payment succeeded:', paymentIntent);
         onSuccess(paymentIntent);
       }
     } catch (err) {
       setErrorMessage(err.message);
       onError(err);
+      console.error('Stripe payment error:', err);
     } finally {
       setIsProcessing(false);
     }

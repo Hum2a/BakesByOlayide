@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
-const { sendOrderConfirmation, sendEnquiryConfirmation, sendPasswordReset } = require('./src/utils/emailService');
+// const { sendOrderConfirmation, sendEnquiryConfirmation, sendPasswordReset } = require('./src/utils/emailService');
 
 const app = express();
 
@@ -18,43 +18,14 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
 
-// Email routes
-app.post('/api/send-order-confirmation', async (req, res) => {
-  try {
-    const orderDetails = req.body;
-    const result = await sendOrderConfirmation(orderDetails);
-    res.json(result);
-  } catch (error) {
-    console.error('Error sending order confirmation:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/send-enquiry-confirmation', async (req, res) => {
-  try {
-    const enquiryDetails = req.body;
-    const result = await sendEnquiryConfirmation(enquiryDetails);
-    res.json(result);
-  } catch (error) {
-    console.error('Error sending enquiry confirmation:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/send-password-reset', async (req, res) => {
-  try {
-    const { email, resetLink } = req.body;
-    const result = await sendPasswordReset(email, resetLink);
-    res.json(result);
-  } catch (error) {
-    console.error('Error sending password reset:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+// Email routes (temporarily removed)
+// app.post('/api/send-order-confirmation', ...)
+// app.post('/api/send-enquiry-confirmation', ...)
+// app.post('/api/send-password-reset', ...)
 
 app.post('/api/create-payment-intent', async (req, res) => {
   try {
-    const { amount, payment_method_id } = req.body;
+    const { amount } = req.body;
 
     if (!process.env.REACT_APP_STRIPE_SECRET_KEY) {
       throw new Error('Missing Stripe Secret Key');
@@ -63,9 +34,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'gbp',
-      payment_method: payment_method_id,
-      confirm: false, // Don't confirm yet, let the client handle confirmation
-      setup_future_usage: 'off_session', // Allow the payment method to be used for future payments
+      setup_future_usage: 'off_session',
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });

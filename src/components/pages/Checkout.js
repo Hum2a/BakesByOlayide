@@ -448,22 +448,29 @@ const Checkout = () => {
       setIsLoading(true);
       const orderDate = Timestamp.now();
       const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const userId = auth.currentUser?.uid || null;
+      const invoiceRef = userId
+        ? `/users/${userId}/Invoices/INV-${orderId}`
+        : null;
+      const now = Timestamp.now();
 
-      // Create order object
+      // Build order items
+      const orderItems = cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        selectedSize: item.selectedSize,
+        selectedShape: item.selectedShape,
+        notes: item.notes || ''
+      }));
+
+      // Build order object
       const order = {
         id: orderId,
-        userId: auth.currentUser?.uid || null,
-        customerInfo: !auth.currentUser ? guestInfo : null,
-        items: cart.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image,
-          selectedSize: item.selectedSize,
-          selectedShape: item.selectedShape,
-          notes: item.notes || ''
-        })),
+        userId: userId,
+        items: orderItems,
         status: 'confirmed',
         paymentStatus: 'paid',
         paymentId: paymentIntent.id,
@@ -475,16 +482,29 @@ const Checkout = () => {
         } : null,
         total: finalPrice,
         createdAt: orderDate,
+        updatedAt: now,
         pickupStatus: 'scheduled',
-        pickupDate: Timestamp.fromDate(new Date(pickupDate)),
-        pickupTime: pickupTime
+        pickupDate: pickupDate ? Timestamp.fromDate(new Date(pickupDate)) : null,
+        pickupTime: pickupTime || null,
+        invoiceRef: invoiceRef,
+        customerInfo: !auth.currentUser ? guestInfo : null
       };
 
-      // Create invoice object
+      // Save order to global 'orders' collection
+      await setDoc(doc(db, 'orders', orderId), order);
+
+      // Save to user-specific collections if logged in
+      if (auth.currentUser) {
+        await setDoc(doc(db, 'users', userId, 'Orders', orderId), order);
+        // Optionally update user profile with last order, etc.
+      }
+
+      // Build invoice object
+      const invoiceId = `INV-${orderId}`;
       const invoice = {
-        id: `INV-${orderId}`,
+        id: invoiceId,
         orderId: orderId,
-        userId: auth.currentUser?.uid || null,
+        userId: userId,
         customerInfo: !auth.currentUser ? guestInfo : null,
         amount: finalPrice,
         discount: appliedDiscount ? {
@@ -506,17 +526,12 @@ const Checkout = () => {
         }))
       };
 
+      // Save invoice
       if (auth.currentUser) {
-        const userId = auth.currentUser.uid;
-        await setDoc(doc(db, 'users', userId, 'Invoices', invoice.id), invoice);
-        await setDoc(doc(db, 'users', userId, 'Orders', order.id), order);
-        await setDoc(doc(db, 'users', userId), {
-          lastOrder: orderDate,
-          orderCount: increment(1)
-        }, { merge: true });
+        await setDoc(doc(db, 'users', userId, 'Invoices', invoiceId), invoice);
+      } else {
+        await setDoc(doc(db, 'invoices', invoiceId), invoice);
       }
-
-      await setDoc(doc(db, 'orders', order.id), order);
 
       clearCart();
       navigate('/order-confirmation', { 
@@ -529,7 +544,6 @@ const Checkout = () => {
           pickupTime
         }
       });
-
     } catch (error) {
       console.error('Error saving order:', error);
       clearCart();
@@ -716,6 +730,8 @@ const Checkout = () => {
                 amount={Math.round(totalPrice * 100)}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
+                customerName={guestInfo ? guestInfo.name : auth.currentUser?.displayName}
+                customerEmail={guestInfo ? guestInfo.email : auth.currentUser?.email}
               />
             </Elements>
           </div>
