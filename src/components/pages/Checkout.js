@@ -463,7 +463,12 @@ const Checkout = () => {
         image: item.image,
         selectedSize: item.selectedSize,
         selectedShape: item.selectedShape,
-        notes: item.notes || ''
+        notes: item.notes || '',
+        selectedFinish: item.selectedFinish,
+        topper: item.topper,
+        topperPrice: item.topperPrice,
+        occasion: item.occasion,
+        addon: item.addon
       }));
 
       // Build order object
@@ -522,8 +527,13 @@ const Checkout = () => {
           total: item.price * item.quantity,
           selectedSize: item.selectedSize,
           selectedShape: item.selectedShape,
-          notes: item.notes || ''
-        }))
+          notes: item.notes || '',
+          selectedFinish: item.selectedFinish,
+          topper: item.topper,
+          topperPrice: item.topperPrice,
+          occasion: item.occasion,
+          addon: item.addon
+        })),
       };
 
       // Save invoice
