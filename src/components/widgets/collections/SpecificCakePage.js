@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { db, auth } from '../../../firebase/firebase';
 import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { useCart } from '../../../context/CartContext';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
-import { FaStar, FaStarHalf } from 'react-icons/fa';
+import { FaStar, FaStarHalf, FaCheck } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 
 const SpecificCakePage = () => {
   const { id } = useParams();
+  const { addToCart } = useCart();
   const [cake, setCake] = useState(null);
   const [allCakes, setAllCakes] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -22,6 +24,7 @@ const SpecificCakePage = () => {
   const [notes, setNotes] = useState('');
   const [occasion, setOccasion] = useState('');
   const [addon, setAddon] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -162,6 +165,31 @@ const SpecificCakePage = () => {
     ? Math.min(...cake.sizes.map(s => s.price))
     : 0;
 
+  const handleAddToCart = () => {
+    if (!cake) return;
+
+    const cartItem = {
+      id: `${cake.id}-${selectedSizeIdx}-${selectedShapeIdx}-${selectedFinishIdx}`,
+      cakeId: cake.id,
+      name: cake.name,
+      image: cake.image,
+      price: totalPrice,
+      quantity: 1,
+      selectedSize: selectedSize,
+      selectedShape: selectedShape,
+      selectedFinish: selectedFinish,
+      topper: topper,
+      topperPrice: topperPrice,
+      occasion: occasion,
+      addon: addon,
+      notes: notes
+    };
+
+    addToCart(cartItem);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000); // Hide after 3 seconds
+  };
+
   return (
     <div>
       <Header 
@@ -176,6 +204,12 @@ const SpecificCakePage = () => {
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         handleModalOpen={handleModalOpen}
       />
+      {showSuccess && (
+        <div className="add-to-cart-success">
+          <FaCheck className="success-icon" />
+          <span>Successfully added to cart!</span>
+        </div>
+      )}
       <div className="specific-cake-container">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
@@ -355,7 +389,7 @@ const SpecificCakePage = () => {
         <div className="specific-cake-total-price">
           Total Price: £{totalPrice.toFixed(2)}
         </div>
-        <button className="specific-cake-add-btn">Add to Basket</button>
+        <button className="specific-cake-add-btn" onClick={handleAddToCart}>Add to Basket</button>
         <div className="specific-cake-ingredients-list">
           <div><b>Ingredients List:</b></div>
           <div>
