@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaBars, FaTimes, FaUser, FaSearch } from 'react-icons/fa';
+import { useCart } from '../../context/CartContext';
 import '../styles/Header.css';
 import SearchModal from '../modals/SearchModal';
 import AuthModal from '../modals/AuthModal';
@@ -24,6 +25,7 @@ const Header = ({
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const navigate = useNavigate();
+  const { totalItems } = useCart();
 
   return (
     <>
@@ -75,11 +77,14 @@ const Header = ({
               </button>
             )}
             <button 
-              className="nav-icon-link" 
+              className="nav-icon-link cart-icon-wrapper" 
               aria-label="Cart"
               onClick={() => setIsCartOpen(true)}
             >
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              {totalItems > 0 && (
+                <span className="cart-badge">{totalItems}</span>
+              )}
             </button>
           </div>
           {isMobileNavOpen && (
