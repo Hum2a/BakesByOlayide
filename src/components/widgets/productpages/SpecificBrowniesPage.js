@@ -254,18 +254,18 @@ const SpecificBrowniesPage = () => {
                   </div>
                 </div>
               )}
-              <div className="specific-cake-selector-group">
+              <div className="specific-cake-selector-group quantity-selector-group">
                 <label className="specific-cake-selector-label">Quantity</label>
-                <div className="specific-cake-selector-options">
+                <div className="quantity-selector">
                   <button
-                    className="specific-cake-selector-btn"
+                    className="quantity-btn"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   >
                     -
                   </button>
-                  <span className="specific-cake-quantity">{quantity}</span>
+                  <span className="quantity-value">{quantity}</span>
                   <button
-                    className="specific-cake-selector-btn"
+                    className="quantity-btn"
                     onClick={() => setQuantity(Math.min(selectedSize.size, quantity + 1))}
                   >
                     +
