@@ -134,22 +134,32 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   };
 
   const handleAddSize = () => {
-    if (!newSize.size || !newSize.price || !newSize.servingSize) return;
-    
-    setNewCake({
-      ...newCake,
-      sizes: [...newCake.sizes, {
-        ...newSize,
-        price: parseFloat(newSize.price),
-        servingSize: parseInt(newSize.servingSize, 10)
-      }]
-    });
-    
-    setNewSize({
-      size: '',
-      price: '',
-      servingSize: ''
-    });
+    if (selectedCategory === 'Brownies' || selectedCategory === 'Cookies') {
+      if (!newSize.size || !newSize.price) return;
+      setNewCake({
+        ...newCake,
+        sizes: [...newCake.sizes, {
+          size: newSize.size,
+          price: parseFloat(newSize.price)
+        }]
+      });
+      setNewSize({ size: '', price: '' });
+    } else {
+      if (!newSize.size || !newSize.price || !newSize.servingSize) return;
+      setNewCake({
+        ...newCake,
+        sizes: [...newCake.sizes, {
+          ...newSize,
+          price: parseFloat(newSize.price),
+          servingSize: parseInt(newSize.servingSize, 10)
+        }]
+      });
+      setNewSize({
+        size: '',
+        price: '',
+        servingSize: ''
+      });
+    }
   };
 
   const handleRemoveSize = (index) => {
@@ -747,7 +757,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
 
       <div className="cakemanagement-grid">
-        {cakes.map((cake) => (
+        {Array.isArray(cakes) ? cakes.map((cake) => (
           <div key={cake.id} className="cakemanagement-card">
             <div className="cakemanagement-card-image">
               <img src={cake.image} alt={cake.name} />
@@ -755,24 +765,24 @@ const CakeManagement = ({ cakes, onUpdate }) => {
             <div className="cakemanagement-card-content">
               <h3>{cake.name}</h3>
               <div className="cakemanagement-sizes-list">
-                {cake.sizes.map((size, index) => (
+                {(Array.isArray(cake.sizes) ? cake.sizes : []).map((size, index) => (
                   <div key={index} className="cakemanagement-size-badge">
-                    <span>{cake.categories.includes('Cupcakes') ? `${size.size} cupcakes` : `${size.size}"`}</span>
+                    <span>{Array.isArray(cake.categories) && cake.categories.includes('Cupcakes') ? `${size.size} cupcakes` : `${size.size}"`}</span>
                     <span>£{size.price.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
               <div className="cakemanagement-shapes-list">
-                {cake.shapes && cake.shapes.map((shape, idx) => (
+                {(Array.isArray(cake.shapes) ? cake.shapes : []).map((shape, idx) => (
                   <span key={idx} className="cakemanagement-shape-badge">{shape.name} +£{shape.price.toFixed(2)}</span>
                 ))}
               </div>
               <div className="cakemanagement-finishes-list">
-                {cake.finishes && cake.finishes.map((finish, idx) => (
+                {(Array.isArray(cake.finishes) ? cake.finishes : []).map((finish, idx) => (
                   <span key={idx} className="cakemanagement-finish-badge">{finish.name} +£{finish.price.toFixed(2)}</span>
                 ))}
               </div>
-              <p className="cakemanagement-category">{cake.categories.join(', ')}</p>
+              <p className="cakemanagement-category">{Array.isArray(cake.categories) ? cake.categories.join(', ') : ''}</p>
               <div className="cakemanagement-status">
                 {cake.isAvailable ? (
                   <span className="cakemanagement-status-badge available">Available</span>
@@ -805,7 +815,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
               </div>
             </div>
           </div>
-        ))}
+        )) : null}
       </div>
 
       {/* Modal for delete confirmation */}

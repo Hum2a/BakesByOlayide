@@ -178,7 +178,7 @@ const CookiesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {cookies.seasonal?.map((cookie) => (
-            <div className="cupcake-flavour-card" key={cookie.id} onClick={() => navigate(`/collections/${cookie.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={cookie.id} onClick={() => navigate(`/collections/cookies/${cookie.id}`)} style={{ cursor: 'pointer' }}>
               <img src={cookie.image} alt={cookie.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{cookie.name}</h3>
@@ -198,7 +198,7 @@ const CookiesCollection = () => {
             cookie.empty ? (
               <div className="cupcake-standard-card empty" key={cookie.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={cookie.id} onClick={() => navigate(`/collections/${cookie.id}`)} style={{ cursor: 'pointer' }}>
+              <div className="cupcake-standard-card" key={cookie.id} onClick={() => navigate(`/collections/cookies/${cookie.id}`)} style={{ cursor: 'pointer' }}>
                 <img src={cookie.image} alt={cookie.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{cookie.name}</h3>

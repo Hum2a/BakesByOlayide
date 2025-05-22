@@ -7,17 +7,30 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       <div className="cakemanagement-form-group full-width">
         <label>Flavours</label>
         <div className="cakemanagement-array-fields">
-          {(newCake.flavours || []).map((flavour, idx) => (
+          {(Array.isArray(newCake.flavours) ? newCake.flavours : []).map((flavour, idx) => (
             <div key={idx} className="cakemanagement-array-field">
               <input
                 type="text"
-                value={flavour}
+                value={flavour.name || ''}
                 onChange={e => {
                   const updated = [...newCake.flavours];
-                  updated[idx] = e.target.value;
+                  updated[idx] = { ...updated[idx], name: e.target.value };
                   setNewCake({ ...newCake, flavours: updated });
                 }}
                 placeholder="e.g. Chocolate, Vanilla, Red Velvet"
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={flavour.price || ''}
+                onChange={e => {
+                  const updated = [...newCake.flavours];
+                  updated[idx] = { ...updated[idx], price: e.target.value };
+                  setNewCake({ ...newCake, flavours: updated });
+                }}
+                placeholder="Price (£)"
+                style={{ width: '100px', marginLeft: '8px' }}
               />
               <button
                 type="button"
@@ -31,23 +44,11 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, flavours: [...(newCake.flavours || []), ''] })}
+            onClick={() => setNewCake({ ...newCake, flavours: [...(Array.isArray(newCake.flavours) ? newCake.flavours : []), { name: '', price: '' }] })}
           >
             <FaPlus /> Add Flavour
           </button>
         </div>
-      </div>
-
-      <div className="cakemanagement-form-group">
-        <label>Size (number of cupcakes)*</label>
-        <input
-          type="number"
-          min="1"
-          value={newCake.size || ''}
-          onChange={e => setNewCake({ ...newCake, size: e.target.value })}
-          placeholder="Enter number of cupcakes"
-          required
-        />
       </div>
 
       <div className="cakemanagement-form-group full-width">
@@ -63,7 +64,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       <div className="cakemanagement-form-group full-width">
         <label>Ingredients*</label>
         <div className="cakemanagement-array-fields">
-          {(newCake.ingredients || []).map((ingredient, idx) => (
+          {(Array.isArray(newCake.ingredients) ? newCake.ingredients : []).map((ingredient, idx) => (
             <div key={idx} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -87,7 +88,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, ingredients: [...(newCake.ingredients || []), ''] })}
+            onClick={() => setNewCake({ ...newCake, ingredients: [...(Array.isArray(newCake.ingredients) ? newCake.ingredients : []), ''] })}
           >
             <FaPlus /> Add Ingredient
           </button>
@@ -97,19 +98,30 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       <div className="cakemanagement-form-group full-width">
         <label>Toppers</label>
         <div className="cakemanagement-array-fields">
-          {(newCake.toppers || []).map((item, idx) => (
+          {(Array.isArray(newCake.toppers) ? newCake.toppers : []).map((item, idx) => (
             <div key={idx} className="cakemanagement-array-field">
+              <input
+                type="text"
+                value={item.name || ''}
+                onChange={e => {
+                  const updated = [...newCake.toppers];
+                  updated[idx] = { ...updated[idx], name: e.target.value };
+                  setNewCake({ ...newCake, toppers: updated });
+                }}
+                placeholder="Topper name (e.g. Happy Birthday)"
+              />
               <input
                 type="number"
                 min="0"
                 step="0.01"
-                value={item.price}
+                value={item.price || ''}
                 onChange={e => {
                   const updated = [...newCake.toppers];
-                  updated[idx].price = e.target.value;
+                  updated[idx] = { ...updated[idx], price: e.target.value };
                   setNewCake({ ...newCake, toppers: updated });
                 }}
                 placeholder="Price (£)"
+                style={{ width: '100px', marginLeft: '8px' }}
               />
               <button
                 type="button"
@@ -123,7 +135,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, toppers: [...(newCake.toppers || []), { price: '' }] })}
+            onClick={() => setNewCake({ ...newCake, toppers: [...(Array.isArray(newCake.toppers) ? newCake.toppers : []), { name: '', price: '' }] })}
           >
             <FaPlus /> Add Topper
           </button>
@@ -133,7 +145,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       <div className="cakemanagement-form-group full-width">
         <label>Decoration Styles</label>
         <div className="cakemanagement-array-fields">
-          {(newCake.decorationStyles || []).map((item, idx) => (
+          {(Array.isArray(newCake.decorationStyles) ? newCake.decorationStyles : []).map((item, idx) => (
             <div key={idx} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -169,7 +181,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, decorationStyles: [...(newCake.decorationStyles || []), { name: '', price: '' }] })}
+            onClick={() => setNewCake({ ...newCake, decorationStyles: [...(Array.isArray(newCake.decorationStyles) ? newCake.decorationStyles : []), { name: '', price: '' }] })}
           >
             <FaPlus /> Add Decoration Style
           </button>
@@ -179,7 +191,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       <div className="cakemanagement-form-group full-width">
         <label>Add Ons</label>
         <div className="cakemanagement-array-fields">
-          {(newCake.addOns || []).map((addOn, idx) => (
+          {(Array.isArray(newCake.addOns) ? newCake.addOns : []).map((addOn, idx) => (
             <div key={idx} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -217,7 +229,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, addOns: [...(newCake.addOns || []), { name: '', price: '' }] })}
+            onClick={() => setNewCake({ ...newCake, addOns: [...(Array.isArray(newCake.addOns) ? newCake.addOns : []), { name: '', price: '' }] })}
           >
             <FaPlus /> Add Add On
           </button>

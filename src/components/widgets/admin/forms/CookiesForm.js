@@ -53,51 +53,14 @@ const CookiesForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, 
       </div>
 
       <div className="cakemanagement-form-group full-width">
-        <label>Quantities</label>
-        <div className="cakemanagement-array-fields">
-          {(newCake.quantities || []).map((item, idx) => (
-            <div key={idx} className="cakemanagement-array-field">
-              <input
-                type="number"
-                min="1"
-                value={item.value}
-                onChange={e => {
-                  const updated = [...newCake.quantities];
-                  updated[idx].value = e.target.value;
-                  setNewCake({ ...newCake, quantities: updated });
-                }}
-                placeholder="Quantity per order"
-                required
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={item.price}
-                onChange={e => {
-                  const updated = [...newCake.quantities];
-                  updated[idx].price = e.target.value;
-                  setNewCake({ ...newCake, quantities: updated });
-                }}
-                placeholder="Price (£)"
-              />
-              <button
-                type="button"
-                className="cakemanagement-remove-btn"
-                onClick={() => setNewCake({ ...newCake, quantities: newCake.quantities.filter((_, i) => i !== idx) })}
-              >
-                <FaTimes />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, quantities: [...(newCake.quantities || []), { value: '', price: '' }] })}
-          >
-            <FaPlus /> Add Quantity
-          </button>
-        </div>
+        <label>Max Quantity</label>
+        <input
+          type="number"
+          min="1"
+          value={newCake.maxQuantity || ''}
+          onChange={e => setNewCake({ ...newCake, maxQuantity: e.target.value })}
+          placeholder="Enter maximum quantity per order"
+        />
       </div>
 
       <div className="cakemanagement-form-group full-width">

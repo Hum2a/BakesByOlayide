@@ -156,13 +156,13 @@ const BentoCakewithCupcakesCollection = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {bentoCakes.seasonal?.map((bentoCake) => (
-            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{bentoCake.name}</h3>
                 <p>{bentoCake.description}</p>
                 <span className="cupcake-flavour-price">
-                  From £{Math.min(...bentoCake.sizes.map(size => size.price)).toFixed(2)}
+                  From £{Math.min(...(Array.isArray(bentoCake.sizes) ? bentoCake.sizes : []).map(size => size.price)).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -173,12 +173,12 @@ const BentoCakewithCupcakesCollection = () => {
         <h2>Year Round Flavours</h2>
         <div className="cupcake-standard-grid">
           {bentoCakes.standard?.map((bentoCake) => (
-            <div className="cupcake-standard-card" key={bentoCake.id} onClick={() => navigate(`/cake/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+            <div className="cupcake-standard-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
               <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-standard-img" />
               <div className="cupcake-standard-info">
                 <h3>{bentoCake.name}</h3>
                 <span className="cupcake-standard-price">
-                  From £{Math.min(...bentoCake.sizes.map(size => size.price)).toFixed(2)}
+                  From £{Math.min(...(Array.isArray(bentoCake.sizes) ? bentoCake.sizes : []).map(size => size.price)).toFixed(2)}
                 </span>
               </div>
             </div>

@@ -15,9 +15,13 @@ import DietaryRequirements from '../components/pages/guides/DietaryRequirements'
 import PricingGuide from '../components/pages/guides/PricingGuide';
 // import SpecialOccasions from '../components/pages/guides/SpecialOccasions';
 
-// --- Cakes & Collections ---
+// --- Cakes ---
 import CakePage from '../components/pages/CakePage';
-import SpecificCakePage from '../components/widgets/collections/SpecificCakePage';
+import SpecificCakePage from '../components/widgets/productpages/SpecificCakePage';
+import SpecificCupcakePage from '../components/widgets/productpages/SpecificCupcakePage';
+import SpecificBentoCakePage from '../components/widgets/productpages/SpecificBentoCakePage';
+import SpecificBrowniesPage from '../components/widgets/productpages/SpecificBrowniesPage';
+import SpecificCookiesPage from '../components/widgets/productpages/SpecificCookiesPage';
 
 // --- Cake Collections ---
 import CupcakeCollectionPage from '../components/widgets/collections/CupcakeCollectionPage';
@@ -62,7 +66,11 @@ const AppRouter = () => {
 
           {/* --- Cakes & Collections --- */}
           <Route path="/collections" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
-          <Route path="/collections/:id" element={<SpecificCakePage />} />
+          <Route path="/collections/cakes/:id" element={<SpecificCakePage />} />
+          <Route path="/collections/cupcakes/:id" element={<SpecificCupcakePage />} />
+          <Route path="/collections/bento-cakes/:id" element={<SpecificBentoCakePage />} />
+          <Route path="/collections/brownies/:id" element={<SpecificBrowniesPage />} />
+          <Route path="/collections/cookies/:id" element={<SpecificCookiesPage />} />
 
           {/* --- Cake Collections --- */}
           <Route path="/collections/cupcakes" element={<CupcakeCollectionPage />} />

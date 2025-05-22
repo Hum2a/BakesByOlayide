@@ -82,6 +82,10 @@ const CupcakeCollectionPage = () => {
     setIsProfileOpen(false);
   };
 
+  const handleCupcakeClick = (cakeId) => {
+    navigate(`/collections/cupcakes/${cakeId}`);
+  };
+
   if (loading) {
     return <div className="cupcake-collection-container">Loading...</div>;
   }
@@ -181,7 +185,12 @@ const CupcakeCollectionPage = () => {
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {cupcakes.seasonal?.map((cake) => (
-            <div className="cupcake-flavour-card" key={cake.id}>
+            <div 
+              className="cupcake-flavour-card" 
+              key={cake.id}
+              onClick={() => handleCupcakeClick(cake.id)}
+              style={{ cursor: 'pointer' }}
+            >
               <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
               <div className="cupcake-flavour-info">
                 <h3>{cake.name}</h3>
@@ -201,7 +210,12 @@ const CupcakeCollectionPage = () => {
             cake.empty ? (
               <div className="cupcake-standard-card empty" key={cake.id || idx}></div>
             ) : (
-              <div className="cupcake-standard-card" key={cake.id}>
+              <div 
+                className="cupcake-standard-card" 
+                key={cake.id}
+                onClick={() => handleCupcakeClick(cake.id)}
+                style={{ cursor: 'pointer' }}
+              >
                 <img src={cake.image} alt={cake.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{cake.name}</h3>
