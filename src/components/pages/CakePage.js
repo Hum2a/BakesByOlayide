@@ -179,10 +179,9 @@ const CakePage = ({ onOpenCart }) => {
 
   if (loading) {
     return (
-      <div className="cakepage-container">
-        <div className="cakepage-loading">
-          Loading cakes...
-        </div>
+      <div className="specific-cake-loading-container">
+        <div className="specific-cake-spinner"></div>
+        <div className="specific-cake-loading-text">Loading cakes...</div>
       </div>
     );
   }

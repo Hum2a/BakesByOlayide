@@ -121,7 +121,12 @@ const SpecificCupcakePage = () => {
     fetchReviews();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="specific-cake-loading-container">
+      <div className="specific-cake-spinner"></div>
+      <div className="specific-cake-loading-text">Loading...</div>
+    </div>
+  );
   if (!cupcake) return <div>Cupcake not found.</div>;
 
   const sizeOptions = Array.isArray(cupcake.sizes) ? cupcake.sizes : [];

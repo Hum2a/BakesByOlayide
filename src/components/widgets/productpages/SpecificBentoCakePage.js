@@ -111,7 +111,12 @@ const SpecificBentoCakePage = () => {
     fetchReviews();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="specific-cake-loading-container">
+      <div className="specific-cake-spinner"></div>
+      <div className="specific-cake-loading-text">Loading...</div>
+    </div>
+  );
   if (!bento) return <div>Bento Cake not found.</div>;
 
   const sizeOptions = Array.isArray(bento.sizes) ? bento.sizes : [];
