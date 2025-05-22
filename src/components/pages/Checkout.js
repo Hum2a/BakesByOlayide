@@ -5,11 +5,12 @@ import { Elements } from '@stripe/react-stripe-js';
 import stripePromise from '../../stripe/config';
 import StripePaymentForm from '../payment/StripePaymentForm';
 import { auth, db } from '../../firebase/firebase';
-import { doc, setDoc, collection, getDocs, query, where, Timestamp, increment } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, query, where, Timestamp, increment, getDoc } from 'firebase/firestore';
 import '../styles/Checkout.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
+import AuthModal from '../modals/AuthModal';
 
 const GuestForm = ({ onSubmit, isLoading }) => (
   <form onSubmit={onSubmit} className="guest-form">
@@ -267,7 +268,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 };
 
 const Checkout = () => {
-  const { cart, totalPrice, clearCart, updateQuantity, removeFromCart } = useCart();
+  const { cart, totalPrice, clearCart, updateQuantity, removeFromCart, setCart } = useCart();
   const navigate = useNavigate();
   const [guestInfo, setGuestInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -277,6 +278,59 @@ const Checkout = () => {
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [discountError, setDiscountError] = useState('');
   const [isCheckingDiscount, setIsCheckingDiscount] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [tempCart, setTempCart] = useState(null);
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user && tempCart) {
+        try {
+          // Get user's existing cart from Firestore
+          const userCartRef = doc(db, 'users', user.uid, 'cart', 'items');
+          const userCartDoc = await getDoc(userCartRef);
+          let existingCart = [];
+          
+          if (userCartDoc.exists()) {
+            existingCart = userCartDoc.data().items || [];
+          }
+
+          // Merge temp cart with existing cart
+          const mergedCart = [...existingCart];
+          tempCart.forEach(item => {
+            const existingItemIndex = mergedCart.findIndex(
+              existingItem => existingItem.id === item.id
+            );
+            
+            if (existingItemIndex >= 0) {
+              // Update quantity if item exists
+              mergedCart[existingItemIndex].quantity += item.quantity;
+            } else {
+              // Add new item if it doesn't exist
+              mergedCart.push(item);
+            }
+          });
+
+          // Update cart in context and Firestore
+          setCart(mergedCart);
+          await setDoc(userCartRef, { items: mergedCart });
+          
+          // Clear temporary cart
+          setTempCart(null);
+        } catch (error) {
+          console.error('Error merging carts:', error);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [tempCart, setCart]);
+
+  const handleAuthOpen = () => {
+    // Store current cart before opening auth modal
+    setTempCart(cart);
+    setIsAuthOpen(true);
+  };
 
   const handleApplyDiscount = async () => {
     setDiscountError('');
@@ -625,7 +679,7 @@ const Checkout = () => {
               <div className="login-option">
                 <h3>Have an account?</h3>
                 <p>Sign in to access your saved information and track your orders.</p>
-                <Link to="/login" className="login-button">Sign In</Link>
+                <button onClick={handleAuthOpen} className="login-button">Sign In</button>
               </div>
               <div className="guest-option">
                 <h3>Continue as Guest</h3>
@@ -668,6 +722,7 @@ const Checkout = () => {
         )}
       </div>
       <Footer />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 };

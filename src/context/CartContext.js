@@ -32,6 +32,7 @@ export const CartProvider = ({ children }) => {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tempCart, setTempCart] = useState(null);
 
   // Function to save cart to both localStorage and Firebase
   const saveCart = async (cartItems, userId) => {
@@ -65,18 +66,40 @@ export const CartProvider = ({ children }) => {
             const cartRef = doc(db, 'userCarts', user.uid);
             const cartDoc = await getDoc(cartRef);
             
+            let firebaseCart = [];
             if (cartDoc.exists() && cartDoc.data().items) {
-              const firebaseCart = cartDoc.data().items;
+              firebaseCart = cartDoc.data().items;
+            }
+
+            // Get current cart from localStorage
+            const localCart = getInitialCartState().items;
+
+            // Merge carts if we have items in both
+            if (localCart.length > 0 && firebaseCart.length > 0) {
+              const mergedCart = [...firebaseCart];
+              localCart.forEach(item => {
+                const existingItemIndex = mergedCart.findIndex(
+                  existingItem => existingItem.id === item.id
+                );
+                
+                if (existingItemIndex >= 0) {
+                  // Update quantity if item exists
+                  mergedCart[existingItemIndex].quantity += item.quantity;
+                } else {
+                  // Add new item if it doesn't exist
+                  mergedCart.push(item);
+                }
+              });
+              setCart(mergedCart);
+              await saveCart(mergedCart, user.uid);
+            } else if (localCart.length > 0) {
+              // If only local cart has items, use that
+              setCart(localCart);
+              await saveCart(localCart, user.uid);
+            } else if (firebaseCart.length > 0) {
+              // If only Firebase cart has items, use that
               setCart(firebaseCart);
               localStorage.setItem('cart', JSON.stringify(firebaseCart));
-            } else {
-              // If no Firebase cart exists, use localStorage cart
-              const localCart = getInitialCartState().items;
-              setCart(localCart);
-              // Only try to save to Firebase if we have items
-              if (localCart.length > 0) {
-                await saveCart(localCart, user.uid);
-              }
             }
           } catch (error) {
             // If Firebase fails, fallback to localStorage
@@ -166,7 +189,8 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     updateQuantity,
     clearCart,
-    loading
+    loading,
+    setCart
   };
 
   if (loading) {
