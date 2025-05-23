@@ -86,6 +86,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
   const [confirmModal, setConfirmModal] = useState({ open: false, cakeId: null, imageUrl: null });
 
+  const [categoryFilter, setCategoryFilter] = useState('All');
+
   useEffect(() => {
     const checkAdminStatus = async () => {
       const user = auth.currentUser;
@@ -588,6 +590,14 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     }
   };
 
+  // Get all unique categories from cakes
+  const allCategories = Array.from(new Set((cakes || []).flatMap(cake => cake.categories || [])));
+
+  // Filter cakes by selected category
+  const filteredCakes = categoryFilter === 'All'
+    ? cakes
+    : (cakes || []).filter(cake => (cake.categories || []).includes(categoryFilter));
+
   if (!isAdmin) {
     return (
       <div className="cakemanagement-error">
@@ -611,6 +621,16 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
       <div className="cakemanagement-header">
         <h2>Cake Management</h2>
+        {/* Category Filter UI */}
+        <div className="cakemanagement-category-filter">
+          <label>Filter by Category: </label>
+          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+            <option value="All">All</option>
+            {allCategories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
         <div className="cakemanagement-tabs">
           {CATEGORY_TABS.map(tab => (
             <button
@@ -794,7 +814,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
 
       <div className="cakemanagement-grid">
-        {Array.isArray(cakes) ? cakes.map((cake) => (
+        {Array.isArray(filteredCakes) ? filteredCakes.map((cake) => (
           <div key={cake.id} className="cakemanagement-card">
             <div className="cakemanagement-card-image">
               <img src={cake.image} alt={cake.name} />
