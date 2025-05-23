@@ -21,7 +21,7 @@ const SpecificCupcakePage = () => {
   const [topperPrice, setTopperPrice] = useState(0);
   const [notes, setNotes] = useState('');
   const [occasion, setOccasion] = useState('');
-  const [addon, setAddon] = useState('');
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [decorationStyle, setDecorationStyle] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -131,7 +131,34 @@ const SpecificCupcakePage = () => {
 
   const sizeOptions = Array.isArray(cupcake.sizes) ? cupcake.sizes : [];
   const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
-  const totalPrice = (selectedSize.price || 0) + (topperPrice || 0);
+
+  const handleAddonToggle = (addon) => {
+    setSelectedAddons(prev => {
+      if (prev.includes(addon)) {
+        return prev.filter(a => a !== addon);
+      } else {
+        return [...prev, addon];
+      }
+    });
+  };
+
+  const getAddonPrice = (addon) => {
+    switch(addon) {
+      case 'Candles': return 2.00;
+      case 'Cake Topper': return 5.00;
+      case 'Gift Wrap': return 3.00;
+      case 'Message Card': return 1.00;
+      default: return 0;
+    }
+  };
+
+  const calculateTotalAddonPrice = () => {
+    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
+  };
+
+  const totalPrice = (selectedSize.price || 0) + 
+                    (topperPrice || 0) + 
+                    calculateTotalAddonPrice();
 
   const mainCategory = 'Cupcakes';
   const breadcrumbs = [
@@ -180,7 +207,11 @@ const SpecificCupcakePage = () => {
       topper: topper,
       topperPrice: topperPrice,
       occasion: occasion,
-      addon: addon,
+      addons: selectedAddons,
+      addonPrices: selectedAddons.map(addon => ({
+        name: addon,
+        price: getAddonPrice(addon)
+      })),
       decorationStyle: decorationStyle,
       notes: notes
     };
@@ -336,18 +367,24 @@ const SpecificCupcakePage = () => {
               )}
 
               <div className="specific-cake-selector-group">
-                <label className="specific-cake-selector-label">Add ons</label>
-                <select
-                  className="specific-cake-dropdown"
-                  value={addon}
-                  onChange={(e) => setAddon(e.target.value)}
-                >
-                  <option value="">Choose</option>
-                  <option value="Candles">Candles (+£2.00)</option>
-                  <option value="Cake Topper">Cake Topper (+£5.00)</option>
-                  <option value="Gift Wrap">Gift Wrap (+£3.00)</option>
-                  <option value="Message Card">Message Card (+£1.00)</option>
-                </select>
+                <span className="specific-cake-selector-label">Add ons:</span>
+                <div className="specific-cake-addons-container">
+                  {[
+                    { name: 'Candles', price: '£2.00' },
+                    { name: 'Cake Topper', price: '£5.00' },
+                    { name: 'Gift Wrap', price: '£3.00' },
+                    { name: 'Message Card', price: '£1.00' }
+                  ].map((addon) => (
+                    <button
+                      key={addon.name}
+                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
+                      onClick={() => handleAddonToggle(addon.name)}
+                    >
+                      <span className="addon-name">{addon.name}</span>
+                      <span className="addon-price">{addon.price}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

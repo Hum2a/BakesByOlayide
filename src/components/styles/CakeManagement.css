@@ -1484,4 +1484,87 @@
   .cakemanagement-category-filter label {
     margin-right: 0;
   }
+}
+
+.cakemanagement-addons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cakemanagement-addon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-addon-price {
+  color: #f3c307;
+  font-weight: 500;
+}
+
+.cakemanagement-remove-addon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: #fee2e2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-remove-addon-btn:hover {
+  background-color: #fecaca;
+}
+
+.cakemanagement-add-addon {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.cakemanagement-add-addon input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.cakemanagement-add-addon-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #f3c307;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cakemanagement-add-addon-btn:hover {
+  background-color: #d35400;
+}
+
+@media (max-width: 768px) {
+  .cakemanagement-add-addon {
+    flex-direction: column;
+  }
+  
+  .cakemanagement-add-addon input {
+    width: 100%;
+  }
 } 

@@ -20,8 +20,7 @@ const SpecificBrowniesPage = () => {
   const [selectedFlavourIdx, setSelectedFlavourIdx] = useState(0);
   const [decorationStyle, setDecorationStyle] = useState('');
   const [decorationStylePrice, setDecorationStylePrice] = useState(0);
-  const [addon, setAddon] = useState('');
-  const [addonPrice, setAddonPrice] = useState(0);
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -123,7 +122,7 @@ const SpecificBrowniesPage = () => {
   const flavourOptions = Array.isArray(brownie.flavours) ? brownie.flavours : [];
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
-  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + (addonPrice || 0);
+  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + calculateTotalAddonPrice();
 
   const breadcrumbs = [
     'Collections',
@@ -152,6 +151,30 @@ const SpecificBrowniesPage = () => {
     });
   };
 
+  const handleAddonToggle = (addon) => {
+    setSelectedAddons(prev => {
+      if (prev.includes(addon)) {
+        return prev.filter(a => a !== addon);
+      } else {
+        return [...prev, addon];
+      }
+    });
+  };
+
+  const getAddonPrice = (addon) => {
+    switch(addon) {
+      case 'Candles': return 2.00;
+      case 'Cake Topper': return 5.00;
+      case 'Gift Wrap': return 3.00;
+      case 'Message Card': return 1.00;
+      default: return 0;
+    }
+  };
+
+  const calculateTotalAddonPrice = () => {
+    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
+  };
+
   const handleAddToCart = () => {
     if (!brownie) return;
     const cartItem = {
@@ -165,8 +188,11 @@ const SpecificBrowniesPage = () => {
       selectedFlavour: selectedFlavour,
       decorationStyle: decorationStyle,
       decorationStylePrice: decorationStylePrice,
-      addon: addon,
-      addonPrice: addonPrice,
+      addons: selectedAddons,
+      addonPrices: selectedAddons.map(addon => ({
+        name: addon,
+        price: getAddonPrice(addon)
+      })),
       notes: notes
     };
     addToCart(cartItem);
@@ -298,27 +324,26 @@ const SpecificBrowniesPage = () => {
                   </select>
                 </div>
               )}
-              {brownie.addOns && brownie.addOns.length > 0 && (
-                <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Add Ons</label>
-                  <select
-                    className="specific-cake-dropdown"
-                    value={addon}
-                    onChange={(e) => {
-                      const selected = brownie.addOns.find(a => a.name === e.target.value);
-                      setAddon(e.target.value);
-                      setAddonPrice(selected ? Number(selected.price) : 0);
-                    }}
-                  >
-                    <option value="">Choose</option>
-                    {brownie.addOns.map((addOn, idx) => (
-                      <option key={idx} value={addOn.name}>
-                        {addOn.name} {addOn.price ? `(+£${Number(addOn.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+              <div className="specific-cake-selector-group">
+                <span className="specific-cake-selector-label">Add ons:</span>
+                <div className="specific-cake-addons-container">
+                  {[
+                    { name: 'Candles', price: '£2.00' },
+                    { name: 'Cake Topper', price: '£5.00' },
+                    { name: 'Gift Wrap', price: '£3.00' },
+                    { name: 'Message Card', price: '£1.00' }
+                  ].map((addon) => (
+                    <button
+                      key={addon.name}
+                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
+                      onClick={() => handleAddonToggle(addon.name)}
+                    >
+                      <span className="addon-name">{addon.name}</span>
+                      <span className="addon-price">{addon.price}</span>
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
             <div className="specific-cake-textareas-row">
               <div className="specific-cake-textarea-group">

@@ -23,7 +23,7 @@ const SpecificCakePage = () => {
   const [topperPrice, setTopperPrice] = useState(0);
   const [notes, setNotes] = useState('');
   const [occasion, setOccasion] = useState('');
-  const [addon, setAddon] = useState('');
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Header modal states
@@ -135,7 +135,36 @@ const SpecificCakePage = () => {
   const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
   const selectedShape = shapeOptions[selectedShapeIdx] || { price: 0, name: '' };
   const selectedFinish = finishOptions[selectedFinishIdx] || { price: 0, name: '' };
-  const totalPrice = (selectedSize.price || 0) + (selectedShape.price || 0) + (selectedFinish.price || 0) + (topperPrice || 0);
+
+  const handleAddonToggle = (addon) => {
+    setSelectedAddons(prev => {
+      if (prev.includes(addon)) {
+        return prev.filter(a => a !== addon);
+      } else {
+        return [...prev, addon];
+      }
+    });
+  };
+
+  const getAddonPrice = (addon) => {
+    switch(addon) {
+      case 'Candles': return 3.00;
+      case 'Cake Topper': return 5.00;
+      case 'Gift Wrap': return 4.00;
+      case 'Message Card': return 2.00;
+      default: return 0;
+    }
+  };
+
+  const calculateTotalAddonPrice = () => {
+    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
+  };
+
+  const totalPrice = (selectedSize.price || 0) + 
+                    (selectedShape.price || 0) + 
+                    (selectedFinish.price || 0) + 
+                    (topperPrice || 0) + 
+                    calculateTotalAddonPrice();
 
   const mainCategory = (cake.categories && cake.categories[0]) || 'Cakes';
   const breadcrumbs = [
@@ -186,13 +215,17 @@ const SpecificCakePage = () => {
       topper: topper,
       topperPrice: topperPrice,
       occasion: occasion,
-      addon: addon,
+      addons: selectedAddons,
+      addonPrices: selectedAddons.map(addon => ({
+        name: addon,
+        price: getAddonPrice(addon)
+      })),
       notes: notes
     };
 
     addToCart(cartItem);
     setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000); // Hide after 3 seconds
+    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   return (
@@ -366,17 +399,23 @@ const SpecificCakePage = () => {
               </div>
               <div className="specific-cake-selector-group">
                 <span className="specific-cake-selector-label">Add ons:</span>
-                <select
-                  className="specific-cake-dropdown"
-                  value={addon}
-                  onChange={e => setAddon(e.target.value)}
-                >
-                  <option value="">Choose</option>
-                  <option value="Candles">Candles</option>
-                  <option value="Cake Topper">Cake Topper</option>
-                  <option value="Gift Wrap">Gift Wrap</option>
-                  <option value="Message Card">Message Card</option>
-                </select>
+                <div className="specific-cake-addons-container">
+                  {[
+                    { name: 'Candles', price: '£3.00' },
+                    { name: 'Cake Topper', price: '£5.00' },
+                    { name: 'Gift Wrap', price: '£4.00' },
+                    { name: 'Message Card', price: '£2.00' }
+                  ].map((addon) => (
+                    <button
+                      key={addon.name}
+                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
+                      onClick={() => handleAddonToggle(addon.name)}
+                    >
+                      <span className="addon-name">{addon.name}</span>
+                      <span className="addon-price">{addon.price}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
 const RegularForm = ({
@@ -19,6 +19,8 @@ const RegularForm = ({
   cakes,
   editingCake
 }) => {
+  const [newAddOn, setNewAddOn] = useState({ name: '', price: '' });
+
   return (
     <>
       <div className="cakemanagement-form-group full-width">
@@ -302,6 +304,62 @@ const RegularForm = ({
             onClick={handleAddFinish}
           >
             <FaPlus /> Add Finish
+          </button>
+        </div>
+      </div>
+
+      <div className="cakemanagement-form-group full-width">
+        <label>Add-ons</label>
+        <div className="cakemanagement-addons">
+          {(newCake.addOns || []).map((addOn, index) => (
+            <div key={index} className="cakemanagement-addon-item">
+              <span>{addOn.name}</span>
+              <span className="cakemanagement-addon-price">+£{addOn.price.toFixed(2)}</span>
+              <button
+                type="button"
+                className="cakemanagement-remove-addon-btn"
+                onClick={() => {
+                  const newAddOns = [...newCake.addOns];
+                  newAddOns.splice(index, 1);
+                  setNewCake({ ...newCake, addOns: newAddOns });
+                }}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="cakemanagement-add-addon">
+          <input
+            type="text"
+            placeholder="Add add-on (e.g. Extra Toppings, Special Message)"
+            value={newAddOn.name}
+            onChange={(e) => setNewAddOn({ ...newAddOn, name: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Price (£)"
+            min="0"
+            step="0.01"
+            value={newAddOn.price}
+            onChange={(e) => setNewAddOn({ ...newAddOn, price: e.target.value })}
+          />
+          <button
+            type="button"
+            className="cakemanagement-add-addon-btn"
+            onClick={() => {
+              if (!newAddOn.name.trim() || newAddOn.price === '') return;
+              setNewCake({
+                ...newCake,
+                addOns: [...(newCake.addOns || []), {
+                  name: newAddOn.name.trim(),
+                  price: parseFloat(newAddOn.price)
+                }]
+              });
+              setNewAddOn({ name: '', price: '' });
+            }}
+          >
+            <FaPlus /> Add Add-on
           </button>
         </div>
       </div>

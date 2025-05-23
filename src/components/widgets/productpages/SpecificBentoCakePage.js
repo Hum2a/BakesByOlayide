@@ -22,8 +22,7 @@ const SpecificBentoCakePage = () => {
   const [topperPrice, setTopperPrice] = useState(0);
   const [decorationStyle, setDecorationStyle] = useState('');
   const [decorationStylePrice, setDecorationStylePrice] = useState(0);
-  const [addon, setAddon] = useState('');
-  const [addonPrice, setAddonPrice] = useState(0);
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -124,7 +123,17 @@ const SpecificBentoCakePage = () => {
   const flavourOptions = Array.isArray(bento.flavours) ? bento.flavours : [];
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
-  const totalPrice = (selectedSize.price || 0) + (topperPrice || 0) + (decorationStylePrice || 0) + (addonPrice || 0);
+  const getAddonPrice = (addon) => {
+    const foundAddon = bento.addOns.find(a => a.name === addon);
+    return foundAddon ? Number(foundAddon.price) : 0;
+  };
+  const calculateTotalAddonPrice = () => {
+    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
+  };
+  const totalPrice = (selectedSize.price || 0) + 
+                    (topperPrice || 0) + 
+                    (decorationStylePrice || 0) + 
+                    calculateTotalAddonPrice();
 
   const breadcrumbs = [
     'Collections',
@@ -153,6 +162,16 @@ const SpecificBentoCakePage = () => {
     });
   };
 
+  const handleAddonToggle = (addon) => {
+    setSelectedAddons(prev => {
+      if (prev.includes(addon)) {
+        return prev.filter(a => a !== addon);
+      } else {
+        return [...prev, addon];
+      }
+    });
+  };
+
   const handleAddToCart = () => {
     if (!bento) return;
     const cartItem = {
@@ -168,8 +187,11 @@ const SpecificBentoCakePage = () => {
       topperPrice: topperPrice,
       decorationStyle: decorationStyle,
       decorationStylePrice: decorationStylePrice,
-      addon: addon,
-      addonPrice: addonPrice,
+      addons: selectedAddons,
+      addonPrices: selectedAddons.map(addon => ({
+        name: addon,
+        price: getAddonPrice(addon)
+      })),
       notes: notes
     };
     addToCart(cartItem);
@@ -325,22 +347,18 @@ const SpecificBentoCakePage = () => {
               {bento.addOns && bento.addOns.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Add Ons</label>
-                  <select
-                    className="specific-cake-dropdown"
-                    value={addon}
-                    onChange={(e) => {
-                      const selected = bento.addOns.find(a => a.name === e.target.value);
-                      setAddon(e.target.value);
-                      setAddonPrice(selected ? Number(selected.price) : 0);
-                    }}
-                  >
-                    <option value="">Choose</option>
+                  <div className="specific-cake-addons-container">
                     {bento.addOns.map((addOn, idx) => (
-                      <option key={idx} value={addOn.name}>
-                        {addOn.name} {addOn.price ? `(+£${Number(addOn.price).toFixed(2)})` : ''}
-                      </option>
+                      <button
+                        key={idx}
+                        className={`specific-cake-addon-toggle ${selectedAddons.includes(addOn.name) ? 'selected' : ''}`}
+                        onClick={() => handleAddonToggle(addOn.name)}
+                      >
+                        <span className="addon-name">{addOn.name}</span>
+                        <span className="addon-price">+£{Number(addOn.price).toFixed(2)}</span>
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
             </div>
