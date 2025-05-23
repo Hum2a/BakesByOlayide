@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore';
-import { deleteUser, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import '../styles/SettingsModal.css';
 
@@ -67,6 +67,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
     label: 'home' // home, work, other
   });
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [changePasswordError, setChangePasswordError] = useState(null);
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -371,6 +377,45 @@ const SettingsModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setChangePasswordError(null);
+    setChangePasswordSuccess(null);
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setChangePasswordError('Please fill in all fields.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setChangePasswordError('New passwords do not match.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setChangePasswordError('New password must be at least 6 characters.');
+      return;
+    }
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('No user logged in');
+      // Re-authenticate
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      // Update password
+      await updatePassword(user, newPassword);
+      setChangePasswordSuccess('Password changed successfully!');
+      setShowChangePassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setTimeout(() => setChangePasswordSuccess(null), 3000);
+    } catch (error) {
+      if (error.code === 'auth/wrong-password') {
+        setChangePasswordError('Incorrect current password.');
+      } else {
+        setChangePasswordError(error.message || 'Failed to change password.');
+      }
+    }
+  };
+
   if (!isOpen) return null;
 
   if (loading) {
@@ -395,6 +440,18 @@ const SettingsModal = ({ isOpen, onClose }) => {
         {saveError && (
           <div className="settings-error">
             {saveError}
+          </div>
+        )}
+        
+        {changePasswordSuccess && (
+          <div className="settings-error" style={{ background: '#e6ffed', color: '#27ae60', border: '1px solid #b2f2bb' }}>
+            {changePasswordSuccess}
+          </div>
+        )}
+        
+        {changePasswordError && (
+          <div className="settings-error">
+            {changePasswordError}
           </div>
         )}
         
@@ -793,7 +850,49 @@ const SettingsModal = ({ isOpen, onClose }) => {
         <div className="settings-section">
           <h3><FaLock /> Privacy & Security</h3>
           <div className="setting-item">
-            <button className="change-password">Change Password</button>
+            {!showChangePassword ? (
+              <button className="change-password" onClick={() => setShowChangePassword(true)}>Change Password</button>
+            ) : (
+              <form className="change-password-form" onSubmit={handleChangePassword}>
+                <div className="setting-item">
+                  <label>Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                  />
+                </div>
+                <div className="setting-item">
+                  <label>New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div className="setting-item">
+                  <label>Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={confirmNewPassword}
+                    onChange={e => setConfirmNewPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                </div>
+                <div className="payment-form-buttons">
+                  <button type="submit" className="save-payment">Change Password</button>
+                  <button type="button" className="cancel-payment" onClick={() => {
+                    setShowChangePassword(false);
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmNewPassword('');
+                    setChangePasswordError(null);
+                  }}>Cancel</button>
+                </div>
+              </form>
+            )}
           </div>
           <div className="setting-item">
             {!deleteConfirm ? (
