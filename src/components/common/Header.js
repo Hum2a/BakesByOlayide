@@ -6,6 +6,9 @@ import SearchModal from '../modals/SearchModal';
 import AuthModal from '../modals/AuthModal';
 import ProfileModal from '../modals/ProfileModal';
 import CartModal from '../modals/CartModal';
+import ProfileDropdown from '../widgets/ProfileDropdown';
+import OrderHistoryModal from '../modals/OrderHistoryModal';
+import SettingsModal from '../modals/SettingsModal';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({
@@ -24,8 +27,45 @@ const Header = ({
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
+
+  // Handle dropdown/modal open logic
+  const handleDropdownModalOpen = (modalType) => {
+    switch (modalType) {
+      case 'profile':
+        setIsProfileModalOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      case 'orders':
+        setIsOrdersOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      case 'cart':
+        setIsCartOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      case 'settings':
+        setIsSettingsOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      case 'auth':
+        setIsAuthOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      case 'search':
+        setIsSearchOpen(true);
+        setIsProfileDropdownOpen(false);
+        break;
+      default:
+        setIsProfileDropdownOpen(false);
+        break;
+    }
+  };
 
   return (
     <>
@@ -60,7 +100,7 @@ const Header = ({
             {user ? (
               <button 
                 className="auth-nav-button profile-button"
-                onClick={() => setIsProfileOpen(true)}
+                onClick={() => setIsProfileDropdownOpen(true)}
               >
                 {user.photoURL ? (
                   <img src={user.photoURL} alt="Profile" className="profile-image" />
@@ -108,7 +148,16 @@ const Header = ({
       </header>
       {isSearchOpen && <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
       {isAuthOpen && <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />}
-      {isProfileOpen && <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />}
+      {isProfileDropdownOpen && (
+        <ProfileDropdown
+          isOpen={isProfileDropdownOpen}
+          onClose={() => setIsProfileDropdownOpen(false)}
+          onModalOpen={handleDropdownModalOpen}
+        />
+      )}
+      {isProfileModalOpen && <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />}
+      {isOrdersOpen && <OrderHistoryModal isOpen={isOrdersOpen} onClose={() => setIsOrdersOpen(false)} />}
+      {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
       {isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
     </>
   );
