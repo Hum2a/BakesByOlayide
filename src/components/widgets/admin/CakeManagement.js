@@ -10,6 +10,7 @@ import BentocakeForm from './forms/BentocakeForm';
 import BrowniesForm from './forms/BrowniesForm';
 import CookiesForm from './forms/CookiesForm';
 import RegularForm from './forms/RegularForm';
+import EditForm from './forms/EditForm';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -64,7 +65,14 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       isDairyFree: false
     },
     fillings: [],
-    relatedProducts: []
+    relatedProducts: [],
+    quantities: [],
+    occasions: [],
+    toppers: [],
+    decorationStyles: [],
+    addOns: [],
+    flavours: [],
+    maxQuantity: ''
   });
 
   const [newSize, setNewSize] = useState({
@@ -473,11 +481,40 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         isDairyFree: false
       },
       fillings: [],
-      relatedProducts: []
+      relatedProducts: [],
+      quantities: [],
+      occasions: [],
+      toppers: [],
+      decorationStyles: [],
+      addOns: [],
+      flavours: [],
+      maxQuantity: ''
     });
   };
 
   const renderFormByCategory = () => {
+    if (editingCake) {
+      return (
+        <EditForm
+          newCake={newCake}
+          setNewCake={setNewCake}
+          newSize={newSize}
+          setNewSize={setNewSize}
+          handleAddSize={handleAddSize}
+          handleRemoveSize={handleRemoveSize}
+          handleAddShape={handleAddShape}
+          handleRemoveShape={handleRemoveShape}
+          newShape={newShape}
+          setNewShape={setNewShape}
+          handleAddFinish={handleAddFinish}
+          handleRemoveFinish={handleRemoveFinish}
+          newFinish={newFinish}
+          setNewFinish={setNewFinish}
+          cakes={cakes}
+          editingCake={editingCake}
+        />
+      );
+    }
     switch (selectedCategory) {
       case 'Cupcakes':
         return (

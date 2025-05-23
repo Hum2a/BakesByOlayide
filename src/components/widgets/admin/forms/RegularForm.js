@@ -24,7 +24,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Sizes and Prices*</label>
         <div className="cakemanagement-sizes">
-          {newCake.sizes.map((size, index) => (
+          {(newCake.sizes || []).map((size, index) => (
             <div key={index} className="cakemanagement-size-item">
               <div className="cakemanagement-size-info">
                 <span className="cakemanagement-size-name">{size.size}"</span>
@@ -80,7 +80,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Shapes*</label>
         <div className="cakemanagement-shapes">
-          {newCake.shapes.map((shape, index) => (
+          {(newCake.shapes || []).map((shape, index) => (
             <div key={index} className="cakemanagement-shape-item">
               <span>{shape.name}</span>
               <span className="cakemanagement-shape-price">+£{shape.price.toFixed(2)}</span>
@@ -125,28 +125,28 @@ const RegularForm = ({
           <input
             type="number"
             placeholder="Length"
-            value={newCake.dimensions.length}
+            value={newCake.dimensions?.length || ''}
             onChange={(e) => setNewCake({
               ...newCake,
-              dimensions: { ...newCake.dimensions, length: e.target.value }
+              dimensions: { ...(newCake.dimensions || {}), length: e.target.value }
             })}
           />
           <input
             type="number"
             placeholder="Width"
-            value={newCake.dimensions.width}
+            value={newCake.dimensions?.width || ''}
             onChange={(e) => setNewCake({
               ...newCake,
-              dimensions: { ...newCake.dimensions, width: e.target.value }
+              dimensions: { ...(newCake.dimensions || {}), width: e.target.value }
             })}
           />
           <input
             type="number"
             placeholder="Height"
-            value={newCake.dimensions.height}
+            value={newCake.dimensions?.height || ''}
             onChange={(e) => setNewCake({
               ...newCake,
-              dimensions: { ...newCake.dimensions, height: e.target.value }
+              dimensions: { ...(newCake.dimensions || {}), height: e.target.value }
             })}
           />
         </div>
@@ -165,7 +165,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Ingredients*</label>
         <div className="cakemanagement-array-fields">
-          {newCake.ingredients.map((ingredient, index) => (
+          {(newCake.ingredients || []).map((ingredient, index) => (
             <div key={index} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -199,7 +199,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Allergens</label>
         <div className="cakemanagement-array-fields">
-          {newCake.allergens.map((allergen, index) => (
+          {(newCake.allergens || []).map((allergen, index) => (
             <div key={index} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -233,7 +233,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Customization Options</label>
         <div className="cakemanagement-array-fields">
-          {newCake.customizationOptions.map((option, index) => (
+          {(newCake.customizationOptions || []).map((option, index) => (
             <div key={index} className="cakemanagement-array-field">
               <input
                 type="text"
@@ -267,7 +267,7 @@ const RegularForm = ({
       <div className="cakemanagement-form-group full-width">
         <label>Finishes</label>
         <div className="cakemanagement-finishes">
-          {newCake.finishes.map((finish, index) => (
+          {(newCake.finishes || []).map((finish, index) => (
             <div key={index} className="cakemanagement-finish-item">
               <span>{finish.name}</span>
               <span className="cakemanagement-finish-price">+£{finish.price.toFixed(2)}</span>
