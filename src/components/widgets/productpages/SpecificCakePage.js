@@ -5,6 +5,7 @@ import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/fires
 import { useCart } from '../../../context/CartContext';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
+import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 
@@ -38,7 +39,6 @@ const SpecificCakePage = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -241,6 +241,13 @@ const SpecificCakePage = () => {
         setIsProfileOpen={setIsProfileOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         handleModalOpen={handleModalOpen}
+        isAuthOpen={isAuthOpen}
+        setIsAuthOpen={setIsAuthOpen}
+      />
+      <ProfileDropdown
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
       />
       {showSuccess && (
         <div className="add-to-cart-success">

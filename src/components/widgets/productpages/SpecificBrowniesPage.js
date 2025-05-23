@@ -44,19 +44,28 @@ const SpecificBrowniesPage = () => {
   const handleMobileMenuClick = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
   const handleProfileClick = () => {
     setIsProfileOpen(!isProfileOpen);
   };
+
   const handleAuthClick = () => {
     setIsAuthOpen(true);
   };
+
   const handleModalOpen = (modalType) => {
     switch (modalType) {
-      case 'auth': setIsAuthOpen(true); break;
-      case 'profile': setIsProfileOpen(true); break;
-      default: break;
+      case 'auth':
+        setIsAuthOpen(true);
+        break;
+      case 'profile':
+        setIsProfileOpen(true);
+        break;
+      default:
+        break;
     }
   };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -213,6 +222,8 @@ const SpecificBrowniesPage = () => {
         setIsProfileOpen={setIsProfileOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         handleModalOpen={handleModalOpen}
+        isAuthOpen={isAuthOpen}
+        setIsAuthOpen={setIsAuthOpen}
       />
       {showSuccess && (
         <div className="add-to-cart-success">

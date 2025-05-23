@@ -5,6 +5,7 @@ import { doc, getDoc, collection, query, getDocs, orderBy } from 'firebase/fires
 import { useCart } from '../../../context/CartContext';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
+import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 
@@ -46,19 +47,28 @@ const SpecificBentoCakePage = () => {
   const handleMobileMenuClick = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
   const handleProfileClick = () => {
     setIsProfileOpen(!isProfileOpen);
   };
+
   const handleAuthClick = () => {
     setIsAuthOpen(true);
   };
+
   const handleModalOpen = (modalType) => {
     switch (modalType) {
-      case 'auth': setIsAuthOpen(true); break;
-      case 'profile': setIsProfileOpen(true); break;
-      default: break;
+      case 'auth':
+        setIsAuthOpen(true);
+        break;
+      case 'profile':
+        setIsProfileOpen(true);
+        break;
+      default:
+        break;
     }
   };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -212,6 +222,13 @@ const SpecificBentoCakePage = () => {
         setIsProfileOpen={setIsProfileOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         handleModalOpen={handleModalOpen}
+        isAuthOpen={isAuthOpen}
+        setIsAuthOpen={setIsAuthOpen}
+      />
+      <ProfileDropdown
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
       />
       {showSuccess && (
         <div className="add-to-cart-success">
