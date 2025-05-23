@@ -27,6 +27,7 @@ const SpecificBentoCakePage = () => {
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [addOns, setAddOns] = useState([]);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -84,7 +85,12 @@ const SpecificBentoCakePage = () => {
         const bentoRef = doc(db, 'cakes', id);
         const bentoSnap = await getDoc(bentoRef);
         if (bentoSnap.exists()) {
-          setBento({ id: bentoSnap.id, ...bentoSnap.data() });
+          const bentoData = { id: bentoSnap.id, ...bentoSnap.data() };
+          setBento(bentoData);
+          // Set add-ons from Firebase
+          if (bentoData.addOns && Array.isArray(bentoData.addOns)) {
+            setAddOns(bentoData.addOns);
+          }
         }
         // Fetch all bentos for related products
         const bentosCol = collection(db, 'cakes');
@@ -134,8 +140,8 @@ const SpecificBentoCakePage = () => {
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
   const getAddonPrice = (addon) => {
-    const foundAddon = bento.addOns.find(a => a.name === addon);
-    return foundAddon ? Number(foundAddon.price) : 0;
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
   };
   const calculateTotalAddonPrice = () => {
     return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
@@ -372,7 +378,7 @@ const SpecificBentoCakePage = () => {
                         onClick={() => handleAddonToggle(addOn.name)}
                       >
                         <span className="addon-name">{addOn.name}</span>
-                        <span className="addon-price">+£{Number(addOn.price).toFixed(2)}</span>
+                        {/* <span className="addon-price">£{parseFloat(addOn.price).toFixed(2)}</span> */}
                       </button>
                     ))}
                   </div>

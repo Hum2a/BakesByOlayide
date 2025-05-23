@@ -26,6 +26,7 @@ const SpecificCakePage = () => {
   const [occasion, setOccasion] = useState('');
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [addOns, setAddOns] = useState([]);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -85,7 +86,12 @@ const SpecificCakePage = () => {
         const cakeRef = doc(db, 'cakes', id);
         const cakeSnap = await getDoc(cakeRef);
         if (cakeSnap.exists()) {
-          setCake({ id: cakeSnap.id, ...cakeSnap.data() });
+          const cakeData = { id: cakeSnap.id, ...cakeSnap.data() };
+          setCake(cakeData);
+          // Set add-ons from Firebase
+          if (cakeData.addOns && Array.isArray(cakeData.addOns)) {
+            setAddOns(cakeData.addOns);
+          }
         }
         // Fetch all cakes for related products
         const cakesCol = collection(db, 'cakes');
@@ -147,13 +153,8 @@ const SpecificCakePage = () => {
   };
 
   const getAddonPrice = (addon) => {
-    switch(addon) {
-      case 'Candles': return 3.00;
-      case 'Cake Topper': return 5.00;
-      case 'Gift Wrap': return 4.00;
-      case 'Message Card': return 2.00;
-      default: return 0;
-    }
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
   };
 
   const calculateTotalAddonPrice = () => {
@@ -407,19 +408,14 @@ const SpecificCakePage = () => {
               <div className="specific-cake-selector-group">
                 <span className="specific-cake-selector-label">Add ons:</span>
                 <div className="specific-cake-addons-container">
-                  {[
-                    { name: 'Candles', price: '£3.00' },
-                    { name: 'Cake Topper', price: '£5.00' },
-                    { name: 'Gift Wrap', price: '£4.00' },
-                    { name: 'Message Card', price: '£2.00' }
-                  ].map((addon) => (
+                  {addOns.map((addon) => (
                     <button
                       key={addon.name}
                       className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
                       onClick={() => handleAddonToggle(addon.name)}
                     >
                       <span className="addon-name">{addon.name}</span>
-                      <span className="addon-price">{addon.price}</span>
+                      {/* <span className="addon-price">£{parseFloat(addon.price).toFixed(2)}</span> */}
                     </button>
                   ))}
                 </div>

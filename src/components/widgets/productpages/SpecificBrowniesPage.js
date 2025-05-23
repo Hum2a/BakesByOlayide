@@ -24,6 +24,7 @@ const SpecificBrowniesPage = () => {
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [addOns, setAddOns] = useState([]);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -81,7 +82,12 @@ const SpecificBrowniesPage = () => {
         const brownieRef = doc(db, 'cakes', id);
         const brownieSnap = await getDoc(brownieRef);
         if (brownieSnap.exists()) {
-          setBrownie({ id: brownieSnap.id, ...brownieSnap.data() });
+          const brownieData = { id: brownieSnap.id, ...brownieSnap.data() };
+          setBrownie(brownieData);
+          // Set add-ons from Firebase
+          if (brownieData.addOns && Array.isArray(brownieData.addOns)) {
+            setAddOns(brownieData.addOns);
+          }
         }
         // Fetch all brownies for related products
         const cakesCol = collection(db, 'cakes');
@@ -171,13 +177,8 @@ const SpecificBrowniesPage = () => {
   };
 
   const getAddonPrice = (addon) => {
-    switch(addon) {
-      case 'Candles': return 2.00;
-      case 'Cake Topper': return 5.00;
-      case 'Gift Wrap': return 3.00;
-      case 'Message Card': return 1.00;
-      default: return 0;
-    }
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
   };
 
   const calculateTotalAddonPrice = () => {
@@ -338,19 +339,14 @@ const SpecificBrowniesPage = () => {
               <div className="specific-cake-selector-group">
                 <span className="specific-cake-selector-label">Add ons:</span>
                 <div className="specific-cake-addons-container">
-                  {[
-                    { name: 'Candles', price: '£2.00' },
-                    { name: 'Cake Topper', price: '£5.00' },
-                    { name: 'Gift Wrap', price: '£3.00' },
-                    { name: 'Message Card', price: '£1.00' }
-                  ].map((addon) => (
+                  {brownie.addOns && brownie.addOns.map((addOn, idx) => (
                     <button
-                      key={addon.name}
-                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
-                      onClick={() => handleAddonToggle(addon.name)}
+                      key={idx}
+                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addOn.name) ? 'selected' : ''}`}
+                      onClick={() => handleAddonToggle(addOn.name)}
                     >
-                      <span className="addon-name">{addon.name}</span>
-                      <span className="addon-price">{addon.price}</span>
+                      <span className="addon-name">{addOn.name}</span>
+                      {/* <span className="addon-price">£{parseFloat(addOn.price).toFixed(2)}</span> */}
                     </button>
                   ))}
                 </div>

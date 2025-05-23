@@ -20,12 +20,12 @@ const SpecificCookiesPage = () => {
   const [selectedFlavourIdx, setSelectedFlavourIdx] = useState(0);
   const [decorationStyle, setDecorationStyle] = useState('');
   const [decorationStylePrice, setDecorationStylePrice] = useState(0);
-  const [addon, setAddon] = useState('');
-  const [addonPrice, setAddonPrice] = useState(0);
-  const [notes, setNotes] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [user, setUser] = useState(null);
+  const [addOns, setAddOns] = useState([]);
+  const [notes, setNotes] = useState('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -41,7 +41,12 @@ const SpecificCookiesPage = () => {
         const cookieRef = doc(db, 'cakes', id);
         const cookieSnap = await getDoc(cookieRef);
         if (cookieSnap.exists()) {
-          setCookie({ id: cookieSnap.id, ...cookieSnap.data() });
+          const cookieData = { id: cookieSnap.id, ...cookieSnap.data() };
+          setCookie(cookieData);
+          // Set add-ons from Firebase
+          if (cookieData.addOns && Array.isArray(cookieData.addOns)) {
+            setAddOns(cookieData.addOns);
+          }
         }
         // Fetch all cookies for related products
         const cakesCol = collection(db, 'cakes');
@@ -90,7 +95,7 @@ const SpecificCookiesPage = () => {
   const flavourOptions = Array.isArray(cookie.flavours) ? cookie.flavours : [];
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
-  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + (addonPrice || 0);
+  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + (getAddonPrice(selectedAddons.join(',')) || 0);
   const maxQuantity = cookie.maxQuantity ? parseInt(cookie.maxQuantity, 10) : 20;
 
   const breadcrumbs = [
@@ -133,13 +138,26 @@ const SpecificCookiesPage = () => {
       selectedFlavour: selectedFlavour,
       decorationStyle: decorationStyle,
       decorationStylePrice: decorationStylePrice,
-      addon: addon,
-      addonPrice: addonPrice,
+      addon: selectedAddons.join(','),
+      addonPrice: getAddonPrice(selectedAddons.join(',')),
       notes: notes
     };
     addToCart(cartItem);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
+  };
+
+  const getAddonPrice = (addon) => {
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
+  };
+
+  const handleAddonToggle = (addon) => {
+    if (selectedAddons.includes(addon)) {
+      setSelectedAddons(selectedAddons.filter(a => a !== addon));
+    } else {
+      setSelectedAddons([...selectedAddons, addon]);
+    }
   };
 
   return (
@@ -269,22 +287,18 @@ const SpecificCookiesPage = () => {
               {cookie.addOns && cookie.addOns.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Add Ons</label>
-                  <select
-                    className="specific-cake-dropdown"
-                    value={addon}
-                    onChange={(e) => {
-                      const selected = cookie.addOns.find(a => a.name === e.target.value);
-                      setAddon(e.target.value);
-                      setAddonPrice(selected ? Number(selected.price) : 0);
-                    }}
-                  >
-                    <option value="">Choose</option>
+                  <div className="specific-cake-addons-container">
                     {cookie.addOns.map((addOn, idx) => (
-                      <option key={idx} value={addOn.name}>
-                        {addOn.name} {addOn.price ? `(+£${Number(addOn.price).toFixed(2)})` : ''}
-                      </option>
+                      <button
+                        key={idx}
+                        className={`specific-cake-addon-toggle ${selectedAddons.includes(addOn.name) ? 'selected' : ''}`}
+                        onClick={() => handleAddonToggle(addOn.name)}
+                      >
+                        <span className="addon-name">{addOn.name}</span>
+                        {/* <span className="addon-price">£{parseFloat(addOn.price).toFixed(2)}</span> */}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
             </div>
