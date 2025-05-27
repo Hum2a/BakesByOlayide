@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
 const BentocakeForm = ({ newCake, setNewCake }) => {
+  // Set default size when component mounts
+  useEffect(() => {
+    if (!newCake.size) {
+      setNewCake(prev => ({ ...prev, size: '6 inch' }));
+    }
+  }, []);
+
   return (
     <>
       <div className="cakemanagement-form-group full-width">
