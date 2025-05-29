@@ -180,7 +180,7 @@
 .carousel-arrow {
   background: transparent;
   border: none;
-  color: #000;
+  color: #fff;
   font-size: 3rem;
   width: 50px;
   height: 50px;
@@ -193,16 +193,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.7;
+  opacity: 0.85;
+  border-radius: 50%;
+}
+
+.carousel-arrow.left {
+  left: 24px;
+}
+.carousel-arrow.right {
+  right: 24px;
 }
 
 .carousel-arrow:hover {
   opacity: 1;
-  transform: translateY(-50%) scale(1.1);
+  background: rgba(0,0,0,0.35);
 }
-
-.carousel-arrow.left { left: -60px; }
-.carousel-arrow.right { right: -60px; }
 
 .carousel-dots {
   display: flex;
@@ -212,18 +217,18 @@
 }
 
 .carousel-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #ccc;
+  background: #000;
   display: inline-block;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .carousel-dot.active {
-  background: #000;
-  transform: scale(1.2);
+  background: #888;
+  transform: scale(1.1);
 }
 
 @media (max-width: 1000px) {

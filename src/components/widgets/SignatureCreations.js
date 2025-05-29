@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../styles/SignatureCreations.css';
 
 const cakeData = [
@@ -83,7 +84,9 @@ const SignatureCreations = () => {
     <section className="homepage-featured-cakes">
       <h2>Our Range</h2>
       <div className="signature-carousel">
-        <button className="carousel-arrow left" onClick={prevSlide} aria-label="Previous">&#8249;</button>
+        <button className="carousel-arrow left" onClick={prevSlide} aria-label="Previous">
+          <FaChevronLeft size={38} color="#fff" />
+        </button>
         {cakeData.map((cake, idx) => (
           <a
             href={cake.link}
@@ -99,7 +102,9 @@ const SignatureCreations = () => {
             <h3>{cake.title}</h3>
           </a>
         ))}
-        <button className="carousel-arrow right" onClick={nextSlide} aria-label="Next">&#8250;</button>
+        <button className="carousel-arrow right" onClick={nextSlide} aria-label="Next">
+          <FaChevronRight size={38} color="#fff" />
+        </button>
       </div>
       <div className="carousel-dots">
         {cakeData.map((_, idx) => (
