@@ -512,77 +512,76 @@ const Checkout = () => {
           <h2>Order Summary</h2>
           <div className="checkout-items">
             {cart.map((item) => (
-              <div key={item.id} className="checkout-item" style={{ display: 'flex', alignItems: 'flex-start', borderBottom: '1px solid #eee', padding: '1.5rem 0' }}>
-                {/* Image on the left */}
-                <div style={{ minWidth: 100, minHeight: 100, background: '#eee', borderRadius: 8, marginRight: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div key={item.id} className="checkout-item">
+                {/* Left: Image */}
+                <div className="checkout-item-image">
                   {item.image ? (
-                    <img src={item.image} alt={item.name} style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                    <img src={item.image} alt={item.name} />
                   ) : null}
                 </div>
-                {/* Details in two columns */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'row', gap: 32 }}>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: 0, fontWeight: 600 }}>{item.name}</h3>
+                {/* Price in top right */}
+                <div className="checkout-item-price-absolute">
+                  £{item.price.toFixed(2)}
+                </div>
+                {/* Right: Details */}
+                <div className="checkout-item-details">
+                  <div className="checkout-item-attributes">
+                    <h3>{item.name}</h3>
                     {item.selectedSize && (
-                      <div>Size: {item.selectedSize.size}{typeof item.selectedSize.size === 'number' ? '"' : ''}</div>
+                      <div><span className="checkout-attr-label">Size:</span> {item.selectedSize.size}{typeof item.selectedSize.size === 'number' ? '"' : ''}</div>
+                    )}
+                    {item.batchSize && (
+                      <div><span className="checkout-attr-label">Batch Size:</span> {item.batchSize}</div>
                     )}
                     {item.selectedShape && (
-                      <div>Shape: {item.selectedShape.name}</div>
+                      <div><span className="checkout-attr-label">Shape:</span> {item.selectedShape.name}</div>
+                    )}
+                    {item.decorationStyle && (
+                      <div><span className="checkout-attr-label">Decoration Style:</span> {item.decorationStyle}</div>
                     )}
                     {item.selectedFinish && (
-                      <div>Finish: {item.selectedFinish.name}</div>
+                      <div><span className="checkout-attr-label">Finish:</span> {item.selectedFinish.name}</div>
                     )}
                     {item.occasion && (
-                      <div>Occasion: {item.occasion}</div>
+                      <div><span className="checkout-attr-label">Occasion:</span> {item.occasion}</div>
                     )}
                     {item.topper && (
-                      <div>Topper: {item.topper}</div>
+                      <div><span className="checkout-attr-label">Topper:</span> {item.topper}</div>
                     )}
                     {item.addon && (
-                      <div>Add ons: {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
+                      <div><span className="checkout-attr-label">Add ons:</span> {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
                     )}
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div className="checkout-item-meta">
                     {item.designInspiration && (
-                      <div>Design Inspiration: {item.designInspiration}</div>
+                      <div className="checkout-design-inspiration"><span className="checkout-attr-label">Design Inspirations:</span><br />{item.designInspiration}</div>
                     )}
                     {item.notes && (
-                      <div>Additional Notes: <span style={{ color: '#444' }}>{item.notes}</span></div>
+                      <div className="checkout-additional-notes"><span className="checkout-attr-label">Additional Notes:</span><br /><span className="checkout-notes-text">{item.notes}</span></div>
                     )}
                   </div>
                 </div>
-                {/* Price and controls on the right */}
-                <div style={{ minWidth: 120, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>£{item.price.toFixed(2)}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>Quantity:</span>
+                {/* Actions in bottom right */}
+                <div className="checkout-item-actions">
+                  <Link to={`/change/${item.id}`} className="checkout-change-link">Change</Link>
+                  <div className="checkout-item-quantity-controls">
+                    <span className="checkout-quantity-label">Quantity:</span>
                     <button 
-                      className="quantity-btn"
+                      className="checkout-quantity-btn"
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       aria-label="Decrease quantity"
-                      style={{ minWidth: 28 }}
                     >
                       -
                     </button>
-                    <span className="quantity">{item.quantity}</span>
+                    <span className="checkout-quantity">{item.quantity}</span>
                     <button 
-                      className="quantity-btn"
+                      className="checkout-quantity-btn"
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       aria-label="Increase quantity"
-                      style={{ minWidth: 28 }}
                     >
                       +
                     </button>
                   </div>
-                  <button 
-                    className="remove-btn"
-                    onClick={() => removeFromCart(item.id)}
-                    aria-label="Remove item"
-                    style={{ marginTop: 8 }}
-                  >
-                    Remove
-                  </button>
-                  <Link to={`/change/${item.id}`} style={{ color: '#222', textDecoration: 'underline', marginTop: 8, fontSize: 14 }}>Change</Link>
                 </div>
               </div>
             ))}
@@ -674,8 +673,7 @@ const Checkout = () => {
             </div>
           </div>
         ) : (
-          <div className="payment-section">
-            <h2>Payment Information</h2>
+          <div>
             {guestInfo && (
               <div className="guest-info-summary">
                 <h3>Order Information</h3>
