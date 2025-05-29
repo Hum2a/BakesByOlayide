@@ -103,6 +103,40 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
       </div>
 
       <div className="cakemanagement-form-group full-width">
+        <label>Allergens</label>
+        <div className="cakemanagement-array-fields">
+          {(Array.isArray(newCake.allergens) ? newCake.allergens : []).map((allergen, index) => (
+            <div key={index} className="cakemanagement-array-field">
+              <input
+                type="text"
+                value={allergen}
+                onChange={e => {
+                  const newArray = [...newCake.allergens];
+                  newArray[index] = e.target.value;
+                  setNewCake({ ...newCake, allergens: newArray });
+                }}
+                placeholder="Enter allergen"
+              />
+              <button
+                type="button"
+                className="cakemanagement-remove-btn"
+                onClick={() => setNewCake({ ...newCake, allergens: newCake.allergens.filter((_, i) => i !== index) })}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="cakemanagement-add-field-btn"
+            onClick={() => setNewCake({ ...newCake, allergens: [...(Array.isArray(newCake.allergens) ? newCake.allergens : []), ''] })}
+          >
+            <FaPlus /> Add Allergen
+          </button>
+        </div>
+      </div>
+
+      <div className="cakemanagement-form-group full-width">
         <label>Toppers</label>
         <div className="cakemanagement-array-fields">
           {(Array.isArray(newCake.toppers) ? newCake.toppers : []).map((item, idx) => (
