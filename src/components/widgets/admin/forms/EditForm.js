@@ -49,14 +49,6 @@ const EditForm = ({
           placeholder="Comma separated categories"
         />
       </div>
-      <div className="cakemanagement-form-group">
-        <label>Image URL</label>
-        <input
-          type="text"
-          value={newCake.image || ''}
-          onChange={e => setNewCake({ ...newCake, image: e.target.value })}
-        />
-      </div>
       <div className="cakemanagement-form-group availability-options">
         <label>
           <input

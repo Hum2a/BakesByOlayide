@@ -35,7 +35,7 @@ const CATEGORY_TABS = [
 const CakeManagement = ({ cakes, onUpdate }) => {
   const [showNewCakeForm, setShowNewCakeForm] = useState(false);
   const [editingCake, setEditingCake] = useState(null);
-  const [cakeImage, setCakeImage] = useState(null);
+  const [cakeImages, setCakeImages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -115,9 +115,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   }, []);
 
   const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setCakeImage(e.target.files[0]);
-    }
+    const files = Array.from(e.target.files).slice(0, 5);
+    setCakeImages(files);
   };
 
   const handleArrayFieldAdd = (field) => {
@@ -333,7 +332,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     try {
       setLoading(true);
       setError(null);
-      let imageUrl = '';
+      let imageUrls = [];
 
       // Check if user is authenticated
       const user = auth.currentUser;
@@ -352,24 +351,24 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         throw new Error('User does not have permission to manage cakes');
       }
 
-      if (cakeImage) {
-        // Validate image size (5MB max)
-        if (cakeImage.size > 5 * 1024 * 1024) {
-          throw new Error('Image size must be less than 5MB');
+      if (cakeImages && cakeImages.length > 0) {
+        for (let i = 0; i < cakeImages.length; i++) {
+          const img = cakeImages[i];
+          if (img.size > 5 * 1024 * 1024) {
+            throw new Error('Each image must be less than 5MB');
+          }
+          if (!img.type.startsWith('image/')) {
+            throw new Error('All files must be images');
+          }
+          const storageRef = ref(storage, `cakes/${img.name}_${Date.now()}_${i}`);
+          await uploadBytes(storageRef, img);
+          const url = await getDownloadURL(storageRef);
+          imageUrls.push(url);
         }
-
-        // Validate image type
-        if (!cakeImage.type.startsWith('image/')) {
-          throw new Error('File must be an image');
-        }
-
-        const storageRef = ref(storage, `cakes/${cakeImage.name}_${Date.now()}`);
-        await uploadBytes(storageRef, cakeImage);
-        imageUrl = await getDownloadURL(storageRef);
       }
 
-      if (imageUrl) {
-        newCake.image = imageUrl;
+      if (imageUrls.length > 0) {
+        newCake.images = imageUrls;
       }
 
       // Ensure category is set
@@ -428,8 +427,16 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   };
 
   const handleEditCake = (cake) => {
+    // Ensure images is always an array of up to 5 images
+    let imagesArr = [];
+    if (Array.isArray(cake.images) && cake.images.length > 0) {
+      imagesArr = [...cake.images].slice(0, 5);
+    } else if (cake.image) {
+      imagesArr = [cake.image];
+    }
+    while (imagesArr.length < 5) imagesArr.push('');
     setEditingCake(cake);
-    setNewCake({ ...cake, relatedProducts: cake.relatedProducts || [] });
+    setNewCake({ ...cake, images: imagesArr, relatedProducts: cake.relatedProducts || [] });
     setShowNewCakeForm(true);
   };
 
@@ -456,7 +463,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const resetForm = () => {
     setShowNewCakeForm(false);
     setEditingCake(null);
-    setCakeImage(null);
+    setCakeImages([]);
     setSelectedCategory(null);
     setNewCake({
       name: '',
@@ -738,18 +745,70 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 </div>
 
                 <div className="cakemanagement-form-group">
-                  <label>Cake Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                  {editingCake && editingCake.image && (
-                    <div className="cakemanagement-current-image">
-                      <img src={editingCake.image} alt="Current cake" />
-                      <p>Current image will be kept if no new image is uploaded</p>
-                    </div>
-                  )}
+                  <label>Cake Images (up to 5)</label>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {[0,1,2,3,4].map(idx => {
+                      const imgUrl = (Array.isArray(newCake.images) ? newCake.images[idx] : undefined) || (editingCake && Array.isArray(editingCake.images) ? editingCake.images[idx] : undefined) || '';
+                      return (
+                        <div key={idx} style={{ width: 110, height: 110, border: '1.5px dashed #ccc', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: '#fafafa' }}>
+                          {imgUrl ? (
+                            <>
+                              <img src={imgUrl} alt={`Cake ${idx+1}`} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 6, objectFit: 'cover' }} />
+                              <button
+                                type="button"
+                                className="cakemanagement-remove-btn"
+                                style={{ position: 'absolute', top: 2, right: 2, zIndex: 2, background: '#fff', borderRadius: '50%' }}
+                                onClick={() => {
+                                  const updated = Array.isArray(newCake.images) ? [...newCake.images] : [];
+                                  updated[idx] = '';
+                                  setNewCake({ ...newCake, images: updated });
+                                }}
+                              >
+                                <FaTimes />
+                              </button>
+                            </>
+                          ) : (
+                            <label style={{ cursor: 'pointer', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#bbb' }}>
+                              <FaPlus size={22} />
+                              <span style={{ fontSize: 12 }}>Add Image</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={async (e) => {
+                                  const file = e.target.files[0];
+                                  if (!file) return;
+                                  if (file.size > 5 * 1024 * 1024) {
+                                    setError('Each image must be less than 5MB');
+                                    return;
+                                  }
+                                  if (!file.type.startsWith('image/')) {
+                                    setError('All files must be images');
+                                    return;
+                                  }
+                                  setLoading(true);
+                                  try {
+                                    const storageRef = ref(storage, `cakes/${file.name}_${Date.now()}_${idx}`);
+                                    await uploadBytes(storageRef, file);
+                                    const url = await getDownloadURL(storageRef);
+                                    let updated = Array.isArray(newCake.images) ? [...newCake.images] : [];
+                                    while (updated.length < 5) updated.push('');
+                                    updated[idx] = url;
+                                    setNewCake({ ...newCake, images: updated });
+                                  } catch (err) {
+                                    setError('Failed to upload image');
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p style={{ fontSize: '0.9em', color: '#888', marginTop: 6 }}>You can upload up to 5 images. Click an image to remove or replace it.</p>
                 </div>
 
                 <div className="cakemanagement-form-group availability-options">

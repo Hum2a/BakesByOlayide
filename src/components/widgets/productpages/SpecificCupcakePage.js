@@ -176,7 +176,7 @@ const SpecificCupcakePage = () => {
   ];
   const relatedProducts = (allCupcakes || [])
     .filter(c => c.id !== cupcake.id && c.categories && c.categories.includes(mainCategory))
-    .slice(0, 3);
+    .slice(0, 6);
 
   const renderStars = (rating) => {
     const stars = [];
