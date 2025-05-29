@@ -3,25 +3,25 @@ import '../styles/SignatureCreations.css';
 
 const cakeData = [
   {
-    img: '/range/Cupcakes.png',
+    img: '/range/cupcakes.png',
     alt: 'Cupcakes',
     title: 'Cupcakes',
     link: '/collections/cupcakes',
   },
   {
-    img: '/range/LargeCakes.png',
+    img: '/range/largecakes.png',
     alt: 'Large Cakes',
     title: 'Large Cakes',
     link: '/collections/large-cakes',
   },
   {
-    img: '/range/BentoCake.png',
+    img: '/range/bentocake.png',
     alt: 'Bento with Cupcakes',
     title: 'Bento with Cupcakes',
     link: '/collections/bento-cake-with-cupcakes',
   },
   {
-    img: '/range/Brownies.png',
+    img: '/range/brownies.png',
     alt: 'Brownies',
     title: 'Brownies',
     link: '/collections/brownies',
