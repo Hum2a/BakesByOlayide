@@ -54,36 +54,27 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const [availableDates, setAvailableDates] = useState([]);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showClock, setShowClock] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
   useEffect(() => {
-    // Generate dates for the next month (including next 3 days that will be disabled)
+    // Generate dates for the next month (including next 5 days that will be disabled)
     const dates = [];
     const today = new Date();
-    
-    // Calculate the end date (45 days from today to show plenty of future dates)
     const endDate = new Date(today);
     endDate.setDate(today.getDate() + 45);
-
-    // Generate all dates from tomorrow until end date
     let currentDate = new Date(today);
     currentDate.setDate(today.getDate() + 1);
-
     while (currentDate <= endDate) {
       dates.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
     setAvailableDates(dates);
-
-    // Generate available times (9 AM to 5 PM)
+    // Generate available times (9 AM to 7 PM, every 30 min)
     const times = [];
-    for (let hour = 9; hour <= 17; hour++) {
+    for (let hour = 9; hour <= 19; hour++) {
       times.push(`${hour}:00`);
-      times.push(`${hour}:30`);
+      if (hour !== 19) times.push(`${hour}:30`);
     }
     setAvailableTimes(times);
     setLoading(false);
@@ -92,7 +83,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const isDateDisabled = (date) => {
     const today = new Date();
     const minPickupDate = new Date(today);
-    minPickupDate.setDate(today.getDate() + 3);
+    minPickupDate.setDate(today.getDate() + 5); // 5 days notice
     return date < minPickupDate;
   };
 
@@ -100,31 +91,25 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     if (!isDateDisabled(date)) {
       setSelectedDate(date);
       setPickupDate(date.toISOString());
-      setShowCalendar(false);
     }
   };
 
   const handleTimeSelect = (time) => {
     setSelectedTime(time);
     setPickupTime(time);
-    setShowClock(false);
   };
 
-  const formatDatesByWeek = (dates) => {
+  const formatDatesByWeekMondayStart = (dates) => {
     const weeks = [];
     let currentWeek = [];
-    
     if (dates.length === 0) return weeks;
-
-    // Get the first date's week start (Sunday)
+    // Get the first date's week start (Monday)
     const firstDate = new Date(dates[0]);
-    const daysUntilSunday = firstDate.getDay();
-    
-    // Add empty slots for days before the first date
-    for (let i = 0; i < daysUntilSunday; i++) {
+    let dayOfWeek = firstDate.getDay();
+    dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // convert Sunday=0 to 6, Monday=1 to 0
+    for (let i = 0; i < dayOfWeek; i++) {
       currentWeek.push(null);
     }
-
     dates.forEach((date) => {
       if (currentWeek.length === 7) {
         weeks.push(currentWeek);
@@ -132,13 +117,10 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
       }
       currentWeek.push(date);
     });
-
-    // Fill the last week with null values if needed
     while (currentWeek.length < 7) {
       currentWeek.push(null);
     }
     weeks.push(currentWeek);
-
     return weeks;
   };
 
@@ -146,122 +128,75 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     return <div className="loading">Loading pickup options...</div>;
   }
 
-  const datesByWeek = formatDatesByWeek(availableDates);
+  const datesByWeek = formatDatesByWeekMondayStart(availableDates);
 
   return (
     <div className="pickup-schedule">
-      <h3>Schedule Pickup</h3>
-      <div className="schedule-grid">
-        <div className="form-group">
-          <label htmlFor="pickupDate">Pickup Date *</label>
-          <div className="custom-picker">
-            <div 
-              className="picker-input"
-              onClick={() => setShowCalendar(!showCalendar)}
-            >
-              {selectedDate ? selectedDate.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-              }) : 'Select a date'}
-              <span className="picker-icon">📅</span>
-            </div>
-            {showCalendar && (
-              <div className="calendar-popup">
-                <div className="calendar-header">
-                  <h4>Select Pickup Date</h4>
-                  <button 
-                    className="close-popup"
-                    onClick={() => setShowCalendar(false)}
+      <h3 style={{ textAlign: 'left', marginBottom: '2rem' }}>Schedule Order</h3>
+      <div className="schedule-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        {/* Calendar and notice */}
+        <div>
+          <label style={{ fontWeight: 600, marginBottom: 8, display: 'block', textAlign: 'left', fontFamily: 'serif', fontSize: '1.3rem' }}>Pick-up Date:</label>
+          <div className="pickup-notice" style={{ margin: '0 0 1.2rem 0', fontWeight: 400, textAlign: 'left', fontFamily: 'serif', fontSize: '1.1rem', padding: 0 }}>
+            All orders require a minimum of 5 days notice before pick-up.
+          </div>
+          <div className="weekday-header" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: 4 }}>
+            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+              <div key={day} className="weekday-name" style={{ textAlign: 'center', fontWeight: 400 }}>{day}</div>
+            ))}
+          </div>
+          <div className="calendar-month">
+            {datesByWeek.map((week, weekIndex) => (
+              <div key={weekIndex} className="calendar-week" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0 }}>
+                {week.map((date, dayIndex) => (
+                  <div
+                    key={dayIndex}
+                    className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
+                    style={{
+                      background: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? '#e0e0e0' : '',
+                      color: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? '#111' : '',
+                      borderRadius: 0,
+                      cursor: date && !isDateDisabled(date) ? 'pointer' : 'not-allowed',
+                      minHeight: 40,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? 700 : 400
+                    }}
+                    onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
                   >
-                    ×
-                  </button>
-                </div>
-                <div className="pickup-notice" style={{ margin: '0.5rem 1rem', fontSize: '0.9rem' }}>
-                  Please note: Orders require a minimum of 3 days preparation time.
-                </div>
-                <div className="weekday-header">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="weekday-name">{day}</div>
-                  ))}
-                </div>
-                <div className="calendar-month">
-                  {datesByWeek.map((week, weekIndex) => (
-                    <div key={weekIndex} className="calendar-week">
-                      {week.map((date, dayIndex) => (
-                        <div
-                          key={dayIndex}
-                          className={`calendar-day ${
-                            date ? (
-                              selectedDate?.toDateString() === date.toDateString() 
-                                ? 'selected' 
-                                : ''
-                            ) : 'empty'
-                          } ${date && isDateDisabled(date) ? 'disabled' : ''}`}
-                          onClick={() => date && handleDateSelect(date)}
-                        >
-                          {date && (
-                            <>
-                              <span className="day-number">
-                                {date.getDate()}
-                              </span>
-                              <span className="month-name">
-                                {date.toLocaleDateString('en-US', { month: 'short' })}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
+                    {date ? date.getDate() : ''}
+                  </div>
+                ))}
               </div>
-            )}
+            ))}
           </div>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="pickupTime">Pickup Time *</label>
-          <div className="custom-picker">
-            <div 
-              className="picker-input"
-              onClick={() => setShowClock(!showClock)}
-            >
-              {selectedTime || 'Select a time'}
-              <span className="picker-icon">⏰</span>
-            </div>
-            {showClock && (
-              <div className="clock-popup">
-                <div className="clock-header">
-                  <h4>Select Pickup Time</h4>
-                  <button 
-                    className="close-popup"
-                    onClick={() => setShowClock(false)}
-                  >
-                    ×
-                  </button>
-                </div>
-                <div className="clock-grid">
-                  {availableTimes.map((time) => (
-                    <div
-                      key={time}
-                      className={`clock-time ${selectedTime === time ? 'selected' : ''}`}
-                      onClick={() => handleTimeSelect(time)}
-                    >
-                      {time}
-                    </div>
-                  ))}
-                </div>
+        {/* Time slots */}
+        <div>
+          <label style={{ fontWeight: 600, marginBottom: 8, display: 'block', textAlign: 'left', fontFamily: 'serif', fontSize: '1.3rem' }}>Pick-up Time:</label>
+          <div className="clock-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+            {availableTimes.map((time) => (
+              <div
+                key={time}
+                className={`clock-time${selectedTime === time ? ' selected' : ''}`}
+                style={{
+                  background: selectedTime === time ? '#e0e0e0' : 'none',
+                  color: '#111',
+                  border: 'none',
+                  borderRadius: 0,
+                  padding: '0.7rem 0',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  fontWeight: selectedTime === time ? 700 : 400
+                }}
+                onClick={() => handleTimeSelect(time)}
+              >
+                {time}
               </div>
-            )}
+            ))}
           </div>
         </div>
-      </div>
-
-      <div className="pickup-notice">
-        <p>📍 Pickup Location: 123 Bakery Street, London, UK</p>
-        <p>⏰ Store Hours: 9:00 AM - 5:00 PM, Monday to Saturday</p>
-        <p>📞 Contact: +44 123 456 7890</p>
       </div>
     </div>
   );
