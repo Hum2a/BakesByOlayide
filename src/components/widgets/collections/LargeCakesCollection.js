@@ -179,7 +179,7 @@ const LargeCakesCollection = () => {
         Our Large Cakes are perfect for celebrations and special occasions. Choose from a variety of flavours and designs.
       </div>
       <section className="cupcake-section">
-        <h2>Flavours of the Season</h2>
+        <h2>Featured Flavours</h2>
         <div className="cupcake-flavours-grid">
           {largeCakes.seasonal?.map((largeCake) => (
             <div className="cupcake-flavour-card" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>

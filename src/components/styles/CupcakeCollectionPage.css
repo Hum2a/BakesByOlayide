@@ -51,10 +51,14 @@
 }
 .cupcake-description {
   max-width: 900px;
-  margin: 0 auto 2.5rem auto;
-  color: #222;
-  font-size: 1.15rem;
+  margin: 2.5rem auto 2.5rem auto;
+  color: rgba(130, 130, 130, 1);
   font-family: 'Old Standard TT', serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 150%;
+  letter-spacing: 0%;
+  text-align: center;
 }
 
 .cupcake-section {

@@ -175,7 +175,6 @@ const BrowniesCollection = () => {
         Our brownies are rich, fudgy, and perfect for any chocolate lover. Try our classic and seasonal flavours!
       </div>
       <section className="cupcake-section">
-        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {brownies.seasonal?.map((brownie) => (
             <div className="cupcake-flavour-card" key={brownie.id} onClick={() => navigate(`/collections/brownies/${brownie.id}`)} style={{ cursor: 'pointer' }}>

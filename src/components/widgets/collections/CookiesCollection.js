@@ -175,7 +175,6 @@ const CookiesCollection = () => {
         Our cookies are baked fresh daily and come in a variety of flavours. Perfect for snacking or sharing!
       </div>
       <section className="cupcake-section">
-        <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
           {cookies.seasonal?.map((cookie) => (
             <div className="cupcake-flavour-card" key={cookie.id} onClick={() => navigate(`/collections/cookies/${cookie.id}`)} style={{ cursor: 'pointer' }}>

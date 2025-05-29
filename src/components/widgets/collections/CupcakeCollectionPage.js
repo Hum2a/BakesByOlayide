@@ -184,23 +184,26 @@ const CupcakeCollectionPage = () => {
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>
         <div className="cupcake-flavours-grid">
-          {cupcakes.seasonal?.map((cake) => (
-            <div 
-              className="cupcake-flavour-card" 
-              key={cake.id}
-              onClick={() => handleCupcakeClick(cake.id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
-              <div className="cupcake-flavour-info">
-                <h3>{cake.name}</h3>
-                <p>{cake.description}</p>
-                <span className="cupcake-flavour-price">
-                  From £{Math.min(...cake.sizes.map(size => size.price)).toFixed(2)} / 6 box
-                </span>
+          {cupcakes.seasonal?.map((cake) => {
+            const dozenSize = cake.sizes.find(size => Number(size.size) === 12);
+            return (
+              <div 
+                className="cupcake-flavour-card" 
+                key={cake.id}
+                onClick={() => handleCupcakeClick(cake.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
+                <div className="cupcake-flavour-info">
+                  <h3>{cake.name}</h3>
+                  <p>{cake.description}</p>
+                  <span className="cupcake-flavour-price">
+                    {dozenSize ? `From £${dozenSize.price.toFixed(2)} / dozen` : 'Price unavailable'}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
       <section className="cupcake-section">
@@ -220,7 +223,7 @@ const CupcakeCollectionPage = () => {
                 <div className="cupcake-standard-info">
                   <h3>{cake.name}</h3>
                   <span className="cupcake-standard-price">
-                    From £{Math.min(...cake.sizes.map(size => size.price)).toFixed(2)} / 6 box
+                    {cake.sizes && cake.sizes.find(size => Number(size.size) === 12) ? `From £${cake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
                   </span>
                 </div>
               </div>
