@@ -806,7 +806,7 @@
 .specific-cake-addon-toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: rgba(224, 224, 224, 1);
@@ -819,6 +819,7 @@
   transition: all 0.2s ease;
   min-width: 140px;
   flex: 1;
+  text-align: center;
 }
 
 .specific-cake-addon-toggle:hover {
@@ -834,7 +835,7 @@
 
 .specific-cake-addon-toggle .addon-name {
   flex: 1;
-  text-align: left;
+  text-align: center;
 }
 
 .specific-cake-addon-toggle .addon-price {

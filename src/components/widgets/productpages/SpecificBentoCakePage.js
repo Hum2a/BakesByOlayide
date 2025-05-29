@@ -28,6 +28,7 @@ const SpecificBentoCakePage = () => {
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
+  const [occasion, setOccasion] = useState("");
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -346,6 +347,23 @@ const SpecificBentoCakePage = () => {
                   </select>
                 </div>
               )}
+              {Array.isArray(bento.occasions) && bento.occasions.length > 0 && (
+                <div className="specific-cake-selector-group">
+                  <label className="specific-cake-selector-label">Occasion</label>
+                  <select
+                    className="specific-cake-dropdown"
+                    value={occasion}
+                    onChange={(e) => setOccasion(e.target.value)}
+                  >
+                    <option value="">No special occasion</option>
+                    {bento.occasions.map((occasionOption, idx) => (
+                      <option key={idx} value={occasionOption.name}>
+                        {occasionOption.name} (+£{Number(occasionOption.price).toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               {Array.isArray(bento.toppers) && bento.toppers.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Topper</label>
@@ -369,7 +387,7 @@ const SpecificBentoCakePage = () => {
               )}
               {bento.addOns && bento.addOns.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Add Ons</label>
+                  <span className="specific-cake-selector-label">Add Ons</span>
                   <div className="specific-cake-addons-container">
                     {bento.addOns.map((addOn, idx) => (
                       <button
@@ -378,7 +396,6 @@ const SpecificBentoCakePage = () => {
                         onClick={() => handleAddonToggle(addOn.name)}
                       >
                         <span className="addon-name">{addOn.name}</span>
-                        {/* <span className="addon-price">£{parseFloat(addOn.price).toFixed(2)}</span> */}
                       </button>
                     ))}
                   </div>

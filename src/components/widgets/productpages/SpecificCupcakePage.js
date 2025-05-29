@@ -157,9 +157,16 @@ const SpecificCupcakePage = () => {
     return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
   };
 
-  const totalPrice = (selectedSize.price || 0) + 
-                    (topperPrice || 0) + 
-                    calculateTotalAddonPrice();
+  const handleTopperChange = (e) => {
+    const selectedTopper = cupcake.toppers.find(t => t.name === e.target.value);
+    setTopper(e.target.value);
+    setTopperPrice(selectedTopper && !isNaN(Number(selectedTopper.price)) ? Number(selectedTopper.price) : 0);
+  };
+
+  const totalPrice =
+    Number(selectedSize.price || 0) +
+    Number(topperPrice || 0) +
+    Number(calculateTotalAddonPrice ? calculateTotalAddonPrice() : 0);
 
   const mainCategory = 'Cupcakes';
   const breadcrumbs = [
@@ -334,28 +341,6 @@ const SpecificCupcakePage = () => {
                 </div>
               )}
 
-              {cupcake.toppers && cupcake.toppers.length > 0 && (
-                <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Topper</label>
-                  <select
-                    className="specific-cake-dropdown"
-                    value={topper}
-                    onChange={(e) => {
-                      const selectedTopper = cupcake.toppers.find(t => t.name === e.target.value);
-                      setTopper(e.target.value);
-                      setTopperPrice(selectedTopper ? selectedTopper.price : 0);
-                    }}
-                  >
-                    <option value="">No topper</option>
-                    {cupcake.toppers.map((topperOption, idx) => (
-                      <option key={idx} value={topperOption.name}>
-                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               {cupcake.occasions && cupcake.occasions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Occasion</label>
@@ -368,6 +353,24 @@ const SpecificCupcakePage = () => {
                     {cupcake.occasions.map((occasionOption, idx) => (
                       <option key={idx} value={occasionOption.name}>
                         {occasionOption.name} (+£{Number(occasionOption.price).toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {cupcake.toppers && cupcake.toppers.length > 0 && (
+                <div className="specific-cake-selector-group">
+                  <label className="specific-cake-selector-label">Topper</label>
+                  <select
+                    className="specific-cake-dropdown"
+                    value={topper}
+                    onChange={handleTopperChange}
+                  >
+                    <option value="">No topper</option>
+                    {cupcake.toppers.map((topperOption, idx) => (
+                      <option key={idx} value={topperOption.name}>
+                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
                       </option>
                     ))}
                   </select>

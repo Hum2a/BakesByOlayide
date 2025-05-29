@@ -368,58 +368,43 @@ const SpecificCakePage = () => {
                   <option value="Other">Other</option>
                 </select>
               </div>
-              <div className="specific-cake-selector-group">
-                <span className="specific-cake-selector-label">Topper:</span>
-                <select
-                  className="specific-cake-dropdown"
-                  value={topper}
-                  onChange={e => {
-                    setTopper(e.target.value);
-                    // Set topper price based on selection
-                    switch(e.target.value) {
-                      case 'Happy Birthday':
-                        setTopperPrice(5.00);
-                        break;
-                      case 'Congratulations':
-                        setTopperPrice(7.00);
-                        break;
-                      case 'Happy Anniversary':
-                        setTopperPrice(6.00);
-                        break;
-                      case 'Baby Shower':
-                        setTopperPrice(8.00);
-                        break;
-                      case 'Custom Message':
-                        setTopperPrice(10.00);
-                        break;
-                      default:
-                        setTopperPrice(0);
-                    }
-                  }}
-                >
-                  <option value="">Choose</option>
-                  <option value="Happy Birthday">Happy Birthday (£5.00)</option>
-                  <option value="Congratulations">Congratulations (£7.00)</option>
-                  <option value="Happy Anniversary">Happy Anniversary (£6.00)</option>
-                  <option value="Baby Shower">Baby Shower (£8.00)</option>
-                  <option value="Custom Message">Custom Message (£10.00)</option>
-                </select>
-              </div>
-              <div className="specific-cake-selector-group">
-                <span className="specific-cake-selector-label">Add ons:</span>
-                <div className="specific-cake-addons-container">
-                  {addOns.map((addon) => (
-                    <button
-                      key={addon.name}
-                      className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
-                      onClick={() => handleAddonToggle(addon.name)}
-                    >
-                      <span className="addon-name">{addon.name}</span>
-                      {/* <span className="addon-price">£{parseFloat(addon.price).toFixed(2)}</span> */}
-                    </button>
-                  ))}
+              {cake.toppers && cake.toppers.length > 0 && (
+                <div className="specific-cake-selector-group">
+                  <label className="specific-cake-selector-label">Topper</label>
+                  <select
+                    className="specific-cake-dropdown"
+                    value={topper}
+                    onChange={e => {
+                      const selectedTopper = cake.toppers.find(t => t.name === e.target.value);
+                      setTopper(e.target.value);
+                      setTopperPrice(selectedTopper ? selectedTopper.price : 0);
+                    }}
+                  >
+                    <option value="">No topper</option>
+                    {cake.toppers.map((topperOption, idx) => (
+                      <option key={idx} value={topperOption.name}>
+                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+              )}
+              {addOns && addOns.length > 0 && (
+                <div className="specific-cake-selector-group">
+                  <span className="specific-cake-selector-label">Add ons:</span>
+                  <div className="specific-cake-addons-container">
+                    {addOns.map((addon) => (
+                      <button
+                        key={addon.name}
+                        className={`specific-cake-addon-toggle ${selectedAddons.includes(addon.name) ? 'selected' : ''}`}
+                        onClick={() => handleAddonToggle(addon.name)}
+                      >
+                        <span className="addon-name">{addon.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
