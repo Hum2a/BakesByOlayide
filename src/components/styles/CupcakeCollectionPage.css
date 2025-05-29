@@ -306,4 +306,89 @@
   .cakepage-mobile-menu-toggle {
     display: block;
   }
+}
+
+.seasonal-flavours-scroll {
+  overflow-x: auto;
+  width: 100vw;
+  padding-bottom: 1.5rem;
+}
+.seasonal-flavours-flex {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  min-width: 900px;
+  max-width: 1400px;
+  margin: 0 auto 0 0;
+}
+.seasonal-flavour-large {
+  flex: 0 0 520px;
+  max-width: 520px;
+  min-width: 320px;
+  display: flex;
+  align-items: stretch;
+}
+.seasonal-flavour-large .cupcake-flavour-card {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  max-height: 600px;
+  font-size: 1.1rem;
+}
+.seasonal-flavour-large .cupcake-flavour-img {
+  height: 340px;
+  object-fit: cover;
+}
+.seasonal-flavour-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: flex-start;
+}
+.seasonal-flavour-small {
+  width: 340px;
+  min-width: 260px;
+  max-width: 340px;
+  min-height: 180px;
+  max-height: 220px;
+  font-size: 1rem;
+}
+.seasonal-flavour-small .cupcake-flavour-img {
+  height: 120px;
+  object-fit: cover;
+}
+@media (max-width: 1100px) {
+  .seasonal-flavours-flex {
+    min-width: 700px;
+    gap: 1rem;
+  }
+  .seasonal-flavour-large {
+    flex-basis: 340px;
+    max-width: 340px;
+  }
+  .seasonal-flavour-small {
+    width: 220px;
+    max-width: 220px;
+  }
+}
+@media (max-width: 700px) {
+  .seasonal-flavours-flex {
+    min-width: 400px;
+    gap: 0.5rem;
+  }
+  .seasonal-flavour-large {
+    flex-basis: 220px;
+    max-width: 220px;
+  }
+  .seasonal-flavour-small {
+    width: 140px;
+    max-width: 140px;
+    font-size: 0.95rem;
+  }
+  .seasonal-flavour-large .cupcake-flavour-img {
+    height: 120px;
+  }
+  .seasonal-flavour-small .cupcake-flavour-img {
+    height: 70px;
+  }
 } 

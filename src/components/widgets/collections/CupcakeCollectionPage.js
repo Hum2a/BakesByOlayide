@@ -183,28 +183,49 @@ const CupcakeCollectionPage = () => {
       </div>
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>
-        <div className="cupcake-flavours-grid">
-          {cupcakes.seasonal?.map((cake) => {
-            const dozenSize = cake.sizes.find(size => Number(size.size) === 12);
-            return (
-              <div 
-                className="cupcake-flavour-card" 
-                key={cake.id}
-                onClick={() => handleCupcakeClick(cake.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
-                <div className="cupcake-flavour-info">
-                  <h3>{cake.name}</h3>
-                  <p>{cake.description}</p>
-                  <span className="cupcake-flavour-price">
-                    {dozenSize ? `From £${dozenSize.price.toFixed(2)} / dozen` : 'Price unavailable'}
-                  </span>
-                </div>
+        {cupcakes.seasonal && cupcakes.seasonal.length > 0 && (
+          <div className="seasonal-flavours-scroll">
+            <div className="seasonal-flavours-flex">
+              {/* Large card for the first flavour */}
+              <div className="seasonal-flavour-large">
+                {(() => {
+                  const cake = cupcakes.seasonal[0];
+                  const dozenSize = cake.sizes.find(size => Number(size.size) === 12);
+                  return (
+                    <div className="cupcake-flavour-card" key={cake.id} onClick={() => handleCupcakeClick(cake.id)} style={{ cursor: 'pointer' }}>
+                      <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{cake.name}</h3>
+                        <p>{cake.description}</p>
+                        <span className="cupcake-flavour-price">
+                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
-            );
-          })}
-        </div>
+              {/* Stack the rest vertically */}
+              <div className="seasonal-flavour-vertical">
+                {cupcakes.seasonal.slice(1).map((cake) => {
+                  const dozenSize = cake.sizes.find(size => Number(size.size) === 12);
+                  return (
+                    <div className="cupcake-flavour-card seasonal-flavour-small" key={cake.id} onClick={() => handleCupcakeClick(cake.id)} style={{ cursor: 'pointer' }}>
+                      <img src={cake.image} alt={cake.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{cake.name}</h3>
+                        <p>{cake.description}</p>
+                        <span className="cupcake-flavour-price">
+                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
       <section className="cupcake-section">
         <h2>Standard Range</h2>
