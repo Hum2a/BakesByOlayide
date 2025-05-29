@@ -243,6 +243,7 @@ const CupcakeCollectionPage = () => {
                 <img src={cake.image} alt={cake.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{cake.name}</h3>
+                  <p>{cake.description}</p>
                   <span className="cupcake-standard-price">
                     {cake.sizes && cake.sizes.find(size => Number(size.size) === 12) ? `From £${cake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
                   </span>
