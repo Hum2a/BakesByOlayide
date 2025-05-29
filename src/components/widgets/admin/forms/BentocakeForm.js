@@ -12,6 +12,61 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
   return (
     <>
       <div className="cakemanagement-form-group full-width">
+        <label>Cupcake Quantities (Sizes)</label>
+        <div className="cakemanagement-sizes">
+          {(Array.isArray(newCake.sizes) ? newCake.sizes : []).map((sizeObj, idx) => (
+            <div key={idx} className="cakemanagement-size-item">
+              <div className="cakemanagement-size-info">
+                <span className="cakemanagement-size-name">{sizeObj.size} cupcakes</span>
+                <span className="cakemanagement-size-price">£{sizeObj.price ? Number(sizeObj.price).toFixed(2) : '0.00'}</span>
+              </div>
+              <button
+                type="button"
+                className="cakemanagement-remove-size-btn"
+                onClick={() => setNewCake({ ...newCake, sizes: newCake.sizes.filter((_, i) => i !== idx) })}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="cakemanagement-add-size">
+          <div className="cakemanagement-size-inputs">
+            <input
+              type="number"
+              placeholder="Number of cupcakes"
+              min="1"
+              value={newCake.newCupcakeSize || ''}
+              onChange={e => setNewCake({ ...newCake, newCupcakeSize: e.target.value })}
+            />
+            <input
+              type="number"
+              placeholder="Price (£)"
+              min="0"
+              step="0.01"
+              value={newCake.newCupcakePrice || ''}
+              onChange={e => setNewCake({ ...newCake, newCupcakePrice: e.target.value })}
+            />
+          </div>
+          <button
+            type="button"
+            className="cakemanagement-add-size-btn"
+            onClick={() => {
+              if (!newCake.newCupcakeSize || !newCake.newCupcakePrice) return;
+              setNewCake({
+                ...newCake,
+                sizes: [...(Array.isArray(newCake.sizes) ? newCake.sizes : []), { size: newCake.newCupcakeSize, price: newCake.newCupcakePrice }],
+                newCupcakeSize: '',
+                newCupcakePrice: ''
+              });
+            }}
+          >
+            <FaPlus /> Add Quantity
+          </button>
+        </div>
+      </div>
+
+      <div className="cakemanagement-form-group full-width">
         <label>Flavours</label>
         <div className="cakemanagement-array-fields">
           {(Array.isArray(newCake.flavours) ? newCake.flavours : []).map((flavour, idx) => (
