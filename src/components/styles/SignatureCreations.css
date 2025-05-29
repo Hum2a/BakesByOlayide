@@ -120,7 +120,7 @@
 
 .carousel-slide {
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
   text-align: center;
   position: absolute;
   left: 0;
@@ -150,7 +150,6 @@
 
 .carousel-slide img {
   width: 100%;
-  max-width: 850px;
   height: 595px;
   object-fit: cover;
   border-radius: 18px;
