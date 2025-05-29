@@ -577,24 +577,55 @@ const Checkout = () => {
           <h2>Order Summary</h2>
           <div className="checkout-items">
             {cart.map((item) => (
-              <div key={item.id} className="checkout-item">
-                <img src={item.image} alt={item.name} className="checkout-item-image" />
-                <div className="checkout-item-details">
-                  <h3>{item.name}</h3>
-                  {item.selectedSize && (
-                    <div className="checkout-item-option">Size: {item.selectedSize.size}"</div>
-                  )}
-                  {item.selectedShape && (
-                    <div className="checkout-item-option">Shape: {item.selectedShape.name}</div>
-                  )}
-                  {item.notes && (
-                    <div className="checkout-item-notes">Notes: {item.notes}</div>
-                  )}
-                  <div className="quantity-controls">
+              <div key={item.id} className="checkout-item" style={{ display: 'flex', alignItems: 'flex-start', borderBottom: '1px solid #eee', padding: '1.5rem 0' }}>
+                {/* Image on the left */}
+                <div style={{ minWidth: 100, minHeight: 100, background: '#eee', borderRadius: 8, marginRight: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                  ) : null}
+                </div>
+                {/* Details in two columns */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'row', gap: 32 }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, fontWeight: 600 }}>{item.name}</h3>
+                    {item.selectedSize && (
+                      <div>Size: {item.selectedSize.size}{typeof item.selectedSize.size === 'number' ? '"' : ''}</div>
+                    )}
+                    {item.selectedShape && (
+                      <div>Shape: {item.selectedShape.name}</div>
+                    )}
+                    {item.selectedFinish && (
+                      <div>Finish: {item.selectedFinish.name}</div>
+                    )}
+                    {item.occasion && (
+                      <div>Occasion: {item.occasion}</div>
+                    )}
+                    {item.topper && (
+                      <div>Topper: {item.topper}</div>
+                    )}
+                    {item.addon && (
+                      <div>Add ons: {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    {item.designInspiration && (
+                      <div>Design Inspiration: {item.designInspiration}</div>
+                    )}
+                    {item.notes && (
+                      <div>Additional Notes: <span style={{ color: '#444' }}>{item.notes}</span></div>
+                    )}
+                  </div>
+                </div>
+                {/* Price and controls on the right */}
+                <div style={{ minWidth: 120, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>£{item.price.toFixed(2)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>Quantity:</span>
                     <button 
                       className="quantity-btn"
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
                       aria-label="Decrease quantity"
+                      style={{ minWidth: 28 }}
                     >
                       -
                     </button>
@@ -603,25 +634,20 @@ const Checkout = () => {
                       className="quantity-btn"
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
                       aria-label="Increase quantity"
+                      style={{ minWidth: 28 }}
                     >
                       +
                     </button>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => removeFromCart(item.id)}
-                      aria-label="Remove item"
-                    >
-                      Remove
-                    </button>
                   </div>
-                </div>
-                <div className="checkout-item-price-column">
-                  <p className="checkout-item-price">
-                    ${item.price.toFixed(2)} each
-                  </p>
-                  <p className="checkout-item-total">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </p>
+                  <button 
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.id)}
+                    aria-label="Remove item"
+                    style={{ marginTop: 8 }}
+                  >
+                    Remove
+                  </button>
+                  <Link to={`/change/${item.id}`} style={{ color: '#222', textDecoration: 'underline', marginTop: 8, fontSize: 14 }}>Change</Link>
                 </div>
               </div>
             ))}
@@ -634,10 +660,10 @@ const Checkout = () => {
               Add More Items
             </button>
           </div>
-          <div className="checkout-totals">
+          <div className="checkout-totals" style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '2px solid #eee' }}>
             <div className="total-row">
-              <span>Subtotal</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>Subtotal:</span>
+              <span>£{totalPrice.toFixed(2)}</span>
             </div>
             
             <div className="discount-section">
