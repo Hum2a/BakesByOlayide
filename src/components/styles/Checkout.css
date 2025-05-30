@@ -581,7 +581,7 @@
 }
 
 .calendar-day.selected {
-  background: #e0e0e0;
+  background: #f3c307;
   color: #111;
   font-weight: 700;
 }
@@ -632,7 +632,7 @@
 }
 
 .clock-time.selected {
-  background: #e0e0e0;
+  background: #f3c307;
   color: #111;
   font-weight: 700;
 }

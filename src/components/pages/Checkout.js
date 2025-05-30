@@ -153,8 +153,6 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
                     key={dayIndex}
                     className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
                     style={{
-                      background: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? '#e0e0e0' : '',
-                      color: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? '#111' : '',
                       borderRadius: 0,
                       cursor: date && !isDateDisabled(date) ? 'pointer' : 'not-allowed',
                       minHeight: 40,
@@ -215,8 +213,16 @@ const Checkout = () => {
   const [isCheckingDiscount, setIsCheckingDiscount] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [tempCart, setTempCart] = useState(null);
+  const [user, setUser] = useState(null);
 
   // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user && tempCart) {
@@ -506,7 +512,7 @@ const Checkout = () => {
   return (
     <div className="checkout-container">
       <PageTitle title="Checkout" />
-      <Header />
+      <Header user={user} />
       <div className="checkout-content">
         <div className="order-summary">
           <h2>Order Summary</h2>
