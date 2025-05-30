@@ -7,31 +7,31 @@ const cakeData = [
     img: '/range/cupcakes.png',
     alt: 'Cupcakes',
     title: 'Cupcakes',
-    link: '/collections/cupcakes',
+    link: '/range/cupcakes',
   },
   {
     img: '/range/largecakes.png',
     alt: 'Large Cakes',
     title: 'Large Cakes',
-    link: '/collections/large-cakes',
+    link: '/range/largecakes',
   },
   {
     img: '/range/bentocake.png',
-    alt: 'Bento with Cupcakes',
-    title: 'Bento with Cupcakes',
-    link: '/collections/bento-cake-with-cupcakes',
+    alt: 'Bento Cake with Cupcakes',
+    title: 'Bento Cake with Cupcakes',
+    link: '/range/bentocake',
   },
   {
     img: '/range/brownies.png',
     alt: 'Brownies',
     title: 'Brownies',
-    link: '/collections/brownies',
+    link: '/range/brownies',
   },
   {
     img: '/range/cookies.png',
     alt: 'Cookies',
     title: 'Cookies',
-    link: '/collections/cookies',
+    link: '/range/cookies',
   },
 ];
 
