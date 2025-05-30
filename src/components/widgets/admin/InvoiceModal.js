@@ -71,9 +71,9 @@ const InvoiceModal = ({ isOpen, onClose, invoiceUrl: invoiceRef }) => {
                   {invoice.items && invoice.items.map((item, idx) => (
                     <tr key={idx}>
                       <td>{item.name}</td>
-                      <td>£{(item.price / 100).toFixed(2)}</td>
+                      <td>£{(item.price).toFixed(2)}</td>
                       <td>{item.quantity}</td>
-                      <td>£{(item.total / 100).toFixed(2)}</td>
+                      <td>£{(item.total).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
