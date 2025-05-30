@@ -211,13 +211,14 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   };
 
   const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    if (category !== 'Regular Cakes') {
-      setNewCake(prevCake => ({
-        ...prevCake,
-        categories: [category]
-      }));
+    if (selectedCategory === category && showNewCakeForm) {
+      setShowNewCakeForm(false);
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+      setShowNewCakeForm(true);
     }
+    setEditingCake(null);
   };
 
   const handleAddFilling = () => {
@@ -642,22 +643,12 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           {CATEGORY_TABS.map(tab => (
             <button
               key={tab.key}
-              className={`cakemanagement-tab-btn${selectedCategory === tab.key ? ' active' : ''}`}
-              onClick={() => {
-                handleCategorySelect(tab.key);
-              }}
+              className={`cakemanagement-tab-btn${selectedCategory === tab.key && showNewCakeForm ? ' active' : ''}`}
+              onClick={() => handleCategorySelect(tab.key)}
             >
               {tab.label}
             </button>
           ))}
-        </div>
-        <div className="cakemanagement-add-buttons">
-          <button
-            className={`cakemanagement-add-btn${showNewCakeForm ? ' open' : ''}`}
-            onClick={() => setShowNewCakeForm(f => !f)}
-          >
-            <FaPlus /> Add {selectedCategory ? CATEGORY_TABS.find(tab => tab.key === selectedCategory).label : 'Cake'}
-          </button>
         </div>
       </div>
 

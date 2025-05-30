@@ -53,32 +53,32 @@ const ShoppingBasket = () => {
         <h1>Your Shopping Basket</h1>
         
         {cart.length === 0 ? (
-          <div className="empty-cart">
+          <div className="shopping-basket-empty">
             <p>Your basket is empty</p>
-            <button onClick={() => navigate('/collections')} className="continue-shopping-btn">
+            <button onClick={() => navigate('/collections')} className="shopping-basket-continue-btn">
               Continue Shopping
             </button>
           </div>
         ) : (
-          <div className="cart-container">
-            <div className="cart-items">
+          <div className="shopping-basket-cart-container">
+            <div className="shopping-basket-items">
               {cart.map(item => (
-                <div key={item.id} className="cart-item">
-                  <img src={item.image} alt={item.name} className="cart-item-image" />
-                  <div className="cart-item-details">
+                <div key={item.id} className="shopping-basket-item">
+                  <img src={item.image} alt={item.name} className="shopping-basket-item-image" />
+                  <div className="shopping-basket-item-details">
                     <h3>{item.name}</h3>
-                    <p className="cart-item-price">£{item.price.toFixed(2)}</p>
-                    <div className="quantity-controls">
+                    <p className="shopping-basket-item-price">£{item.price.toFixed(2)}</p>
+                    <div className="shopping-basket-quantity-controls">
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="quantity-btn"
+                        className="shopping-basket-quantity-btn"
                       >
                         -
                       </button>
-                      <span className="quantity">{item.quantity}</span>
+                      <span className="shopping-basket-quantity">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="quantity-btn"
+                        className="shopping-basket-quantity-btn"
                       >
                         +
                       </button>
@@ -86,7 +86,7 @@ const ShoppingBasket = () => {
                   </div>
                   <button 
                     onClick={() => removeItem(item.id)}
-                    className="remove-item-btn"
+                    className="shopping-basket-remove-btn"
                   >
                     Remove
                   </button>
@@ -94,23 +94,23 @@ const ShoppingBasket = () => {
               ))}
             </div>
 
-            <div className="cart-summary">
+            <div className="shopping-basket-summary">
               <h2>Order Summary</h2>
-              <div className="summary-item">
+              <div className="shopping-basket-summary-item">
                 <span>Subtotal</span>
                 <span>£{total.toFixed(2)}</span>
               </div>
-              <div className="summary-item">
+              <div className="shopping-basket-summary-item">
                 <span>Delivery</span>
                 <span>£5.00</span>
               </div>
-              <div className="summary-item total">
+              <div className="shopping-basket-summary-item shopping-basket-total">
                 <span>Total</span>
                 <span>£{(total + 5).toFixed(2)}</span>
               </div>
               <button 
                 onClick={handleCheckout}
-                className="checkout-btn"
+                className="shopping-basket-checkout-btn"
               >
                 Proceed to Checkout
               </button>
