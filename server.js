@@ -86,8 +86,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      success_url: 'https://yourdomain.com/order-confirmation?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://yourdomain.com/checkout?canceled=true',
+      success_url: 'https://bakesbyolayide.co.uk/order-confirmation?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://bakesbyolayide.co.uk/checkout?canceled=true',
       metadata: {
         guestName: guestInfo?.name || '',
         guestEmail: guestInfo?.email || '',
