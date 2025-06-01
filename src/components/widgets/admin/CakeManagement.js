@@ -479,6 +479,9 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     while (imagesArr.length < 5) imagesArr.push('');
     setEditingCake(cake);
     setNewCake({ ...cake, images: imagesArr, relatedProducts: cake.relatedProducts || [] });
+    // Set selectedCategory to the main category of the cake
+    const mainCategory = Array.isArray(cake.categories) && cake.categories.length > 0 ? cake.categories[0] : null;
+    setSelectedCategory(mainCategory);
     setShowNewCakeForm(true);
   };
 
@@ -544,28 +547,84 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   };
 
   const renderFormByCategory = () => {
+    // Use editingCake's main category if editing, otherwise selectedCategory
+    const category = editingCake && Array.isArray(editingCake.categories) && editingCake.categories.length > 0
+      ? editingCake.categories[0]
+      : selectedCategory;
     if (editingCake) {
-      return (
-        <EditForm
-          newCake={newCake}
-          setNewCake={setNewCake}
-          newSize={newSize}
-          setNewSize={setNewSize}
-          handleAddSize={handleAddSize}
-          handleRemoveSize={handleRemoveSize}
-          handleAddShape={handleAddShape}
-          handleRemoveShape={handleRemoveShape}
-          newShape={newShape}
-          setNewShape={setNewShape}
-          handleAddFinish={handleAddFinish}
-          handleRemoveFinish={handleRemoveFinish}
-          newFinish={newFinish}
-          setNewFinish={setNewFinish}
-          cakes={cakes}
-          editingCake={editingCake}
-        />
-      );
+      switch (category) {
+        case 'Cupcakes':
+          return (
+            <CupcakeForm
+              newCake={newCake}
+              setNewCake={setNewCake}
+              newSize={newSize}
+              setNewSize={setNewSize}
+              handleAddSize={handleAddSize}
+              handleRemoveSize={handleRemoveSize}
+              cakes={cakes}
+              editingCake={editingCake}
+            />
+          );
+        case 'Bento Cake with Cupcakes':
+          return (
+            <BentocakeForm
+              newCake={newCake}
+              setNewCake={setNewCake}
+              cakes={cakes}
+              editingCake={editingCake}
+            />
+          );
+        case 'Brownies':
+          return (
+            <BrowniesForm
+              newCake={newCake}
+              setNewCake={setNewCake}
+              newSize={newSize}
+              setNewSize={setNewSize}
+              handleAddSize={handleAddSize}
+              handleRemoveSize={handleRemoveSize}
+              cakes={cakes}
+              editingCake={editingCake}
+            />
+          );
+        case 'Cookies':
+          return (
+            <CookiesForm
+              newCake={newCake}
+              setNewCake={setNewCake}
+              newSize={newSize}
+              setNewSize={setNewSize}
+              handleAddSize={handleAddSize}
+              handleRemoveSize={handleRemoveSize}
+              cakes={cakes}
+              editingCake={editingCake}
+            />
+          );
+        default:
+          return (
+            <RegularForm
+              newCake={newCake}
+              setNewCake={setNewCake}
+              newSize={newSize}
+              setNewSize={setNewSize}
+              handleAddSize={handleAddSize}
+              handleRemoveSize={handleRemoveSize}
+              handleAddShape={handleAddShape}
+              handleRemoveShape={handleRemoveShape}
+              newShape={newShape}
+              setNewShape={setNewShape}
+              handleAddFinish={handleAddFinish}
+              handleRemoveFinish={handleRemoveFinish}
+              newFinish={newFinish}
+              setNewFinish={setNewFinish}
+              cakes={cakes}
+              editingCake={editingCake}
+            />
+          );
+      }
     }
+    // Not editing, use selectedCategory as before
     switch (selectedCategory) {
       case 'Cupcakes':
         return (
