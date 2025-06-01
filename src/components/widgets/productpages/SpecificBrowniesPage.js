@@ -149,6 +149,16 @@ const SpecificBrowniesPage = () => {
   const flavourOptions = Array.isArray(brownie.flavours) ? brownie.flavours : [];
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
+
+  const getAddonPrice = (addon) => {
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
+  };
+
+  const calculateTotalAddonPrice = () => {
+    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
+  };
+
   const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + calculateTotalAddonPrice();
 
   const breadcrumbs = [
@@ -186,15 +196,6 @@ const SpecificBrowniesPage = () => {
         return [...prev, addon];
       }
     });
-  };
-
-  const getAddonPrice = (addon) => {
-    const foundAddon = addOns.find(a => a.name === addon);
-    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
-  };
-
-  const calculateTotalAddonPrice = () => {
-    return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
   };
 
   const handleAddToCart = () => {
