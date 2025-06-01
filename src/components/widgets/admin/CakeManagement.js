@@ -639,8 +639,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     }
   };
 
-  // Get all unique categories from cakes
-  const allCategories = Array.from(new Set((cakes || []).flatMap(cake => cake.categories || [])));
+  // Get all unique categories from cakes, filtering out falsy values
+  const allCategories = Array.from(new Set((cakes || []).flatMap(cake => cake.categories || []).filter(Boolean)));
 
   // Filter cakes by selected category
   const filteredCakes = categoryFilter === 'All'
