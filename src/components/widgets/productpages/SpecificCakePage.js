@@ -415,7 +415,12 @@ const SpecificCakePage = () => {
           </div>
           <div className="specific-cake-textarea-group">
             <label className="specific-cake-textarea-label">Additional Notes: (Optional)</label>
-            <textarea className="specific-cake-textarea" placeholder="Type here" />
+            <textarea
+              className="specific-cake-textarea"
+              placeholder="Type here"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+            />
           </div>
         </div>
         <div className="specific-cake-total-price">

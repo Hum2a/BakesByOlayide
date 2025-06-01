@@ -457,13 +457,13 @@ const Checkout = () => {
                     {item.addon && (
                       <div><span className="checkout-attr-label">Add ons:</span> {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
                     )}
+                    {item.notes && (
+                      <div className="checkout-additional-notes"><span className="checkout-attr-label">Additional Notes:</span> <span className="checkout-notes-text">{item.notes}</span></div>
+                    )}
                   </div>
                   <div className="checkout-item-meta">
                     {item.designInspiration && (
                       <div className="checkout-design-inspiration"><span className="checkout-attr-label">Design Inspirations:</span><br />{item.designInspiration}</div>
-                    )}
-                    {item.notes && (
-                      <div className="checkout-additional-notes"><span className="checkout-attr-label">Additional Notes:</span><br /><span className="checkout-notes-text">{item.notes}</span></div>
                     )}
                   </div>
                 </div>
@@ -492,6 +492,15 @@ const Checkout = () => {
               </div>
             ))}
           </div>
+          {/* Show pickup date and time if selected */}
+          {(pickupDate || pickupTime) && (
+            <div className="checkout-pickup-info" style={{ margin: '1.5rem 0', padding: '1rem', background: '#fffbe6', borderRadius: 8, fontSize: '1.1rem', color: '#333' }}>
+              <b>Pickup Details:</b><br />
+              {pickupDate && <span>Date: {new Date(pickupDate).toLocaleDateString()}</span>}
+              {pickupDate && pickupTime && <span> &nbsp;|&nbsp; </span>}
+              {pickupTime && <span>Time: {pickupTime}</span>}
+            </div>
+          )}
           <div className="add-more-items">
             <button 
               onClick={() => navigate('/collections')} 

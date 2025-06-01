@@ -62,6 +62,7 @@ const CartModal = ({ onClose }) => {
                     {item.selectedShape && (
                       <div className="cart-item-option">Shape: {item.selectedShape.name}</div>
                     )}
+                    {(() => { console.log('CartModal item:', item); return null; })()}
                     {item.notes && (
                       <div className="cart-item-notes">Notes: {item.notes}</div>
                     )}

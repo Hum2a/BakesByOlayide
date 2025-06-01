@@ -62,6 +62,20 @@ app.post('/api/create-checkout-session', async (req, res) => {
       },
       quantity: item.quantity,
     }));
+    // Add a £0 line item for pickup info if provided
+    if (pickupDate || pickupTime) {
+      let pickupLabel = 'Pickup';
+      if (pickupDate) pickupLabel += `: ${pickupDate}`;
+      if (pickupTime) pickupLabel += ` ${pickupTime}`;
+      line_items.push({
+        price_data: {
+          currency: 'gbp',
+          product_data: { name: pickupLabel },
+          unit_amount: 0,
+        },
+        quantity: 1,
+      });
+    }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
