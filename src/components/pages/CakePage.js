@@ -263,7 +263,7 @@ const CakePage = ({ onOpenCart }) => {
         </div>
       )}
       <div className="cakepage-hero-bgimg-wrap">
-        <img src="/images/FondantCake.webp" alt="Our Range" className="cakepage-hero-bgimg" />
+        <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />
         <h1 className="cakepage-hero-title">Our Range</h1>
       </div>
     </header>
