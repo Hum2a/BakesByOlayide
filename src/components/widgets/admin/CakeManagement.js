@@ -282,6 +282,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           categories: newCake.categories,
           flavours: newCake.flavours,
           size: newCake.size,
+          sizes: newCake.sizes,
           description: newCake.description,
           ingredients: newCake.ingredients,
           toppers: newCake.toppers,
