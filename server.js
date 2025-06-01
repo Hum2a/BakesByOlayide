@@ -44,6 +44,45 @@ app.post('/api/create-payment-intent', async (req, res) => {
   }
 });
 
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { cart, guestInfo, pickupDate, pickupTime } = req.body;
+    if (!process.env.REACT_APP_STRIPE_SECRET_KEY) {
+      throw new Error('Missing Stripe Secret Key');
+    }
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({ error: 'Cart is empty or invalid' });
+    }
+    // Build line_items from cart
+    const line_items = cart.map(item => ({
+      price_data: {
+        currency: 'gbp',
+        product_data: { name: item.name },
+        unit_amount: Math.round(item.price * 100),
+      },
+      quantity: item.quantity,
+    }));
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items,
+      mode: 'payment',
+      success_url: 'https://yourdomain.com/order-confirmation?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://yourdomain.com/checkout?canceled=true',
+      metadata: {
+        guestName: guestInfo?.name || '',
+        guestEmail: guestInfo?.email || '',
+        guestPhone: guestInfo?.phone || '',
+        pickupDate: pickupDate || '',
+        pickupTime: pickupTime || '',
+      },
+    });
+    res.json({ sessionId: session.id });
+  } catch (err) {
+    console.error('Stripe Checkout Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

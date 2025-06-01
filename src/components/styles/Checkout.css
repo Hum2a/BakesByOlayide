@@ -1136,4 +1136,62 @@
     right: 1rem;
     gap: 0.5rem;
   }
+}
+
+.checkout-stripe-btn {
+  width: 100%;
+  padding: 1.2rem 0;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkout-stripe-btn:hover, .checkout-stripe-btn:focus {
+  background: #222;
+  color: #f3c307;
+  transform: scale(1.04);
+  box-shadow: 0 0 16px 2px #f3c307, 0 4px 32px rgba(0,0,0,0.12);
+  outline: none;
+}
+
+.checkout-stripe-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, #f3c30755 0%, transparent 80%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: width 0.4s, height 0.4s, opacity 0.4s;
+  z-index: 0;
+}
+
+.checkout-stripe-btn:hover::after, .checkout-stripe-btn:focus::after {
+  width: 180%;
+  height: 400%;
+  opacity: 0.18;
+}
+
+.checkout-stripe-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px #f3c30744;
+}
+
+.checkout-stripe-btn[disabled] {
+  background: #444;
+  color: #bbb;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
 } 

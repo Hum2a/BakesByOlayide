@@ -11,6 +11,7 @@ import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import AuthModal from '../modals/AuthModal';
+import { loadStripe } from '@stripe/stripe-js';
 
 const GuestForm = ({ onSubmit, isLoading }) => (
   <form onSubmit={onSubmit} className="guest-form">
@@ -384,129 +385,28 @@ const Checkout = () => {
     });
   };
 
-  const handlePaymentSuccess = async (paymentIntent) => {
+  const handleStripeCheckout = async () => {
     try {
       setIsLoading(true);
-      const orderDate = Timestamp.now();
-      const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const userId = auth.currentUser?.uid || null;
-      const invoiceRef = userId
-        ? `/users/${userId}/Invoices/INV-${orderId}`
-        : null;
-      const now = Timestamp.now();
-
-      // Build order items
-      const orderItems = cart.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        selectedSize: item.selectedSize,
-        selectedShape: item.selectedShape,
-        notes: item.notes || '',
-        selectedFinish: item.selectedFinish,
-        topper: item.topper,
-        topperPrice: item.topperPrice,
-        occasion: item.occasion,
-        addon: item.addon
-      }));
-
-      // Build order object
-      const order = {
-        id: orderId,
-        userId: userId,
-        items: orderItems,
-        status: 'confirmed',
-        paymentStatus: 'paid',
-        paymentId: paymentIntent.id,
-        subtotal: totalPrice,
-        discount: appliedDiscount ? {
-          id: appliedDiscount.id,
-          code: appliedDiscount.code,
-          amount: appliedDiscount.amount
-        } : null,
-        total: finalPrice,
-        createdAt: orderDate,
-        updatedAt: now,
-        pickupStatus: 'scheduled',
-        pickupDate: pickupDate ? Timestamp.fromDate(new Date(pickupDate)) : null,
-        pickupTime: pickupTime || null,
-        invoiceRef: invoiceRef,
-        customerInfo: !auth.currentUser ? guestInfo : null
-      };
-
-      // Save order to global 'orders' collection
-      await setDoc(doc(db, 'orders', orderId), order);
-
-      // Save to user-specific collections if logged in
-      if (auth.currentUser) {
-        await setDoc(doc(db, 'users', userId, 'Orders', orderId), order);
-        // Optionally update user profile with last order, etc.
-      }
-
-      // Build invoice object
-      const invoiceId = `INV-${orderId}`;
-      const invoice = {
-        id: invoiceId,
-        orderId: orderId,
-        userId: userId,
-        customerInfo: !auth.currentUser ? guestInfo : null,
-        amount: finalPrice,
-        discount: appliedDiscount ? {
-          code: appliedDiscount.code,
-          amount: appliedDiscount.amount
-        } : null,
-        paymentId: paymentIntent.id,
-        paymentMethod: paymentIntent.payment_method,
-        status: 'paid',
-        createdAt: orderDate,
-        items: cart.map(item => ({
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          total: item.price * item.quantity,
-          selectedSize: item.selectedSize,
-          selectedShape: item.selectedShape,
-          notes: item.notes || '',
-          selectedFinish: item.selectedFinish,
-          topper: item.topper,
-          topperPrice: item.topperPrice,
-          occasion: item.occasion,
-          addon: item.addon
-        })),
-      };
-
-      // Save invoice
-      if (auth.currentUser) {
-        await setDoc(doc(db, 'users', userId, 'Invoices', invoiceId), invoice);
-      } else {
-        await setDoc(doc(db, 'invoices', invoiceId), invoice);
-      }
-
-      clearCart();
-      navigate('/order-confirmation', { 
-        state: { 
-          orderId,
-          total: finalPrice,
-          items: cart,
-          guestInfo: !auth.currentUser ? guestInfo : null,
+      const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cart,
+          guestInfo,
           pickupDate,
-          pickupTime
-        }
+          pickupTime,
+        }),
       });
-    } catch (error) {
-      console.error('Error saving order:', error);
-      clearCart();
-      navigate('/order-confirmation');
+      const { sessionId, error } = await response.json();
+      if (error) throw new Error(error);
+      const stripe = await stripePromise;
+      await stripe.redirectToCheckout({ sessionId });
+    } catch (err) {
+      alert('Error redirecting to Stripe: ' + err.message);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handlePaymentError = (error) => {
-    console.error('Payment error:', error);
-    setIsLoading(false);
   };
 
   return (
@@ -700,15 +600,13 @@ const Checkout = () => {
               pickupTime={pickupTime}
               setPickupTime={setPickupTime}
             />
-            <Elements stripe={stripePromise}>
-              <StripePaymentForm
-                amount={Math.round(totalPrice * 100)}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-                customerName={guestInfo ? guestInfo.name : auth.currentUser?.displayName}
-                customerEmail={guestInfo ? guestInfo.email : auth.currentUser?.email}
-              />
-            </Elements>
+            <button
+              className="checkout-stripe-btn"
+              onClick={handleStripeCheckout}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Redirecting to Stripe...' : 'Pay with Card (Stripe Checkout)'}
+            </button>
           </div>
         )}
       </div>
