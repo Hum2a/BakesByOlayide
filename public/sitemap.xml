@@ -1,38 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bakesbyolayide.com/</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/home</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://bakesbyolayide.com/cakes</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/faqs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/terms-and-conditions</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/guides</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/guides/dietary-requirements</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/guides/pricing</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://bakesbyolayide.com/basket</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/collections/cupcakes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections/large-cakes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections/bento-cake-with-cupcakes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections/brownies</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections/cookies</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/collections/gluten-free</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://bakesbyolayide.com/checkout</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/collections/subscription-boxes</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://bakesbyolayide.com/order-confirmation</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/collections/vegan-range</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/basket</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/checkout</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bakesbyolayide.co.uk/order-confirmation</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://bakesbyolayide.com/admin</loc>
-    <lastmod>2024-04-17</lastmod>
+    <loc>https://bakesbyolayide.co.uk/admin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
