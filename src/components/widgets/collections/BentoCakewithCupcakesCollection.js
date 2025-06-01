@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../../firebase/firebase';
+import { db, auth } from '../../../firebase/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import '../../styles/CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 import PageTitle from '../../common/PageTitle';
 import { useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
+import { useCart } from '../../../context/CartContext';
+import AuthModal from '../../modals/AuthModal';
+import ProfileDropdown from '../../widgets/ProfileDropdown';
+import ProfileModal from '../../modals/ProfileModal';
+import OrderHistoryModal from '../../modals/OrderHistoryModal';
+import SettingsModal from '../../modals/SettingsModal';
+import CartModal from '../../modals/CartModal';
+import SearchModal from '../../modals/SearchModal';
 
 const BentoCakewithCupcakesCollection = () => {
   const [bentoCakes, setBentoCakes] = useState([]);
@@ -14,7 +22,7 @@ const BentoCakewithCupcakesCollection = () => {
   const navigate = useNavigate();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [totalItems, setTotalItems] = useState(0);
+  const { totalItems } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -24,22 +32,26 @@ const BentoCakewithCupcakesCollection = () => {
     fetchBentoCakes();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const fetchBentoCakes = async () => {
     try {
       setLoading(true);
       const cakesRef = collection(db, 'cakes');
       const q = query(cakesRef, where('categories', 'array-contains', 'Bento Cake with Cupcakes'));
       const querySnapshot = await getDocs(q);
-      
       const bentoCakesData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-
       // Separate seasonal and standard bento cakes
       const seasonalBentoCakes = bentoCakesData.filter(bentoCake => bentoCake.isSeasonal);
       const standardBentoCakes = bentoCakesData.filter(bentoCake => !bentoCake.isSeasonal);
-
       setBentoCakes({
         seasonal: seasonalBentoCakes,
         standard: standardBentoCakes
@@ -146,6 +158,17 @@ const BentoCakewithCupcakesCollection = () => {
           <h1 className="cakepage-hero-title">Bento Cake with Cupcakes</h1>
         </div>
       </header>
+      <ProfileDropdown
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onModalOpen={handleModalOpen}
+      />
+      {activeModal === 'search' && <SearchModal onClose={() => setActiveModal(null)} />}
+      {isAuthOpen && <AuthModal onClose={() => setIsAuthOpen(false)} />}
+      {activeModal === 'profile' && <ProfileModal onClose={() => setActiveModal(null)} />}
+      {activeModal === 'orders' && <OrderHistoryModal onClose={() => setActiveModal(null)} />}
+      {activeModal === 'settings' && <SettingsModal onClose={() => setActiveModal(null)} />}
+      {isCartOpen && <CartModal onClose={() => setIsCartOpen(false)} />}
       <div className="cupcake-breadcrumbs">
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
       </div>
