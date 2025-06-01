@@ -66,6 +66,8 @@ const OrderConfirmation = () => {
           if (orderId) {
             // Update order status in Firestore
             await setDoc(doc(db, 'orders', orderId), { status: 'paid' }, { merge: true });
+            // Update invoice status in Firestore
+            await setDoc(doc(db, 'invoices', orderId), { status: 'paid' }, { merge: true });
           }
         });
     }

@@ -423,8 +423,9 @@ const Checkout = () => {
     try {
       setIsLoading(true);
 
-      // 1. Generate a new order ID
-      const orderId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+      // 1. Generate a new order ID in the format ORD-{timestamp}-{randomString}
+      const randomString = Math.random().toString(36).substring(2, 10);
+      const orderId = `ORD-${Date.now()}-${randomString}`;
 
       // 2. Prepare order data
       const orderData = {
@@ -438,10 +439,25 @@ const Checkout = () => {
         status: 'pending',
       };
 
-      // 3. Save order to Firestore
-      await setDoc(doc(db, 'orders', orderId), orderData);
+      // 3. Prepare invoice data
+      const invoiceId = orderId; // Use the same ID for easy lookup
+      const invoiceData = {
+        invoiceId,
+        orderId,
+        items: cart.map(item => ({ ...item, total: item.price * item.quantity })),
+        amount: totalPrice,
+        status: 'unpaid',
+        createdAt: Timestamp.now(),
+        customerEmail: guestInfo?.email || '',
+      };
 
-      // 4. Call backend to create Stripe session, passing orderId
+      // 4. Save order and invoice to Firestore
+      await setDoc(doc(db, 'orders', orderId), orderData);
+      await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
+      // Add invoiceRef to the order document
+      await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
+
+      // 5. Call backend to create Stripe session, passing orderId
       const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
