@@ -747,7 +747,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 {renderFormByCategory()}
 
                 <div className="cakemanagement-form-group full-width">
-                  <label>Related Products (max 3)</label>
+                  <label>Related Products (max 6)</label>
                   <div className="cakemanagement-related-products-list">
                     {cakes
                       .filter(c => !editingCake || c.id !== editingCake.id) // Exclude self when editing
@@ -758,7 +758,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                             checked={newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)}
                             disabled={
                               !(newCake.relatedProducts && newCake.relatedProducts.includes(cakeOption.id)) &&
-                              newCake.relatedProducts && newCake.relatedProducts.length >= 3
+                              newCake.relatedProducts && newCake.relatedProducts.length >= 6
                             }
                             onChange={e => {
                               let updated;
