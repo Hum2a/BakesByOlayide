@@ -79,35 +79,26 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: 1,
       });
     }
-    // Format pickup date and time for human readability
-    let formattedPickupDate = pickupDate;
-    let formattedPickupTime = pickupTime;
+    // Format pickup date and time for human readability (YYYY-MM-DD HH:mm)
     let pickupDetails = '';
     if (pickupDate) {
       try {
         const dateObj = new Date(pickupDate);
-        formattedPickupDate = dateObj.toLocaleDateString('en-GB', {
-          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-      } catch (e) {}
-    }
-    if (pickupTime) {
-      // Try to format time to 12-hour with AM/PM
-      try {
-        const [hour, minute] = pickupTime.split(':');
-        const dateObj = new Date();
-        dateObj.setHours(Number(hour), Number(minute) || 0);
-        formattedPickupTime = dateObj.toLocaleTimeString('en-GB', {
-          hour: '2-digit', minute: '2-digit', hour12: true
-        });
-      } catch (e) {}
-    }
-    if (formattedPickupDate && formattedPickupTime) {
-      pickupDetails = `${formattedPickupDate} at ${formattedPickupTime}`;
-    } else if (formattedPickupDate) {
-      pickupDetails = formattedPickupDate;
-    } else if (formattedPickupTime) {
-      pickupDetails = formattedPickupTime;
+        const dateStr = dateObj.toISOString().slice(0, 10); // YYYY-MM-DD
+        let timeStr = '';
+        if (pickupTime) {
+          // Format as HH:mm (24-hour)
+          const [hour, minute] = pickupTime.split(':');
+          timeStr = `${hour.padStart(2, '0')}:${(minute || '00').padStart(2, '0')}`;
+          pickupDetails = `${dateStr} ${timeStr}`;
+        } else {
+          pickupDetails = dateStr;
+        }
+      } catch (e) {
+        pickupDetails = pickupDate;
+      }
+    } else if (pickupTime) {
+      pickupDetails = pickupTime;
     }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
