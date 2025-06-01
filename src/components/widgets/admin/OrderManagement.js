@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes, FaFileInvoice } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import '../../styles/OrderManagement.css';
@@ -73,6 +73,22 @@ const OrderManagement = () => {
     } catch (error) {
       console.error('Error updating order status:', error);
       setError('Failed to update order status');
+    }
+  };
+
+  const deleteOrder = async (orderId, invoiceRef) => {
+    if (!window.confirm('Are you sure you want to delete this order? This cannot be undone.')) return;
+    try {
+      await deleteDoc(firestoreDoc(db, 'orders', orderId));
+      if (invoiceRef) {
+        try {
+          await deleteDoc(firestoreDoc(db, invoiceRef));
+        } catch (e) {}
+      }
+      await fetchOrders();
+    } catch (error) {
+      alert('Failed to delete order.');
+      console.error('Error deleting order:', error);
     }
   };
 
@@ -189,6 +205,13 @@ const OrderManagement = () => {
                       {order.customerName || 'Unknown Customer'}
                     </div>
                     <div className="customer-email">{order.customerEmail || 'N/A'}</div>
+                    {/* Show userId and userEmail if available */}
+                    {order.userId && (
+                      <div className="customer-userid" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User ID: {order.userId}</div>
+                    )}
+                    {order.userEmail && order.userEmail !== order.customerEmail && (
+                      <div className="customer-useremail" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User Email: {order.userEmail}</div>
+                    )}
                   </td>
                   <td className="order-date">
                     <div className="date">
@@ -248,6 +271,15 @@ const OrderManagement = () => {
                         Confirm Order
                       </button>
                     )}
+                    {/* Delete order button */}
+                    <button
+                      className="delete-order-btn"
+                      style={{ marginTop: 8, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
+                      onClick={() => deleteOrder(order.id, order.invoiceRef)}
+                      title="Delete this order and its invoice"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               );
