@@ -429,6 +429,13 @@ const Checkout = () => {
       await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
       // Add invoiceRef to the order document
       await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
+      // 4b. If user is logged in, also save order to /users/{uid}/Orders/{orderId}
+      if (auth.currentUser) {
+        await setDoc(doc(db, 'users', auth.currentUser.uid, 'Orders', orderId), {
+          ...orderData,
+          invoiceRef: `invoices/${invoiceId}`,
+        });
+      }
 
       // 5. Call backend to create Stripe session, passing orderId
       const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
