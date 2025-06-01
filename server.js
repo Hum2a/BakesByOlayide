@@ -79,6 +79,36 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: 1,
       });
     }
+    // Format pickup date and time for human readability
+    let formattedPickupDate = pickupDate;
+    let formattedPickupTime = pickupTime;
+    let pickupDetails = '';
+    if (pickupDate) {
+      try {
+        const dateObj = new Date(pickupDate);
+        formattedPickupDate = dateObj.toLocaleDateString('en-GB', {
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+      } catch (e) {}
+    }
+    if (pickupTime) {
+      // Try to format time to 12-hour with AM/PM
+      try {
+        const [hour, minute] = pickupTime.split(':');
+        const dateObj = new Date();
+        dateObj.setHours(Number(hour), Number(minute) || 0);
+        formattedPickupTime = dateObj.toLocaleTimeString('en-GB', {
+          hour: '2-digit', minute: '2-digit', hour12: true
+        });
+      } catch (e) {}
+    }
+    if (formattedPickupDate && formattedPickupTime) {
+      pickupDetails = `${formattedPickupDate} at ${formattedPickupTime}`;
+    } else if (formattedPickupDate) {
+      pickupDetails = formattedPickupDate;
+    } else if (formattedPickupTime) {
+      pickupDetails = formattedPickupTime;
+    }
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
@@ -90,8 +120,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         guestName: guestInfo?.name || '',
         guestEmail: guestInfo?.email || '',
         guestPhone: guestInfo?.phone || '',
-        pickupDate: pickupDate || '',
-        pickupTime: pickupTime || '',
+        pickupDetails,
       },
     });
     res.json({ sessionId: session.id });
