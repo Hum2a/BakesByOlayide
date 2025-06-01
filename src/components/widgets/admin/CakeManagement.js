@@ -359,24 +359,32 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         throw new Error('User does not have permission to manage cakes');
       }
 
+      // Handle image uploads
       if (cakeImages && cakeImages.length > 0) {
+        console.log('Processing images:', cakeImages.length);
         for (let i = 0; i < cakeImages.length; i++) {
           const img = cakeImages[i];
-          if (img.size > 5 * 1024 * 1024) {
-            throw new Error('Each image must be less than 5MB');
-          }
-          if (!img.type.startsWith('image/')) {
-            throw new Error('All files must be images');
-          }
-          const storageRef = ref(storage, `cakes/${img.name}_${Date.now()}_${i}`);
-          await uploadBytes(storageRef, img);
-          const url = await getDownloadURL(storageRef);
-          imageUrls.push(url);
-        }
-      }
+          if (!img) continue; // Skip if no image
 
-      if (imageUrls.length > 0) {
-        newCake.images = imageUrls;
+          try {
+            if (img.size > 5 * 1024 * 1024) {
+              throw new Error('Each image must be less than 5MB');
+            }
+            if (!img.type.startsWith('image/')) {
+              throw new Error('All files must be images');
+            }
+
+            const storageRef = ref(storage, `cakes/${img.name}_${Date.now()}_${i}`);
+            console.log('Uploading image:', img.name);
+            await uploadBytes(storageRef, img);
+            const url = await getDownloadURL(storageRef);
+            console.log('Image uploaded successfully:', url);
+            imageUrls.push(url);
+          } catch (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            throw new Error(`Failed to upload image ${i + 1}: ${uploadError.message}`);
+          }
+        }
       }
 
       // Ensure category is set
@@ -386,15 +394,41 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       const cleanedCake = getCleanedCakeData();
 
+      // Handle image fields
+      if (imageUrls.length > 0) {
+        console.log('Setting images:', imageUrls);
+        cleanedCake.image = imageUrls[0];
+        cleanedCake.images = imageUrls;
+      } else if (editingCake && editingCake.image) {
+        console.log('Using existing images from editing');
+        cleanedCake.image = editingCake.image;
+        cleanedCake.images = editingCake.images || [editingCake.image];
+      } else if (Array.isArray(newCake.images) && newCake.images.filter(Boolean).length > 0) {
+        // Use images already present in the UI (for new cakes)
+        const validImages = newCake.images.filter(Boolean);
+        cleanedCake.image = validImages[0];
+        cleanedCake.images = validImages;
+        console.log('Using images from newCake.images:', validImages);
+      } else {
+        console.log('No images found');
+        throw new Error('At least one image is required');
+      }
+
+      // Log the final cake data
+      console.log('Saving cake with data:', cleanedCake);
+
       if (editingCake) {
+        console.log('Updating existing cake:', editingCake.id);
         await updateDoc(doc(db, 'cakes', editingCake.id), cleanedCake);
       } else {
+        console.log('Creating new cake');
         await addDoc(collection(db, 'cakes'), cleanedCake);
       }
 
       resetForm();
       onUpdate();
     } catch (error) {
+      console.error('Error in handleCakeSubmit:', error);
       setError(error.message || 'Failed to save cake');
       setDebugInfo(`Error: ${error.message}`);
     } finally {

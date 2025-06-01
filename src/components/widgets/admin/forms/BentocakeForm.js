@@ -350,7 +350,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
                 value={addOn.price}
                 onChange={e => {
                   const updated = [...newCake.addOns];
-                  updated[idx].price = e.target.value;
+                  updated[idx].price = parseFloat(e.target.value) || 0;
                   setNewCake({ ...newCake, addOns: updated });
                 }}
                 placeholder="Price (£)"
@@ -369,7 +369,7 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, addOns: [...(Array.isArray(newCake.addOns) ? newCake.addOns : []), { name: '', price: '' }] })}
+            onClick={() => setNewCake({ ...newCake, addOns: [...(Array.isArray(newCake.addOns) ? newCake.addOns : []), { name: '', price: 0 }] })}
           >
             <FaPlus /> Add Add On
           </button>

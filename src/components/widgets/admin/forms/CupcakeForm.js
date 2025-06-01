@@ -352,7 +352,7 @@ const CupcakeForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, 
                 value={addOn.price}
                 onChange={e => {
                   const updated = [...newCake.addOns];
-                  updated[idx].price = e.target.value;
+                  updated[idx].price = parseFloat(e.target.value) || 0;
                   setNewCake({ ...newCake, addOns: updated });
                 }}
                 placeholder="Price (£)"
@@ -371,7 +371,7 @@ const CupcakeForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, 
           <button
             type="button"
             className="cakemanagement-add-field-btn"
-            onClick={() => setNewCake({ ...newCake, addOns: [...(newCake.addOns || []), { name: '', price: '' }] })}
+            onClick={() => setNewCake({ ...newCake, addOns: [...(newCake.addOns || []), { name: '', price: 0 }] })}
           >
             <FaPlus /> Add Add On
           </button>
