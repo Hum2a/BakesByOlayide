@@ -1204,17 +1204,34 @@
   margin-bottom: 8px;
 }
 .calendar-month-nav button {
-  background: #f3c307;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.2rem;
-  padding: 0.3rem 0.8rem;
+  background: #fff;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  outline: none;
+  margin: 0 0.5rem;
 }
 .calendar-month-nav button:hover {
-  background: #d35400;
+  background: #f3c307;
+  color: #111;
+  border-color: #f3c307;
+  box-shadow: 0 4px 12px #f3c30733;
+}
+.calendar-month-nav button:active {
+  background: #f3c307;
+  color: #fff;
+  border-color: #f3c307;
+  transform: scale(0.96);
+  box-shadow: 0 2px 8px #f3c30755;
 }
 .calendar-month-nav .calendar-month-name {
   font-weight: 600;

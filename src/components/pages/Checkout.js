@@ -56,15 +56,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-
-  // New state for calendar navigation
   const [displayedMonth, setDisplayedMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
 
   useEffect(() => {
-    // Generate available times (9 AM to 7 PM, every 30 min)
     const times = [];
     for (let hour = 9; hour <= 19; hour++) {
       times.push(`${hour}:00`);
@@ -74,7 +71,6 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     setLoading(false);
   }, []);
 
-  // Generate all days for the displayed month
   const getDatesForMonth = (monthDate) => {
     const year = monthDate.getFullYear();
     const month = monthDate.getMonth();
@@ -92,7 +88,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const isDateDisabled = (date) => {
     const today = new Date();
     const minPickupDate = new Date(today);
-    minPickupDate.setDate(today.getDate() + 5); // 5 days notice
+    minPickupDate.setDate(today.getDate() + 5);
     return date < minPickupDate;
   };
 
@@ -108,7 +104,6 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     setPickupTime(time);
   };
 
-  // Calendar navigation
   const goToPrevMonth = () => {
     setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
@@ -116,18 +111,15 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  // Format month name
   const monthName = displayedMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-  // Format dates by week (Monday start)
   const formatDatesByWeekMondayStart = (dates) => {
     const weeks = [];
     let currentWeek = [];
     if (dates.length === 0) return weeks;
-    // Get the first date's week start (Monday)
     const firstDate = new Date(dates[0]);
     let dayOfWeek = firstDate.getDay();
-    dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // convert Sunday=0 to 6, Monday=1 to 0
+    dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     for (let i = 0; i < dayOfWeek; i++) {
       currentWeek.push(null);
     }
@@ -153,41 +145,32 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 
   return (
     <div className="pickup-schedule">
-      <h3 style={{ textAlign: 'left', marginBottom: '2rem' }}>Schedule Order</h3>
-      <div className="schedule-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <h3 className="pickup-schedule-title">Schedule Order</h3>
+      <div className="schedule-grid">
         {/* Calendar and notice */}
         <div>
-          <label style={{ fontWeight: 600, marginBottom: 8, display: 'block', textAlign: 'left', fontFamily: 'serif', fontSize: '1.3rem' }}>Pick-up Date:</label>
-          <div className="pickup-notice" style={{ margin: '0 0 1.2rem 0', fontWeight: 400, textAlign: 'left', fontFamily: 'serif', fontSize: '1.1rem', padding: 0 }}>
+          <label className="pickup-date-label">Pick-up Date:</label>
+          <div className="pickup-notice">
             All orders require a minimum of 5 days notice before pick-up.
           </div>
           {/* Month navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <button onClick={goToPrevMonth}>&lt;</button>
-            <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{monthName}</span>
-            <button onClick={goToNextMonth}>&gt;</button>
+          <div className="calendar-month-nav">
+            <button type="button" onClick={goToPrevMonth} aria-label="Previous Month">&lt;</button>
+            <span className="calendar-month-name">{monthName}</span>
+            <button type="button" onClick={goToNextMonth} aria-label="Next Month">&gt;</button>
           </div>
-          <div className="weekday-header" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: 4 }}>
+          <div className="weekday-header">
             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
-              <div key={day} className="weekday-name" style={{ textAlign: 'center', fontWeight: 400 }}>{day}</div>
+              <div key={day} className="weekday-name">{day}</div>
             ))}
           </div>
           <div className="calendar-month">
             {datesByWeek.map((week, weekIndex) => (
-              <div key={weekIndex} className="calendar-week" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0 }}>
+              <div key={weekIndex} className="calendar-week">
                 {week.map((date, dayIndex) => (
                   <div
                     key={dayIndex}
                     className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
-                    style={{
-                      borderRadius: 0,
-                      cursor: date && !isDateDisabled(date) ? 'pointer' : 'not-allowed',
-                      minHeight: 40,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: date && selectedDate && date.toDateString() === selectedDate.toDateString() ? 700 : 400
-                    }}
                     onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
                   >
                     {date ? date.getDate() : ''}
@@ -199,22 +182,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
         </div>
         {/* Time slots */}
         <div>
-          <label style={{ fontWeight: 600, marginBottom: 8, display: 'block', textAlign: 'left', fontFamily: 'serif', fontSize: '1.3rem' }}>Pick-up Time:</label>
-          <div className="clock-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+          <label className="pickup-time-label">Pick-up Time:</label>
+          <div className="clock-grid">
             {availableTimes.map((time) => (
               <div
                 key={time}
                 className={`clock-time${selectedTime === time ? ' selected' : ''}`}
-                style={{
-                  background: selectedTime === time ? '#e0e0e0' : 'none',
-                  color: '#111',
-                  border: 'none',
-                  borderRadius: 0,
-                  padding: '0.7rem 0',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontWeight: selectedTime === time ? 700 : 400
-                }}
                 onClick={() => handleTimeSelect(time)}
               >
                 {time}
