@@ -52,25 +52,18 @@ const GuestForm = ({ onSubmit, isLoading }) => (
 );
 
 const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }) => {
-  const [availableDates, setAvailableDates] = useState([]);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
-  useEffect(() => {
-    // Generate dates for the next month (including next 5 days that will be disabled)
-    const dates = [];
+  // New state for calendar navigation
+  const [displayedMonth, setDisplayedMonth] = useState(() => {
     const today = new Date();
-    const endDate = new Date(today);
-    endDate.setDate(today.getDate() + 45);
-    let currentDate = new Date(today);
-    currentDate.setDate(today.getDate() + 1);
-    while (currentDate <= endDate) {
-      dates.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    setAvailableDates(dates);
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  useEffect(() => {
     // Generate available times (9 AM to 7 PM, every 30 min)
     const times = [];
     for (let hour = 9; hour <= 19; hour++) {
@@ -80,6 +73,21 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     setAvailableTimes(times);
     setLoading(false);
   }, []);
+
+  // Generate all days for the displayed month
+  const getDatesForMonth = (monthDate) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const dates = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      dates.push(new Date(d));
+    }
+    return dates;
+  };
+
+  const availableDates = getDatesForMonth(displayedMonth);
 
   const isDateDisabled = (date) => {
     const today = new Date();
@@ -100,6 +108,18 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     setPickupTime(time);
   };
 
+  // Calendar navigation
+  const goToPrevMonth = () => {
+    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+  const goToNextMonth = () => {
+    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  // Format month name
+  const monthName = displayedMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  // Format dates by week (Monday start)
   const formatDatesByWeekMondayStart = (dates) => {
     const weeks = [];
     let currentWeek = [];
@@ -140,6 +160,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
           <label style={{ fontWeight: 600, marginBottom: 8, display: 'block', textAlign: 'left', fontFamily: 'serif', fontSize: '1.3rem' }}>Pick-up Date:</label>
           <div className="pickup-notice" style={{ margin: '0 0 1.2rem 0', fontWeight: 400, textAlign: 'left', fontFamily: 'serif', fontSize: '1.1rem', padding: 0 }}>
             All orders require a minimum of 5 days notice before pick-up.
+          </div>
+          {/* Month navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <button onClick={goToPrevMonth}>&lt;</button>
+            <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{monthName}</span>
+            <button onClick={goToNextMonth}>&gt;</button>
           </div>
           <div className="weekday-header" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: 4 }}>
             {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
