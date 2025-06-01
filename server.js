@@ -7,7 +7,13 @@ const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://bakesbyolayide.co.uk',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Serve static files from the React app
