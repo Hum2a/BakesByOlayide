@@ -23,42 +23,42 @@ const FIXED_CATEGORIES = [
   {
     name: 'Cupcakes',
     description: 'Handmade and elegantly decorated cupcakes; perfect for any occasion.',
-    image: '/images/range/Cupcakes.png'
+    image: '/images/range/Cupcakes.webp'
   },
   {
     name: 'Large Cakes',
     description: 'Personalised and fully customisable celebration cakes made fresh in house.',
-    image: '/images/range/LargeCakes.png'
+    image: '/images/range/LargeCakes.webp'
   },
   {
     name: 'Bento Cake with Cupcakes',
     description: 'The perfect fusion between cupcakes and celebration cakes: For those who want a little bit of the best of both worlds.',
-    image: '/images/range/BentoCakewithCupcakes.png'
+    image: '/images/range/BentoCakewithCupcakes.webp'
   },
   {
     name: 'Brownies',
     description: "Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic's dream.",
-    image: '/images/range/Brownies.png'
+    image: '/images/range/Brownies.webp'
   },
   {
     name: 'Cookies',
     description: 'Chewy, chocolatey and moorish with Cornish ice-cream, our cookies are the perfect sweet treat.',
-    image: '/images/range/Cookies.png'
+    image: '/images/range/Cookies.webp'
   },
   {
     name: 'Vegan Range',
     description: 'Delightfully sweet plant powered bakes made for you..',
-    image: '/images/range/VeganRange.png'
+    image: '/images/range/VeganRange.webp'
   },
   {
     name: 'Gluten Free',
     description: 'Delicious bakes made without gluten so you can eat cakes without worry.',
-    image: '/images/range/GlutenFree.png'
+    image: '/images/range/GlutenFree.webp'
   },
   {
     name: 'Subscription Boxes',
     description: 'Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.',
-    image: '/images/range/SubscriptionBoxes.png'
+    image: '/images/range/SubscriptionBoxes.webp'
   }
 ];
 
@@ -202,7 +202,7 @@ const CakePage = ({ onOpenCart }) => {
       <header className="cakepage-hero">
       <nav className="cakepage-hero-nav">
         <img 
-          src="/logos/LogoYellowTransparent.png" 
+          src="/logos/LogoYellowTransparent.webp" 
           alt="Bakes by Olayide Logo" 
           className="cakepage-hero-logo" 
           style={{ cursor: 'pointer' }}
@@ -263,7 +263,7 @@ const CakePage = ({ onOpenCart }) => {
         </div>
       )}
       <div className="cakepage-hero-bgimg-wrap">
-        <img src="/images/FondantCake.png" alt="Our Range" className="cakepage-hero-bgimg" />
+        <img src="/images/FondantCake.webp" alt="Our Range" className="cakepage-hero-bgimg" />
         <h1 className="cakepage-hero-title">Our Range</h1>
       </div>
     </header>

@@ -115,7 +115,7 @@ const GuidesPage = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/guide/GuideHeroImage.jpg" alt="Guides" className="guidespage-hero-bgimg" />
+          <img src="/images/guide/GuideHeroImage.webp" alt="Guides" className="guidespage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Guides</h1>
         </div>
       </header>
