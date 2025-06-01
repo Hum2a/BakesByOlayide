@@ -169,7 +169,7 @@ const SubscriptionBoxesCollection = () => {
         </div>
       </header>
       <div className="cupcake-breadcrumbs">
-        <span>Collections</span> / <span>Subscription Boxes</span>
+        <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Subscription Boxes</span>
       </div>
       <div className="cupcake-description">
         Treat yourself or someone special to a regular delivery of our delicious treats! Our subscription boxes are carefully curated with a selection of our finest products, perfect for gifting or personal indulgence. Choose from monthly, bi-weekly, or weekly deliveries.
