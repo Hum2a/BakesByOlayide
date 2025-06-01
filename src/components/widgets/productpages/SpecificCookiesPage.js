@@ -26,6 +26,8 @@ const SpecificCookiesPage = () => {
   const [addOns, setAddOns] = useState([]);
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -107,6 +109,16 @@ const SpecificCookiesPage = () => {
     .filter(c => c.id !== cookie.id)
     .slice(0, 3);
 
+  const images = Array.isArray(cookie.images) && cookie.images.length > 0 ? cookie.images : [cookie.image];
+  const handlePrevImage = () => {
+    setSwipeDirection('left');
+    setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+  const handleNextImage = () => {
+    setSwipeDirection('right');
+    setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -131,7 +143,7 @@ const SpecificCookiesPage = () => {
       id: `${cookie.id}-${selectedSizeIdx}-${selectedFlavourIdx}`,
       cookieId: cookie.id,
       name: cookie.name,
-      image: cookie.image,
+      image: images[currentImageIdx],
       price: totalPrice,
       quantity: quantity,
       selectedSize: selectedSize,
@@ -203,7 +215,30 @@ const SpecificCookiesPage = () => {
         </nav>
         <div className="specific-cake-grid">
           <div className="specific-cake-image">
-            <img src={cookie.image} alt={cookie.name} />
+            <div className={`carousel-img-wrapper${swipeDirection ? ` swipe-${swipeDirection}` : ''}`}
+              key={currentImageIdx}
+              onAnimationEnd={() => setSwipeDirection(null)}
+            >
+              <img src={images[currentImageIdx]} alt={cookie.name} />
+            </div>
+            {images.length > 1 && (
+              <>
+                <button className="carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">&#8592;</button>
+                <button className="carousel-arrow right" onClick={handleNextImage} aria-label="Next image">&#8594;</button>
+                <div className="carousel-indicators">
+                  {images.map((img, idx) => (
+                    <span
+                      key={idx}
+                      className={`carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
+                      onClick={() => {
+                        setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
+                        setCurrentImageIdx(idx);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="specific-cake-details">
             <h2>{cookie.name}</h2>

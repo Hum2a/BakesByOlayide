@@ -27,13 +27,15 @@ const SpecificCakePage = () => {
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState(null);
+  const [user, setUser] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [user, setUser] = useState(null);
 
   // Auth state listener
   useEffect(() => {
@@ -134,6 +136,16 @@ const SpecificCakePage = () => {
     </div>
   );
   if (!cake) return <div>Cake not found.</div>;
+
+  const images = Array.isArray(cake.images) && cake.images.length > 0 ? cake.images : [cake.image];
+  const handlePrevImage = () => {
+    setSwipeDirection('left');
+    setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+  const handleNextImage = () => {
+    setSwipeDirection('right');
+    setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   const sizeOptions = Array.isArray(cake.sizes) ? cake.sizes : [];
   const shapeOptions = Array.isArray(cake.shapes) ? cake.shapes : [];
@@ -290,7 +302,30 @@ const SpecificCakePage = () => {
         </nav>
         <div className="specific-cake-grid">
           <div className="specific-cake-image">
-            <img src={cake.image} alt={cake.name} />
+            <div className={`carousel-img-wrapper${swipeDirection ? ` swipe-${swipeDirection}` : ''}`}
+              key={currentImageIdx}
+              onAnimationEnd={() => setSwipeDirection(null)}
+            >
+              <img src={images[currentImageIdx]} alt={cake.name} />
+            </div>
+            {images.length > 1 && (
+              <>
+                <button className="carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">&#8592;</button>
+                <button className="carousel-arrow right" onClick={handleNextImage} aria-label="Next image">&#8594;</button>
+                <div className="carousel-indicators">
+                  {images.map((img, idx) => (
+                    <span
+                      key={idx}
+                      className={`carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
+                      onClick={() => {
+                        setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
+                        setCurrentImageIdx(idx);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="specific-cake-details">
             <h2>{cake.name}</h2>

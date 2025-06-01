@@ -25,6 +25,8 @@ const SpecificBrowniesPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -131,6 +133,16 @@ const SpecificBrowniesPage = () => {
     </div>
   );
   if (!brownie) return <div>Brownie not found.</div>;
+
+  const images = Array.isArray(brownie.images) && brownie.images.length > 0 ? brownie.images : [brownie.image];
+  const handlePrevImage = () => {
+    setSwipeDirection('left');
+    setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+  const handleNextImage = () => {
+    setSwipeDirection('right');
+    setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   const sizeOptions = Array.isArray(brownie.sizes) ? brownie.sizes : [];
   const selectedSize = sizeOptions[selectedSizeIdx] || { price: 0, size: '' };
@@ -255,7 +267,30 @@ const SpecificBrowniesPage = () => {
         </nav>
         <div className="specific-cake-grid">
           <div className="specific-cake-image">
-            <img src={brownie.image} alt={brownie.name} />
+            <div className={`carousel-img-wrapper${swipeDirection ? ` swipe-${swipeDirection}` : ''}`}
+              key={currentImageIdx}
+              onAnimationEnd={() => setSwipeDirection(null)}
+            >
+              <img src={images[currentImageIdx]} alt={brownie.name} />
+            </div>
+            {images.length > 1 && (
+              <>
+                <button className="carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">&#8592;</button>
+                <button className="carousel-arrow right" onClick={handleNextImage} aria-label="Next image">&#8594;</button>
+                <div className="carousel-indicators">
+                  {images.map((img, idx) => (
+                    <span
+                      key={idx}
+                      className={`carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
+                      onClick={() => {
+                        setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
+                        setCurrentImageIdx(idx);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="specific-cake-details">
             <h2>{brownie.name}</h2>
