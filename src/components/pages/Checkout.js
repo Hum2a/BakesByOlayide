@@ -401,15 +401,27 @@ const Checkout = () => {
       const orderId = `ORD-${Date.now()}-${randomString}`;
 
       // 2. Prepare order data
+      const userId = auth.currentUser ? auth.currentUser.uid : null;
+      const userEmail = auth.currentUser ? auth.currentUser.email : null;
+      // Format pickupDate as YYYY-MM-DD only
+      let formattedPickupDate = pickupDate;
+      if (pickupDate) {
+        try {
+          const dateObj = new Date(pickupDate);
+          formattedPickupDate = dateObj.toISOString().slice(0, 10);
+        } catch (e) {}
+      }
       const orderData = {
         orderId,
         items: cart,
         total: totalPrice,
         guestInfo,
-        pickupDate,
+        pickupDate: formattedPickupDate,
         pickupTime,
         createdAt: Timestamp.now(),
         status: 'pending',
+        ...(userId && { userId }),
+        ...(userEmail && { userEmail }),
       };
 
       // 3. Prepare invoice data
@@ -422,6 +434,8 @@ const Checkout = () => {
         status: 'unpaid',
         createdAt: Timestamp.now(),
         customerEmail: guestInfo?.email || '',
+        ...(userId && { userId }),
+        ...(userEmail && { userEmail }),
       };
 
       // 4. Save order and invoice to Firestore
