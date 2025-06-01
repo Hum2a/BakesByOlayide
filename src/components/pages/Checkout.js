@@ -220,19 +220,19 @@ const Checkout = () => {
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-      if (user) {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
         // If missing displayName or phoneNumber, show form
-        const needsName = !user.displayName || user.displayName.trim() === '';
-        const needsPhone = !user.phoneNumber || user.phoneNumber.trim() === '';
+        const needsName = !firebaseUser.displayName || firebaseUser.displayName.trim() === '';
+        const needsPhone = !firebaseUser.phoneNumber || firebaseUser.phoneNumber.trim() === '';
         if (needsName || needsPhone) {
           // Try to fetch from Firestore profile doc
           const fetchProfile = async () => {
-            let name = user.displayName || '';
-            let phone = user.phoneNumber || '';
+            let name = firebaseUser.displayName || '';
+            let phone = firebaseUser.phoneNumber || '';
             try {
-              const userDocRef = doc(db, 'users', user.uid);
+              const userDocRef = doc(db, 'users', firebaseUser.uid);
               const userDocSnap = await getDoc(userDocRef);
               if (userDocSnap.exists()) {
                 const data = userDocSnap.data();
@@ -432,8 +432,8 @@ const Checkout = () => {
       const orderId = `ORD-${Date.now()}-${randomString}`;
 
       // 2. Prepare order data
-      const userId = auth.currentUser ? auth.currentUser.uid : null;
-      const userEmail = auth.currentUser ? auth.currentUser.email : null;
+      const userId = user ? user.uid : null;
+      const userEmail = user ? user.email : null;
       // Format pickupDate as YYYY-MM-DD only
       let formattedPickupDate = pickupDate;
       if (pickupDate) {
@@ -444,29 +444,29 @@ const Checkout = () => {
       }
       // Always populate guestInfo: for logged-in users, use their info from Firestore; for guests, use guestInfo from form
       let customerInfo = guestInfo;
-      if (auth.currentUser && !guestInfo) {
+      if (user && !guestInfo) {
         // Fetch from Firestore profile doc
         try {
-          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const userDocRef = doc(db, 'users', user.uid);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const data = userDocSnap.data();
             customerInfo = {
               name: data.displayName || '',
-              email: auth.currentUser.email || '',
+              email: user.email || '',
               phone: data.phoneNumber || '',
             };
           } else {
             customerInfo = {
               name: '',
-              email: auth.currentUser.email || '',
+              email: user.email || '',
               phone: '',
             };
           }
         } catch (e) {
           customerInfo = {
             name: '',
-            email: auth.currentUser.email || '',
+            email: user.email || '',
             phone: '',
           };
         }
@@ -501,14 +501,38 @@ const Checkout = () => {
       // 4. Save order and invoice to Firestore
       await setDoc(doc(db, 'orders', orderId), orderData);
       await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
+      // Read back the invoice document to confirm
+      try {
+        const invoiceDocRef = doc(db, 'invoices', invoiceId);
+        const writtenInvoice = await getDoc(invoiceDocRef);
+        if (writtenInvoice.exists()) {
+          console.log('Invoice found after write:', writtenInvoice.data());
+        } else {
+          console.error('Invoice NOT found after write!');
+        }
+      } catch (err) {
+        console.error('Error reading back invoice after write:', err);
+      }
       // Add invoiceRef to the order document
       await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
-      // 4b. If user is logged in, also save order to /users/{uid}/Orders/{orderId}
-      if (auth.currentUser) {
-        await setDoc(doc(db, 'users', auth.currentUser.uid, 'Orders', orderId), {
-          ...orderData,
-          invoiceRef: `invoices/${invoiceId}`,
-        });
+      // 4b. If user is logged in, also save the exact same orderData (with invoiceRef merged) to /users/{uid}/Orders/{orderId}
+      if (user) {
+        const mergedOrderData = { ...orderData, invoiceRef: `invoices/${invoiceId}` };
+        console.log('Saving order to user subcollection for user:', user);
+        try {
+          const orderDocRef = doc(db, 'users', user.uid, 'Orders', orderId);
+          await setDoc(orderDocRef, mergedOrderData);
+          console.log('Order successfully written to user subcollection!');
+          // Read back the document to confirm
+          const writtenDoc = await getDoc(orderDocRef);
+          if (writtenDoc.exists()) {
+            console.log('Order found after write:', writtenDoc.data());
+          } else {
+            console.error('Order NOT found after write!');
+          }
+        } catch (err) {
+          console.error('Error writing order to user subcollection:', err);
+        }
       }
 
       // 5. Call backend to create Stripe session, passing orderId
@@ -550,9 +574,9 @@ const Checkout = () => {
     }
     try {
       // Only update Firestore user doc with name, phone, and email
-      if (auth.currentUser) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
-        await setDoc(userDocRef, { displayName: name, phoneNumber: phone, email: auth.currentUser.email }, { merge: true });
+      if (user) {
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, { displayName: name, phoneNumber: phone, email: user.email }, { merge: true });
       }
       setShowUserInfoForm(false);
     } catch (err) {
@@ -722,7 +746,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        {!auth.currentUser && !guestInfo ? (
+        {!user && !guestInfo ? (
           <div className="auth-section">
             <h2>Account Options</h2>
             <div className="auth-options">
@@ -741,7 +765,7 @@ const Checkout = () => {
         ) : (
           <div>
             {/* For logged-in users, show info form if needed */}
-            {auth.currentUser && showUserInfoForm ? (
+            {user && showUserInfoForm ? (
               <form className="user-info-form" onSubmit={handleUserInfoSubmit} style={{ marginBottom: '2rem', background: '#f9f9f9', padding: '1.5rem', borderRadius: 8 }}>
                 <h3>Enter Your Details</h3>
                 <div className="form-group">
@@ -796,7 +820,7 @@ const Checkout = () => {
             <button
               className="checkout-stripe-btn"
               onClick={handleStripeCheckout}
-              disabled={isLoading || (auth.currentUser && showUserInfoForm)}
+              disabled={isLoading || (user && showUserInfoForm)}
             >
               {isLoading ? 'Redirecting to Stripe...' : 'Pay with Card (Stripe Checkout)'}
             </button>
