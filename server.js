@@ -16,9 +16,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static files from the React app
-app.use(express.static('build'));
-
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
@@ -102,6 +99,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Place this at the very end, after all API routes
+app.use(express.static('build'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
