@@ -49,7 +49,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
 
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { cart, guestInfo, pickupDate, pickupTime } = req.body;
+    const { cart, guestInfo, pickupDate, pickupTime, orderId } = req.body;
     if (!process.env.REACT_APP_STRIPE_SECRET_KEY) {
       throw new Error('Missing Stripe Secret Key');
     }
@@ -86,6 +86,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       success_url: 'https://bakesbyolayide.co.uk/order-confirmation?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://bakesbyolayide.co.uk/checkout?canceled=true',
       metadata: {
+        orderId: orderId || '',
         guestName: guestInfo?.name || '',
         guestEmail: guestInfo?.email || '',
         guestPhone: guestInfo?.phone || '',
@@ -96,6 +97,17 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ sessionId: session.id });
   } catch (err) {
     console.error('Stripe Checkout Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint to fetch Stripe session by session_id
+app.get('/api/stripe-session', async (req, res) => {
+  const { session_id } = req.query;
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    res.json({ session });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

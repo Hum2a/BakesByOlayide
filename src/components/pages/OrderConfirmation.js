@@ -59,17 +59,17 @@ const OrderConfirmation = () => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
     if (sessionId) {
-      fetch(`${API_BASE_URL}/api/get-order-details?session_id=${sessionId}`)
+      fetch(`${API_BASE_URL}/api/stripe-session?session_id=${sessionId}`)
         .then(res => res.json())
-        .then(data => {
-          if (data && data.orderId && data.items && data.guestInfo) {
-            setOrderData(data);
-            saveOrderAndInvoiceToFirebase(data);
+        .then(async ({ session }) => {
+          const orderId = session.metadata.orderId;
+          if (orderId) {
+            // Update order status in Firestore
+            await setDoc(doc(db, 'orders', orderId), { status: 'paid' }, { merge: true });
           }
-        })
-        .catch(err => console.error('Error fetching order data:', err));
+        });
     }
-  }, [orderId, items, total, guestInfo]);
+  }, []);
 
   return (
     <div className="order-confirmation-container">

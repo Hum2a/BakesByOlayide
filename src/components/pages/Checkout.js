@@ -396,6 +396,26 @@ const Checkout = () => {
   const handleStripeCheckout = async () => {
     try {
       setIsLoading(true);
+
+      // 1. Generate a new order ID
+      const orderId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+
+      // 2. Prepare order data
+      const orderData = {
+        orderId,
+        items: cart,
+        total: totalPrice,
+        guestInfo,
+        pickupDate,
+        pickupTime,
+        createdAt: Timestamp.now(),
+        status: 'pending',
+      };
+
+      // 3. Save order to Firestore
+      await setDoc(doc(db, 'orders', orderId), orderData);
+
+      // 4. Call backend to create Stripe session, passing orderId
       const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -404,6 +424,7 @@ const Checkout = () => {
           guestInfo,
           pickupDate,
           pickupTime,
+          orderId, // Pass orderId to backend
         }),
       });
       const { sessionId, error } = await response.json();
