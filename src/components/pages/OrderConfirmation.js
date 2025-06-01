@@ -7,6 +7,7 @@ import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import '../styles/OrderConfirmation.css';
 import { doc, setDoc, collection, addDoc, Timestamp } from 'firebase/firestore';
+import { saveOrderAndInvoiceToFirebase } from '../../utils/firebaseOrder';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
@@ -15,6 +16,7 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const { orderId, total, items, guestInfo } = location.state || {};
   const [showOrderHistory, setShowOrderHistory] = useState(false);
+  const [orderData, setOrderData] = useState(null);
 
   useEffect(() => {
     const sendConfirmationEmail = async () => {
@@ -47,65 +49,26 @@ const OrderConfirmation = () => {
   }, [orderId, items, total, guestInfo]);
 
   useEffect(() => {
-    const saveOrderAndInvoice = async () => {
-      if (!orderId || !items || !guestInfo) return;
-
-      try {
-        // Prepare order data
-        const orderData = {
-          orderId,
-          items,
-          total,
-          guestInfo,
-          createdAt: Timestamp.now(),
-          status: 'confirmed',
-        };
-
-        // Save order to /orders
-        const orderRef = doc(db, 'orders', orderId);
-        await setDoc(orderRef, orderData);
-
-        // Optionally, save to user's subcollection if logged in
-        if (auth.currentUser) {
-          const userOrderRef = doc(db, 'users', auth.currentUser.uid, 'Orders', orderId);
-          await setDoc(userOrderRef, orderData);
-        }
-
-        // Prepare invoice data
-        const invoiceData = {
-          orderId,
-          items: items.map(item => ({
-            ...item,
-            total: item.price * item.quantity,
-          })),
-          amount: total,
-          status: 'unpaid',
-          createdAt: Timestamp.now(),
-          customerEmail: guestInfo.email,
-        };
-
-        // Save invoice to /invoices
-        const invoiceRef = doc(collection(db, 'invoices'));
-        await setDoc(invoiceRef, invoiceData);
-
-        // Optionally, save to user's subcollection if logged in
-        if (auth.currentUser) {
-          const userInvoiceRef = doc(db, 'users', auth.currentUser.uid, 'Invoices', invoiceRef.id);
-          await setDoc(userInvoiceRef, invoiceData);
-        }
-
-        // Link invoice to order
-        await setDoc(orderRef, { invoiceRef: invoiceRef.path }, { merge: true });
-        if (auth.currentUser) {
-          const userOrderRef = doc(db, 'users', auth.currentUser.uid, 'Orders', orderId);
-          await setDoc(userOrderRef, { invoiceRef: invoiceRef.path }, { merge: true });
-        }
-      } catch (err) {
-        console.error('Error saving order/invoice:', err);
-      }
-    };
-
-    saveOrderAndInvoice();
+    // If order data is present in location.state, use it
+    if (orderId && items && guestInfo) {
+      setOrderData({ orderId, items, total, guestInfo });
+      saveOrderAndInvoiceToFirebase({ orderId, items, total, guestInfo });
+      return;
+    }
+    // Otherwise, try to fetch using session_id from URL
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+    if (sessionId) {
+      fetch(`${API_BASE_URL}/api/get-order-details?session_id=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.orderId && data.items && data.guestInfo) {
+            setOrderData(data);
+            saveOrderAndInvoiceToFirebase(data);
+          }
+        })
+        .catch(err => console.error('Error fetching order data:', err));
+    }
   }, [orderId, items, total, guestInfo]);
 
   return (
@@ -118,15 +81,15 @@ const OrderConfirmation = () => {
           <h1>Order Confirmed!</h1>
           <p>Thank you for your order. We'll send you an email confirmation shortly.</p>
           
-          {orderId && (
+          {orderData && (
             <div className="order-details">
               <h2>Order Details</h2>
-              <p className="order-id">Order ID: {orderId}</p>
+              <p className="order-id">Order ID: {orderData.orderId}</p>
               
-              {items && items.length > 0 && (
+              {orderData.items && orderData.items.length > 0 && (
                 <div className="order-items">
                   <h3>Items Ordered</h3>
-                  {items.map((item, index) => (
+                  {orderData.items.map((item, index) => (
                     <div key={index} className="order-item">
                       <div className="item-image">
                         <img src={item.image} alt={item.name} />
@@ -141,9 +104,9 @@ const OrderConfirmation = () => {
                 </div>
               )}
               
-              {total && (
+              {orderData.total && (
                 <div className="order-total">
-                  <p>Total Amount: <span>${total.toFixed(2)}</span></p>
+                  <p>Total Amount: <span>${orderData.total.toFixed(2)}</span></p>
                 </div>
               )}
             </div>
