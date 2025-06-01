@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes, FaFileInvoice } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import '../../styles/OrderManagement.css';
@@ -54,13 +54,21 @@ const OrderManagement = () => {
     }
   };
 
-  const updateOrderStatus = async (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, newStatus, invoiceRef) => {
     try {
       const orderRef = firestoreDoc(db, 'orders', orderId);
       await updateDoc(orderRef, {
         status: newStatus,
         updatedAt: new Date()
       });
+      // If confirming, also update invoice status to paid
+      if (newStatus === 'confirmed' && invoiceRef) {
+        try {
+          await setDoc(firestoreDoc(db, invoiceRef), { status: 'paid' }, { merge: true });
+        } catch (e) {
+          // ignore
+        }
+      }
       await fetchOrders(); // Refresh orders after update
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -221,7 +229,7 @@ const OrderManagement = () => {
                   <td className="order-actions">
                     <select
                       value={order.status}
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value, order.invoiceRef)}
                       className="status-select"
                     >
                       <option value="confirmed">Confirm</option>
@@ -229,6 +237,17 @@ const OrderManagement = () => {
                       <option value="completed">Complete</option>
                       <option value="cancelled">Cancel</option>
                     </select>
+                    {/* Manual confirm button for incomplete/unpaid/pending orders */}
+                    {['pending', 'unpaid', 'incomplete'].includes((order.status || '').toLowerCase()) && (
+                      <button
+                        className="manual-confirm-btn"
+                        style={{ marginTop: 8, background: '#f3c307', color: '#111', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
+                        onClick={() => updateOrderStatus(order.id, 'confirmed', order.invoiceRef)}
+                        title="Manually confirm this order and mark invoice as paid"
+                      >
+                        Confirm Order
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
