@@ -281,7 +281,6 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           name: newCake.name,
           categories: newCake.categories,
           flavours: newCake.flavours,
-          size: newCake.size,
           sizes: newCake.sizes,
           description: newCake.description,
           ingredients: newCake.ingredients,
@@ -917,7 +916,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                 {(Array.isArray(cake.sizes) ? cake.sizes : []).map((size, index) => (
                   <div key={index} className="cakemanagement-size-badge">
                     <span>{Array.isArray(cake.categories) && cake.categories.includes('Cupcakes') ? `${size.size} cupcakes` : `${size.size}"`}</span>
-                    <span>£{size.price.toFixed(2)}</span>
+                    <span>£{Number(size.price).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
