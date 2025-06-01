@@ -217,6 +217,13 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     } else {
       setSelectedCategory(category);
       setShowNewCakeForm(true);
+      // Set the category automatically for specific form types
+      if (category !== 'Regular Cakes') {
+        setNewCake(prev => ({
+          ...prev,
+          categories: [category]
+        }));
+      }
     }
     setEditingCake(null);
   };
