@@ -311,7 +311,8 @@ const Checkout = () => {
       // Check expiry date if it exists
       if (discountData.expiryDate) {
         const expiryDate = new Date(discountData.expiryDate);
-        if (expiryDate < new Date()) {
+        const now = new Date();
+        if (expiryDate < now) {
           setDiscountError('This discount code has expired');
           setAppliedDiscount(null);
           return;
@@ -320,7 +321,7 @@ const Checkout = () => {
 
       // Check minimum purchase requirement if it exists
       if (discountData.minPurchase && totalPrice < discountData.minPurchase) {
-        setDiscountError(`Minimum purchase of $${discountData.minPurchase} required`);
+        setDiscountError(`Minimum purchase of £${discountData.minPurchase.toFixed(2)} required`);
         setAppliedDiscount(null);
         return;
       }
@@ -331,6 +332,13 @@ const Checkout = () => {
       // Apply maximum discount limit if it exists
       if (discountData.maxDiscount && discountAmount > discountData.maxDiscount) {
         discountAmount = discountData.maxDiscount;
+      }
+
+      // Validate that the discount amount is positive
+      if (discountAmount <= 0) {
+        setDiscountError('Invalid discount amount');
+        setAppliedDiscount(null);
+        return;
       }
 
       setAppliedDiscount({
@@ -344,7 +352,7 @@ const Checkout = () => {
 
     } catch (error) {
       console.error('Error checking discount code:', error);
-      setDiscountError('Error validating discount code');
+      setDiscountError('Error validating discount code. Please try again.');
       setAppliedDiscount(null);
     } finally {
       setIsCheckingDiscount(false);
@@ -550,7 +558,7 @@ const Checkout = () => {
                       Discount Applied: {appliedDiscount.description}
                     </span>
                     <span className="discount-amount">
-                      -${appliedDiscount.amount.toFixed(2)}
+                      -£{appliedDiscount.amount.toFixed(2)}
                     </span>
                   </div>
                   <button
