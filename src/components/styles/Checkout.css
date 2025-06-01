@@ -16,7 +16,6 @@
 }
 
 .checkout-content {
-  max-width: 1000px;
   margin: 0 auto;
   background: white;
   border-radius: 10px;
@@ -523,7 +522,7 @@
 .schedule-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
+  gap: 10rem;
   background: none;
   border-radius: 0;
   box-shadow: none;
