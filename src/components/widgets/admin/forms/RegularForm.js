@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
+// Fixed categories from CakeManagement
+const FIXED_CATEGORIES = [
+  'Cupcakes',
+  'Large Cakes',
+  'Bento Cake with Cupcakes',
+  'Brownies',
+  'Cookies',
+  'Vegan Range',
+  'Gluten Free',
+  'Subscription Boxes',
+];
+
 const RegularForm = ({
   newCake,
   setNewCake,
@@ -23,6 +35,27 @@ const RegularForm = ({
 
   return (
     <>
+      <div className="cakemanagement-form-group full-width">
+        <label>Categories*</label>
+        <div className="cakemanagement-categories">
+          {FIXED_CATEGORIES.map((category) => (
+            <label key={category} className="cakemanagement-category-checkbox">
+              <input
+                type="checkbox"
+                checked={newCake.categories.includes(category)}
+                onChange={(e) => {
+                  const updatedCategories = e.target.checked
+                    ? [...newCake.categories, category]
+                    : newCake.categories.filter(cat => cat !== category);
+                  setNewCake({ ...newCake, categories: updatedCategories });
+                }}
+              />
+              {category}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="cakemanagement-form-group full-width">
         <label>Sizes and Prices*</label>
         <div className="cakemanagement-sizes">
@@ -314,7 +347,7 @@ const RegularForm = ({
           {(newCake.addOns || []).map((addOn, index) => (
             <div key={index} className="cakemanagement-addon-item">
               <span>{addOn.name}</span>
-              <span className="cakemanagement-addon-price">+£{addOn.price.toFixed(2)}</span>
+              <span className="cakemanagement-addon-price">+£{typeof addOn.price === 'number' ? addOn.price.toFixed(2) : '0.00'}</span>
               <button
                 type="button"
                 className="cakemanagement-remove-addon-btn"
@@ -349,11 +382,13 @@ const RegularForm = ({
             className="cakemanagement-add-addon-btn"
             onClick={() => {
               if (!newAddOn.name.trim() || newAddOn.price === '') return;
+              const price = parseFloat(newAddOn.price);
+              if (isNaN(price)) return;
               setNewCake({
                 ...newCake,
                 addOns: [...(newCake.addOns || []), {
                   name: newAddOn.name.trim(),
-                  price: parseFloat(newAddOn.price)
+                  price: price
                 }]
               });
               setNewAddOn({ name: '', price: '' });

@@ -1,9 +1,53 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaPlus, FaTimes } from 'react-icons/fa';
 
+// Fixed categories from CakeManagement
+const FIXED_CATEGORIES = [
+  'Cupcakes',
+  'Large Cakes',
+  'Bento Cake with Cupcakes',
+  'Brownies',
+  'Cookies',
+  'Vegan Range',
+  'Gluten Free',
+  'Subscription Boxes',
+];
+
 const CupcakeForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, handleRemoveSize, cakes, editingCake }) => {
+  // Ensure Cupcakes category is always selected
+  useEffect(() => {
+    if (!newCake.categories.includes('Cupcakes')) {
+      setNewCake(prev => ({
+        ...prev,
+        categories: [...prev.categories, 'Cupcakes']
+      }));
+    }
+  }, []);
+
   return (
     <>
+      <div className="cakemanagement-form-group full-width">
+        <label>Categories*</label>
+        <div className="cakemanagement-categories">
+          {FIXED_CATEGORIES.map((category) => (
+            <label key={category} className="cakemanagement-category-checkbox">
+              <input
+                type="checkbox"
+                checked={newCake.categories.includes(category)}
+                disabled={category === 'Cupcakes'}
+                onChange={(e) => {
+                  const updatedCategories = e.target.checked
+                    ? [...newCake.categories, category]
+                    : newCake.categories.filter(cat => cat !== category);
+                  setNewCake({ ...newCake, categories: updatedCategories });
+                }}
+              />
+              {category}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="cakemanagement-form-group full-width">
         <label>Batch Size and Prices*</label>
         <div className="cakemanagement-sizes">
