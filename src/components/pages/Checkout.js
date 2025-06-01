@@ -214,11 +214,42 @@ const Checkout = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [tempCart, setTempCart] = useState(null);
   const [user, setUser] = useState(null);
+  const [userInfoForm, setUserInfoForm] = useState({ name: '', phone: '' });
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
+  const [userInfoError, setUserInfoError] = useState('');
 
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
+      if (user) {
+        // If missing displayName or phoneNumber, show form
+        const needsName = !user.displayName || user.displayName.trim() === '';
+        const needsPhone = !user.phoneNumber || user.phoneNumber.trim() === '';
+        if (needsName || needsPhone) {
+          // Try to fetch from Firestore profile doc
+          const fetchProfile = async () => {
+            let name = user.displayName || '';
+            let phone = user.phoneNumber || '';
+            try {
+              const userDocRef = doc(db, 'users', user.uid);
+              const userDocSnap = await getDoc(userDocRef);
+              if (userDocSnap.exists()) {
+                const data = userDocSnap.data();
+                if (data.displayName) name = data.displayName;
+                if (data.phoneNumber) phone = data.phoneNumber;
+              }
+            } catch (e) {}
+            setUserInfoForm({ name, phone });
+            setShowUserInfoForm(!name.trim() || !phone.trim());
+          };
+          fetchProfile();
+        } else {
+          setShowUserInfoForm(false);
+        }
+      } else {
+        setShowUserInfoForm(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -411,11 +442,40 @@ const Checkout = () => {
           formattedPickupDate = dateObj.toISOString().slice(0, 10);
         } catch (e) {}
       }
+      // Always populate guestInfo: for logged-in users, use their info from Firestore; for guests, use guestInfo from form
+      let customerInfo = guestInfo;
+      if (auth.currentUser && !guestInfo) {
+        // Fetch from Firestore profile doc
+        try {
+          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            customerInfo = {
+              name: data.displayName || '',
+              email: auth.currentUser.email || '',
+              phone: data.phoneNumber || '',
+            };
+          } else {
+            customerInfo = {
+              name: '',
+              email: auth.currentUser.email || '',
+              phone: '',
+            };
+          }
+        } catch (e) {
+          customerInfo = {
+            name: '',
+            email: auth.currentUser.email || '',
+            phone: '',
+          };
+        }
+      }
       const orderData = {
         orderId,
         items: cart,
         total: totalPrice,
-        guestInfo,
+        guestInfo: customerInfo,
         pickupDate: formattedPickupDate,
         pickupTime,
         createdAt: Timestamp.now(),
@@ -433,7 +493,7 @@ const Checkout = () => {
         amount: totalPrice,
         status: 'unpaid',
         createdAt: Timestamp.now(),
-        customerEmail: guestInfo?.email || '',
+        customerEmail: customerInfo?.email || '',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
@@ -457,7 +517,7 @@ const Checkout = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cart,
-          guestInfo,
+          guestInfo: customerInfo,
           pickupDate,
           pickupTime,
           orderId, // Pass orderId to backend
@@ -471,6 +531,32 @@ const Checkout = () => {
       alert('Error redirecting to Stripe: ' + err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handler for updating user info (name/phone)
+  const handleUserInfoChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfoForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUserInfoSubmit = async (e) => {
+    e.preventDefault();
+    setUserInfoError('');
+    const { name, phone } = userInfoForm;
+    if (!name.trim() || !phone.trim()) {
+      setUserInfoError('Please enter your full name and phone number.');
+      return;
+    }
+    try {
+      // Only update Firestore user doc with name, phone, and email
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        await setDoc(userDocRef, { displayName: name, phoneNumber: phone, email: auth.currentUser.email }, { merge: true });
+      }
+      setShowUserInfoForm(false);
+    } catch (err) {
+      setUserInfoError('Failed to update profile. Please try again.');
     }
   };
 
@@ -654,6 +740,39 @@ const Checkout = () => {
           </div>
         ) : (
           <div>
+            {/* For logged-in users, show info form if needed */}
+            {auth.currentUser && showUserInfoForm ? (
+              <form className="user-info-form" onSubmit={handleUserInfoSubmit} style={{ marginBottom: '2rem', background: '#f9f9f9', padding: '1.5rem', borderRadius: 8 }}>
+                <h3>Enter Your Details</h3>
+                <div className="form-group">
+                  <label htmlFor="user-fullname">Full Name *</label>
+                  <input
+                    type="text"
+                    id="user-fullname"
+                    name="name"
+                    value={userInfoForm.name}
+                    onChange={handleUserInfoChange}
+                    required
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="user-phone">Phone Number *</label>
+                  <input
+                    type="tel"
+                    id="user-phone"
+                    name="phone"
+                    value={userInfoForm.phone}
+                    onChange={handleUserInfoChange}
+                    required
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+                {userInfoError && <div className="discount-error">{userInfoError}</div>}
+                <button type="submit" className="continue-button">Save Details</button>
+              </form>
+            ) : null}
+            {/* Show summary for guests or logged-in users with info */}
             {guestInfo && (
               <div className="guest-info-summary">
                 <h3>Order Information</h3>
@@ -677,7 +796,7 @@ const Checkout = () => {
             <button
               className="checkout-stripe-btn"
               onClick={handleStripeCheckout}
-              disabled={isLoading}
+              disabled={isLoading || (auth.currentUser && showUserInfoForm)}
             >
               {isLoading ? 'Redirecting to Stripe...' : 'Pay with Card (Stripe Checkout)'}
             </button>
