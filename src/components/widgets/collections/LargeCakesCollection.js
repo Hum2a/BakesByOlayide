@@ -167,7 +167,7 @@ const LargeCakesCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/LargeCakes.png" alt="Large Cakes" className="cakepage-hero-bgimg" />
+          <img src="/images/range/LargeCakes.webp" alt="Large Cakes" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Large Cakes</h1>
         </div>
       </header>

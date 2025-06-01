@@ -164,7 +164,7 @@ const VeganRangeCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/VeganRange.png" alt="Vegan Range" className="cakepage-hero-bgimg" />
+          <img src="/images/range/VeganRange.webp" alt="Vegan Range" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Vegan Range</h1>
         </div>
       </header>

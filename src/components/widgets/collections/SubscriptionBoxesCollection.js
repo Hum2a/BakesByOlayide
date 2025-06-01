@@ -164,7 +164,7 @@ const SubscriptionBoxesCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/SubscriptionBoxes.png" alt="Subscription Boxes" className="cakepage-hero-bgimg" />
+          <img src="/images/range/SubscriptionBoxes.webp" alt="Subscription Boxes" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Subscription Boxes</h1>
         </div>
       </header>

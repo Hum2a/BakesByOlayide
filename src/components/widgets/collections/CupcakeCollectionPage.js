@@ -170,7 +170,7 @@ const CupcakeCollectionPage = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/Cupcakes.png" alt="Cupcakes" className="cakepage-hero-bgimg" />
+          <img src="/images/range/Cupcakes.webp" alt="Cupcakes" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Cupcakes</h1>
         </div>
       </header>

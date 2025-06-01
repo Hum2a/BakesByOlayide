@@ -154,7 +154,7 @@ const BentoCakewithCupcakesCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/BentoCakewithCupcakes.png" alt="Bento Cake with Cupcakes" className="cakepage-hero-bgimg" />
+          <img src="/images/range/BentoCakewithCupcakes.webp" alt="Bento Cake with Cupcakes" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Bento Cake with Cupcakes</h1>
         </div>
       </header>

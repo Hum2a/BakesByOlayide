@@ -164,7 +164,7 @@ const GlutenFreeCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/GlutenFree.png" alt="Gluten Free Range" className="cakepage-hero-bgimg" />
+          <img src="/images/range/GlutenFree.webp" alt="Gluten Free Range" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Gluten Free Range</h1>
         </div>
       </header>
