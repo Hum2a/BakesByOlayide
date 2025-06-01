@@ -76,14 +76,29 @@ const OrderManagement = () => {
     }
   };
 
-  const deleteOrder = async (orderId, invoiceRef) => {
+  const deleteOrder = async (orderId, invoiceRef, userId) => {
     if (!window.confirm('Are you sure you want to delete this order? This cannot be undone.')) return;
     try {
+      // Delete from main orders collection
       await deleteDoc(firestoreDoc(db, 'orders', orderId));
+      console.log('Deleted from main orders collection:', orderId);
+      // Delete from user's subcollection if userId exists
+      if (userId) {
+        try {
+          await deleteDoc(firestoreDoc(db, 'users', userId, 'Orders', orderId));
+          console.log('Deleted from user subcollection:', userId, orderId);
+        } catch (e) {
+          console.error('Error deleting from user subcollection:', e);
+        }
+      }
+      // Delete invoice if invoiceRef exists
       if (invoiceRef) {
         try {
           await deleteDoc(firestoreDoc(db, invoiceRef));
-        } catch (e) {}
+          console.log('Deleted invoice:', invoiceRef);
+        } catch (e) {
+          console.error('Error deleting invoice:', e);
+        }
       }
       await fetchOrders();
     } catch (error) {
@@ -275,7 +290,7 @@ const OrderManagement = () => {
                     <button
                       className="delete-order-btn"
                       style={{ marginTop: 8, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
-                      onClick={() => deleteOrder(order.id, order.invoiceRef)}
+                      onClick={() => deleteOrder(order.id, order.invoiceRef, order.userId)}
                       title="Delete this order and its invoice"
                     >
                       Delete
