@@ -13,7 +13,8 @@ import TermsAndConditions from '../components/pages/TermsAndConditions';
 import GuidesPage from '../components/pages/GuidesPage';
 import DietaryRequirements from '../components/pages/guides/DietaryRequirements';
 import PricingGuide from '../components/pages/guides/PricingGuide';
-// import SpecialOccasions from '../components/pages/guides/SpecialOccasions';
+import SpecialOccasion from '../components/pages/guides/SpecialOccasion';
+import SizingGuide from '../components/pages/guides/SizingGuide';
 
 // --- Cakes ---
 import CakePage from '../components/pages/CakePage';
@@ -62,8 +63,9 @@ const AppRouter = () => {
           <Route path="/guides" element={<GuidesPage />} />
           <Route path="/guides/dietary-requirements" element={<DietaryRequirements />} />
           <Route path="/guides/pricing" element={<PricingGuide />} />
-          {/* <Route path="/guides/special-occasions" element={<SpecialOccasions />} /> */}
-
+          <Route path="/guides/special-occasions" element={<SpecialOccasion />} />
+          <Route path="/guides/sizing-guide" element={<SizingGuide />} />
+          
           {/* --- Cakes & Collections --- */}
           <Route path="/collections" element={<CakePage onOpenCart={() => setIsCartOpen(true)} />} />
           <Route path="/collections/cakes/:id" element={<SpecificCakePage />} />

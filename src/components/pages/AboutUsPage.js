@@ -11,35 +11,18 @@ const AboutUsPage = () => {
       <Header />
       <main className="aboutus-main">
         <section className="aboutus-content">
-          <h1>About Us</h1>
-          <p>Covid-19 changed the world on a scale that no one could have predicted: the world shutdown and we spent weeks isolating from each other in a way that humanity had never seen before. With the unprecedented amount of time indoors I had on my hands, I had time to introspect.</p>
-          <p>What do I want to do with my life?</p>
-          <p>Is university the right thing for me?</p>
-          <p>What will make me happy?</p>
-          <p>In a time of instability what I needed most was unwavering confidence that I could leave my mark on the world. I spent hours, days, weeks – months – thinking about passions and talents I had. What did I see myself doing?</p>
-          <p>Baking. I was always good at it. My understanding of chemistry helped me develop and change recipes. It made sense.</p>
-          <p>In 2021, I chose to open my business (initially named Cakes by Olayide) instead of going to university. I worked full time jobs to fund it at the same time. My skills improved quickly and I wanted to open a brick-and-mortar store one day.</p>
-          <p>But now I found myself wanting to go to university. So I did.</p>
-          <p>I closed down my business and focused on my studies, knowing that I wasn't equipped to do both at the same time. Now that I'm at the end of my education journey, I decided to reopen and rebrand.</p>
-          <p>My journey has been nowhere near linear, but I'm grateful for it. Running a business has helped me grow and understand the world around me. I love meeting people and getting to know them. To make cakes and bakes for them. To make their day special, or even just a little sweeter. I hope to continue on this path and scale up to having a storefront one day.<br/>Thanks for joining me on this journey,<br/>Olayide</p>
+          <h1>Our Story</h1>
+          <p>From a young age, I was good at baking. My mum taught me and my siblings how to do it from a young age with a stained recipe book covered in little orange and blue fingerprints. My family has always been competitive, so we’d run competitions around who could make the best cupcakes (although I’m sure it was an excuse to eat cupcakes more than anything).</p>
+          <p>We’d all have our own colour we’d decorate our cakes with. Mine was yellow. The icing often ended up orange because I’d add too much. My siblings were just as heavy handed and we ended up with cakes that turned blue as a result of too much colouring in the icing. I don’t think anyone ate those ones.</p>
+          <p>Baking became something I did for fun, for my family and eventually my friends. It’s something I’ve always loved doing and I believe I have a talent for.</p>
+          <p>And then Covid hit. The world changed unrecognisably. It threw a spanner into all the plans I had for myself. With the unprecedented amount of time indoors I had on my hands, I had time to introspect (and bake).</p>
+          <p>I found myself questioning if I really wanted to follow the path I’d laid out for myself, or if I should pursue something else. So, I ended up choosing to open a business in 2021. I sold cakes and brownies to many people and enjoyed watching my progress over time. There aren’t many cakes (or pictures) from then that I’d show off, but I look back on then fondly.</p>
+          <p>In 2023 I decided to go to university. I closed down my business and began pursuing a degree in Screenwriting. I’ve met a lot of great people since then, and many encouraged me to start baking again.</p>
+          <p>So here we are. I’ve returned to bake again, this time more confident and experienced than ever. I’m here to make your day a little brighter with something sweet.</p>
+          <p>Hopefully one day you’ll be able to walk into a brick-and-mortar bakery of mine, after having seen something I’ve written. Who knows?</p>
+          <p>Whatever the future holds, I’ll be baking and writing like I always have.</p>
+          <p>I hope you’ll join me on my journey,<br/>Olayide</p>
         </section>
-        {/* <aside className="aboutus-side">
-          <div className="aboutus-image-wrapper">
-            <img src="/images/about-portrait.png" alt="Olayide portrait" className="aboutus-image" />
-          </div>
-          <div className="aboutus-contact">
-            <h2>Contact us</h2>
-            <form className="aboutus-contact-form">
-              <div className="aboutus-form-row">
-                <input type="text" placeholder="First name" name="firstName" />
-                <input type="text" placeholder="Last name" name="lastName" />
-              </div>
-              <input type="email" placeholder="Email address" name="email" />
-              <textarea placeholder="Your message" name="message" rows="4"></textarea>
-              <button type="submit">Submit</button>
-            </form>
-          </div>
-        </aside> */}
       </main>
       <Footer />
     </div>

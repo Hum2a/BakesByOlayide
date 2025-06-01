@@ -57,13 +57,13 @@ const DietaryRequirements = () => {
               <li>Soya</li>
             </ul>
             <p>
-              Almond and soya are used within our vegan range (as milk substitutes). These can be substituted with oat or hemp milk in custom orders. Coconut flour is our flour substitute for our gluten free range as the flavour is subtle and gives gluten free cakes a more similar texture (and taste) to wheat flour cakes. This can also be substituted in custom orders.
+             Almond and soya are used within our vegan range (as milk substitutes). These can be substituted with oat or hemp milk in custom orders. Coconut flour is our flour substitute for our gluten free range as the flavour is subtle and gives gluten free cakes a more similar texture (and taste) to wheat flour cakes. This can also be substituted in custom orders.
             </p>
             <p>
-              Most of our ingredients are stored separately from our allergen sensitive ingredients. However, the wheat flour used in our standard range is stored with all sugars (aside from powdered), cocoa powder and pigments. Whilst we try to avoid contamination as much as possible, please keep in mind that it can and may occur.
+              Most of our ingredients are stored separately from our allergen sensitive ingredients. However, the wheat flour used in our standard range is stored with all sugars (aside from powdered), cocoa powder and pigments. Whilst we try to avoid contamination as much as possible, please keep in mind that it can and may occur. 
             </p>
             <p>
-            The same equipment is used for standard, gluten free and vegan cakes. They are machine and hand washed but mixers, bowls, spoons and other apparatus used in the baking process are not specific to dietary requirements. This means if at one point a spatula were used for a set of standard vanilla cupcakes, in the future (after washes) it may be used for gluten free cakes.
+              The same equipment is used for standard, gluten free and vegan cakes. They are machine and hand washed but mixers, bowls, spoons and other apparatus used in the baking process are not specific to dietary requirements. This means if at one point a spatula were used for a set of standard vanilla cupcakes, in the future (after washes) it may be used for gluten free cakes. 
             </p>
             <p>
               When contacting us for your custom order, please be sure to clearly explain what allergens you need us to cater for. While we try our best to cater for every allergy, we are not able to cater for those who have airborne allergies to milk, gluten/wheat or eggs. This is because these ingredients are frequently used in our bakery and could potentially trigger a reaction.
@@ -75,18 +75,15 @@ const DietaryRequirements = () => {
           <section className="DietaryRequirements-related-guides">
             <h2>Related Guides</h2>
             <div className="DietaryRequirements-guides-grid">
-              <div className="DietaryRequirements-guide-card">
+              <a href="/guides/special-occasions" className="DietaryRequirements-guide-card">
                 <img src="/images/about/Cherry.png" alt="Planning a Special Occasion?" />
                 <h3>Planning for a Special Occasion?</h3>
-              </div>
-              <div className="DietaryRequirements-guide-card">
-                <img src="/images/about/scones.png" alt="What cake is right for you?" />
-                <h3>What cake is right for you?</h3>
-              </div>
-              <div className="DietaryRequirements-guide-card">
-                <img src="/images/about/yorkshires.png" alt="How to care for your bakes" />
-                <h3>How to care for your bakes</h3>
-              </div>
+              </a>
+              <a href="/guides/sizing-guide" className="DietaryRequirements-guide-card">
+                <img src="/images/about/scones.png" alt="Sizing Guide" />
+                <h3>Sizing Guide</h3>
+              </a>
+
             </div>
           </section>
         </main>

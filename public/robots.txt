@@ -1,13 +1,26 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for Bakes by Olayide
+
 # Allow all crawlers
 User-agent: *
+
+# Disallow sensitive or non-public pages
+Disallow: /admin
+Disallow: /checkout
+Disallow: /basket
+Disallow: /order-confirmation
+
+# (Optional) Disallow API or static folders if present and not needed for SEO
+# Disallow: /api/
+# Disallow: /static/
+# Disallow: /private/
+
+# Allow all other content
 Allow: /
 
-# Disallow admin area
-Disallow: /admin
+# Sitemap location
+Sitemap: https://bakesbyolayide.co.uk/sitemap.xml
 
-# Sitemap
-Sitemap: https://bakesbyolayide.com/sitemap.xml
-
-# Crawl-delay
+# (Optional) Crawl-delay for non-Google bots (Google ignores this)
 Crawl-delay: 10
+
+# End of file
