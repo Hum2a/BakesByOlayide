@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import OrderHistoryModal from '../modals/OrderHistoryModal';
-import { auth } from '../../firebase/firebase';
+import { auth, db } from '../../firebase/firebase';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import '../styles/OrderConfirmation.css';
+import { doc, setDoc, collection, addDoc, Timestamp } from 'firebase/firestore';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
 
@@ -43,6 +44,68 @@ const OrderConfirmation = () => {
     };
 
     sendConfirmationEmail();
+  }, [orderId, items, total, guestInfo]);
+
+  useEffect(() => {
+    const saveOrderAndInvoice = async () => {
+      if (!orderId || !items || !guestInfo) return;
+
+      try {
+        // Prepare order data
+        const orderData = {
+          orderId,
+          items,
+          total,
+          guestInfo,
+          createdAt: Timestamp.now(),
+          status: 'confirmed',
+        };
+
+        // Save order to /orders
+        const orderRef = doc(db, 'orders', orderId);
+        await setDoc(orderRef, orderData);
+
+        // Optionally, save to user's subcollection if logged in
+        if (auth.currentUser) {
+          const userOrderRef = doc(db, 'users', auth.currentUser.uid, 'Orders', orderId);
+          await setDoc(userOrderRef, orderData);
+        }
+
+        // Prepare invoice data
+        const invoiceData = {
+          orderId,
+          items: items.map(item => ({
+            ...item,
+            total: item.price * item.quantity,
+          })),
+          amount: total,
+          status: 'unpaid',
+          createdAt: Timestamp.now(),
+          customerEmail: guestInfo.email,
+        };
+
+        // Save invoice to /invoices
+        const invoiceRef = doc(collection(db, 'invoices'));
+        await setDoc(invoiceRef, invoiceData);
+
+        // Optionally, save to user's subcollection if logged in
+        if (auth.currentUser) {
+          const userInvoiceRef = doc(db, 'users', auth.currentUser.uid, 'Invoices', invoiceRef.id);
+          await setDoc(userInvoiceRef, invoiceData);
+        }
+
+        // Link invoice to order
+        await setDoc(orderRef, { invoiceRef: invoiceRef.path }, { merge: true });
+        if (auth.currentUser) {
+          const userOrderRef = doc(db, 'users', auth.currentUser.uid, 'Orders', orderId);
+          await setDoc(userOrderRef, { invoiceRef: invoiceRef.path }, { merge: true });
+        }
+      } catch (err) {
+        console.error('Error saving order/invoice:', err);
+      }
+    };
+
+    saveOrderAndInvoice();
   }, [orderId, items, total, guestInfo]);
 
   return (
