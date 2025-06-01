@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
 // const { sendOrderConfirmation, sendEnquiryConfirmation, sendPasswordReset } = require('./src/utils/emailService');
-const admin = require('firebase-admin');
 
 const app = express();
 
@@ -29,14 +28,6 @@ app.get('/api/test', (req, res) => {
 // app.post('/api/send-order-confirmation', ...)
 // app.post('/api/send-enquiry-confirmation', ...)
 // app.post('/api/send-password-reset', ...)
-
-// Firebase Admin SDK setup
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-  });
-}
-const dbAdmin = admin.firestore();
 
 app.post('/api/create-payment-intent', async (req, res) => {
   try {
@@ -105,48 +96,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
         pickupTime: pickupTime || '',
       },
     });
-
-    // Save order data to Firestore with sessionId as the document ID
-    const orderData = {
-      cart,
-      guestInfo,
-      pickupDate,
-      pickupTime,
-      sessionId: session.id,
-      createdAt: new Date().toISOString(),
-    };
-    await dbAdmin.collection('pendingOrders').doc(session.id).set(orderData);
-
     res.json({ sessionId: session.id });
   } catch (err) {
     console.error('Stripe Checkout Error:', err);
     res.status(500).json({ error: err.message });
-  }
-});
-
-// Endpoint to fetch order details by session_id
-app.get('/api/get-order-details', async (req, res) => {
-  const sessionId = req.query.session_id;
-  if (!sessionId) {
-    return res.status(400).json({ error: 'Missing session_id' });
-  }
-  try {
-    const orderDoc = await dbAdmin.collection('pendingOrders').doc(sessionId).get();
-    if (!orderDoc.exists) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    const orderData = orderDoc.data();
-    res.json({
-      orderId: sessionId,
-      items: orderData.cart,
-      total: orderData.cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      guestInfo: orderData.guestInfo,
-      pickupDate: orderData.pickupDate,
-      pickupTime: orderData.pickupTime,
-    });
-  } catch (err) {
-    console.error('Error fetching order details:', err);
-    res.status(500).json({ error: 'Failed to fetch order details' });
   }
 });
 
