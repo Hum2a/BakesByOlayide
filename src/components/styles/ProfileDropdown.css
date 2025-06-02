@@ -147,6 +147,91 @@
   color: #e74c3c;
 }
 
+.name-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.name-edit-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.name-edit-btn:hover {
+  color: #f3c307;
+}
+
+.name-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.name-edit-input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  font-family: inherit;
+}
+
+.name-edit-input:focus {
+  outline: none;
+  border-color: #f3c307;
+  box-shadow: 0 0 0 2px rgba(243, 195, 7, 0.1);
+}
+
+.name-error {
+  color: #e74c3c;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.name-edit-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.name-save-btn,
+.name-cancel-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.name-save-btn {
+  background: #f3c307;
+  color: white;
+  border: none;
+}
+
+.name-save-btn:hover {
+  background: #e0b306;
+}
+
+.name-cancel-btn {
+  background: none;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.name-cancel-btn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
 @media (max-width: 768px) {
   .profile-dropdown {
     position: fixed;
@@ -190,6 +275,21 @@
 
   .dropdown-item {
     padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .name-edit-container {
+    gap: 0.75rem;
+  }
+
+  .name-edit-input {
+    font-size: 1.1rem;
+    padding: 0.6rem;
+  }
+
+  .name-save-btn,
+  .name-cancel-btn {
+    padding: 0.5rem 1rem;
     font-size: 1rem;
   }
 } 
