@@ -83,14 +83,14 @@ const SignatureCreations = () => {
   return (
     <section className="homepage-featured-cakes">
       <h2>Our Range</h2>
-      <div className="signature-carousel">
-        <button className="carousel-arrow left" onClick={prevSlide} aria-label="Previous">
+      <div className="homepage-signature-carousel">
+        <button className="homepage-carousel-arrow left" onClick={prevSlide} aria-label="Previous">
           <FaChevronLeft size={38} color="#fff" />
         </button>
         {cakeData.map((cake, idx) => (
           <a
             href={cake.link}
-            className={`carousel-slide${idx === current ? ' active' : ''}${idx === (current - 1 + cakeData.length) % cakeData.length ? ' prev' : ''}`}
+            className={`homepage-carousel-slide${idx === current ? ' active' : ''}${idx === (current - 1 + cakeData.length) % cakeData.length ? ' prev' : ''}`}
             key={cake.title}
             style={{ display: 'block' }}
             tabIndex={idx === current ? 0 : -1}
@@ -102,15 +102,15 @@ const SignatureCreations = () => {
             <h3>{cake.title}</h3>
           </a>
         ))}
-        <button className="carousel-arrow right" onClick={nextSlide} aria-label="Next">
+        <button className="homepage-carousel-arrow right" onClick={nextSlide} aria-label="Next">
           <FaChevronRight size={38} color="#fff" />
         </button>
       </div>
-      <div className="carousel-dots">
+      <div className="homepage-carousel-dots">
         {cakeData.map((_, idx) => (
           <span
             key={idx}
-            className={`carousel-dot${idx === current ? ' active' : ''}`}
+            className={`homepage-carousel-dot${idx === current ? ' active' : ''}`}
             onClick={() => {
               setDirection(idx > current ? 'next' : 'prev');
               setCurrent(idx);

@@ -107,7 +107,8 @@
   }
 }
 
-.signature-carousel {
+/* SignatureCreations Carousel Styles */
+.homepage-signature-carousel {
   position: relative;
   width: 100%;
   max-width: 900px;
@@ -118,7 +119,7 @@
   min-height: 400px;
 }
 
-.carousel-slide {
+.homepage-carousel-slide {
   width: 100%;
   max-width: 1000px;
   text-align: center;
@@ -136,7 +137,7 @@
   justify-content: center;
 }
 
-.carousel-slide.active {
+.homepage-carousel-slide.active {
   opacity: 1;
   pointer-events: auto;
   position: relative;
@@ -144,15 +145,14 @@
   transform: translateX(0);
 }
 
-.carousel-slide.prev {
+.homepage-carousel-slide.prev {
   transform: translateX(-100%);
 }
 
-.carousel-slide img {
+.homepage-carousel-slide img {
   width: 100%;
   height: 595px;
   object-fit: cover;
-  /* border-radius: 18px; */
   box-shadow: 0 2px 10px rgba(0,0,0,0.07);
   margin: 0 auto;
   display: block;
@@ -160,7 +160,7 @@
   position: relative;
 }
 
-.carousel-slide h3 {
+.homepage-carousel-slide h3 {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -176,7 +176,7 @@
   z-index: 2;
 }
 
-.carousel-arrow {
+.homepage-carousel-arrow {
   background: transparent;
   border: none;
   color: #fff;
@@ -196,26 +196,26 @@
   border-radius: 50%;
 }
 
-.carousel-arrow.left {
+.homepage-carousel-arrow.left {
   left: 24px;
 }
-.carousel-arrow.right {
+.homepage-carousel-arrow.right {
   right: 24px;
 }
 
-.carousel-arrow:hover {
+.homepage-carousel-arrow:hover {
   opacity: 1;
   background: rgba(0,0,0,0.35);
 }
 
-.carousel-dots {
+.homepage-carousel-dots {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
 }
 
-.carousel-dot {
+.homepage-carousel-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -225,38 +225,51 @@
   transition: all 0.2s ease;
 }
 
-.carousel-dot.active {
+.homepage-carousel-dot.active {
   background: #888;
   transform: scale(1.1);
 }
 
 @media (max-width: 1000px) {
-  .signature-carousel {
+  .homepage-signature-carousel {
     max-width: 98vw;
     min-height: 220px;
   }
-  
-  .carousel-slide {
+  .homepage-carousel-slide {
     max-width: 98vw;
   }
-  
-  .carousel-slide img {
+  .homepage-carousel-slide img {
     max-width: 95vw;
     height: 280px;
   }
-
-  .carousel-arrow {
+  .homepage-carousel-arrow {
     font-size: 2.5rem;
     width: 40px;
     height: 40px;
   }
-
-  .carousel-arrow.left { left: 10px; }
-  .carousel-arrow.right { right: 10px; }
+  .homepage-carousel-arrow.left { left: 10px; }
+  .homepage-carousel-arrow.right { right: 10px; }
 }
 
 @media (max-width: 600px) {
-  .carousel-slide img {
+  .homepage-carousel-slide img {
     height: 210px;
   }
+}
+
+/* Remove or rename any generic carousel class rules below this line */
+.signature-carousel,
+.carousel-slide,
+.carousel-slide.active,
+.carousel-slide.prev,
+.carousel-slide img,
+.carousel-slide h3,
+.carousel-arrow,
+.carousel-arrow.left,
+.carousel-arrow.right,
+.carousel-arrow:hover,
+.carousel-dots,
+.carousel-dot,
+.carousel-dot.active {
+  /* No longer used for SignatureCreations, keep only if used elsewhere */
 }
