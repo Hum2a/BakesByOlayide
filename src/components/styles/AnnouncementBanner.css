@@ -11,6 +11,7 @@
   text-align: center;
   animation: slideDown 0.3s ease-out;
   overflow: hidden;
+  background: #3498db; /* Default color */
 }
 
 .announcement-banner.scrolling {
@@ -27,6 +28,45 @@
   display: inline-block;
   animation: scrollText 20s linear infinite;
   padding-left: 100%;
+}
+
+.rotating-messages {
+  position: relative;
+  min-height: 2.5em;
+  overflow: hidden;
+  padding: 0.5rem 0;
+}
+
+.rotating-messages .message {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  padding: 0.5rem 2rem;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  border-radius: 4px;
+  margin: 0.25rem 0;
+}
+
+.rotating-messages .message.current {
+  transform: translateY(0);
+  opacity: 1;
+  z-index: 2;
+}
+
+.rotating-messages .message.next {
+  transform: translateY(100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.rotating-messages .message.slide-out {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.rotating-messages .message.slide-in {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 @keyframes scrollText {
@@ -81,6 +121,7 @@
   font-weight: 600;
   transition: opacity 0.2s ease;
   white-space: nowrap;
+  margin-left: 0.5rem;
 }
 
 .announcement-link:hover {
@@ -125,5 +166,9 @@
 
   .announcement-close {
     right: 0.5rem;
+  }
+
+  .rotating-messages .message {
+    padding: 0.5rem 1rem;
   }
 } 

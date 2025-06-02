@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { ChromePicker } from 'react-color';
 import '../../styles/AnnouncementManager.css';
 
 const AnnouncementManager = () => {
   const [announcement, setAnnouncement] = useState({
-    message: '',
-    type: 'info',
+    messages: [{ text: '', color: '#3498db' }],
     isActive: false,
     link: '',
     linkText: '',
-    scrollAnimation: false
+    scrollAnimation: false,
+    messageInterval: 5, // seconds between message changes
+    useCustomColors: false,
+    backgroundColor: '#3498db' // Default background color
   });
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
+  const [showColorPicker, setShowColorPicker] = useState(null);
+  const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
 
   useEffect(() => {
     fetchAnnouncement();
@@ -21,12 +26,14 @@ const AnnouncementManager = () => {
 
   const initializeAnnouncement = async () => {
     const defaultAnnouncement = {
-      message: '',
-      type: 'info',
+      messages: [{ text: '', color: '#3498db' }],
       isActive: false,
       link: '',
       linkText: '',
       scrollAnimation: false,
+      messageInterval: 5,
+      useCustomColors: false,
+      backgroundColor: '#3498db',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -47,9 +54,17 @@ const AnnouncementManager = () => {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        setAnnouncement(docSnap.data());
+        const data = docSnap.data();
+        // Handle legacy data format
+        const messages = data.messages || [{ text: data.message || '', color: '#3498db' }];
+        setAnnouncement({
+          ...data,
+          messages,
+          messageInterval: data.messageInterval || 5,
+          useCustomColors: data.useCustomColors || false,
+          backgroundColor: data.backgroundColor || '#3498db'
+        });
       } else {
-        // Initialize the announcement document if it doesn't exist
         const defaultAnnouncement = await initializeAnnouncement();
         setAnnouncement(defaultAnnouncement);
       }
@@ -88,39 +103,148 @@ const AnnouncementManager = () => {
     }));
   };
 
+  const handleMessageChange = (index, field, value) => {
+    setAnnouncement(prev => ({
+      ...prev,
+      messages: prev.messages.map((msg, i) => 
+        i === index ? { ...msg, [field]: value } : msg
+      )
+    }));
+  };
+
+  const handleBackgroundColorChange = (color) => {
+    setAnnouncement(prev => ({
+      ...prev,
+      backgroundColor: color.hex
+    }));
+  };
+
+  const addMessage = () => {
+    setAnnouncement(prev => ({
+      ...prev,
+      messages: [...(prev.messages || []), { text: '', color: '#3498db' }]
+    }));
+  };
+
+  const removeMessage = (index) => {
+    setAnnouncement(prev => ({
+      ...prev,
+      messages: prev.messages.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleColorChange = (index, color) => {
+    handleMessageChange(index, 'color', color.hex);
+  };
+
   if (loading) {
     return <div className="announcement-manager">Loading...</div>;
   }
+
+  const messages = announcement.messages || [];
 
   return (
     <div className="announcement-manager">
       <h2>Announcement Banner Manager</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="message">Message</label>
-          <textarea
-            id="message"
-            name="message"
-            value={announcement.message}
-            onChange={handleChange}
-            placeholder="Enter your announcement message"
-            required
-          />
+          <label>Messages</label>
+          {messages.map((message, index) => (
+            <div key={index} className="message-group">
+              <div className="message-inputs">
+                <textarea
+                  value={message.text}
+                  onChange={(e) => handleMessageChange(index, 'text', e.target.value)}
+                  placeholder="Enter your announcement message"
+                  required
+                />
+                {announcement.useCustomColors && (
+                  <div className="color-picker-container">
+                    <button
+                      type="button"
+                      className="color-picker-button"
+                      style={{ backgroundColor: message.color }}
+                      onClick={() => setShowColorPicker(index)}
+                    />
+                    {showColorPicker === index && (
+                      <div className="color-picker-popover">
+                        <div className="color-picker-cover" onClick={() => setShowColorPicker(null)} />
+                        <ChromePicker
+                          color={message.color}
+                          onChange={(color) => handleColorChange(index, color)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                {messages.length > 1 && (
+                  <button
+                    type="button"
+                    className="remove-message"
+                    onClick={() => removeMessage(index)}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="add-message"
+            onClick={addMessage}
+          >
+            Add Another Message
+          </button>
         </div>
 
         <div className="form-group">
-          <label htmlFor="type">Type</label>
-          <select
-            id="type"
-            name="type"
-            value={announcement.type}
+          <label>Background Color</label>
+          <div className="color-picker-container">
+            <button
+              type="button"
+              className="color-picker-button"
+              style={{ backgroundColor: announcement.backgroundColor }}
+              onClick={() => setShowBackgroundColorPicker(!showBackgroundColorPicker)}
+            />
+            {showBackgroundColorPicker && (
+              <div className="color-picker-popover">
+                <div className="color-picker-cover" onClick={() => setShowBackgroundColorPicker(false)} />
+                <ChromePicker
+                  color={announcement.backgroundColor}
+                  onChange={handleBackgroundColorChange}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="messageInterval">Message Interval (seconds)</label>
+          <input
+            type="number"
+            id="messageInterval"
+            name="messageInterval"
+            value={announcement.messageInterval}
             onChange={handleChange}
-          >
-            <option value="info">Info (Blue)</option>
-            <option value="success">Success (Green)</option>
-            <option value="warning">Warning (Yellow)</option>
-            <option value="error">Error (Red)</option>
-          </select>
+            min="1"
+            max="60"
+          />
+        </div>
+
+        <div className="form-group checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name="useCustomColors"
+              checked={announcement.useCustomColors}
+              onChange={handleChange}
+            />
+            Use Custom Colors for Messages
+          </label>
+          <p className="form-help-text">
+            When enabled, you can pick custom colors for each message. When disabled, messages will use predefined colors.
+          </p>
         </div>
 
         <div className="form-group">
@@ -192,11 +316,22 @@ const AnnouncementManager = () => {
       <div className="preview-section">
         <h3>Preview</h3>
         {announcement.isActive ? (
-          <div className={`announcement-banner ${announcement.type} ${announcement.scrollAnimation ? 'scrolling' : ''}`}>
+          <div 
+            className={`announcement-banner ${announcement.scrollAnimation ? 'scrolling' : ''}`}
+            style={{ backgroundColor: announcement.backgroundColor }}
+          >
             <div className="announcement-content">
               {announcement.scrollAnimation ? (
                 <div className="scrolling-text">
-                  <span>{announcement.message}</span>
+                  {messages.map((message, index) => (
+                    <span 
+                      key={index} 
+                      style={{ color: announcement.useCustomColors ? message.color : undefined }}
+                    >
+                      {message.text}
+                      {index < messages.length - 1 && ' • '}
+                    </span>
+                  ))}
                   {announcement.link && (
                     <a href={announcement.link} className="announcement-link">
                       {announcement.linkText || 'Learn More'}
@@ -204,14 +339,25 @@ const AnnouncementManager = () => {
                   )}
                 </div>
               ) : (
-                <>
-                  {announcement.message}
-                  {announcement.link && (
-                    <a href={announcement.link} className="announcement-link">
-                      {announcement.linkText || 'Learn More'}
-                    </a>
-                  )}
-                </>
+                <div className="rotating-messages">
+                  {messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className="message"
+                      style={{
+                        backgroundColor: announcement.useCustomColors ? message.color : undefined,
+                        display: index === 0 ? 'block' : 'none'
+                      }}
+                    >
+                      {message.text}
+                      {announcement.link && (
+                        <a href={announcement.link} className="announcement-link">
+                          {announcement.linkText || 'Learn More'}
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
