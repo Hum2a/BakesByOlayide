@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
 import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
-import { FaCalendarAlt, FaLock, FaUnlock, FaInfoCircle, FaExclamationTriangle, FaCheck } from 'react-icons/fa';
+import { FaCalendarAlt, FaLock, FaUnlock, FaInfoCircle, FaExclamationTriangle, FaCheck, FaClock } from 'react-icons/fa';
 import '../../styles/BlockedDatesManager.css';
 
 const BlockedDatesManager = () => {
@@ -16,6 +16,13 @@ const BlockedDatesManager = () => {
   });
   const [view, setView] = useState('calendar');
   const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [selectedTimes, setSelectedTimes] = useState([]);
+  const [showTimeSelector, setShowTimeSelector] = useState(false);
+
+  const availableTimes = Array.from({ length: 11 }, (_, i) => {
+    const hour = i + 9;
+    return [`${hour}:00`, `${hour}:30`];
+  }).flat();
 
   useEffect(() => {
     fetchBlockedDates();
@@ -57,6 +64,13 @@ const BlockedDatesManager = () => {
     );
   };
 
+  const isTimeBlocked = (date, time) => {
+    return blockedDates.some(blocked => 
+      new Date(blocked.date).toDateString() === date.toDateString() &&
+      blocked.blockedTimes?.includes(time)
+    );
+  };
+
   const isDateSelected = (date) => {
     return selectedDates.some(selected => 
       selected.toDateString() === date.toDateString()
@@ -76,7 +90,18 @@ const BlockedDatesManager = () => {
       });
     } else {
       setSelectedDates([date]);
+      setShowTimeSelector(true);
     }
+  };
+
+  const handleTimeSelect = (time) => {
+    setSelectedTimes(prev => {
+      if (prev.includes(time)) {
+        return prev.filter(t => t !== time);
+      } else {
+        return [...prev, time];
+      }
+    });
   };
 
   const handleBlockDates = async () => {
@@ -95,6 +120,7 @@ const BlockedDatesManager = () => {
         await setDoc(blockedDateRef, {
           date: date.toISOString(),
           reason: reason.trim(),
+          blockedTimes: selectedTimes,
           createdAt: new Date().toISOString()
         });
       });
@@ -103,8 +129,10 @@ const BlockedDatesManager = () => {
       await fetchBlockedDates();
       setSaveStatus('success');
       setSelectedDates([]);
+      setSelectedTimes([]);
       setReason('');
       setMultiSelectMode(false);
+      setShowTimeSelector(false);
       setTimeout(() => setSaveStatus(''), 3000);
     } catch (error) {
       console.error('Error blocking dates:', error);
@@ -118,9 +146,31 @@ const BlockedDatesManager = () => {
       await deleteDoc(doc(db, 'blockedDates', dateId));
       await fetchBlockedDates();
       setSelectedDates([]);
+      setSelectedTimes([]);
       setReason('');
     } catch (error) {
       console.error('Error unblocking date:', error);
+    }
+  };
+
+  const handleUnblockTime = async (dateId, time) => {
+    try {
+      const dateRef = doc(db, 'blockedDates', dateId);
+      const dateDoc = await getDoc(dateRef);
+      if (dateDoc.exists()) {
+        const data = dateDoc.data();
+        const updatedTimes = data.blockedTimes.filter(t => t !== time);
+        if (updatedTimes.length === 0) {
+          // If no times left, delete the entire date
+          await deleteDoc(dateRef);
+        } else {
+          // Otherwise, update the times
+          await setDoc(dateRef, { ...data, blockedTimes: updatedTimes });
+        }
+        await fetchBlockedDates();
+      }
+    } catch (error) {
+      console.error('Error unblocking time:', error);
     }
   };
 
@@ -211,6 +261,7 @@ const BlockedDatesManager = () => {
                 setMultiSelectMode(!multiSelectMode);
                 if (!multiSelectMode) {
                   setSelectedDates([]);
+                  setSelectedTimes([]);
                 }
               }}
             >
@@ -255,6 +306,7 @@ const BlockedDatesManager = () => {
                 onClick={() => {
                   setView('calendar');
                   setSelectedDates([new Date()]);
+                  setShowTimeSelector(true);
                 }}
               >
                 <FaLock /> Block New Date
@@ -281,12 +333,30 @@ const BlockedDatesManager = () => {
                       })}
                     </span>
                     <span className="blocked-reason">{blocked.reason}</span>
+                    {blocked.blockedTimes && blocked.blockedTimes.length > 0 && (
+                      <div className="blocked-times">
+                        <FaClock /> Blocked Times:
+                        <div className="time-chips">
+                          {blocked.blockedTimes.map(time => (
+                            <span key={time} className="time-chip">
+                              {time}
+                              <button
+                                className="unblock-time-btn"
+                                onClick={() => handleUnblockTime(blocked.id, time)}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <button
                     className="unblock-button"
                     onClick={() => handleUnblockDate(blocked.id)}
                   >
-                    <FaUnlock /> Unblock
+                    <FaUnlock /> Unblock All
                   </button>
                 </div>
               ))}
@@ -320,6 +390,23 @@ const BlockedDatesManager = () => {
             />
           </div>
 
+          <div className="time-selector">
+            <label>
+              <FaClock /> Select Times to Block:
+            </label>
+            <div className="time-grid">
+              {availableTimes.map(time => (
+                <button
+                  key={time}
+                  className={`time-option ${selectedTimes.includes(time) ? 'selected' : ''}`}
+                  onClick={() => handleTimeSelect(time)}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="action-buttons">
             <button
               className={`block-button ${saveStatus}`}
@@ -335,8 +422,10 @@ const BlockedDatesManager = () => {
               className="cancel-button"
               onClick={() => {
                 setSelectedDates([]);
+                setSelectedTimes([]);
                 setReason('');
                 setMultiSelectMode(false);
+                setShowTimeSelector(false);
               }}
             >
               Cancel

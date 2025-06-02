@@ -118,16 +118,28 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     );
   };
 
+  const isTimeBlocked = (time) => {
+    if (!selectedDate) return false;
+    const blockedDate = blockedDates.find(blocked => 
+      new Date(blocked.date).toDateString() === selectedDate.toDateString()
+    );
+    return blockedDate?.blockedTimes?.includes(time) || false;
+  };
+
   const handleDateSelect = (date) => {
     if (!isDateDisabled(date)) {
       setSelectedDate(date);
       setPickupDate(date.toISOString());
+      setSelectedTime(null);
+      setPickupTime('');
     }
   };
 
   const handleTimeSelect = (time) => {
-    setSelectedTime(time);
-    setPickupTime(time);
+    if (!isTimeBlocked(time)) {
+      setSelectedTime(time);
+      setPickupTime(time);
+    }
   };
 
   const goToPrevMonth = () => {
@@ -213,8 +225,8 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
             {availableTimes.map((time) => (
               <div
                 key={time}
-                className={`clock-time${selectedTime === time ? ' selected' : ''}`}
-                onClick={() => handleTimeSelect(time)}
+                className={`clock-time${selectedTime === time ? ' selected' : ''}${isTimeBlocked(time) ? ' disabled' : ''}`}
+                onClick={() => !isTimeBlocked(time) && handleTimeSelect(time)}
               >
                 {time}
               </div>
