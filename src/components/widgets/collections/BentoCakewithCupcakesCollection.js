@@ -5,7 +5,7 @@ import '../../styles/CupcakeCollectionPage.css';
 import Footer from '../../common/Footer';
 import PageTitle from '../../common/PageTitle';
 import { useNavigate } from 'react-router-dom';
-import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes, FaHeart, FaBirthdayCake, FaGift, FaGraduationCap, FaEgg, FaCrown, FaMoon, FaUserTie } from 'react-icons/fa';
 import { useCart } from '../../../context/CartContext';
 import AuthModal from '../../modals/AuthModal';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
@@ -14,6 +14,74 @@ import OrderHistoryModal from '../../modals/OrderHistoryModal';
 import SettingsModal from '../../modals/SettingsModal';
 import CartModal from '../../modals/CartModal';
 import SearchModal from '../../modals/SearchModal';
+import HolidayModal from '../../modals/HolidayModal';
+
+const holidayCards = [
+  {
+    id: 'valentines',
+    title: 'Valentine\'s Day',
+    description: 'Share the love with a romantic bento cake and matching cupcakes',
+    icon: FaHeart,
+    isVisible: true,
+    isComingSoon: true
+  },
+  {
+    id: 'mothers-day',
+    title: 'Mother\'s Day',
+    description: 'Show your appreciation with a beautiful floral-themed set',
+    icon: FaCrown,
+    isVisible: true,
+    isComingSoon: false
+  },
+  {
+    id: 'fathers-day',
+    title: 'Father\'s Day',
+    description: 'Celebrate with elegant blue and white themed treats',
+    icon: FaUserTie,
+    isVisible: true,
+    isComingSoon: false
+  },
+  {
+    id: 'easter',
+    title: 'Easter',
+    description: 'Celebrate spring with pastel-colored treats',
+    icon: FaEgg,
+    isVisible: true,
+    isComingSoon: true
+  },
+  {
+    id: 'birthdays',
+    title: 'Birthdays',
+    description: 'Make their special day even sweeter',
+    icon: FaBirthdayCake,
+    isVisible: true,
+    isComingSoon: false
+  },
+  {
+    id: 'christmas',
+    title: 'Christmas',
+    description: 'Festive designs perfect for holiday gatherings',
+    icon: FaGift,
+    isVisible: true,
+    isComingSoon: true
+  },
+  {
+    id: 'graduation',
+    title: 'Graduation',
+    description: 'Celebrate academic achievements in style',
+    icon: FaGraduationCap,
+    isVisible: true,
+    isComingSoon: false
+  },
+  {
+    id: 'eid',
+    title: 'Eid',
+    description: 'Celebrate Eid with elegant green and neutral themed treats',
+    icon: FaMoon,
+    isVisible: true,
+    isComingSoon: true
+  }
+];
 
 const BentoCakewithCupcakesCollection = () => {
   const [bentoCakes, setBentoCakes] = useState([]);
@@ -27,6 +95,7 @@ const BentoCakewithCupcakesCollection = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [selectedHoliday, setSelectedHoliday] = useState(null);
 
   useEffect(() => {
     fetchBentoCakes();
@@ -175,6 +244,37 @@ const BentoCakewithCupcakesCollection = () => {
       <div className="cupcake-description">
         Our Bento Cakes with Cupcakes are a delightful combination for sharing and gifting. Choose your favourite flavours!
       </div>
+
+      {/* Holiday Highlights Section */}
+      <section className="holiday-highlights">
+        <h2>Perfect for Every Occasion</h2>
+        <div className="holiday-grid">
+          {holidayCards
+            .filter(card => card.isVisible)
+            .map(card => {
+              const Icon = card.icon;
+              return (
+                <div 
+                  key={card.id}
+                  className={`holiday-card ${card.isComingSoon ? 'coming-soon' : ''}`}
+                  onClick={() => !card.isComingSoon && setSelectedHoliday(card.title)}
+                >
+                  <div className="holiday-icon">
+                    <Icon />
+                  </div>
+                  <div className="holiday-content">
+                    <h3>{card.title}</h3>
+                    <p>{card.description}</p>
+                    {card.isComingSoon && (
+                      <div className="coming-soon-banner">Coming Soon</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </section>
+
       <section className="cupcake-section">
         <div className="cupcake-flavours-grid">
           {bentoCakes.seasonal?.map((bentoCake) => (
@@ -208,6 +308,12 @@ const BentoCakewithCupcakesCollection = () => {
         </div>
       </section>
       <Footer />
+
+      <HolidayModal
+        isOpen={selectedHoliday !== null}
+        onClose={() => setSelectedHoliday(null)}
+        holiday={selectedHoliday}
+      />
     </div>
   );
 };

@@ -1,0 +1,160 @@
+.holiday-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.holiday-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.holiday-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.holiday-modal-close:hover {
+  color: #333;
+}
+
+.holiday-modal h2 {
+  font-family: 'Old Standard TT', serif;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 28px;
+  text-align: center;
+}
+
+.holiday-modal-content {
+  color: #666;
+}
+
+.holiday-description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.holiday-section {
+  margin-bottom: 25px;
+}
+
+.holiday-section h3 {
+  font-family: 'Old Standard TT', serif;
+  color: #333;
+  font-size: 20px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.holiday-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.holiday-section ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+}
+
+.holiday-section ul li:before {
+  content: "•";
+  color: #FFB800;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.extras-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.extras-table th,
+.extras-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.extras-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #333;
+}
+
+.extras-table tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .holiday-modal {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .holiday-modal h2 {
+    font-size: 24px;
+  }
+
+  .holiday-section h3 {
+    font-size: 18px;
+  }
+
+  .extras-table th,
+  .extras-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .holiday-modal {
+    padding: 15px;
+  }
+
+  .holiday-modal h2 {
+    font-size: 20px;
+  }
+
+  .holiday-description {
+    font-size: 14px;
+  }
+
+  .extras-table {
+    display: block;
+    overflow-x: auto;
+  }
+} 
