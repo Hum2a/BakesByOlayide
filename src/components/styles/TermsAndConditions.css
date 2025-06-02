@@ -58,7 +58,7 @@
   font-family: 'Old Standard TT', serif;
   font-size: 1.1rem;
   line-height: 1.7;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .terms-content h2 {
@@ -71,6 +71,24 @@
   text-transform: uppercase;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.3rem;
+}
+
+.deposits-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.2rem 0 1.2rem 0;
+}
+.deposits-list li {
+  font-family: 'Old Standard TT', serif;
+  font-size: 1.1rem;
+  color: #444;
+  line-height: 2.1;
+  margin-bottom: 0.1rem;
+}
+.deposits-list li strong, .terms-content p strong {
+  font-weight: 700;
+  font-size: 1.08em;
+  color: #222;
 }
 
 @media (max-width: 900px) {
