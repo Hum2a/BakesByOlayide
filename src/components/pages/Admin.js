@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
@@ -12,6 +12,7 @@ import DiscountManagement from '../widgets/admin/DiscountManagement';
 import ReviewManagement from '../widgets/admin/ReviewManagement';
 import NewsletterManagement from '../widgets/admin/NewsletterManagement';
 import AnnouncementManager from '../widgets/admin/AnnouncementManager';
+import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
 import '../styles/Admin.css';
 
@@ -185,6 +186,12 @@ const Admin = () => {
             <FaBullhorn /> Announcements
           </button>
           <button
+            className={`nav-item ${activeTab === 'blocked-dates' ? 'active' : ''}`}
+            onClick={() => setActiveTab('blocked-dates')}
+          >
+            <FaCalendarAlt /> Blocked Dates
+          </button>
+          <button
             className={`nav-item ${activeTab === 'designer' ? 'active' : ''}`}
             onClick={() => setActiveTab('designer')}
           >
@@ -248,6 +255,8 @@ const Admin = () => {
         {activeTab === 'reviews' && <ReviewManagement />}
 
         {activeTab === 'announcements' && <AnnouncementManager />}
+
+        {activeTab === 'blocked-dates' && <BlockedDatesManager />}
 
         {activeTab === 'designer' && (
           <CakeDesigner />

@@ -56,6 +56,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [blockedDates, setBlockedDates] = useState([]);
   const [displayedMonth, setDisplayedMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -69,6 +70,24 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     }
     setAvailableTimes(times);
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const fetchBlockedDates = async () => {
+      try {
+        const blockedDatesRef = collection(db, 'blockedDates');
+        const snapshot = await getDocs(blockedDatesRef);
+        const dates = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setBlockedDates(dates);
+      } catch (error) {
+        console.error('Error fetching blocked dates:', error);
+      }
+    };
+
+    fetchBlockedDates();
   }, []);
 
   const getDatesForMonth = (monthDate) => {
@@ -89,7 +108,14 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     const today = new Date();
     const minPickupDate = new Date(today);
     minPickupDate.setDate(today.getDate() + 5);
-    return date < minPickupDate;
+    
+    // Check if date is before minimum pickup date
+    if (date < minPickupDate) return true;
+    
+    // Check if date is blocked
+    return blockedDates.some(blocked => 
+      new Date(blocked.date).toDateString() === date.toDateString()
+    );
   };
 
   const handleDateSelect = (date) => {
