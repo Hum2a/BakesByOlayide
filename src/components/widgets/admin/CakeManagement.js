@@ -1004,7 +1004,15 @@ const CakeManagement = ({ cakes, onUpdate }) => {
               <div className="cakemanagement-sizes-list">
                 {(Array.isArray(cake.sizes) ? cake.sizes : []).map((size, index) => (
                   <div key={index} className="cakemanagement-size-badge">
-                    <span>{Array.isArray(cake.categories) && cake.categories.includes('Cupcakes') ? `${size.size} cupcakes` : `${size.size}"`}</span>
+                    <span>
+                      {Array.isArray(cake.categories) && (
+                        cake.categories.includes('Cupcakes') ? `${size.size} cupcakes` :
+                        cake.categories.includes('Bento Cake with Cupcakes') ? `${size.size} cupcakes` :
+                        cake.categories.includes('Brownies') ? `${size.size} pieces` :
+                        cake.categories.includes('Cookies') ? `${size.size} cookies` :
+                        `${size.size}"`
+                      )}
+                    </span>
                     <span>£{Number(size.price).toFixed(2)}</span>
                   </div>
                 ))}
