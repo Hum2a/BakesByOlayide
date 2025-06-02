@@ -14,22 +14,22 @@ const TermsAndConditions = () => (
         <p>All products made by us are subject to the following terms and conditions.</p>
 
         <h2>DEPOSITS</h2>
-        <p>For orders made via enquiry (larger than order maximums, unconventional cake orders or multi-tiers), a 50% non-refundable deposit is due within <strong>2</strong> days of the order. The order is not confirmed until the deposit has been paid.</p>
+        <p>For orders made via enquiry (larger than order maximums, unconventional cake orders or multi-tiers), a 50% non-refundable deposit is due within 2 days of the order. The order is not confirmed until the deposit has been paid.</p>
         <ul className="deposits-list">
           <li>The remaining balance is to be paid:</li>
-          <li>Up to <strong>7 days</strong> prior to the date of collection via invoice,</li>
+          <li>Up to 7 days prior to the date of collection via invoice,</li>
           <li>Or on the day of collection via payment terminal.</li>
         </ul>
-        <p>In the case of delivery, the remaining balance must be paid at least <strong>7 days</strong> before the delivery date.</p>
+        <p>In the case of delivery, the remaining balance must be paid at least 7 days before the delivery date.</p>
 
         <h2>ORDERS & ALTERATIONS</h2>
         <p>
-          All items available on the website can be fulfilled within <strong>4 days</strong> of ordering.<br /><br />
-          Enquiry only orders (larger than order maximums, multi-tiers or number/letter cakes) require a minimum notice of <strong>2 weeks</strong> or such other period as may be agreed between the client and us.<br /><br />
-          Orders related to weddings with consultations require a minimum of <strong>6 weeks</strong>’ notice. This includes sampling and consultation, alongside finalising designs and delivery of said cake.<br /><br />
+          All items available on the website can be fulfilled within 4 days of ordering.<br /><br />
+          Enquiry only orders (larger than order maximums, multi-tiers or number/letter cakes) require a minimum notice of 2 weeks or such other period as may be agreed between the client and us.<br /><br />
+          Orders related to weddings with consultations require a minimum of 6 weeks’ notice. This includes sampling and consultation, alongside finalising designs and delivery of said cake.<br /><br />
           Any products inspired by a picture or photo of a product produced by another bakery or by AI can only be reproduced by us as an interpretation of the product. It will not be an exact replication of the reference product.<br /><br />
           Changes to improve structural stability or aesthetics can be made at our discretion. You will be informed of any changes that may be made and will be given time to make alterations to the design.<br /><br />
-          Changes to the design that alter the price of the cake(s) will be effective immediately. These changes may result in an increase or decrease of the price. No changes to design can be made within <strong>2 days</strong> of the date of collection or delivery.
+          Changes to the design that alter the price of the cake(s) will be effective immediately. These changes may result in an increase or decrease of the price. No changes to design can be made within 2 days of the date of collection or delivery.
         </p>
 
         <h2>ALLERGEN POLICY</h2>
