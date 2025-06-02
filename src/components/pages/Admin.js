@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
@@ -11,6 +11,7 @@ import Enquiries from '../widgets/admin/Enquiries';
 import DiscountManagement from '../widgets/admin/DiscountManagement';
 import ReviewManagement from '../widgets/admin/ReviewManagement';
 import NewsletterManagement from '../widgets/admin/NewsletterManagement';
+import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import PageTitle from '../common/PageTitle';
 import '../styles/Admin.css';
 
@@ -178,6 +179,12 @@ const Admin = () => {
             <FaComments /> Reviews
           </button>
           <button
+            className={`nav-item ${activeTab === 'announcements' ? 'active' : ''}`}
+            onClick={() => setActiveTab('announcements')}
+          >
+            <FaBullhorn /> Announcements
+          </button>
+          <button
             className={`nav-item ${activeTab === 'designer' ? 'active' : ''}`}
             onClick={() => setActiveTab('designer')}
           >
@@ -239,6 +246,8 @@ const Admin = () => {
         {activeTab === 'discounts' && <DiscountManagement />}
 
         {activeTab === 'reviews' && <ReviewManagement />}
+
+        {activeTab === 'announcements' && <AnnouncementManager />}
 
         {activeTab === 'designer' && (
           <CakeDesigner />

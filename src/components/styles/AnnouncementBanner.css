@@ -1,0 +1,129 @@
+.announcement-banner {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: 'Old Standard TT', serif;
+  font-size: 0.95rem;
+  color: white;
+  text-align: center;
+  animation: slideDown 0.3s ease-out;
+  overflow: hidden;
+}
+
+.announcement-banner.scrolling {
+  padding: 0.75rem 0;
+}
+
+.announcement-banner.scrolling .announcement-content {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.announcement-banner.scrolling .scrolling-text {
+  display: inline-block;
+  animation: scrollText 20s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.announcement-banner.info {
+  background: #3498db;
+}
+
+.announcement-banner.success {
+  background: #2ecc71;
+}
+
+.announcement-banner.warning {
+  background: #f1c40f;
+  color: #2c3e50;
+}
+
+.announcement-banner.error {
+  background: #e74c3c;
+}
+
+.announcement-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.announcement-link {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.announcement-link:hover {
+  opacity: 0.8;
+}
+
+.announcement-close {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+.announcement-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .announcement-banner {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .announcement-banner.scrolling {
+    padding: 0.5rem 0;
+  }
+
+  .announcement-content {
+    padding: 0 1.5rem;
+  }
+
+  .announcement-close {
+    right: 0.5rem;
+  }
+} 
