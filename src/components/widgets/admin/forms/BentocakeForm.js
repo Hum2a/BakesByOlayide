@@ -375,6 +375,17 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
           </button>
         </div>
       </div>
+
+      <div className="cakemanagement-form-group full-width">
+        <label>Max Quantity</label>
+        <input
+          type="number"
+          min="1"
+          value={newCake.maxQuantity || ''}
+          onChange={e => setNewCake({ ...newCake, maxQuantity: e.target.value })}
+          placeholder="Enter maximum quantity per order"
+        />
+      </div>
     </>
   );
 };
