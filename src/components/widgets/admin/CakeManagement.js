@@ -41,6 +41,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [debugInfo, setDebugInfo] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [imageWarningModal, setImageWarningModal] = useState({ open: false, message: '' });
   const [newCake, setNewCake] = useState({
     name: '',
     description: '',
@@ -855,7 +856,32 @@ const CakeManagement = ({ cakes, onUpdate }) => {
                                 style={{ position: 'absolute', top: 2, right: 2, zIndex: 2, background: '#fff', borderRadius: '50%' }}
                                 onClick={() => {
                                   const updated = Array.isArray(newCake.images) ? [...newCake.images] : [];
+                                  
+                                  // If trying to remove the first image, check if there are other valid images
+                                  if (idx === 0) {
+                                    const hasOtherImages = updated.some((img, i) => i > 0 && img);
+                                    if (!hasOtherImages) {
+                                      setImageWarningModal({
+                                        open: true,
+                                        message: 'Please add another image before removing the default image.'
+                                      });
+                                      return;
+                                    }
+                                  }
+                                  
                                   updated[idx] = '';
+                                  
+                                  // If we're removing the first image (idx === 0), find the next available image to set as default
+                                  if (idx === 0) {
+                                    const nextValidImage = updated.find((img, i) => i > 0 && img);
+                                    if (nextValidImage) {
+                                      // Move the next valid image to the first position
+                                      const nextValidIndex = updated.indexOf(nextValidImage);
+                                      updated[0] = nextValidImage;
+                                      updated[nextValidIndex] = '';
+                                    }
+                                  }
+                                  
                                   setNewCake({ ...newCake, images: updated });
                                 }}
                               >
@@ -1036,6 +1062,15 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         message="Are you sure you want to delete this cake? This action cannot be undone."
         onConfirm={confirmDelete}
         onCancel={() => setConfirmModal({ open: false, cakeId: null, imageUrl: null })}
+      />
+
+      {/* Image warning modal */}
+      <ConfirmModal
+        isOpen={imageWarningModal.open}
+        title="Warning"
+        message={imageWarningModal.message}
+        onConfirm={() => setImageWarningModal({ open: false, message: '' })}
+        onCancel={() => setImageWarningModal({ open: false, message: '' })}
       />
     </div>
   );
