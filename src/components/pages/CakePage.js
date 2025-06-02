@@ -22,27 +22,27 @@ import PageTitle from '../common/PageTitle';
 const FIXED_CATEGORIES = [
   {
     name: 'Cupcakes',
-    description: 'Handmade and elegantly decorated cupcakes; perfect for any occasion.',
+    description: 'Cupcakes are sold in three different batch sizes: boxes of 4, 6 and 12. 12 cupcakes is the smallest batch size for a standalone order.',
     image: '/images/range/Cupcakes.webp'
   },
   {
     name: 'Large Cakes',
-    description: 'Personalised and fully customisable celebration cakes made fresh in house.',
+    description: 'Large celebration cakes are handled a little differently here at Bakes by Olayide. Rather than providing you with pre-set cake designs, we instead encourage you to design a cake or send us your inspirations so we can make it for you. Our cakes are listed by flavour. If you’d like any flavours that aren’t listed below, contact us here.',
     image: '/images/range/LargeCakes.webp'
   },
   {
     name: 'Bento Cake with Cupcakes',
-    description: 'The perfect fusion between cupcakes and celebration cakes: For those who want a little bit of the best of both worlds.',
+    description: "Choose between 5 and 8 cupcakes to accompany a 4\" bento cake. Our Bento cakes are packed in beautiful packaging you'll be proud to show off.",
     image: '/images/range/BentoCakewithCupcakes.webp'
   },
   {
     name: 'Brownies',
-    description: "Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic's dream.",
+    description: 'Gooey brownies are irresistible paired with fresh vanilla whipped cream. Our brownies are made with maximum fudginess that melts when heated.',
     image: '/images/range/Brownies.webp'
   },
   {
     name: 'Cookies',
-    description: 'Chewy, chocolatey and moorish with Cornish ice-cream, our cookies are the perfect sweet treat.',
+    description: 'Chewy cookies made in three different variations of flavour base. Pick your toppings and we’ll make the cookies of your dreams.',
     image: '/images/range/Cookies.webp'
   },
   {
@@ -52,7 +52,7 @@ const FIXED_CATEGORIES = [
   },
   {
     name: 'Gluten Free',
-    description: 'Delicious bakes made without gluten so you can eat cakes without worry.',
+    description: 'Gluten free treats made for you to enjoy with everyone. Our cakes are made with coconut flour to achieve a similar taste and texture to our other ranges.',
     image: '/images/range/GlutenFree.webp'
   },
   {
