@@ -108,7 +108,7 @@ const HomePage = () => {
 
       <HomepageGuides />
 
-      <SubscriptionWidget />
+      {/* <SubscriptionWidget /> */}
 
       {/* <CakeBuilder onRequestCake={() => setIsContactOpen(true)} /> */}
 
