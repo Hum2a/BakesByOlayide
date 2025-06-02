@@ -97,6 +97,10 @@ const SpecificCookiesPage = () => {
   const flavourOptions = Array.isArray(cookie.flavours) ? cookie.flavours : [];
   const selectedFlavour = flavourOptions[selectedFlavourIdx] || '';
   const minPrice = sizeOptions.length > 0 ? Math.min(...sizeOptions.map(s => s.price)) : 0;
+  const getAddonPrice = (addon) => {
+    const foundAddon = addOns.find(a => a.name === addon);
+    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
+  };
   const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + (getAddonPrice(selectedAddons.join(',')) || 0);
   const maxQuantity = cookie.maxQuantity ? parseInt(cookie.maxQuantity, 10) : 20;
 
@@ -157,11 +161,6 @@ const SpecificCookiesPage = () => {
     addToCart(cartItem);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
-  };
-
-  const getAddonPrice = (addon) => {
-    const foundAddon = addOns.find(a => a.name === addon);
-    return foundAddon ? parseFloat(foundAddon.price) || 0 : 0;
   };
 
   const handleAddonToggle = (addon) => {

@@ -159,10 +159,10 @@ const SpecificBentoCakePage = () => {
   const calculateTotalAddonPrice = () => {
     return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
   };
-  const totalPrice = (selectedSize.price || 0) + 
-                    (topperPrice || 0) + 
-                    (decorationStylePrice || 0) + 
-                    calculateTotalAddonPrice();
+  const totalPrice = Number((selectedSize.price || 0)) + 
+                    Number((topperPrice || 0)) + 
+                    Number((decorationStylePrice || 0)) + 
+                    Number(calculateTotalAddonPrice());
 
   const breadcrumbs = [
     'Collections',
