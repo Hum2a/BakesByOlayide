@@ -76,7 +76,7 @@ const FAQ = () => {
                   <FaUser />
                 </button>
               )}
-              <button className="cakepage-cart-button" onClick={() => navigate('/cart')} aria-label="View Cart">
+              <button className="cakepage-cart-button" onClick={() => handleModalOpen('cart')} aria-label="View Cart">
                 <FaShoppingCart />
                 {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
               </button>
