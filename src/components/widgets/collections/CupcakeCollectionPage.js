@@ -179,7 +179,7 @@ const CupcakeCollectionPage = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cupcakes</span>
       </div>
       <div className="cupcake-description">
-        Cupcakes are sold in three different batch sizes: boxes of 6, 6 and 12. 1 dozen cupcakes is the smallest batch size for a stand-alone order.
+        Cupcakes are sold in three different batch sizes: boxes of 4, 6 and 12. 1 dozen cupcakes is the smallest batch size for a stand-alone order.
       </div>
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>

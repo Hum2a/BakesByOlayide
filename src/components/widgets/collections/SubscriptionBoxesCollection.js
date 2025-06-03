@@ -209,6 +209,7 @@ const SubscriptionBoxesCollection = () => {
                 <img src={box.image} alt={box.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{box.name}</h3>
+                  <p>{box.description}</p>
                   <div className="subscription-details">
                     <span className="cupcake-standard-price">
                       From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}

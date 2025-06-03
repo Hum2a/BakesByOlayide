@@ -202,6 +202,7 @@ const GlutenFreeCollection = () => {
                 <img src={product.image} alt={product.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{product.name}</h3>
+                  <p>{product.description}</p>
                   <span className="cupcake-standard-price">
                     From £{Math.min(...product.sizes.map(size => size.price)).toFixed(2)}
                   </span>

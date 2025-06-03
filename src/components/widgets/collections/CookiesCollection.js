@@ -201,6 +201,7 @@ const CookiesCollection = () => {
                 <img src={cookie.image} alt={cookie.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{cookie.name}</h3>
+                  <p>{cookie.description}</p>
                   <span className="cupcake-standard-price">
                     From £{Math.min(...cookie.sizes.map(size => size.price)).toFixed(2)}
                   </span>

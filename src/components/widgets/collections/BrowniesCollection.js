@@ -201,6 +201,7 @@ const BrowniesCollection = () => {
                 <img src={brownie.image} alt={brownie.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{brownie.name}</h3>
+                  <p>{brownie.description}</p>
                   <span className="cupcake-standard-price">
                     From £{Math.min(...brownie.sizes.map(size => size.price)).toFixed(2)}
                   </span>

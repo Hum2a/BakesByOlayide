@@ -206,6 +206,7 @@ const LargeCakesCollection = () => {
                 <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
                 <div className="cupcake-standard-info">
                   <h3>{largeCake.name}</h3>
+                  <p>{largeCake.description}</p>
                   <span className="cupcake-standard-price">
                     From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
                   </span>
