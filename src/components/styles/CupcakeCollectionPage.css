@@ -34,20 +34,21 @@
 }
 
 .cupcake-breadcrumbs {
-  margin: 2.5rem auto 0.5rem auto;
+  margin: 2.5rem 0 0.5rem 0;
   max-width: 900px;
   color: #888;
   font-size: 3rem;
   font-family: 'Old Standard TT', serif;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   background: #fff;
   font-weight: 900;
   line-height: 100%;
   letter-spacing: -2%;
-  text-align: center;
+  text-align: left;
   color: rgba(0, 0, 0, 1);
+  padding-left: 2rem;
 }
 .cupcake-description {
   max-width: 900px;
@@ -59,11 +60,13 @@
   line-height: 150%;
   letter-spacing: 0%;
   text-align: center;
+  padding-left: 0;
 }
 
 .cupcake-section {
-  max-width: 900px;
-  margin: 2.5rem auto 0 auto;
+  margin: 2.5rem 0 0 0;
+  text-align: left;
+  padding-left: 2rem;
 }
 .cupcake-section h2 {
   font-family: 'Old Standard TT', serif;
@@ -73,6 +76,9 @@
   letter-spacing: 0%;
   vertical-align: middle;
   color: rgba(0, 0, 0, 1);
+  text-align: left;
+  padding-left: 0;
+  margin-bottom: 1.4rem;
 }
 
 .cupcake-flavours-grid {
@@ -108,6 +114,7 @@
   font-family: 'Old Standard TT', serif;
   font-weight: 400;
   margin-bottom: 0.2rem;
+  text-align: left;
 }
 .cupcake-flavour-info p {
   color: #888;
@@ -115,6 +122,7 @@
   font-family: 'Old Standard TT', serif;
   font-weight: 400;
   margin-bottom: 0.2rem;
+  text-align: left;
 }
 .cupcake-flavour-price {
   color: #222;
@@ -166,6 +174,7 @@
   font-family: 'Old Standard TT', serif;
   font-weight: 400;
   margin-bottom: 0.2rem;
+  text-align: left;
 }
 .cupcake-standard-info p {
   color: #888;
@@ -173,6 +182,7 @@
   font-family: 'Old Standard TT', serif;
   font-weight: 400;
   margin-bottom: 0.2rem;
+  text-align: left;
 }
 .cupcake-standard-price {
   color: #222;
@@ -217,13 +227,24 @@
   }
   .cupcake-section {
     max-width: 98vw;
-    margin: 1.2rem auto 0 auto;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 1rem;
+  }
+  .cupcake-section h2 {
+    padding-left: 0;
   }
   .cupcake-breadcrumbs, .cupcake-description {
     max-width: 98vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
   }
   .cupcake-standard-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .holiday-highlights h2 {
+    padding-left: 1rem;
   }
 }
 @media (max-width: 600px) {
@@ -437,7 +458,7 @@
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-  text-align: center;
+  text-align: left;
 }
 .subscription-benefits h2 {
   font-family: 'Old Standard TT', serif;
@@ -445,6 +466,7 @@
   font-size: 2rem;
   color: #222;
   margin-bottom: 2rem;
+  text-align: left;
 }
 .benefits-grid {
   display: grid;
@@ -461,7 +483,7 @@
   color: #222;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   transition: box-shadow 0.2s;
 }
 .benefit-item h3 {
@@ -495,7 +517,7 @@
 .holiday-highlights {
   padding: 4rem 2rem;
   background-color: #fff;
-  text-align: center;
+  text-align: left;
 }
 
 .holiday-highlights h2 {
@@ -503,6 +525,8 @@
   color: #333;
   margin-bottom: 2rem;
   font-family: 'Old Standard TT', serif;
+  text-align: left;
+  padding-left: 2rem;
 }
 
 .holiday-grid {
@@ -599,7 +623,7 @@
 }
 
 .holiday-content {
-  text-align: center;
+  text-align: left;
 }
 
 .holiday-content h3 {
@@ -607,6 +631,7 @@
   color: #333;
   margin-bottom: 0.5rem;
   font-family: 'Old Standard TT', serif;
+  text-align: left;
 }
 
 .holiday-content p {
@@ -614,6 +639,7 @@
   color: #666;
   line-height: 1.5;
   margin: 0;
+  text-align: left;
 }
 
 @media (max-width: 768px) {
@@ -693,5 +719,45 @@
     padding: 5px 40px;
     font-size: 11px;
     width: 160px;
+  }
+}
+
+.no-dates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 3rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  color: #666;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .manager-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+  }
+
+  .view-toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .calendar-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .calendar-legend {
+    justify-content: flex-start;
+  }
+
+  .list-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
   }
 } 
