@@ -22,37 +22,37 @@ import PageTitle from '../common/PageTitle';
 const FIXED_CATEGORIES = [
   {
     name: 'Cupcakes',
-    description: 'Cupcakes are sold in three different batch sizes: boxes of 4, 6 and 12. 12 cupcakes is the smallest batch size for a standalone order.',
+    description: 'Handmade and elegantly decorated cupcakes; perfect for any occasion. ',
     image: '/images/range/Cupcakes.webp'
   },
   {
     name: 'Large Cakes',
-    description: 'Large celebration cakes are handled a little differently here at Bakes by Olayide. Rather than providing you with pre-set cake designs, we instead encourage you to design a cake or send us your inspirations so we can make it for you. Our cakes are listed by flavour. If you’d like any flavours that aren’t listed below, contact us here.',
+    description: 'Personalised and fully customisable celebration cakes made fresh in house.',
     image: '/images/range/LargeCakes.webp'
   },
   {
     name: 'Bento Cake with Cupcakes',
-    description: "Choose between 5 and 8 cupcakes to accompany a 4\" bento cake. Our Bento cakes are packed in beautiful packaging you'll be proud to show off.",
+    description: "The perfect fusion between cupcakes and celebration cakes: For those who want a little bit of the best of both worlds.",
     image: '/images/range/BentoCakewithCupcakes.webp'
   },
   {
     name: 'Brownies',
-    description: 'Gooey brownies are irresistible paired with fresh vanilla whipped cream. Our brownies are made with maximum fudginess that melts when heated.',
+    description: 'Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic’s dream.',
     image: '/images/range/Brownies.webp'
   },
   {
     name: 'Cookies',
-    description: 'Chewy cookies made in three different variations of flavour base. Pick your toppings and we’ll make the cookies of your dreams.',
+    description: 'Chewy, chocolatey and moorish with Cornish ice-cream, our cookies are the perfect sweet treat.',
     image: '/images/range/Cookies.webp'
   },
   {
     name: 'Vegan Range',
-    description: 'Delightfully sweet plant powered bakes made for you..',
+    description: 'Delightfully sweet plant powered bakes made for you.',
     image: '/images/range/VeganRange.webp'
   },
   {
     name: 'Gluten Free',
-    description: 'Gluten free treats made for you to enjoy with everyone. Our cakes are made with coconut flour to achieve a similar taste and texture to our other ranges.',
+    description: 'Delicious bakes made without gluten so you can eat cakes without worry.',
     image: '/images/range/GlutenFree.webp'
   },
   // {
