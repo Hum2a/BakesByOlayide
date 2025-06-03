@@ -214,29 +214,41 @@ const SpecificCookiesPage = () => {
         </nav>
         <div className="specific-cake-grid">
           <div className="specific-cake-image">
-            <div className={`carousel-img-wrapper${swipeDirection ? ` swipe-${swipeDirection}` : ''}`}
-              key={currentImageIdx}
-              onAnimationEnd={() => setSwipeDirection(null)}
-            >
-              <img src={images[currentImageIdx]} alt={cookie.name} />
+            <div className="homepage-signature-carousel">
+              {images.length > 1 && (
+                <button className="homepage-carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">
+                  &#8592;
+                </button>
+              )}
+              {images.map((img, idx) => (
+                <div
+                  key={idx}
+                  className={`homepage-carousel-slide${idx === currentImageIdx ? ' active' : ''}${idx === (currentImageIdx - 1 + images.length) % images.length ? ' prev' : ''}`}
+                  style={{ display: idx === currentImageIdx || idx === (currentImageIdx - 1 + images.length) % images.length ? 'flex' : 'none' }}
+                >
+                  <img src={img} alt={cookie.name} />
+                  <h3>{cookie.name}</h3>
+                </div>
+              ))}
+              {images.length > 1 && (
+                <button className="homepage-carousel-arrow right" onClick={handleNextImage} aria-label="Next image">
+                  &#8594;
+                </button>
+              )}
             </div>
             {images.length > 1 && (
-              <>
-                <button className="carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">&#8592;</button>
-                <button className="carousel-arrow right" onClick={handleNextImage} aria-label="Next image">&#8594;</button>
-                <div className="carousel-indicators">
-                  {images.map((img, idx) => (
-                    <span
-                      key={idx}
-                      className={`carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
-                      onClick={() => {
-                        setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
-                        setCurrentImageIdx(idx);
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
+              <div className="homepage-carousel-dots">
+                {images.map((img, idx) => (
+                  <span
+                    key={idx}
+                    className={`homepage-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
+                    onClick={() => {
+                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
+                      setCurrentImageIdx(idx);
+                    }}
+                  />
+                ))}
+              </div>
             )}
           </div>
           <div className="specific-cake-details">
