@@ -6,7 +6,7 @@ import { useCart } from '../../../context/CartContext';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
-import { FaStar, FaStarHalf, FaCheck } from 'react-icons/fa';
+import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 
 const SpecificCakePage = () => {
@@ -303,34 +303,33 @@ const SpecificCakePage = () => {
         <div className="specific-cake-grid">
           <div className="specific-cake-image">
             {/* Carousel Section - refactored to match SignatureCreations */}
-            <div className="homepage-signature-carousel">
+            <div className="listing-carousel-container">
               {images.length > 1 && (
-                <button className="homepage-carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">
-                  &#8592;
+                <button className="listing-carousel-arrow left" onClick={handlePrevImage} aria-label="Previous image">
+                  <FaChevronLeft size={38} color="#fff" />
                 </button>
               )}
               {images.map((img, idx) => (
                 <div
                   key={idx}
-                  className={`homepage-carousel-slide${idx === currentImageIdx ? ' active' : ''}${idx === (currentImageIdx - 1 + images.length) % images.length ? ' prev' : ''}`}
+                  className={`listing-carousel-slide${idx === currentImageIdx ? ' active' : ''}${idx === (currentImageIdx - 1 + images.length) % images.length ? ' prev' : ''}`}
                   style={{ display: idx === currentImageIdx || idx === (currentImageIdx - 1 + images.length) % images.length ? 'flex' : 'none' }}
                 >
                   <img src={img} alt={cake.name} />
-                  <h3>{cake.name}</h3>
                 </div>
               ))}
               {images.length > 1 && (
-                <button className="homepage-carousel-arrow right" onClick={handleNextImage} aria-label="Next image">
-                  &#8594;
+                <button className="listing-carousel-arrow right" onClick={handleNextImage} aria-label="Next image">
+                  <FaChevronRight size={38} color="#fff" />
                 </button>
               )}
             </div>
             {images.length > 1 && (
-              <div className="homepage-carousel-dots">
+              <div className="listing-carousel-dots">
                 {images.map((img, idx) => (
                   <span
                     key={idx}
-                    className={`homepage-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
+                    className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
                       setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);

@@ -172,7 +172,7 @@ const VeganRangeCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Vegan Range</span>
       </div>
       <div className="cupcake-description">
-        Our Vegan Range offers delicious plant-based alternatives that are perfect for everyone. Made with the finest ingredients, these treats are 100% vegan and equally delightful!
+      Delightfully sweet plant powered bakes made for you.
       </div>
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>

@@ -242,7 +242,7 @@ const BentoCakewithCupcakesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
       </div>
       <div className="cupcake-description">
-        Our Bento Cakes with Cupcakes are a delightful combination for sharing and gifting. Choose your favourite flavours!
+      Choose between 5 and 8 cupcakes to accompany a 4\" bento cake. Our Bento cakes are packed in beautiful packaging you'll be proud to show off.
       </div>
 
       {/* Holiday Highlights Section */}

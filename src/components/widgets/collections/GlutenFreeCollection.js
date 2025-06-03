@@ -172,7 +172,7 @@ const GlutenFreeCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Gluten Free</span>
       </div>
       <div className="cupcake-description">
-        Our Gluten Free Range offers delicious alternatives that are perfect for those with gluten sensitivities or celiac disease. Made with carefully selected ingredients, these treats are certified gluten-free and equally delightful!
+      Gluten free treats made for you to enjoy with everyone. Our cakes are made with coconut flour to achieve a similar taste and texture to our other ranges.
       </div>
       <section className="cupcake-section">
         <h2>Flavours of the Season</h2>

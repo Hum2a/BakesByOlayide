@@ -172,7 +172,7 @@ const BrowniesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Brownies</span>
       </div>
       <div className="cupcake-description">
-        Our brownies are rich, fudgy, and perfect for any chocolate lover. Try our classic and seasonal flavours!
+      Gooey brownies are irresistible paired with fresh vanilla whipped cream. Our brownies are made with maximum fudginess that melts when heated.
       </div>
       <section className="cupcake-section">
         <div className="cupcake-flavours-grid">

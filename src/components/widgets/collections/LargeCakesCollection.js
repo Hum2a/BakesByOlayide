@@ -176,7 +176,7 @@ const LargeCakesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Large Cakes</span>
       </div>
       <div className="cupcake-description">
-        Our Large Cakes are perfect for celebrations and special occasions. Choose from a variety of flavours and designs.
+      Large celebration cakes are handled a little differently here at Bakes by Olayide. Rather than providing you with pre-set cake designs, we instead encourage you to design a cake or send us your inspirations so we can make it for you. Our cakes are listed by flavour. If you’d like any flavours that aren’t listed below, contact us here.
       </div>
       <section className="cupcake-section">
         <h2>Featured Flavours</h2>

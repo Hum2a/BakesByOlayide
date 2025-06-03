@@ -172,7 +172,7 @@ const CookiesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Cookies</span>
       </div>
       <div className="cupcake-description">
-        Our cookies are baked fresh daily and come in a variety of flavours. Perfect for snacking or sharing!
+      Chewy cookies made in three different variations of flavour base. Pick your toppings and we’ll make the cookies of your dreams.
       </div>
       <section className="cupcake-section">
         <div className="cupcake-flavours-grid">

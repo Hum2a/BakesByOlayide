@@ -172,7 +172,7 @@ const SubscriptionBoxesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Subscription Boxes</span>
       </div>
       <div className="cupcake-description">
-        Treat yourself or someone special to a regular delivery of our delicious treats! Our subscription boxes are carefully curated with a selection of our finest products, perfect for gifting or personal indulgence. Choose from monthly, bi-weekly, or weekly deliveries.
+      Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.
       </div>
       <section className="cupcake-section">
         <h2>Seasonal Boxes</h2>
