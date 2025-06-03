@@ -137,8 +137,8 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 
   const handleTimeSelect = (time) => {
     if (!isTimeBlocked(time)) {
-      setSelectedTime(time);
-      setPickupTime(time);
+    setSelectedTime(time);
+    setPickupTime(time);
     }
   };
 
