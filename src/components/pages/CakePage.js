@@ -55,11 +55,11 @@ const FIXED_CATEGORIES = [
     description: 'Gluten free treats made for you to enjoy with everyone. Our cakes are made with coconut flour to achieve a similar taste and texture to our other ranges.',
     image: '/images/range/GlutenFree.webp'
   },
-  {
-    name: 'Subscription Boxes',
-    description: 'Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.',
-    image: '/images/range/SubscriptionBoxes.webp'
-  }
+  // {
+  //   name: 'Subscription Boxes',
+  //   description: 'Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.',
+  //   image: '/images/range/SubscriptionBoxes.webp'
+  // }
 ];
 
 const CakePage = ({ onOpenCart }) => {

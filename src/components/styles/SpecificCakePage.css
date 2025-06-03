@@ -1032,4 +1032,17 @@
 /* Optional: add margin below carousel for separation */
 .listing-carousel-container {
   margin-bottom: 0.5rem;
+}
+
+.listing-carousel-container .listing-carousel-slide:only-child {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+  transform: none !important;
 } 
