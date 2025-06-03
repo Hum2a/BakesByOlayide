@@ -70,14 +70,14 @@ const CartModal = ({ onClose }) => {
                     <div className="cart-item-quantity">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="quantity-btn"
+                        className="cart-item-quantity-btn"
                       >
                         <FaMinus />
                       </button>
                       <span>{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="quantity-btn"
+                        className="cart-item-quantity-btn"
                       >
                         <FaPlus />
                       </button>
@@ -85,7 +85,7 @@ const CartModal = ({ onClose }) => {
                   </div>
                   <button
                     onClick={() => handleRemoveItem(item.id)}
-                    className="remove-item"
+                    className="cart-item-remove-item"
                   >
                     <FaTrash />
                   </button>
