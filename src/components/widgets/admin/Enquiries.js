@@ -101,13 +101,16 @@ const Enquiries = () => {
   };
 
   const filteredEnquiries = enquiries.filter(enquiry => {
-    const matchesSearch = 
-      enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      enquiry.message.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const name = enquiry.name || `${enquiry.firstName || ''} ${enquiry.lastName || ''}`.trim();
+    const email = enquiry.email || '';
+    const message = enquiry.message || enquiry.inquiry || '';
+    const matchesSearch =
+      (name && name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (email && email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (message && message.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const matchesStatus = statusFilter === 'all' || enquiry.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -180,11 +183,11 @@ const Enquiries = () => {
             </div>
             
             <div className="enquiry-details">
-              <p><strong>Name:</strong> {enquiry.name}</p>
-              <p><strong>Email:</strong> {enquiry.email}</p>
-              <p><strong>Phone:</strong> {enquiry.phone}</p>
-              <p><strong>Occasion:</strong> {enquiry.occasion}</p>
-              <p><strong>Message:</strong> {enquiry.message}</p>
+              <p><strong>Name:</strong> {enquiry.name || `${enquiry.firstName || ''} ${enquiry.lastName || ''}`.trim() || '-'}</p>
+              <p><strong>Email:</strong> {enquiry.email || '-'}</p>
+              <p><strong>Phone:</strong> {enquiry.phone || '-'}</p>
+              <p><strong>Occasion:</strong> {enquiry.occasion || enquiry.subject || '-'}</p>
+              <p><strong>Message:</strong> {enquiry.message || enquiry.inquiry || '-'}</p>
             </div>
 
             {enquiry.reply && (

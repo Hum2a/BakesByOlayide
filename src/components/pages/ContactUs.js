@@ -11,6 +11,7 @@ const ContactUs = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     subject: '',
     inquiry: ''
   });
@@ -33,6 +34,8 @@ const ContactUs = () => {
     try {
       await addDoc(collection(db, 'enquiries'), {
         ...formData,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        message: formData.inquiry,
         timestamp: new Date(),
         status: 'new'
       });
@@ -41,6 +44,7 @@ const ContactUs = () => {
         firstName: '',
         lastName: '',
         email: '',
+        phone: '',
         subject: '',
         inquiry: ''
       });
@@ -100,6 +104,18 @@ const ContactUs = () => {
                   onChange={handleChange}
                   required
                   placeholder="email@example.co.uk"
+                />
+              </div>
+              <div className="contactus-form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  placeholder="07123 456789"
                 />
               </div>
               <div className="contactus-form-group">
