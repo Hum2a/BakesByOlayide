@@ -14,6 +14,7 @@ import NewsletterManagement from '../widgets/admin/NewsletterManagement';
 import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
+import AdminTestEmail from '../widgets/admin/AdminTestEmail';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -209,6 +210,12 @@ const Admin = () => {
           >
             <FaCog /> Settings
           </button>
+          <button
+            className={`nav-item ${activeTab === 'test-email' ? 'active' : ''}`}
+            onClick={() => setActiveTab('test-email')}
+          >
+            <FaEnvelope /> Test Email
+          </button>
         </nav>
         <button className="sign-out-btn" onClick={handleSignOut}>
           <FaSignOutAlt /> Sign Out
@@ -286,6 +293,8 @@ const Admin = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'test-email' && <AdminTestEmail />}
       </div>
     </div>
   );
