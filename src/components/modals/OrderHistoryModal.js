@@ -79,7 +79,24 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate();
+    
+    let date;
+    if (timestamp.toDate) {
+      // Handle Firestore Timestamp
+      date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+      // Handle Date object
+      date = timestamp;
+    } else if (typeof timestamp === 'number') {
+      // Handle Unix timestamp
+      date = new Date(timestamp);
+    } else if (typeof timestamp === 'string') {
+      // Handle date string
+      date = new Date(timestamp);
+    } else {
+      return 'Invalid Date';
+    }
+
     return {
       date: date.toLocaleDateString('en-US', {
         month: 'long',
@@ -222,11 +239,11 @@ const OrderHistoryModal = ({ isOpen, onClose }) => {
                     <div className="order-totals">
                       <div className="subtotal">
                         <span>Subtotal</span>
-                        <span>${order.subtotal.toFixed(2)}</span>
+                        <span>${(order.subtotal || 0).toFixed(2)}</span>
                       </div>
                       <div className="total">
                         <span>Total</span>
-                        <span>${order.total.toFixed(2)}</span>
+                        <span>${(order.total || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
