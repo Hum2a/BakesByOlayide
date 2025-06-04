@@ -198,6 +198,17 @@ app.post('/api/test-email', async (req, res) => {
   }
 });
 
+app.post('/api/send-order-confirmation', async (req, res) => {
+  const { to, subject, html } = req.body;
+  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  try {
+    await sendOrderConfirmation({ to, subject, html });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Place this at the very end, after all API routes
 app.use(express.static('build'));
 

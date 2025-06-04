@@ -53,6 +53,22 @@ const OrderConfirmation = () => {
     if (orderId && items && guestInfo) {
       setOrderData({ orderId, items, total, guestInfo });
       saveOrderAndInvoiceToFirebase({ orderId, items, total, guestInfo });
+      // Send order confirmation email from frontend
+      if (guestInfo.email) {
+        fetch(`${API_BASE_URL}/api/send-order-confirmation`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: guestInfo.email,
+            subject: 'Your Bakes by Olayide Order Confirmation',
+            html: `<h1>Thank you for your order!</h1><p>Order ID: ${orderId}</p>`,
+          }),
+        }).then(res => {
+          if (!res.ok) throw new Error('Failed to send confirmation email');
+        }).catch(err => {
+          console.error('Order confirmation email error:', err);
+        });
+      }
       return;
     }
     // Otherwise, try to fetch using session_id from URL
