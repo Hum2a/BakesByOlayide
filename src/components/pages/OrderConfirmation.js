@@ -94,6 +94,8 @@ const OrderConfirmation = () => {
   };
 
   useEffect(() => {
+    if (loading) return; // Wait until auth state is known
+
     const sendConfirmationEmail = async () => {
       console.log('Starting order confirmation email process...');
       console.log('Guest info:', guestInfo);
@@ -232,7 +234,7 @@ const OrderConfirmation = () => {
     } else {
       console.log('No orderId available, skipping email confirmation');
     }
-  }, [orderId, items, total, guestInfo, user]);
+  }, [orderId, items, total, guestInfo, user, loading]);
 
   useEffect(() => {
     // If order data is present in location.state, use it
