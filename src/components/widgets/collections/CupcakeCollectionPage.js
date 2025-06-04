@@ -181,7 +181,7 @@ const CupcakeCollectionPage = () => {
       <div className="cupcake-description">
       Cupcakes are sold in three different batch sizes: boxes of 4, 6 and 12. 12 cupcakes is the smallest batch size for a standalone order.
       </div>
-      <section className="cupcake-section">
+      <section className="cupcake-section cupcake-seasonal-section">
         <h2>Flavours of the Season</h2>
         {cupcakes.seasonal && cupcakes.seasonal.length > 0 && (
           <div className="seasonal-flavours-scroll">
@@ -228,29 +228,31 @@ const CupcakeCollectionPage = () => {
         )}
       </section>
       <section className="cupcake-section">
-        <h2>Standard Range</h2>
-        <div className="cupcake-standard-grid">
-          {paddedCakes.map((cake, idx) =>
-            cake.empty ? (
-              <div className="cupcake-standard-card empty" key={cake.id || idx}></div>
-            ) : (
-              <div 
-                className="cupcake-standard-card" 
-                key={cake.id}
-                onClick={() => handleCupcakeClick(cake.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img src={cake.image} alt={cake.name} className="cupcake-standard-img" />
-                <div className="cupcake-standard-info">
-                  <h3>{cake.name}</h3>
-                  <p>{cake.description}</p>
-                  <span className="cupcake-standard-price">
-                    {cake.sizes && cake.sizes.find(size => Number(size.size) === 12) ? `From £${cake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
-                  </span>
+        <h2>Year Round Flavours</h2>
+        <div className="cupcake-standard-grid-container">
+          <div className="cupcake-standard-grid">
+            {paddedCakes.map((cake, idx) =>
+              cake.empty ? (
+                <div className="cupcake-standard-card empty" key={cake.id || idx}></div>
+              ) : (
+                <div 
+                  className="cupcake-standard-card" 
+                  key={cake.id}
+                  onClick={() => handleCupcakeClick(cake.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <img src={cake.image} alt={cake.name} className="cupcake-standard-img" />
+                  <div className="cupcake-standard-info">
+                    <h3>{cake.name}</h3>
+                    <p>{cake.description}</p>
+                    <span className="cupcake-standard-price">
+                      {cake.sizes && cake.sizes.find(size => Number(size.size) === 12) ? `From £${cake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
+          </div>
         </div>
       </section>
       {/* Modals and overlays */}

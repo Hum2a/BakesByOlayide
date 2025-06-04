@@ -176,44 +176,69 @@ const LargeCakesCollection = () => {
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Large Cakes</span>
       </div>
       <div className="cupcake-description">
-      Large celebration cakes are handled a little differently here at Bakes by Olayide. Rather than providing you with pre-set cake designs, we instead encourage you to design a cake or send us your inspirations so we can make it for you. Our cakes are listed by flavour. If you’d like any flavours that aren’t listed below, contact us here.
+      Large celebration cakes are handled a little differently here at Bakes by Olayide. Rather than providing you with pre-set cake designs, we instead encourage you to design a cake or send us your inspirations so we can make it for you. Our cakes are listed by flavour. If you'd like any flavours that aren't listed below, contact us here.
       </div>
-      <section className="cupcake-section">
+      <section className="cupcake-section cupcake-seasonal-section">
         <h2>Featured Flavours</h2>
-        <div className="cupcake-flavours-grid">
-          {largeCakes.seasonal?.map((largeCake) => (
-            <div className="cupcake-flavour-card" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
-              <img src={largeCake.image} alt={largeCake.name} className="cupcake-flavour-img" />
-              <div className="cupcake-flavour-info">
-                <h3>{largeCake.name}</h3>
-                <p>{largeCake.description}</p>
-                <span className="cupcake-flavour-price">
-                  From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
-                </span>
+        {largeCakes.seasonal && largeCakes.seasonal.length > 0 && (
+          <div className="seasonal-flavours-scroll">
+            <div className="seasonal-flavours-flex">
+              <div className="seasonal-flavour-large">
+                {(() => {
+                  const largeCake = largeCakes.seasonal[0];
+                  return (
+                    <div className="cupcake-flavour-card" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
+                      <img src={largeCake.image} alt={largeCake.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{largeCake.name}</h3>
+                        <p>{largeCake.description}</p>
+                        <span className="cupcake-flavour-price">
+                          From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="seasonal-flavour-vertical">
+                {largeCakes.seasonal.slice(1).map((largeCake) => (
+                  <div className="cupcake-flavour-card seasonal-flavour-small" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
+                    <img src={largeCake.image} alt={largeCake.name} className="cupcake-flavour-img" />
+                    <div className="cupcake-flavour-info">
+                      <h3>{largeCake.name}</h3>
+                      <p>{largeCake.description}</p>
+                      <span className="cupcake-flavour-price">
+                        From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
       <section className="cupcake-section">
-        <h2>Year Round Flavours</h2>
-        <div className="cupcake-standard-grid">
-          {paddedCakes.map((largeCake, idx) =>
-            largeCake.empty ? (
-              <div className="cupcake-standard-card empty" key={largeCake.id || idx}></div>
-            ) : (
-              <div className="cupcake-standard-card" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
-                <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
-                <div className="cupcake-standard-info">
-                  <h3>{largeCake.name}</h3>
-                  <p>{largeCake.description}</p>
-                  <span className="cupcake-standard-price">
-                    From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
-                  </span>
+        <h2>Our Offerings</h2>
+        <div className="cupcake-standard-grid-container">
+          <div className="cupcake-standard-grid">
+            {paddedCakes.map((largeCake, idx) =>
+              largeCake.empty ? (
+                <div className="cupcake-standard-card empty" key={largeCake.id || idx}></div>
+              ) : (
+                <div className="cupcake-standard-card" key={largeCake.id} onClick={() => navigate(`/collections/cakes/${largeCake.id}`)} style={{ cursor: 'pointer' }}>
+                  <img src={largeCake.image} alt={largeCake.name} className="cupcake-standard-img" />
+                  <div className="cupcake-standard-info">
+                    <h3>{largeCake.name}</h3>
+                    <p>{largeCake.description}</p>
+                    <span className="cupcake-standard-price">
+                      From £{Math.min(...largeCake.sizes.map(size => size.price)).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
+          </div>
         </div>
       </section>
       {/* Modals and overlays */}

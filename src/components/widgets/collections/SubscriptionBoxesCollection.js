@@ -174,56 +174,88 @@ const SubscriptionBoxesCollection = () => {
       <div className="cupcake-description">
       Have cravings often? Subscribe for monthly boxes of cakes, brownies and cookies right to your door.
       </div>
-      <section className="cupcake-section">
+      <section className="cupcake-section cupcake-seasonal-section">
         <h2>Seasonal Boxes</h2>
-        <div className="cupcake-flavours-grid">
-          {subscriptionBoxes.seasonal?.map((box) => (
-            <div className="cupcake-flavour-card" key={box.id} onClick={() => navigate(`/collections/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
-              <img src={box.image} alt={box.name} className="cupcake-flavour-img" />
-              <div className="cupcake-flavour-info">
-                <h3>{box.name}</h3>
-                <p>{box.description}</p>
-                <div className="subscription-details">
-                  <span className="cupcake-flavour-price">
-                    From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}
-                  </span>
-                  {box.deliveryFrequency && (
-                    <span className="delivery-frequency">
-                      {box.deliveryFrequency}
-                    </span>
-                  )}
-                </div>
+        {subscriptionBoxes.seasonal && subscriptionBoxes.seasonal.length > 0 && (
+          <div className="seasonal-flavours-scroll">
+            <div className="seasonal-flavours-flex">
+              <div className="seasonal-flavour-large">
+                {(() => {
+                  const box = subscriptionBoxes.seasonal[0];
+                  return (
+                    <div className="cupcake-flavour-card" key={box.id} onClick={() => navigate(`/collections/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
+                      <img src={box.image} alt={box.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{box.name}</h3>
+                        <p>{box.description}</p>
+                        <div className="subscription-details">
+                          <span className="cupcake-flavour-price">
+                            From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}
+                          </span>
+                          {box.deliveryFrequency && (
+                            <span className="delivery-frequency">
+                              {box.deliveryFrequency}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="seasonal-flavour-vertical">
+                {subscriptionBoxes.seasonal.slice(1).map((box) => (
+                  <div className="cupcake-flavour-card seasonal-flavour-small" key={box.id} onClick={() => navigate(`/collections/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
+                    <img src={box.image} alt={box.name} className="cupcake-flavour-img" />
+                    <div className="cupcake-flavour-info">
+                      <h3>{box.name}</h3>
+                      <p>{box.description}</p>
+                      <div className="subscription-details">
+                        <span className="cupcake-flavour-price">
+                          From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}
+                        </span>
+                        {box.deliveryFrequency && (
+                          <span className="delivery-frequency">
+                            {box.deliveryFrequency}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
       <section className="cupcake-section">
         <h2>Year Round Boxes</h2>
-        <div className="cupcake-standard-grid">
-          {paddedBoxes.map((box, idx) =>
-            box.empty ? (
-              <div className="cupcake-standard-card empty" key={box.id || idx}></div>
-            ) : (
-              <div className="cupcake-standard-card" key={box.id} onClick={() => navigate(`/collections/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
-                <img src={box.image} alt={box.name} className="cupcake-standard-img" />
-                <div className="cupcake-standard-info">
-                  <h3>{box.name}</h3>
-                  <p>{box.description}</p>
-                  <div className="subscription-details">
-                    <span className="cupcake-standard-price">
-                      From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}
-                    </span>
-                    {box.deliveryFrequency && (
-                      <span className="delivery-frequency">
-                        {box.deliveryFrequency}
+        <div className="cupcake-standard-grid-container">
+          <div className="cupcake-standard-grid">
+            {paddedBoxes.map((box, idx) =>
+              box.empty ? (
+                <div className="cupcake-standard-card empty" key={box.id || idx}></div>
+              ) : (
+                <div className="cupcake-standard-card" key={box.id} onClick={() => navigate(`/collections/cakes/${box.id}`)} style={{ cursor: 'pointer' }}>
+                  <img src={box.image} alt={box.name} className="cupcake-standard-img" />
+                  <div className="cupcake-standard-info">
+                    <h3>{box.name}</h3>
+                    <p>{box.description}</p>
+                    <div className="subscription-details">
+                      <span className="cupcake-standard-price">
+                        From £{Math.min(...box.sizes.map(size => size.price)).toFixed(2)}
                       </span>
-                    )}
+                      {box.deliveryFrequency && (
+                        <span className="delivery-frequency">
+                          {box.deliveryFrequency}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
+          </div>
         </div>
       </section>
       <section className="subscription-benefits">

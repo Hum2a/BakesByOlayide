@@ -275,36 +275,71 @@ const BentoCakewithCupcakesCollection = () => {
         </div>
       </section>
 
-      <section className="cupcake-section">
-        <div className="cupcake-flavours-grid">
-          {bentoCakes.seasonal?.map((bentoCake) => (
-            <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
-              <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
-              <div className="cupcake-flavour-info">
-                <h3>{bentoCake.name}</h3>
-                <p>{bentoCake.description}</p>
-                <span className="cupcake-flavour-price">
-                  From £{Math.min(...(Array.isArray(bentoCake.sizes) ? bentoCake.sizes : []).map(size => size.price)).toFixed(2)}
-                </span>
+      <section className="cupcake-section cupcake-seasonal-section">
+        <h2>Featured Flavours</h2>
+        {bentoCakes.seasonal && bentoCakes.seasonal.length > 0 && (
+          <div className="seasonal-flavours-scroll">
+            <div className="seasonal-flavours-flex">
+              <div className="seasonal-flavour-large">
+                {(() => {
+                  const bentoCake = bentoCakes.seasonal[0];
+                  const dozenSize = bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12);
+                  return (
+                    <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+                      <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{bentoCake.name}</h3>
+                        <p>{bentoCake.description}</p>
+                        <span className="cupcake-flavour-price">
+                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="seasonal-flavour-vertical">
+                {bentoCakes.seasonal.slice(1).map((bentoCake) => {
+                  const dozenSize = bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12);
+                  return (
+                    <div className="cupcake-flavour-card seasonal-flavour-small" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+                      <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
+                      <div className="cupcake-flavour-info">
+                        <h3>{bentoCake.name}</h3>
+                        <p>{bentoCake.description}</p>
+                        <span className="cupcake-flavour-price">
+                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
       <section className="cupcake-section">
-        <h2>Year Round Flavours</h2>
-        <div className="cupcake-standard-grid">
-          {bentoCakes.standard?.map((bentoCake) => (
-            <div className="cupcake-standard-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
-              <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-standard-img" />
-              <div className="cupcake-standard-info">
-                <h3>{bentoCake.name}</h3>
-                <span className="cupcake-standard-price">
-                  From £{Math.min(...(Array.isArray(bentoCake.sizes) ? bentoCake.sizes : []).map(size => size.price)).toFixed(2)}
-                </span>
-              </div>
-            </div>
-          ))}
+        <h2>Our Offerings</h2>
+        <div className="cupcake-standard-grid-container">
+          <div className="cupcake-standard-grid">
+            {bentoCakes.standard && bentoCakes.standard.map((bentoCake, idx) =>
+              bentoCake.empty ? (
+                <div className="cupcake-standard-card empty" key={bentoCake.id || idx}></div>
+              ) : (
+                <div className="cupcake-standard-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
+                  <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-standard-img" />
+                  <div className="cupcake-standard-info">
+                    <h3>{bentoCake.name}</h3>
+                    <p>{bentoCake.description}</p>
+                    <span className="cupcake-standard-price">
+                      {bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12) ? `From £${bentoCake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
+                    </span>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
         </div>
       </section>
       <Footer />
