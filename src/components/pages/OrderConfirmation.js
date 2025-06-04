@@ -6,7 +6,7 @@ import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import '../styles/OrderConfirmation.css';
-import { doc, setDoc, collection, addDoc, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, collection, addDoc, Timestamp, getDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { saveOrderAndInvoiceToFirebase } from '../../utils/firebaseOrder';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://bakesbyolayide-server.onrender.com';
@@ -29,11 +29,125 @@ const OrderConfirmation = () => {
     return () => unsubscribe();
   }, []);
 
+  const fetchMostRecentOrder = async () => {
+    console.log('Attempting to fetch most recent order from Firebase');
+    try {
+      let recentOrder = null;
+
+      // First try user's orders if logged in
+      if (user) {
+        const userOrdersRef = collection(db, 'users', user.uid, 'Orders');
+        const userOrdersQuery = query(userOrdersRef, orderBy('createdAt', 'desc'), limit(1));
+        const userOrdersSnapshot = await getDocs(userOrdersQuery);
+        
+        if (!userOrdersSnapshot.empty) {
+          const doc = userOrdersSnapshot.docs[0];
+          console.log('Found most recent order in user orders:', doc.id);
+          return { ...doc.data(), id: doc.id };
+        }
+      }
+
+      // If no user orders or not logged in, try main orders collection
+      const ordersRef = collection(db, 'orders');
+      const ordersQuery = query(ordersRef, orderBy('createdAt', 'desc'), limit(1));
+      const ordersSnapshot = await getDocs(ordersQuery);
+      
+      if (!ordersSnapshot.empty) {
+        const doc = ordersSnapshot.docs[0];
+        console.log('Found most recent order in main orders:', doc.id);
+        return { ...doc.data(), id: doc.id };
+      }
+
+      console.log('No recent orders found in Firebase');
+      return null;
+    } catch (error) {
+      console.error('Error fetching most recent order:', error);
+      return null;
+    }
+  };
+
+  const fetchOrderFromFirebase = async (orderId) => {
+    console.log('Attempting to fetch order from Firebase:', orderId);
+    try {
+      // Try to get order from main orders collection
+      const orderDoc = await getDoc(doc(db, 'orders', orderId));
+      if (orderDoc.exists()) {
+        console.log('Found order in main orders collection');
+        return orderDoc.data();
+      }
+
+      // If not found and user is logged in, try user's orders subcollection
+      if (user) {
+        const userOrderDoc = await getDoc(doc(db, 'users', user.uid, 'Orders', orderId));
+        if (userOrderDoc.exists()) {
+          console.log('Found order in user orders subcollection');
+          return userOrderDoc.data();
+        }
+      }
+
+      console.log('Order not found in Firebase');
+      return null;
+    } catch (error) {
+      console.error('Error fetching order from Firebase:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const sendConfirmationEmail = async () => {
       console.log('Starting order confirmation email process...');
       console.log('Guest info:', guestInfo);
       console.log('Current user:', user);
+      console.log('Initial order data:', { orderId, items, total });
+      
+      // If we don't have complete order data, try to fetch from Firebase
+      let finalOrderData = { orderId, items, total };
+      if (!orderId || !items || !total) {
+        console.log('Incomplete order data, attempting to fetch from Firebase');
+        
+        // First try to fetch specific order if we have an orderId
+        if (orderId) {
+          const firebaseOrder = await fetchOrderFromFirebase(orderId);
+          if (firebaseOrder) {
+            console.log('Retrieved order data from Firebase:', firebaseOrder);
+            finalOrderData = {
+              orderId: firebaseOrder.id || orderId,
+              items: firebaseOrder.items || items,
+              total: firebaseOrder.total || total
+            };
+          }
+        }
+        
+        // If still incomplete, try to get most recent order
+        if (!finalOrderData.items || !finalOrderData.total) {
+          console.log('Still missing data, attempting to fetch most recent order');
+          const recentOrder = await fetchMostRecentOrder();
+          if (recentOrder) {
+            console.log('Retrieved most recent order:', recentOrder);
+            finalOrderData = {
+              orderId: finalOrderData.orderId || recentOrder.id,
+              items: finalOrderData.items || recentOrder.items,
+              total: finalOrderData.total || recentOrder.total
+            };
+          }
+        }
+      }
+
+      // Validate required data
+      if (!finalOrderData.orderId) {
+        console.log('Missing orderId, skipping email confirmation');
+        return;
+      }
+
+      if (!finalOrderData.items || !Array.isArray(finalOrderData.items) || finalOrderData.items.length === 0) {
+        console.log('Missing or invalid items, skipping email confirmation');
+        return;
+      }
+
+      if (!finalOrderData.total || typeof finalOrderData.total !== 'number') {
+        console.log('Missing or invalid total, skipping email confirmation');
+        return;
+      }
       
       // Get email from either guest info or user account
       const emailToUse = guestInfo?.email || user?.email;
@@ -48,25 +162,29 @@ const OrderConfirmation = () => {
 
       try {
         console.log('Preparing to send confirmation email to:', emailToUse);
-        console.log('Order details:', {
-          orderId,
+        console.log('Final order details:', {
+          orderId: finalOrderData.orderId,
           customerName,
-          items,
-          total
+          items: finalOrderData.items,
+          total: finalOrderData.total
         });
+
+        const emailPayload = {
+          orderId: finalOrderData.orderId,
+          customerName,
+          customerEmail: emailToUse,
+          items: finalOrderData.items,
+          total: finalOrderData.total
+        };
+
+        console.log('Sending email payload:', emailPayload);
 
         const response = await fetch(`${API_BASE_URL}/api/send-order-confirmation`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            orderId,
-            customerName,
-            customerEmail: emailToUse,
-            items,
-            total
-          }),
+          body: JSON.stringify(emailPayload),
         });
         
         console.log('Email API Response Status:', response.status);
@@ -85,8 +203,14 @@ const OrderConfirmation = () => {
         console.error('Error in order confirmation email process:', {
           error: error.message,
           stack: error.stack,
-          orderId,
-          customerEmail: emailToUse
+          orderId: finalOrderData.orderId,
+          customerEmail: emailToUse,
+          payload: {
+            orderId: finalOrderData.orderId,
+            customerName,
+            items: finalOrderData.items,
+            total: finalOrderData.total
+          }
         });
       }
     };
@@ -97,10 +221,17 @@ const OrderConfirmation = () => {
       hasGuestInfo: !!guestInfo,
       hasItems: !!items,
       hasTotal: !!total,
-      hasUser: !!user
+      hasUser: !!user,
+      itemsLength: items?.length,
+      totalValue: total
     });
 
-    sendConfirmationEmail();
+    // Only attempt to send email if we have at least an orderId
+    if (orderId) {
+      sendConfirmationEmail();
+    } else {
+      console.log('No orderId available, skipping email confirmation');
+    }
   }, [orderId, items, total, guestInfo, user]);
 
   useEffect(() => {
