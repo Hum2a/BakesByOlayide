@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaUser, FaSearch } from 'react-icons/fa';
 import { useCart } from '../../context/CartContext';
 import '../styles/Header.css';
@@ -10,9 +10,9 @@ import ProfileDropdown from '../widgets/ProfileDropdown';
 import OrderHistoryModal from '../modals/OrderHistoryModal';
 import SettingsModal from '../modals/SettingsModal';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../firebase/firebase';
 
 const Header = ({
-  user,
   isScrolled,
   isMobileMenuOpen,
   handleMobileMenuClick,
@@ -23,6 +23,7 @@ const Header = ({
   setIsMobileMenuOpen,
   handleModalOpen
 }) => {
+  const [user, setUser] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -33,6 +34,14 @@ const Header = ({
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Handle dropdown/modal open logic
   const handleDropdownModalOpen = (modalType) => {

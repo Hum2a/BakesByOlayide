@@ -96,45 +96,12 @@ const OrderConfirmation = () => {
   useEffect(() => {
     if (loading) return; // Wait until auth state is known
 
-    const sendConfirmationEmail = async () => {
+    const sendConfirmationEmail = async (finalOrderData) => {
       console.log('Starting order confirmation email process...');
       console.log('Guest info:', guestInfo);
       console.log('Current user:', user);
-      console.log('Initial order data:', { orderId, items, total });
+      console.log('Final order details:', finalOrderData);
       
-      // If we don't have complete order data, try to fetch from Firebase
-      let finalOrderData = { orderId, items, total };
-      if (!orderId || !items || !total) {
-        console.log('Incomplete order data, attempting to fetch from Firebase');
-        
-        // First try to fetch specific order if we have an orderId
-        if (orderId) {
-          const firebaseOrder = await fetchOrderFromFirebase(orderId);
-          if (firebaseOrder) {
-            console.log('Retrieved order data from Firebase:', firebaseOrder);
-            finalOrderData = {
-              orderId: firebaseOrder.id || orderId,
-              items: firebaseOrder.items || items,
-              total: firebaseOrder.total || total
-            };
-          }
-        }
-        
-        // If still incomplete, try to get most recent order
-        if (!finalOrderData.items || !finalOrderData.total) {
-          console.log('Still missing data, attempting to fetch most recent order');
-          const recentOrder = await fetchMostRecentOrder();
-          if (recentOrder) {
-            console.log('Retrieved most recent order:', recentOrder);
-            finalOrderData = {
-              orderId: finalOrderData.orderId || recentOrder.id,
-              items: finalOrderData.items || recentOrder.items,
-              total: finalOrderData.total || recentOrder.total
-            };
-          }
-        }
-      }
-
       // Validate required data
       if (!finalOrderData.orderId) {
         console.log('Missing orderId, skipping email confirmation');
@@ -217,23 +184,40 @@ const OrderConfirmation = () => {
       }
     };
 
-    console.log('Order confirmation email useEffect triggered');
-    console.log('Current state:', {
-      orderId,
-      hasGuestInfo: !!guestInfo,
-      hasItems: !!items,
-      hasTotal: !!total,
-      hasUser: !!user,
-      itemsLength: items?.length,
-      totalValue: total
-    });
+    const processOrderConfirmation = async () => {
+      console.log('Order confirmation email useEffect triggered');
+      console.log('Current state:', {
+        orderId,
+        hasGuestInfo: !!guestInfo,
+        hasItems: !!items,
+        hasTotal: !!total,
+        hasUser: !!user,
+        itemsLength: items?.length,
+        totalValue: total
+      });
 
-    // Only attempt to send email if we have at least an orderId
-    if (orderId) {
-      sendConfirmationEmail();
-    } else {
-      console.log('No orderId available, skipping email confirmation');
-    }
+      let finalOrderData = { orderId, items, total };
+
+      // If orderId is missing, try to fetch the most recent order
+      if (!orderId) {
+        console.log('No orderId available, attempting to fetch most recent order');
+        const recentOrder = await fetchMostRecentOrder();
+        if (recentOrder) {
+          finalOrderData = {
+            orderId: recentOrder.id,
+            items: recentOrder.items,
+            total: recentOrder.total
+          };
+        } else {
+          console.log('No recent order found, skipping email confirmation');
+          return;
+        }
+      }
+
+      await sendConfirmationEmail(finalOrderData);
+    };
+
+    processOrderConfirmation();
   }, [orderId, items, total, guestInfo, user, loading]);
 
   useEffect(() => {
