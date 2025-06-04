@@ -284,6 +284,9 @@ const BentoCakewithCupcakesCollection = () => {
                 {(() => {
                   const bentoCake = bentoCakes.seasonal[0];
                   const dozenSize = bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12);
+                  const minSize = bentoCake.sizes && bentoCake.sizes.length > 0
+                    ? Math.min(...bentoCake.sizes.map(s => Number(s.price)))
+                    : null;
                   return (
                     <div className="cupcake-flavour-card" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
                       <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
@@ -291,7 +294,12 @@ const BentoCakewithCupcakesCollection = () => {
                         <h3>{bentoCake.name}</h3>
                         <p>{bentoCake.description}</p>
                         <span className="cupcake-flavour-price">
-                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                          {dozenSize
+                            ? <><b>From £{Number(dozenSize.price).toFixed(2)} for 1 dozen</b></>
+                            : minSize !== null && !isNaN(minSize)
+                              ? <><b>From £{minSize.toFixed(2)}</b></>
+                              : 'Price unavailable'
+                          }
                         </span>
                       </div>
                     </div>
@@ -301,6 +309,9 @@ const BentoCakewithCupcakesCollection = () => {
               <div className="seasonal-flavour-vertical">
                 {bentoCakes.seasonal.slice(1).map((bentoCake) => {
                   const dozenSize = bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12);
+                  const minSize = bentoCake.sizes && bentoCake.sizes.length > 0
+                    ? Math.min(...bentoCake.sizes.map(s => Number(s.price)))
+                    : null;
                   return (
                     <div className="cupcake-flavour-card seasonal-flavour-small" key={bentoCake.id} onClick={() => navigate(`/collections/bento-cakes/${bentoCake.id}`)} style={{ cursor: 'pointer' }}>
                       <img src={bentoCake.image} alt={bentoCake.name} className="cupcake-flavour-img" />
@@ -308,7 +319,12 @@ const BentoCakewithCupcakesCollection = () => {
                         <h3>{bentoCake.name}</h3>
                         <p>{bentoCake.description}</p>
                         <span className="cupcake-flavour-price">
-                          {dozenSize ? <><b>From £{dozenSize.price.toFixed(2)} for 1 dozen</b></> : 'Price unavailable'}
+                          {dozenSize
+                            ? <><b>From £{Number(dozenSize.price).toFixed(2)} for 1 dozen</b></>
+                            : minSize !== null && !isNaN(minSize)
+                              ? <><b>From £{minSize.toFixed(2)}</b></>
+                              : 'Price unavailable'
+                          }
                         </span>
                       </div>
                     </div>
@@ -333,7 +349,17 @@ const BentoCakewithCupcakesCollection = () => {
                     <h3>{bentoCake.name}</h3>
                     <p>{bentoCake.description}</p>
                     <span className="cupcake-standard-price">
-                      {bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12) ? `From £${bentoCake.sizes.find(size => Number(size.size) === 12).price.toFixed(2)} / dozen` : 'Price unavailable'}
+                      {(() => {
+                        const dozenSize = bentoCake.sizes && bentoCake.sizes.find(size => Number(size.size) === 12);
+                        const minSize = bentoCake.sizes && bentoCake.sizes.length > 0
+                          ? Math.min(...bentoCake.sizes.map(s => Number(s.price)))
+                          : null;
+                        return dozenSize
+                          ? `From £${Number(dozenSize.price).toFixed(2)} for 1 dozen`
+                          : minSize !== null && !isNaN(minSize)
+                            ? `From £${minSize.toFixed(2)}`
+                            : 'Price unavailable';
+                      })()}
                     </span>
                   </div>
                 </div>
