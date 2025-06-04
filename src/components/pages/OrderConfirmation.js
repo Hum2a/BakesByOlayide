@@ -139,9 +139,11 @@ const OrderConfirmation = () => {
         });
 
         const emailPayload = {
+          to: emailToUse,
+          subject: 'Your Bakes by Olayide Order Confirmation',
+          html: `<h1>Thank you for your order!</h1><p>Order ID: ${finalOrderData.orderId}</p>`,
           orderId: finalOrderData.orderId,
           customerName,
-          customerEmail: emailToUse,
           items: finalOrderData.items,
           total: finalOrderData.total
         };
