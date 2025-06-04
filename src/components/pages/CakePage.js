@@ -17,6 +17,7 @@ import CartModal from '../modals/CartModal';
 import SearchModal from '../modals/SearchModal';
 import { auth } from '../../firebase/firebase';
 import PageTitle from '../common/PageTitle';
+import OptimizedImage from '../common/OptimizedImage';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -37,7 +38,7 @@ const FIXED_CATEGORIES = [
   },
   {
     name: 'Brownies',
-    description: 'Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic’s dream.',
+    description: "Fantastically fudgey and irresistible with our whipped cream, these brownies are a chocoholic's dream.",
     image: '/images/range/Brownies.webp'
   },
   {
@@ -285,7 +286,7 @@ const CakePage = ({ onOpenCart }) => {
                 <span>NO IMAGE UPLOADED</span>
               </div>
             ) : (
-              <img
+              <OptimizedImage
                 src={category.image}
                 alt={category.name}
                 className="cakepage-collection-image"

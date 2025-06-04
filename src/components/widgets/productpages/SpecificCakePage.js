@@ -8,6 +8,7 @@ import Footer from '../../common/Footer';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import OptimizedImage from '../../common/OptimizedImage';
 
 const SpecificCakePage = () => {
   const { id } = useParams();
@@ -315,7 +316,7 @@ const SpecificCakePage = () => {
                   className={`listing-carousel-slide${idx === currentImageIdx ? ' active' : ''}${idx === (currentImageIdx - 1 + images.length) % images.length ? ' prev' : ''}`}
                   style={{ display: idx === currentImageIdx || idx === (currentImageIdx - 1 + images.length) % images.length ? 'flex' : 'none' }}
                 >
-                  <img src={img} alt={cake.name} />
+                  <OptimizedImage src={img} alt={cake.name} />
                 </div>
               ))}
               {images.length > 1 && (
