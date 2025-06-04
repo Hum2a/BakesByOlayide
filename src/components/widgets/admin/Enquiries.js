@@ -14,6 +14,9 @@ const Enquiries = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
 
+  // Use env variable or fallback to hardcoded URL
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://bakesbyolayide-server.onrender.com';
+
   useEffect(() => {
     fetchEnquiries();
   }, [sortBy]);
@@ -59,7 +62,7 @@ const Enquiries = () => {
       if (!enquiry) throw new Error('Enquiry not found');
 
       // Send the reply email
-      await fetch('/api/send-enquiry-reply', {
+      const response = await fetch(`${API_BASE_URL}/api/send-enquiry-reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,6 +73,12 @@ const Enquiries = () => {
                  <p style=\"margin-top:2em;\">Best regards,<br/>Bakes by Olayide Team</p>`
         }),
       });
+      if (!response.ok) {
+        const errorText = await response.text();
+        setError('Failed to send reply email: ' + errorText);
+        console.error('Failed to send reply email:', errorText);
+        return;
+      }
 
       // Update Firestore as before
       const enquiryRef = doc(db, 'enquiries', enquiryId);
@@ -83,7 +92,7 @@ const Enquiries = () => {
       await fetchEnquiries();
     } catch (error) {
       console.error('Error sending reply:', error);
-      setError('Failed to send reply');
+      setError('Failed to send reply: ' + (error.message || error));
     }
   };
 

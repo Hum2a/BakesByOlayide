@@ -229,12 +229,17 @@ app.post('/api/send-order-confirmation', async (req, res) => {
 });
 
 app.post('/api/send-enquiry-reply', async (req, res) => {
+  console.log('Received enquiry reply request:', req.body);
   const { to, subject, html } = req.body;
-  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  if (!to) {
+    console.error('Missing recipient email in enquiry reply');
+    return res.status(400).json({ error: 'Missing recipient email' });
+  }
   try {
     await sendEnquiryReply({ to, subject, html });
     res.json({ success: true });
   } catch (e) {
+    console.error('Error sending enquiry reply:', e);
     res.status(500).json({ error: e.message });
   }
 });
