@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
-// const { sendOrderConfirmation, sendEnquiryConfirmation, sendPasswordReset } = require('./src/utils/emailService');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -25,6 +25,25 @@ app.get('/api/test', (req, res) => {
 // app.post('/api/send-order-confirmation', ...)
 // app.post('/api/send-enquiry-confirmation', ...)
 // app.post('/api/send-password-reset', ...)
+
+const transporter = nodemailer.createTransport({
+  host: process.env.ZOHO_SMTP_HOST,
+  port: process.env.ZOHO_SMTP_PORT,
+  secure: true, // true for 465, false for 587
+  auth: {
+    user: process.env.ZOHO_SMTP_USER,
+    pass: process.env.ZOHO_SMTP_PASS,
+  },
+});
+
+async function sendOrderConfirmation({ to, subject, html }) {
+  return transporter.sendMail({
+    from: `"Bakes by Olayide" <${process.env.ZOHO_SMTP_USER}>`,
+    to,
+    subject,
+    html,
+  });
+}
 
 app.post('/api/create-payment-intent', async (req, res) => {
   try {
@@ -130,6 +149,30 @@ app.get('/api/stripe-session', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    // Get customer email and order details from session
+    const to = session.customer_details.email;
+    const subject = 'Your Bakes by Olayide Order Confirmation';
+    const html = `<h1>Thank you for your order!</h1><p>Order ID: ${session.metadata.orderId}</p>`;
+    try {
+      await sendOrderConfirmation({ to, subject, html });
+    } catch (e) {
+      console.error('Email send error:', e);
+    }
+  }
+  res.json({ received: true });
 });
 
 // Place this at the very end, after all API routes
