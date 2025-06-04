@@ -198,21 +198,32 @@ const OrderConfirmation = () => {
         totalValue: total
       });
 
-      let finalOrderData = { orderId, items, total };
-
-      // If orderId is missing, try to fetch the most recent order
-      if (!orderId) {
-        console.log('No orderId available, attempting to fetch most recent order');
-        const recentOrder = await fetchMostRecentOrder();
-        if (recentOrder) {
-          finalOrderData = {
-            orderId: recentOrder.id,
-            items: recentOrder.items,
-            total: recentOrder.total
-          };
-        } else {
-          console.log('No recent order found, skipping email confirmation');
-          return;
+      // If we don't have complete order data, try to fetch from Firebase
+      let finalOrderData = { orderId, items, total, guestInfo };
+      if (!orderId || !items || !total) {
+        console.log('Incomplete order data, attempting to fetch from Firebase');
+        // First try to fetch specific order if we have an orderId
+        if (orderId) {
+          const firebaseOrder = await fetchOrderFromFirebase(orderId);
+          if (firebaseOrder) {
+            console.log('Retrieved order data from Firebase:', firebaseOrder);
+            finalOrderData = {
+              ...firebaseOrder,
+              orderId: firebaseOrder.id || orderId
+            };
+          }
+        }
+        // If still incomplete, try to get most recent order
+        if (!finalOrderData.items || !finalOrderData.total) {
+          console.log('Still missing data, attempting to fetch most recent order');
+          const recentOrder = await fetchMostRecentOrder();
+          if (recentOrder) {
+            console.log('Retrieved most recent order:', recentOrder);
+            finalOrderData = {
+              ...recentOrder,
+              orderId: finalOrderData.orderId || recentOrder.id
+            };
+          }
         }
       }
 
@@ -370,52 +381,84 @@ const OrderConfirmation = () => {
 function buildOrderEmailHtml(order, invoice) {
   const itemsHtml = (order.items || []).map(item => `
     <tr>
-      <td style="padding:8px 4px;">
-        <img src="${item.image}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" /><br/>
-        <b>${item.name}</b>
+      <td style="padding:12px 8px; border-bottom:1px solid #eee; vertical-align:top;">
+        <img src="${item.image}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px;" />
+        <div style="font-weight:600;">${item.name}</div>
       </td>
-      <td style="padding:8px 4px;">${item.quantity}</td>
-      <td style="padding:8px 4px;">£${item.price?.toFixed(2) || '0.00'}</td>
-      <td style="padding:8px 4px;">
-        Size: ${item.selectedSize?.size || ''}<br/>
-        Shape: ${item.selectedShape?.name || ''}<br/>
-        Finish: ${item.selectedFinish?.name || ''}<br/>
-        Occasion: ${item.occasion || ''}<br/>
-        Addons: ${(item.addons || []).join(', ')}<br/>
-        Notes: ${item.notes || ''}
+      <td style="padding:12px 8px; border-bottom:1px solid #eee; text-align:center; vertical-align:top;">${item.quantity}</td>
+      <td style="padding:12px 8px; border-bottom:1px solid #eee; text-align:center; vertical-align:top;">£${item.price?.toFixed(2) || '0.00'}</td>
+      <td style="padding:12px 8px; border-bottom:1px solid #eee; font-size:0.97em; color:#444; vertical-align:top;">
+        <div><b>Size:</b> ${item.selectedSize?.size || item.size || '-'}</div>
+        <div><b>Shape:</b> ${item.selectedShape?.name || '-'}</div>
+        <div><b>Finish:</b> ${item.selectedFinish?.name || '-'}</div>
+        <div><b>Occasion:</b> ${item.occasion || '-'}</div>
+        <div><b>Addons:</b> ${(item.addons || []).join(', ') || '-'}</div>
+        <div><b>Notes:</b> ${item.notes || '-'}</div>
       </td>
     </tr>
   `).join('');
 
+  // Robust fallbacks for all fields
+  const status = order.status || invoice?.status || '';
+  let orderDate = '';
+  if (order.createdAt) {
+    if (order.createdAt.seconds) {
+      orderDate = new Date(order.createdAt.seconds * 1000).toLocaleString();
+    } else if (typeof order.createdAt === 'string' || typeof order.createdAt === 'number') {
+      orderDate = new Date(order.createdAt).toLocaleString();
+    }
+  }
+  const pickup = `${order.pickupDate || ''} ${order.pickupTime || ''}`.trim();
+  const name = order.guestInfo?.name || order.customerName || order.name || '';
+  const email = order.guestInfo?.email || order.userEmail || order.customerEmail || '';
+  const phone = order.guestInfo?.phone || order.phone || '';
+
   return `
-    <div style="font-family:sans-serif;max-width:600px;margin:auto;">
-      <h1>Thank you for your order!</h1>
-      <p>Order ID: <b>${order.orderId}</b></p>
-      <p>Status: <b>${order.status || invoice?.status || ''}</b></p>
-      <p>Order Date: <b>${order.createdAt ? (order.createdAt.seconds ? new Date(order.createdAt.seconds * 1000).toLocaleString() : new Date(order.createdAt).toLocaleString()) : ''}</b></p>
-      <p>Pickup: <b>${order.pickupDate || ''} ${order.pickupTime || ''}</b></p>
-      <h2>Customer Details</h2>
-      <p>
-        Name: <b>${order.guestInfo?.name || order.customerName || ''}</b><br/>
-        Email: <b>${order.guestInfo?.email || order.userEmail || ''}</b><br/>
-        Phone: <b>${order.guestInfo?.phone || ''}</b>
-      </p>
-      <h2>Order Items</h2>
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="border-bottom:1px solid #ccc;">Item</th>
-            <th style="border-bottom:1px solid #ccc;">Qty</th>
-            <th style="border-bottom:1px solid #ccc;">Price</th>
-            <th style="border-bottom:1px solid #ccc;">Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHtml}
-        </tbody>
-      </table>
-      <h2 style="text-align:right;">Total: £${order.total?.toFixed(2) || invoice?.amount?.toFixed(2) || '0.00'}</h2>
-      <p style="margin-top:2em;">If you have any questions, reply to this email or contact us at <a href=\"mailto:info@bakesbyolayide.co.uk\">info@bakesbyolayide.co.uk</a>.</p>
+    <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:650px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 2px 12px #0001;padding:32px 24px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <img src='https://bakesbyolayide.co.uk/logos/LogoYellowTransparent.png' alt='Bakes by Olayide' style='height:60px;margin-bottom:8px;' />
+        <h1 style="color:#222;font-size:2rem;margin:0 0 8px 0;">Thank you for your order!</h1>
+        <div style="color:#666;font-size:1.1rem;">Your order has been received and is being processed.</div>
+      </div>
+      <div style="margin-bottom:18px;">
+        <div style="font-size:1.1rem;margin-bottom:4px;"><b>Order ID:</b> <span style='color:#3182ce;'>${order.orderId}</span></div>
+        <div style="font-size:1.1rem;margin-bottom:4px;"><b>Status:</b> ${status}</div>
+        <div style="font-size:1.1rem;margin-bottom:4px;"><b>Order Date:</b> ${orderDate}</div>
+        <div style="font-size:1.1rem;margin-bottom:4px;"><b>Pickup:</b> ${pickup || '-'}</div>
+      </div>
+      <div style="margin-bottom:18px;">
+        <h2 style="font-size:1.15rem;color:#222;margin:0 0 6px 0;">Customer Details</h2>
+        <div style="font-size:1.05rem;line-height:1.7;">
+          <b>Name:</b> ${name || '-'}<br/>
+          <b>Email:</b> ${email || '-'}<br/>
+          <b>Phone:</b> ${phone || '-'}
+        </div>
+      </div>
+      <div style="margin-bottom:18px;">
+        <h2 style="font-size:1.15rem;color:#222;margin:0 0 6px 0;">Order Items</h2>
+        <table style="width:100%;border-collapse:collapse;background:#fafbfc;border-radius:8px;overflow:hidden;">
+          <thead>
+            <tr style="background:#f3c307;color:#222;">
+              <th style="padding:12px 8px;text-align:left;font-size:1rem;">Item</th>
+              <th style="padding:12px 8px;text-align:center;font-size:1rem;">Qty</th>
+              <th style="padding:12px 8px;text-align:center;font-size:1rem;">Price</th>
+              <th style="padding:12px 8px;text-align:left;font-size:1rem;">Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right;margin-top:18px;">
+        <span style="font-size:1.3rem;font-weight:700;color:#3182ce;">Total: £${order.total?.toFixed(2) || invoice?.amount?.toFixed(2) || '0.00'}</span>
+      </div>
+      <div style="margin-top:32px;padding-top:18px;border-top:1px solid #eee;color:#888;font-size:0.98em;text-align:center;">
+        <div style="margin-bottom:6px;">If you have any questions, reply to this email or contact us at <a href="mailto:info@bakesbyolayide.co.uk" style="color:#3182ce;">info@bakesbyolayide.co.uk</a>.</div>
+        <div style="margin-bottom:2px;">Bakes by Olayide</div>
+        <div>123 Example Street, London, UK</div>
+        <div>01234 567890</div>
+      </div>
     </div>
   `;
 }

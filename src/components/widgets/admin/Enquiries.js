@@ -54,6 +54,24 @@ const Enquiries = () => {
     if (!replyMessage.trim()) return;
 
     try {
+      // Find the enquiry to get the recipient email
+      const enquiry = enquiries.find(e => e.id === enquiryId);
+      if (!enquiry) throw new Error('Enquiry not found');
+
+      // Send the reply email
+      await fetch('/api/send-enquiry-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: enquiry.email,
+          subject: `Re: Your Enquiry to Bakes by Olayide`,
+          html: `<p>Dear ${enquiry.name || 'Customer'},</p>
+                 <p>${replyMessage.replace(/\n/g, '<br/>')}</p>
+                 <p style=\"margin-top:2em;\">Best regards,<br/>Bakes by Olayide Team</p>`
+        }),
+      });
+
+      // Update Firestore as before
       const enquiryRef = doc(db, 'enquiries', enquiryId);
       await updateDoc(enquiryRef, {
         status: 'replied',

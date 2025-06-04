@@ -26,19 +26,38 @@ app.get('/api/test', (req, res) => {
 // app.post('/api/send-enquiry-confirmation', ...)
 // app.post('/api/send-password-reset', ...)
 
-const transporter = nodemailer.createTransport({
+const ordersTransporter = nodemailer.createTransport({
   host: process.env.ZOHO_SMTP_HOST,
   port: process.env.ZOHO_SMTP_PORT,
-  secure: true, // true for 465, false for 587
+  secure: true,
   auth: {
-    user: process.env.ZOHO_SMTP_USER,
-    pass: process.env.ZOHO_SMTP_PASS,
+    user: process.env.ZOHO_ORDERS_USER,
+    pass: process.env.ZOHO_ORDERS_PASS,
+  },
+});
+
+const enquiriesTransporter = nodemailer.createTransport({
+  host: process.env.ZOHO_SMTP_HOST,
+  port: process.env.ZOHO_SMTP_PORT,
+  secure: true,
+  auth: {
+    user: process.env.ZOHO_ENQUIRIES_USER,
+    pass: process.env.ZOHO_ENQUIRIES_PASS,
   },
 });
 
 async function sendOrderConfirmation({ to, subject, html }) {
-  return transporter.sendMail({
-    from: `"Bakes by Olayide" <${process.env.ZOHO_SMTP_USER}>`,
+  return ordersTransporter.sendMail({
+    from: `"Bakes by Olayide" <${process.env.ZOHO_ORDERS_USER}>`,
+    to,
+    subject,
+    html,
+  });
+}
+
+async function sendEnquiryReply({ to, subject, html }) {
+  return enquiriesTransporter.sendMail({
+    from: `"Bakes by Olayide Enquiries" <${process.env.ZOHO_ENQUIRIES_USER}>`,
     to,
     subject,
     html,
@@ -203,6 +222,17 @@ app.post('/api/send-order-confirmation', async (req, res) => {
   if (!to) return res.status(400).json({ error: 'Missing recipient email' });
   try {
     await sendOrderConfirmation({ to, subject, html });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/send-enquiry-reply', async (req, res) => {
+  const { to, subject, html } = req.body;
+  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  try {
+    await sendEnquiryReply({ to, subject, html });
     res.json({ success: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
