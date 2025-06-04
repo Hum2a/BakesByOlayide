@@ -172,12 +172,30 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
     const subject = 'Your Bakes by Olayide Order Confirmation';
     const html = `<h1>Thank you for your order!</h1><p>Order ID: ${session.metadata.orderId}</p>`;
     try {
+      console.log('Attempting to send order confirmation to:', to);
       await sendOrderConfirmation({ to, subject, html });
+      console.log('Email sent successfully!');
     } catch (e) {
       console.error('Email send error:', e);
     }
   }
   res.json({ received: true });
+});
+
+app.post('/api/test-email', async (req, res) => {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  try {
+    const subject = 'Test Email from Bakes by Olayide';
+    const html = '<h1>This is a test email from your server.</h1>';
+    console.log('Attempting to send test email to:', to);
+    await sendOrderConfirmation({ to, subject, html });
+    console.log('Test email sent successfully!');
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Test email send error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Place this at the very end, after all API routes
