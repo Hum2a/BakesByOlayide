@@ -141,7 +141,7 @@ const OrderConfirmation = () => {
         const emailPayload = {
           to: emailToUse,
           subject: 'Your Bakes by Olayide Order Confirmation',
-          html: `<h1>Thank you for your order!</h1><p>Order ID: ${finalOrderData.orderId}</p>`,
+          html: buildOrderEmailHtml(finalOrderData, null),
           orderId: finalOrderData.orderId,
           customerName,
           items: finalOrderData.items,
@@ -235,7 +235,7 @@ const OrderConfirmation = () => {
           body: JSON.stringify({
             to: guestInfo.email,
             subject: 'Your Bakes by Olayide Order Confirmation',
-            html: `<h1>Thank you for your order!</h1><p>Order ID: ${orderId}</p>`,
+            html: buildOrderEmailHtml({ orderId, items, total, guestInfo }, null),
           }),
         }).then(res => {
           if (!res.ok) throw new Error('Failed to send confirmation email');
@@ -365,5 +365,59 @@ const OrderConfirmation = () => {
     </div>
   );
 };
+
+// Helper to build order confirmation email HTML
+function buildOrderEmailHtml(order, invoice) {
+  const itemsHtml = (order.items || []).map(item => `
+    <tr>
+      <td style="padding:8px 4px;">
+        <img src="${item.image}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" /><br/>
+        <b>${item.name}</b>
+      </td>
+      <td style="padding:8px 4px;">${item.quantity}</td>
+      <td style="padding:8px 4px;">£${item.price?.toFixed(2) || '0.00'}</td>
+      <td style="padding:8px 4px;">
+        Size: ${item.selectedSize?.size || ''}<br/>
+        Shape: ${item.selectedShape?.name || ''}<br/>
+        Finish: ${item.selectedFinish?.name || ''}<br/>
+        Occasion: ${item.occasion || ''}<br/>
+        Addons: ${(item.addons || []).join(', ')}<br/>
+        Notes: ${item.notes || ''}
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div style="font-family:sans-serif;max-width:600px;margin:auto;">
+      <h1>Thank you for your order!</h1>
+      <p>Order ID: <b>${order.orderId}</b></p>
+      <p>Status: <b>${order.status || invoice?.status || ''}</b></p>
+      <p>Order Date: <b>${order.createdAt ? (order.createdAt.seconds ? new Date(order.createdAt.seconds * 1000).toLocaleString() : new Date(order.createdAt).toLocaleString()) : ''}</b></p>
+      <p>Pickup: <b>${order.pickupDate || ''} ${order.pickupTime || ''}</b></p>
+      <h2>Customer Details</h2>
+      <p>
+        Name: <b>${order.guestInfo?.name || order.customerName || ''}</b><br/>
+        Email: <b>${order.guestInfo?.email || order.userEmail || ''}</b><br/>
+        Phone: <b>${order.guestInfo?.phone || ''}</b>
+      </p>
+      <h2>Order Items</h2>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="border-bottom:1px solid #ccc;">Item</th>
+            <th style="border-bottom:1px solid #ccc;">Qty</th>
+            <th style="border-bottom:1px solid #ccc;">Price</th>
+            <th style="border-bottom:1px solid #ccc;">Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      <h2 style="text-align:right;">Total: £${order.total?.toFixed(2) || invoice?.amount?.toFixed(2) || '0.00'}</h2>
+      <p style="margin-top:2em;">If you have any questions, reply to this email or contact us at <a href=\"mailto:info@bakesbyolayide.co.uk\">info@bakesbyolayide.co.uk</a>.</p>
+    </div>
+  `;
+}
 
 export default OrderConfirmation; 
