@@ -75,6 +75,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       return res.status(400).json({ error: 'Cart is empty or invalid' });
     }
+    if (!guestInfo || !guestInfo.email) {
+      console.error('Missing guestInfo or guestInfo.email:', guestInfo);
+      return res.status(400).json({ error: 'Missing customer email address' });
+    }
+    console.log('Received guestInfo:', guestInfo);
     // Build line_items from cart
     const line_items = cart.map(item => ({
       price_data: {
