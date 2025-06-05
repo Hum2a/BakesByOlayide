@@ -35,11 +35,15 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow-x: auto;
+  position: relative;
+  width: 100%;
+  min-height: 2rem;
 }
 
 .orders-table {
   width: 100%;
+  min-width: 950px;
   border-collapse: collapse;
 }
 
@@ -50,6 +54,10 @@
   font-weight: 600;
   color: #2c3e50;
   font-size: 0.9rem;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .orders-table td {
@@ -246,7 +254,6 @@
   .orders-table-container {
     overflow-x: auto;
   }
-
   .orders-table {
     min-width: 900px;
   }
@@ -262,6 +269,12 @@
   .refresh-button {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 700px) {
+  .orders-table {
+    min-width: 700px;
   }
 }
 
@@ -407,4 +420,17 @@
 }
 .invoice-items-table tr:nth-child(even) {
   background: #f9f9f9;
+}
+
+/* Optional: subtle scroll cue (gradient on right edge) */
+.orders-table-container::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to left, rgba(255,255,255,0.95) 60%, rgba(255,255,255,0));
 }
