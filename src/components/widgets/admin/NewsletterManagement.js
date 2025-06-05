@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
-const MARKETING_EMAIL = process.env.ZOHO_MARKETING_EMAIL || 'marketing@bakesbyolayide.com';
+const MARKETING_EMAIL = process.env.ZOHO_MARKETING_USER || 'marketing@bakesbyolayide.com';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -23,6 +23,20 @@ const NewsletterManagement = () => {
   const [sending, setSending] = useState(false);
   const [sendStatus, setSendStatus] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editSubscriber, setEditSubscriber] = useState(null);
+  const [editLists, setEditLists] = useState([]);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [selectedLists, setSelectedLists] = useState([]);
+  const [availableLists, setAvailableLists] = useState([]);
+  const [listsLoading, setListsLoading] = useState(true);
+  const [newListKey, setNewListKey] = useState('');
+  const [newListLabel, setNewListLabel] = useState('');
+  const [listEditStates, setListEditStates] = useState({});
+  const [listManageError, setListManageError] = useState('');
+  const [listManageLoading, setListManageLoading] = useState(false);
+  const [showListKeyTooltip, setShowListKeyTooltip] = useState(false);
 
   const fetchSubscribers = async () => {
     try {
@@ -41,6 +55,31 @@ const NewsletterManagement = () => {
     fetchSubscribers();
   }, []);
 
+  useEffect(() => {
+    async function fetchLists() {
+      setListsLoading(true);
+      try {
+        const configDoc = await getDoc(doc(db, 'config', 'emailLists'));
+        const data = configDoc.data();
+        if (data && Array.isArray(data.lists)) {
+          setAvailableLists(data.lists);
+        } else {
+          setAvailableLists([]);
+        }
+      } catch (err) {
+        setAvailableLists([]);
+      }
+      setListsLoading(false);
+    }
+    fetchLists();
+  }, []);
+
+  useEffect(() => {
+    if (availableLists.length > 0) {
+      setSelectedLists([availableLists[0].key]);
+    }
+  }, [availableLists]);
+
   const handleAddSubscriber = async (e) => {
     e.preventDefault();
     setAddError('');
@@ -53,7 +92,8 @@ const NewsletterManagement = () => {
       await setDoc(doc(db, 'newsletter', newEmail), {
         email: newEmail,
         subscribedAt: new Date(),
-        optedIn: true
+        optedIn: true,
+        lists: ['newsletter']
       });
       setAddSuccess('Subscriber added!');
       setNewEmail('');
@@ -82,6 +122,14 @@ const NewsletterManagement = () => {
     }
   };
 
+  const handleToggleList = (listKey) => {
+    setSelectedLists(prev =>
+      prev.includes(listKey)
+        ? prev.filter(l => l !== listKey)
+        : [...prev, listKey]
+    );
+  };
+
   const handleSendMarketingEmail = async () => {
     setSending(true);
     setSendStatus('Sending...');
@@ -93,7 +141,8 @@ const NewsletterManagement = () => {
           subject: emailSubject, 
           html: emailBody,
           subjectColor,
-          bodyColor
+          bodyColor,
+          lists: selectedLists
         }),
       });
       const data = await response.json();
@@ -103,6 +152,7 @@ const NewsletterManagement = () => {
         setEmailBody('');
         setSubjectColor('#000000');
         setBodyColor('#000000');
+        setSelectedLists([availableLists[0].key]);
         setShowPreview(false);
       } else {
         setSendStatus(data.error || 'Failed to send email.');
@@ -111,6 +161,107 @@ const NewsletterManagement = () => {
       setSendStatus('Failed to send email.');
     }
     setSending(false);
+  };
+
+  const openEditModal = (subscriber) => {
+    setEditSubscriber(subscriber);
+    setEditLists(subscriber.lists || []);
+    setEditError('');
+    setEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setEditSubscriber(null);
+    setEditLists([]);
+    setEditError('');
+  };
+
+  const handleEditListChange = (listKey) => {
+    setEditLists(prev =>
+      prev.includes(listKey)
+        ? prev.filter(l => l !== listKey)
+        : [...prev, listKey]
+    );
+  };
+
+  const handleSaveEditLists = async () => {
+    if (!editSubscriber) return;
+    setEditLoading(true);
+    setEditError('');
+    try {
+      await updateDoc(doc(db, 'newsletter', editSubscriber.email), { lists: editLists });
+      setEditModalOpen(false);
+      fetchSubscribers();
+    } catch (err) {
+      setEditError('Failed to update lists.');
+    }
+    setEditLoading(false);
+  };
+
+  const handleAddList = async (e) => {
+    e.preventDefault();
+    setListManageError('');
+    if (!newListKey.trim() || !newListLabel.trim()) {
+      setListManageError('Both key and label are required.');
+      return;
+    }
+    if (availableLists.some(l => l.key === newListKey.trim())) {
+      setListManageError('Key must be unique.');
+      return;
+    }
+    setListManageLoading(true);
+    try {
+      const updatedLists = [...availableLists, { key: newListKey.trim(), label: newListLabel.trim() }];
+      await updateDoc(doc(db, 'config', 'emailLists'), { lists: updatedLists });
+      setAvailableLists(updatedLists);
+      setNewListKey('');
+      setNewListLabel('');
+    } catch (err) {
+      setListManageError('Failed to add list.');
+    }
+    setListManageLoading(false);
+  };
+
+  const handleStartEditList = (key, label) => {
+    setListEditStates(prev => ({ ...prev, [key]: { editing: true, label } }));
+  };
+
+  const handleEditListLabelChange = (key, label) => {
+    setListEditStates(prev => ({ ...prev, [key]: { ...prev[key], label } }));
+  };
+
+  const handleSaveEditList = async (key) => {
+    setListManageError('');
+    setListManageLoading(true);
+    try {
+      const updatedLists = availableLists.map(l => l.key === key ? { ...l, label: listEditStates[key].label } : l);
+      await updateDoc(doc(db, 'config', 'emailLists'), { lists: updatedLists });
+      setAvailableLists(updatedLists);
+      setListEditStates(prev => ({ ...prev, [key]: { editing: false, label: listEditStates[key].label } }));
+    } catch (err) {
+      setListManageError('Failed to update list label.');
+    }
+    setListManageLoading(false);
+  };
+
+  const handleCancelEditList = (key) => {
+    setListEditStates(prev => ({ ...prev, [key]: { editing: false, label: availableLists.find(l => l.key === key)?.label || '' } }));
+  };
+
+  const handleDeleteList = async (key) => {
+    if (!window.confirm('Are you sure you want to delete this list? This cannot be undone.')) return;
+    setListManageError('');
+    setListManageLoading(true);
+    try {
+      const updatedLists = availableLists.filter(l => l.key !== key);
+      await updateDoc(doc(db, 'config', 'emailLists'), { lists: updatedLists });
+      setAvailableLists(updatedLists);
+      setListEditStates(prev => { const copy = { ...prev }; delete copy[key]; return copy; });
+    } catch (err) {
+      setListManageError('Failed to delete list.');
+    }
+    setListManageLoading(false);
   };
 
   if (loading) return <div>Loading newsletter subscribers...</div>;
@@ -150,6 +301,23 @@ const NewsletterManagement = () => {
       {/* Marketing Email Composer */}
       <div className="marketing-email-composer">
         <h3>Send Marketing Email</h3>
+        {listsLoading ? (
+          <div>Loading lists...</div>
+        ) : (
+          <div className="newsletter-send-lists-row">
+            <span style={{ fontWeight: 600, marginRight: 8 }}>Send To Lists:</span>
+            {availableLists.map(list => (
+              <label key={list.key} className="newsletter-list-checkbox-label" style={{ marginRight: 16 }}>
+                <input
+                  type="checkbox"
+                  checked={selectedLists.includes(list.key)}
+                  onChange={() => handleToggleList(list.key)}
+                />
+                {list.label}
+              </label>
+            ))}
+          </div>
+        )}
         <div className="email-subject-row">
           <input
             type="text"
@@ -197,7 +365,7 @@ const NewsletterManagement = () => {
           <button
             className="newsletter-add-btn"
             type="button"
-            disabled={sending || !emailSubject || !emailBody}
+            disabled={sending || !emailSubject || !emailBody || selectedLists.length === 0}
             onClick={handleSendMarketingEmail}
           >
             {sending ? 'Sending...' : 'Send Email'}
@@ -230,6 +398,7 @@ const NewsletterManagement = () => {
             <th>Email</th>
             <th>Subscribed At</th>
             <th>Opted In</th>
+            <th>Lists</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -239,6 +408,14 @@ const NewsletterManagement = () => {
               <td>{sub.email}</td>
               <td>{sub.subscribedAt?.toDate ? sub.subscribedAt.toDate().toLocaleString() : new Date(sub.subscribedAt).toLocaleString()}</td>
               <td className={sub.optedIn ? 'newsletter-optin-yes' : 'newsletter-optin-no'}>{sub.optedIn ? 'Yes' : 'No'}</td>
+              <td>
+                {(sub.lists || []).map(listKey => {
+                  const list = availableLists.find(l => l.key === listKey);
+                  return list ? (
+                    <span key={listKey} className={`newsletter-list-badge newsletter-list-badge-${listKey}`}>{list.label}</span>
+                  ) : null;
+                })}
+              </td>
               <td>
                 <button
                   className={sub.optedIn ? 'newsletter-action-btn deactivate' : 'newsletter-action-btn activate'}
@@ -254,11 +431,118 @@ const NewsletterManagement = () => {
                 >
                   Delete
                 </button>
+                <button
+                  className="newsletter-action-btn edit"
+                  onClick={() => openEditModal(sub)}
+                  title="Edit Lists"
+                >
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {/* Edit Lists Modal */}
+      {editModalOpen && (
+        <div className="newsletter-modal-overlay">
+          <div className="newsletter-modal">
+            <h3>Edit Lists for {editSubscriber.email}</h3>
+            <form onSubmit={e => { e.preventDefault(); handleSaveEditLists(); }}>
+              <div className="newsletter-lists-checkboxes">
+                {availableLists.map(list => (
+                  <label key={list.key} className="newsletter-list-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={editLists.includes(list.key)}
+                      onChange={() => handleEditListChange(list.key)}
+                    />
+                    {list.label}
+                  </label>
+                ))}
+              </div>
+              {editError && <div className="newsletter-add-error">{editError}</div>}
+              <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+                <button type="submit" className="newsletter-add-btn" disabled={editLoading}>Save</button>
+                <button type="button" className="newsletter-add-btn" onClick={closeEditModal} style={{ background: '#eee', color: '#222' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      <div className="newsletter-manage-lists-section">
+        <h3>Manage Email Lists</h3>
+        <form className="newsletter-add-list-form" onSubmit={handleAddList}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="List Key (e.g. newsletter)"
+              value={newListKey}
+              onChange={e => setNewListKey(e.target.value)}
+              className="newsletter-add-input"
+              style={{ width: 180 }}
+              disabled={listManageLoading}
+              onFocus={() => setShowListKeyTooltip(true)}
+              onBlur={() => setShowListKeyTooltip(false)}
+            />
+            <span
+              className="newsletter-tooltip-icon"
+              tabIndex={0}
+              onMouseEnter={() => setShowListKeyTooltip(true)}
+              onMouseLeave={() => setShowListKeyTooltip(false)}
+              onFocus={() => setShowListKeyTooltip(true)}
+              onBlur={() => setShowListKeyTooltip(false)}
+              style={{ marginLeft: 6, cursor: 'pointer', fontSize: 18 }}
+            >
+              ℹ️
+              {showListKeyTooltip && (
+                <div className="newsletter-tooltip-box" style={{ left: 0, top: '2.2rem', minWidth: 260, maxWidth: 320 }}>
+                  Use only lowercase letters, numbers, and underscores.<br />
+                  For multiple words, use underscores (e.g. <b>special_offers</b>).
+                </div>
+              )}
+            </span>
+          </div>
+          <input
+            type="text"
+            placeholder="List Label (e.g. Newsletter)"
+            value={newListLabel}
+            onChange={e => setNewListLabel(e.target.value)}
+            className="newsletter-add-input"
+            style={{ width: 220 }}
+            disabled={listManageLoading}
+          />
+          <button type="submit" className="newsletter-add-btn" disabled={listManageLoading}>Add List</button>
+        </form>
+        {listManageError && <div className="newsletter-add-error">{listManageError}</div>}
+        <div className="newsletter-lists-table">
+          {availableLists.map(list => (
+            <div key={list.key} className="newsletter-list-row">
+              <span className={`newsletter-list-badge newsletter-list-badge-${list.key}`}>{list.key}</span>
+              {listEditStates[list.key]?.editing ? (
+                <>
+                  <input
+                    type="text"
+                    value={listEditStates[list.key].label}
+                    onChange={e => handleEditListLabelChange(list.key, e.target.value)}
+                    className="newsletter-add-input"
+                    style={{ width: 180, marginLeft: 8 }}
+                    disabled={listManageLoading}
+                  />
+                  <button className="newsletter-add-btn" style={{ marginLeft: 8 }} onClick={() => handleSaveEditList(list.key)} disabled={listManageLoading}>Save</button>
+                  <button className="newsletter-add-btn" style={{ marginLeft: 8, background: '#eee', color: '#222' }} onClick={() => handleCancelEditList(list.key)} disabled={listManageLoading}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <span style={{ marginLeft: 12, fontWeight: 600 }}>{list.label}</span>
+                  <button className="newsletter-add-btn" style={{ marginLeft: 8 }} onClick={() => handleStartEditList(list.key, list.label)} disabled={listManageLoading}>Rename</button>
+                  <button className="newsletter-add-btn" style={{ marginLeft: 8, background: '#fff', color: '#e74c3c', border: '1px solid #e74c3c' }} onClick={() => handleDeleteList(list.key)} disabled={listManageLoading}>Delete</button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

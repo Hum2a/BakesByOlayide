@@ -34,15 +34,19 @@ async function sendEnquiryReply(req, res) {
 }
 
 async function sendMarketingEmail(req, res) {
-  const { subject, html, subjectColor, bodyColor } = req.body;
+  const { subject, html, subjectColor, bodyColor, lists } = req.body;
   if (!subject || !html) {
     return res.status(400).json({ error: 'Missing subject or html' });
   }
   try {
-    const snapshot = await firestore.collection('newsletter').where('optedIn', '==', true).get();
+    let query = firestore.collection('newsletter').where('optedIn', '==', true);
+    if (Array.isArray(lists) && lists.length > 0) {
+      query = query.where('lists', 'array-contains-any', lists);
+    }
+    const snapshot = await query.get();
     const emails = snapshot.docs.map(doc => doc.data().email).filter(Boolean);
     if (!emails.length) {
-      return res.status(400).json({ error: 'No opted-in subscribers found.' });
+      return res.status(400).json({ error: 'No opted-in subscribers found for the selected list(s).'});
     }
     // Compose the styled email body
     const styledHtml = `
