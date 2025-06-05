@@ -5,6 +5,8 @@ import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +82,7 @@ const NewsletterManagement = () => {
     setSending(true);
     setSendStatus('Sending...');
     try {
-      const response = await fetch('/api/send-marketing-email', {
+      const response = await fetch(`${API_BASE_URL}/api/send-marketing-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject: emailSubject, html: emailBody }),
