@@ -3,9 +3,17 @@ const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
-const { Firestore } = require('@google-cloud/firestore');
+const admin = require("firebase-admin");
 
 const app = express();
+
+var serviceAccount = require("./bakesbyolayide-firebase-adminsdk-fbsvc-a7bcd79c25.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const firestore = admin.firestore();
 
 // Middleware
 app.use(cors({
@@ -54,14 +62,6 @@ const marketingTransporter = nodemailer.createTransport({
   auth: {
     user: process.env.ZOHO_MARKETING_USER,
     pass: process.env.ZOHO_MARKETING_PASS,
-  },
-});
-
-const firestore = new Firestore({
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  credentials: {
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
 });
 
