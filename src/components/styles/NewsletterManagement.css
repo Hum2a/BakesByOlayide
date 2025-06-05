@@ -257,4 +257,44 @@
 
 .color-picker:hover {
   border-color: #F3C307;
+}
+
+.newsletter-tooltip-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.newsletter-tooltip-box {
+  position: absolute;
+  top: 2.2rem;
+  right: 0;
+  min-width: 320px;
+  max-width: 380px;
+  background: #fffbe6;
+  color: #222;
+  border: 1.5px solid #ffe066;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  padding: 1rem 1.2rem;
+  z-index: 100;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: left;
+  transition: opacity 0.2s;
+}
+
+.newsletter-tooltip-box strong {
+  color: #F3C307;
+  font-size: 1.08em;
+}
+
+@media (max-width: 700px) {
+  .newsletter-tooltip-box {
+    min-width: 220px;
+    max-width: 95vw;
+    font-size: 0.97rem;
+    padding: 0.7rem 0.7rem;
+    right: auto;
+    left: 0;
+  }
 } 

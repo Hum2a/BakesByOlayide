@@ -6,6 +6,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+const MARKETING_EMAIL = process.env.ZOHO_MARKETING_EMAIL || 'marketing@bakesbyolayide.com';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -21,6 +22,7 @@ const NewsletterManagement = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendStatus, setSendStatus] = useState('');
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const fetchSubscribers = async () => {
     try {
@@ -116,7 +118,35 @@ const NewsletterManagement = () => {
 
   return (
     <div className="newsletter-container">
-      <h2>Newsletter Subscribers</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ margin: 0, flex: 1 }}>Newsletter Subscribers</h2>
+        <div
+          className="newsletter-tooltip-icon"
+          tabIndex={0}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          onFocus={() => setShowTooltip(true)}
+          onBlur={() => setShowTooltip(false)}
+          style={{ marginLeft: 8, cursor: 'pointer', position: 'relative' }}
+        >
+          <span style={{ fontSize: 22, color: '#F3C307', fontWeight: 700 }}>ℹ️</span>
+          {showTooltip && (
+            <div className="newsletter-tooltip-box">
+              <strong>How this page works:</strong>
+              <ul style={{ margin: '0.5em 0 0.5em 1.2em', padding: 0, fontSize: '1em' }}>
+                <li>View, add, remove, and manage newsletter subscribers.</li>
+                <li>Compose and send marketing emails to all opted-in subscribers.</li>
+                <li>Choose custom subject and body text colors for your marketing emails.</li>
+                <li>Only subscribers who are opted in will receive marketing emails.</li>
+              </ul>
+              <div style={{ marginTop: 8 }}>
+                <strong>Marketing emails are sent from:</strong><br />
+                <span style={{ color: '#388e3c', fontWeight: 500 }}>{MARKETING_EMAIL}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       {/* Marketing Email Composer */}
       <div className="marketing-email-composer">
         <h3>Send Marketing Email</h3>

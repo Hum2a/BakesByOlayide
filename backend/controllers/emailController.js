@@ -34,7 +34,7 @@ async function sendEnquiryReply(req, res) {
 }
 
 async function sendMarketingEmail(req, res) {
-  const { subject, html } = req.body;
+  const { subject, html, subjectColor, bodyColor } = req.body;
   if (!subject || !html) {
     return res.status(400).json({ error: 'Missing subject or html' });
   }
@@ -44,12 +44,19 @@ async function sendMarketingEmail(req, res) {
     if (!emails.length) {
       return res.status(400).json({ error: 'No opted-in subscribers found.' });
     }
+    // Compose the styled email body
+    const styledHtml = `
+      <div>
+        <h2 style="color: ${subjectColor || '#000'}; margin-bottom: 16px;">${subject}</h2>
+        <div style="color: ${bodyColor || '#000'};">${html}</div>
+      </div>
+    `;
     await marketingTransporter.sendMail({
       from: `"Bakes by Olayide Marketing" <${process.env.ZOHO_MARKETING_USER}>`,
       to: process.env.ZOHO_MARKETING_USER,
       bcc: emails,
       subject,
-      html,
+      html: styledHtml,
     });
     res.json({ success: true, sent: emails.length });
   } catch (err) {
