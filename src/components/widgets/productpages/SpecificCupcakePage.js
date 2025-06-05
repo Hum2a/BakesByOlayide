@@ -175,10 +175,13 @@ const SpecificCupcakePage = () => {
     setTopperPrice(selectedTopper && !isNaN(Number(selectedTopper.price)) ? Number(selectedTopper.price) : 0);
   };
 
+  const selectedFlavour = cupcake.flavourOptions ? cupcake.flavourOptions[selectedSizeIdx] || '' : '';
+
   const totalPrice =
     Number(selectedSize.price || 0) +
     Number(topperPrice || 0) +
-    Number(calculateTotalAddonPrice ? calculateTotalAddonPrice() : 0);
+    Number(calculateTotalAddonPrice ? calculateTotalAddonPrice() : 0) +
+    (selectedFlavour && selectedFlavour.price ? Number(selectedFlavour.price) : 0);
 
   const mainCategory = 'Cupcakes';
   const breadcrumbs = [

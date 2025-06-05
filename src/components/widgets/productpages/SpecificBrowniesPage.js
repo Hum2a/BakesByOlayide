@@ -159,7 +159,7 @@ const SpecificBrowniesPage = () => {
     return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
   };
 
-  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + calculateTotalAddonPrice();
+  const totalPrice = (selectedSize.price || 0) + (decorationStylePrice || 0) + calculateTotalAddonPrice() + (selectedFlavour.price || 0);
 
   const breadcrumbs = [
     'Collections',
