@@ -7,10 +7,10 @@ const admin = require("firebase-admin");
 
 const app = express();
 
-var serviceAccount = require("./bakesbyolayide-firebase-adminsdk-fbsvc-a7bcd79c25.json");
+// var serviceAccount = require("./bakesbyolayide-firebase-adminsdk-fbsvc-a7bcd79c25.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(require(process.env.GOOGLE_APPLICATION_CREDENTIALS))
 });
 
 const firestore = admin.firestore();
