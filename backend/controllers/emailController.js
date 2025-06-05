@@ -2,14 +2,33 @@ const { ordersTransporter, enquiriesTransporter, marketingTransporter } = requir
 const { firestore } = require('../config/firebase');
 
 async function sendOrderConfirmation(req, res) {
-  const { to, subject, html } = req.body;
+  // For multipart/form-data, fields are in req.body, files in req.files
+  const { to, subject, html, cc } = req.body;
   if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+
+  // Prepare attachments for nodemailer
+  let attachments = [];
+  if (req.files && req.files.length > 0) {
+    attachments = req.files.map(file => ({
+      filename: file.originalname,
+      content: file.buffer
+    }));
+  }
+
+  // Parse CC (comma-separated)
+  let ccList = [];
+  if (cc) {
+    ccList = cc.split(',').map(email => email.trim()).filter(Boolean);
+  }
+
   try {
     await ordersTransporter.sendMail({
       from: `"Bakes by Olayide" <${process.env.ZOHO_ORDERS_USER}>`,
       to,
+      cc: ccList.length > 0 ? ccList : undefined,
       subject,
       html,
+      attachments: attachments.length > 0 ? attachments : undefined,
     });
     res.json({ success: true });
   } catch (e) {
