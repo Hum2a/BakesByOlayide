@@ -252,3 +252,8 @@ hs_err_pid*
 *.sdf
 *.opensdf
 *.sln.ide
+
+# Ignore Firebase Admin SDK/service account files
+*firebase-adminsdk-*.json
+serviceAccountKey.json
+*.service-account.json
