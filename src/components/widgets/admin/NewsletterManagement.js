@@ -16,6 +16,8 @@ const NewsletterManagement = () => {
   const [addSuccess, setAddSuccess] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const [subjectColor, setSubjectColor] = useState('#000000');
+  const [bodyColor, setBodyColor] = useState('#000000');
   const [showPreview, setShowPreview] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendStatus, setSendStatus] = useState('');
@@ -85,13 +87,20 @@ const NewsletterManagement = () => {
       const response = await fetch(`${API_BASE_URL}/api/send-marketing-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: emailSubject, html: emailBody }),
+        body: JSON.stringify({ 
+          subject: emailSubject, 
+          html: emailBody,
+          subjectColor,
+          bodyColor
+        }),
       });
       const data = await response.json();
       if (response.ok) {
         setSendStatus(`Email sent to ${data.sent} subscribers!`);
         setEmailSubject('');
         setEmailBody('');
+        setSubjectColor('#000000');
+        setBodyColor('#000000');
         setShowPreview(false);
       } else {
         setSendStatus(data.error || 'Failed to send email.');
@@ -111,14 +120,36 @@ const NewsletterManagement = () => {
       {/* Marketing Email Composer */}
       <div className="marketing-email-composer">
         <h3>Send Marketing Email</h3>
-        <input
-          type="text"
-          className="newsletter-add-input"
-          placeholder="Email Subject"
-          value={emailSubject}
-          onChange={e => setEmailSubject(e.target.value)}
-          style={{ marginBottom: '1rem', width: '100%' }}
-        />
+        <div className="email-subject-row">
+          <input
+            type="text"
+            className="newsletter-add-input"
+            placeholder="Email Subject"
+            value={emailSubject}
+            onChange={e => setEmailSubject(e.target.value)}
+            style={{ marginBottom: 0, width: '100%' }}
+          />
+          <div className="color-picker-container-inline">
+            <label>Subject Color:</label>
+            <input
+              type="color"
+              value={subjectColor}
+              onChange={e => setSubjectColor(e.target.value)}
+              className="color-picker"
+            />
+          </div>
+        </div>
+        <div className="email-body-row">
+          <div className="color-picker-container-inline">
+            <label>Body Text Color:</label>
+            <input
+              type="color"
+              value={bodyColor}
+              onChange={e => setBodyColor(e.target.value)}
+              className="color-picker"
+            />
+          </div>
+        </div>
         <ReactQuill
           value={emailBody}
           onChange={setEmailBody}
@@ -145,8 +176,8 @@ const NewsletterManagement = () => {
         {sendStatus && <div style={{ marginBottom: '1rem', color: '#388e3c' }}>{sendStatus}</div>}
         {showPreview && (
           <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 16, background: '#fafafa', marginBottom: 16 }}>
-            <h4 style={{ marginTop: 0 }}>{emailSubject}</h4>
-            <div dangerouslySetInnerHTML={{ __html: emailBody }} />
+            <h4 style={{ marginTop: 0, color: subjectColor }}>{emailSubject}</h4>
+            <div style={{ color: bodyColor }} dangerouslySetInnerHTML={{ __html: emailBody }} />
           </div>
         )}
       </div>
