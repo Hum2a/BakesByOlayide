@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase/firebase';
 import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import '../../styles/NewsletterManagement.css';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -10,6 +12,11 @@ const NewsletterManagement = () => {
   const [newEmail, setNewEmail] = useState('');
   const [addError, setAddError] = useState('');
   const [addSuccess, setAddSuccess] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendStatus, setSendStatus] = useState('');
 
   const fetchSubscribers = async () => {
     try {
@@ -75,6 +82,56 @@ const NewsletterManagement = () => {
   return (
     <div className="newsletter-container">
       <h2>Newsletter Subscribers</h2>
+      {/* Marketing Email Composer */}
+      <div className="marketing-email-composer">
+        <h3>Send Marketing Email</h3>
+        <input
+          type="text"
+          className="newsletter-add-input"
+          placeholder="Email Subject"
+          value={emailSubject}
+          onChange={e => setEmailSubject(e.target.value)}
+          style={{ marginBottom: '1rem', width: '100%' }}
+        />
+        <ReactQuill
+          value={emailBody}
+          onChange={setEmailBody}
+          theme="snow"
+          style={{ marginBottom: '1rem', background: '#fff' }}
+        />
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+          <button
+            className="newsletter-add-btn"
+            type="button"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? 'Hide Preview' : 'Preview'}
+          </button>
+          <button
+            className="newsletter-add-btn"
+            type="button"
+            disabled={sending || !emailSubject || !emailBody}
+            onClick={() => {
+              setSending(true);
+              setSendStatus('Sending (API not implemented yet)...');
+              setTimeout(() => {
+                setSending(false);
+                setSendStatus('This would send the email to all subscribers (API not implemented yet).');
+              }, 1200);
+            }}
+          >
+            {sending ? 'Sending...' : 'Send Email'}
+          </button>
+        </div>
+        {sendStatus && <div style={{ marginBottom: '1rem', color: '#388e3c' }}>{sendStatus}</div>}
+        {showPreview && (
+          <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 16, background: '#fafafa', marginBottom: 16 }}>
+            <h4 style={{ marginTop: 0 }}>{emailSubject}</h4>
+            <div dangerouslySetInnerHTML={{ __html: emailBody }} />
+          </div>
+        )}
+      </div>
+      {/* End Marketing Email Composer */}
       <form className="newsletter-add-form" onSubmit={handleAddSubscriber}>
         <input
           type="email"
