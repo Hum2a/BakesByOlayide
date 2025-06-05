@@ -41,6 +41,7 @@
 - [📦 Installation](#-installation)
 - [🔧 Configuration](#-configuration)
 - [📁 Project Structure](#-project-structure)
+- [🗄️ Backend Structure & Usage](#-backend-structure-&-usage)
 - [🧪 Testing](#-testing)
 - [📚 Documentation](#-documentation)
 - [🤝 Contributing](#-contributing)
@@ -235,8 +236,10 @@ npm install
 # Create environment file
 cp .env.example .env
 
-# Start development server
-npm start
+# Start backend and frontend (from root)
+node server.js
+# or for concurrent dev (if using scripts)
+npm run dev
 ```
 
 ### Production Setup
@@ -297,6 +300,70 @@ src/
 ├── utils/              # Utility functions
 ├── styles/             # Global styles and themes
 └── assets/             # Static assets
+```
+
+## 🗄️ Backend Structure & Usage
+
+### Folder Structure
+
+```
+backend/
+  server.js           # Entry point for backend (imported by root server.js)
+  app.js              # Main Express app setup
+  config/
+    firebase.js       # Firebase Admin SDK initialization (with local/prod fallback)
+    nodemailer.js     # Nodemailer transporters
+  routes/
+    email.js          # All email-related routes
+    ...               # Other route files as needed
+  controllers/
+    emailController.js
+    ...               # Other controllers as needed
+```
+
+### Running the Backend
+
+- **Always start the backend from the project root:**
+  ```sh
+  node server.js
+  ```
+  This ensures `.env` is loaded from the root and all paths work correctly.
+
+- The root `server.js` loads environment variables and then starts `backend/server.js`.
+- All backend code and configuration lives in the `backend/` directory.
+
+### Environment Variables & Service Account
+
+- Place your `.env` file in the project root (never in `backend/`).
+- For Firebase Admin SDK:
+  - In production (e.g., Render), set `GOOGLE_APPLICATION_CREDENTIALS` to the absolute path of your service account JSON.
+  - In local development, leave `GOOGLE_APPLICATION_CREDENTIALS` unset and place your service account JSON in the repo (ignored by git). The backend will automatically use the local file if the env variable is not set or the file does not exist.
+- Example fallback logic (see `backend/config/firebase.js`):
+  ```js
+  const fs = require('fs');
+  const path = require('path');
+  let serviceAccount;
+  const envPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (envPath && fs.existsSync(envPath)) {
+    serviceAccount = require(envPath);
+  } else {
+    serviceAccount = require('../bakesbyolayide-firebase-adminsdk-*.json');
+  }
+  ```
+
+### Development Setup (Updated)
+
+```bash
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env
+
+# Start backend and frontend (from root)
+node server.js
+# or for concurrent dev (if using scripts)
+npm run dev
 ```
 
 ## 🧪 Testing
