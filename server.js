@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.REACT_APP_STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
+const { Firestore } = require('@google-cloud/firestore');
 
 const app = express();
 
@@ -43,6 +44,24 @@ const enquiriesTransporter = nodemailer.createTransport({
   auth: {
     user: process.env.ZOHO_ENQUIRIES_USER,
     pass: process.env.ZOHO_ENQUIRIES_PASS,
+  },
+});
+
+const marketingTransporter = nodemailer.createTransport({
+  host: process.env.ZOHO_SMTP_HOST,
+  port: process.env.ZOHO_SMTP_PORT,
+  secure: true,
+  auth: {
+    user: process.env.ZOHO_MARKETING_USER,
+    pass: process.env.ZOHO_MARKETING_PASS,
+  },
+});
+
+const firestore = new Firestore({
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  credentials: {
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
 });
 
@@ -241,6 +260,33 @@ app.post('/api/send-enquiry-reply', async (req, res) => {
   } catch (e) {
     console.error('Error sending enquiry reply:', e);
     res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/send-marketing-email', async (req, res) => {
+  const { subject, html } = req.body;
+  if (!subject || !html) {
+    return res.status(400).json({ error: 'Missing subject or html' });
+  }
+  try {
+    // Fetch all opted-in newsletter subscribers
+    const snapshot = await firestore.collection('newsletter').where('optedIn', '==', true).get();
+    const emails = snapshot.docs.map(doc => doc.data().email).filter(Boolean);
+    if (!emails.length) {
+      return res.status(400).json({ error: 'No opted-in subscribers found.' });
+    }
+    // Send email using BCC
+    await marketingTransporter.sendMail({
+      from: `"Bakes by Olayide Marketing" <${process.env.ZOHO_MARKETING_USER}>`,
+      to: process.env.ZOHO_MARKETING_USER, // To self, BCC to all
+      bcc: emails,
+      subject,
+      html,
+    });
+    res.json({ success: true, sent: emails.length });
+  } catch (err) {
+    console.error('Marketing email send error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 

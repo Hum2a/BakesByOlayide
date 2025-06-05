@@ -76,6 +76,30 @@ const NewsletterManagement = () => {
     }
   };
 
+  const handleSendMarketingEmail = async () => {
+    setSending(true);
+    setSendStatus('Sending...');
+    try {
+      const response = await fetch('/api/send-marketing-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: emailSubject, html: emailBody }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSendStatus(`Email sent to ${data.sent} subscribers!`);
+        setEmailSubject('');
+        setEmailBody('');
+        setShowPreview(false);
+      } else {
+        setSendStatus(data.error || 'Failed to send email.');
+      }
+    } catch (err) {
+      setSendStatus('Failed to send email.');
+    }
+    setSending(false);
+  };
+
   if (loading) return <div>Loading newsletter subscribers...</div>;
   if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
@@ -111,14 +135,7 @@ const NewsletterManagement = () => {
             className="newsletter-add-btn"
             type="button"
             disabled={sending || !emailSubject || !emailBody}
-            onClick={() => {
-              setSending(true);
-              setSendStatus('Sending (API not implemented yet)...');
-              setTimeout(() => {
-                setSending(false);
-                setSendStatus('This would send the email to all subscribers (API not implemented yet).');
-              }, 1200);
-            }}
+            onClick={handleSendMarketingEmail}
           >
             {sending ? 'Sending...' : 'Send Email'}
           </button>
