@@ -2,79 +2,9 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if user is admin
-    function isAdmin() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isDeveloper == true);
-    }
-
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // Main orders collection - allow guest orders
-    match /orders/{orderId} {
-      allow read: if isAuthenticated() || isAdmin();
-      allow create: if 
-        // Guest orders must include customer info and no userId
-        (request.resource.data.customerInfo != null &&
-         request.resource.data.customerInfo.name != null &&
-         request.resource.data.customerInfo.email != null &&
-         request.resource.data.customerInfo.phone != null) ||
-        // Or authenticated users can create orders
-        isAuthenticated();
-      allow update: if isAuthenticated() || isAdmin();
-    }
-
-    // Users collection
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
-      
-      // User's subcollections
-      match /Orders/{orderId} {
-        allow read, write: if isOwner(userId);
-      }
-      
-      match /Invoices/{invoiceId} {
-        allow read, write: if isOwner(userId);
-      }
-    }
-
-    // Allow public read access to cakes collection
-    match /cakes/{cakeId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Allow users to access only their own cart
-    match /userCarts/{userId} {
-      allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
-    }
-
-    // Allow public read access to cake options
-    match /cakeOptions/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Products collection
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if isAuthenticated();
-    }
-
-    // Allow admins to access all collections
-    match /{collection}/{document=**} {
-      allow read, write: if isAdmin();
+    // Allow all authenticated users to read and write everything
+    match /{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 } 
