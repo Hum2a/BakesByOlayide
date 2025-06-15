@@ -164,7 +164,7 @@ const CookiesCollection = () => {
           </div>
         )}
         <div className="cakepage-hero-bgimg-wrap">
-          <img src="/images/range/cookies.webp" alt="Cookies" className="cakepage-hero-bgimg" />
+          <img src="/images/range/Cookies.webp" alt="Cookies" className="cakepage-hero-bgimg" />
           <h1 className="cakepage-hero-title">Cookies</h1>
         </div>
       </header>
