@@ -8,7 +8,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/Hum2a/bakery?logo=codecov)](https://codecov.io/gh/Hum2a/bakery)
 [![Dependencies](https://img.shields.io/librariesio/release/npm/bakery)](https://libraries.io/npm/bakery)
 [![Contributors](https://img.shields.io/github/contributors/Hum2a/bakery.svg)](https://github.com/Hum2a/bakery/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/Hum2a/bakery/main.svg)](https://github.com/Hum2a/bakery/commits/master)
+[![Last Commit](https://img.shields.io/github/last-commit/Hum2a/bakery/main.svg)](https://github.com/Hum2a/bakery/commits/master/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code Style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
 
