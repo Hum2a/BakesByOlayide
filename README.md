@@ -2,16 +2,15 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Hum2a/bakery/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/github/workflow/status/Hum2a/bakery/CI/main?label=CI)](https://github.com/Hum2a/bakery/actions)
-[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](https://github.com/Hum2a/bakery/actions)
-[![Dependencies](https://img.shields.io/david/Hum2a/bakery.svg)](https://david-dm.org/Hum2a/bakery)
+[![Version](https://img.shields.io/github/v/release/Hum2a/bakery?include_prereleases)](https://github.com/Hum2a/bakery/releases)
+[![License](https://img.shields.io/github/license/Hum2a/bakery)](LICENSE.md)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Hum2a/bakery/ci.yml?branch=main&label=CI)](https://github.com/Hum2a/bakery/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/Hum2a/bakery?logo=codecov)](https://codecov.io/gh/Hum2a/bakery)
+[![Dependencies](https://img.shields.io/librariesio/release/npm/bakery)](https://libraries.io/npm/bakery)
 [![Contributors](https://img.shields.io/github/contributors/Hum2a/bakery.svg)](https://github.com/Hum2a/bakery/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/Hum2a/bakery/main.svg)](https://github.com/Hum2a/bakery/commits/main)
+[![Last Commit](https://img.shields.io/github/last-commit/Hum2a/bakery/main.svg)](https://github.com/Hum2a/bakery/commits/master)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code Style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
-[![Discord](https://img.shields.io/discord/123456789?label=Discord&logo=discord)](https://discord.gg/bakery)
 
 </div>
 
