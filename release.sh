@@ -222,6 +222,196 @@ if [[ -n "$LATEST_TAG" ]]; then
   fi
 fi
 
+# Function to generate changelog entries from git commits
+generate_changelog_from_commits() {
+  local since_tag="$1"
+  local added=""
+  local changed=""
+  local fixed=""
+  local security=""
+  local deprecated=""
+  local removed=""
+  local other=""
+  
+  # Determine the commit range
+  local commit_range=""
+  if [[ -z "$since_tag" || "$since_tag" == "v0.0.0" ]]; then
+    # If no previous tag, get all commits
+    commit_range="HEAD"
+  else
+    # Get commits since the last tag
+    commit_range="${since_tag}..HEAD"
+  fi
+  
+  # Get all commits in the range, excluding merge commits and chore commits that are just version bumps
+  local commits=$(git log "$commit_range" --pretty=format:"%s" --no-merges 2>/dev/null | grep -vE "^chore:.*(version|changelog|bump)" || true)
+  
+  # Also filter out empty lines
+  commits=$(echo "$commits" | grep -v "^$" || true)
+  
+  if [[ -z "$commits" ]]; then
+    echo ""
+    return
+  fi
+  
+  # Create temp file for commits to avoid subshell issues
+  local temp_commits_file
+  if command -v mktemp >/dev/null 2>&1; then
+    temp_commits_file=$(mktemp)
+  else
+    temp_commits_file="/tmp/release_commits_$$.txt"
+  fi
+  echo "$commits" > "$temp_commits_file"
+  
+  # Process each commit
+  while IFS= read -r commit_msg || [[ -n "$commit_msg" ]]; do
+    # Skip empty lines
+    [[ -z "$commit_msg" ]] && continue
+    
+    # Extract the type and description from conventional commits
+    # Format: type(scope): description or type: description
+    local type=""
+    local description=""
+    
+    # Try to match conventional commit format
+    if [[ "$commit_msg" =~ ^([a-z]+)(\([^)]+\))?[[:space:]]*: ]]; then
+      type="${BASH_REMATCH[1]}"
+      # Remove the type and scope prefix, trim whitespace
+      description=$(echo "$commit_msg" | sed -E 's/^[a-z]+(\([^)]+\))?[[:space:]]*:[[:space:]]*//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    else
+      # Non-conventional commit, use as-is but categorize as "other"
+      description="$commit_msg"
+      type="other"
+    fi
+    
+    # Skip if description is empty
+    [[ -z "$description" ]] && continue
+    
+    # Capitalize first letter and ensure it ends with a period if it doesn't
+    if [[ -n "$description" ]]; then
+      description=$(echo "$description" | sed 's/^./\U&/')
+      if [[ ! "$description" =~ [.!?]$ ]]; then
+        description="${description}."
+      fi
+    fi
+    
+    # Categorize based on conventional commit types
+    case "$type" in
+      feat|feature)
+        if [[ -z "$added" ]]; then
+          added="- ${description}"
+        else
+          added="${added}
+- ${description}"
+        fi
+        ;;
+      fix|bugfix)
+        if [[ -z "$fixed" ]]; then
+          fixed="- ${description}"
+        else
+          fixed="${fixed}
+- ${description}"
+        fi
+        ;;
+      security)
+        if [[ -z "$security" ]]; then
+          security="- ${description}"
+        else
+          security="${security}
+- ${description}"
+        fi
+        ;;
+      deprecate|deprecated)
+        if [[ -z "$deprecated" ]]; then
+          deprecated="- ${description}"
+        else
+          deprecated="${deprecated}
+- ${description}"
+        fi
+        ;;
+      remove|removed)
+        if [[ -z "$removed" ]]; then
+          removed="- ${description}"
+        else
+          removed="${removed}
+- ${description}"
+        fi
+        ;;
+      change|changed|update|updated|refactor|perf|performance|style)
+        if [[ -z "$changed" ]]; then
+          changed="- ${description}"
+        else
+          changed="${changed}
+- ${description}"
+        fi
+        ;;
+      *)
+        # Other types (docs, test, build, ci, chore, etc.) - can be added to "Other" or skipped
+        # For now, we'll add significant ones to "Changed"
+        if [[ "$type" == "refactor" || "$type" == "perf" || "$type" == "style" ]]; then
+          if [[ -z "$changed" ]]; then
+            changed="- ${description}"
+          else
+            changed="${changed}
+- ${description}"
+          fi
+        fi
+        ;;
+    esac
+  done < "$temp_commits_file"
+  
+  # Clean up temp file
+  rm -f "$temp_commits_file"
+  
+  # Build the changelog content
+  local changelog_content=""
+  
+  if [[ -n "$added" ]]; then
+    changelog_content="${changelog_content}
+### Added
+${added}"
+  fi
+  
+  if [[ -n "$changed" ]]; then
+    changelog_content="${changelog_content}
+### Changed
+${changed}"
+  fi
+  
+  if [[ -n "$fixed" ]]; then
+    changelog_content="${changelog_content}
+### Fixed
+${fixed}"
+  fi
+  
+  if [[ -n "$security" ]]; then
+    changelog_content="${changelog_content}
+### Security
+${security}"
+  fi
+  
+  if [[ -n "$deprecated" ]]; then
+    changelog_content="${changelog_content}
+### Deprecated
+${deprecated}"
+  fi
+  
+  if [[ -n "$removed" ]]; then
+    changelog_content="${changelog_content}
+### Removed
+${removed}"
+  fi
+  
+  # If no categorized changes, add a generic entry
+  if [[ -z "$changelog_content" ]]; then
+    changelog_content="
+### Changed
+- Various updates and improvements."
+  fi
+  
+  echo "$changelog_content"
+}
+
 # Update CHANGELOG.md if this is a release (not a pre-release with --name)
 CHANGELOG_FILE="CHANGELOG.md"
 if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
@@ -233,13 +423,22 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
   # Extract version number from tag (remove 'v' prefix)
   VERSION_NUMBER=${NEW_TAG#v}
   
-  # Create a temporary file for the new changelog
+  # Generate changelog entries from git commits
+  echo "Generating changelog entries from git commits since ${LATEST_TAG:-beginning}..."
+  COMMIT_CHANGES=$(generate_changelog_from_commits "$LATEST_TAG")
+  
+  # Create temporary files
   if command -v mktemp >/dev/null 2>&1; then
     TEMP_CHANGELOG=$(mktemp)
+    TEMP_COMMITS=$(mktemp)
   else
     # Fallback for systems without mktemp
     TEMP_CHANGELOG="${CHANGELOG_FILE}.tmp"
+    TEMP_COMMITS="${CHANGELOG_FILE}.commits.tmp"
   fi
+  
+  # Write commit changes to temp file for easier handling
+  echo "$COMMIT_CHANGES" > "$TEMP_COMMITS"
   
   # Use awk for more reliable parsing (works across all platforms)
   awk -v version="$VERSION_NUMBER" -v date="$RELEASE_DATE" '
@@ -247,6 +446,20 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
       in_unreleased = 0
       unreleased_content = ""
       version_inserted = 0
+      has_commit_changes = 0
+      
+      # Read commit changes from temp file
+      commit_changes_file = "'"$TEMP_COMMITS"'"
+      if ((getline commit_changes_line < commit_changes_file) > 0) {
+        commit_changes = commit_changes_line
+        while ((getline commit_changes_line < commit_changes_file) > 0) {
+          commit_changes = commit_changes "\n" commit_changes_line
+        }
+        close(commit_changes_file)
+        if (commit_changes != "" && commit_changes != "\n") {
+          has_commit_changes = 1
+        }
+      }
     }
     
     # Match [Unreleased] section header
@@ -263,7 +476,9 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
         # Insert new version section before this one
         print ""
         printf "## [%s] - %s\n", version, date
-        if (unreleased_content != "") {
+        if (has_commit_changes) {
+          print commit_changes
+        } else if (unreleased_content != "") {
           print ""
           print unreleased_content
         }
@@ -274,12 +489,14 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
       next
     }
     
-    # Collect Unreleased section content
+    # Collect Unreleased section content (only if we have no commit changes)
     in_unreleased {
-      if (unreleased_content == "") {
-        unreleased_content = $0
-      } else {
-        unreleased_content = unreleased_content "\n" $0
+      if (!has_commit_changes) {
+        if (unreleased_content == "") {
+          unreleased_content = $0
+        } else {
+          unreleased_content = unreleased_content "\n" $0
+        }
       }
       next
     }
@@ -294,13 +511,18 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
       if (in_unreleased && !version_inserted) {
         print ""
         printf "## [%s] - %s\n", version, date
-        if (unreleased_content != "") {
+        if (has_commit_changes) {
+          print commit_changes
+        } else if (unreleased_content != "") {
           print ""
           print unreleased_content
         }
       }
     }
   ' "$CHANGELOG_FILE" > "$TEMP_CHANGELOG"
+  
+  # Clean up temp commits file
+  rm -f "$TEMP_COMMITS"
   
   # Replace the original changelog with the updated one
   mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
