@@ -222,6 +222,100 @@ if [[ -n "$LATEST_TAG" ]]; then
   fi
 fi
 
+# Update CHANGELOG.md if this is a release (not a pre-release with --name)
+CHANGELOG_FILE="CHANGELOG.md"
+if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
+  echo "Updating CHANGELOG.md..."
+  
+  # Get current date in YYYY-MM-DD format
+  RELEASE_DATE=$(date -u +"%Y-%m-%d")
+  
+  # Extract version number from tag (remove 'v' prefix)
+  VERSION_NUMBER=${NEW_TAG#v}
+  
+  # Create a temporary file for the new changelog
+  if command -v mktemp >/dev/null 2>&1; then
+    TEMP_CHANGELOG=$(mktemp)
+  else
+    # Fallback for systems without mktemp
+    TEMP_CHANGELOG="${CHANGELOG_FILE}.tmp"
+  fi
+  
+  # Read the changelog and process it
+  IN_UNRELEASED=false
+  UNRELEASED_CONTENT=""
+  VERSION_INSERTED=false
+  
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # Check if we're entering the Unreleased section
+    if [[ "$line" =~ ^##\ \[Unreleased\] ]]; then
+      echo "$line" >> "$TEMP_CHANGELOG"
+      IN_UNRELEASED=true
+      UNRELEASED_CONTENT=""
+      continue
+    fi
+    
+    # Check if we hit the next version section
+    if [[ "$line" =~ ^##\ \[ ]] && [[ "$IN_UNRELEASED" == true ]]; then
+      # Insert the new version section before this one
+      echo "" >> "$TEMP_CHANGELOG"
+      echo "## [${VERSION_NUMBER}] - ${RELEASE_DATE}" >> "$TEMP_CHANGELOG"
+      if [[ -n "$UNRELEASED_CONTENT" ]]; then
+        # Trim trailing whitespace from unreleased content
+        UNRELEASED_CONTENT=$(echo "$UNRELEASED_CONTENT" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
+        echo "" >> "$TEMP_CHANGELOG"
+        echo "$UNRELEASED_CONTENT" >> "$TEMP_CHANGELOG"
+      fi
+      VERSION_INSERTED=true
+      IN_UNRELEASED=false
+      echo "$line" >> "$TEMP_CHANGELOG"
+      continue
+    fi
+    
+    # Collect Unreleased section content
+    if [[ "$IN_UNRELEASED" == true ]]; then
+      if [[ -z "$UNRELEASED_CONTENT" ]]; then
+        UNRELEASED_CONTENT="$line"
+      else
+        UNRELEASED_CONTENT="${UNRELEASED_CONTENT}
+${line}"
+      fi
+      continue
+    fi
+    
+    # Write all other lines
+    echo "$line" >> "$TEMP_CHANGELOG"
+  done < "$CHANGELOG_FILE"
+  
+  # If we never hit another version section, append the new version at the end of Unreleased
+  if [[ "$IN_UNRELEASED" == true && "$VERSION_INSERTED" == false ]]; then
+    echo "" >> "$TEMP_CHANGELOG"
+    echo "## [${VERSION_NUMBER}] - ${RELEASE_DATE}" >> "$TEMP_CHANGELOG"
+    if [[ -n "$UNRELEASED_CONTENT" ]]; then
+      # Trim trailing whitespace from unreleased content
+      UNRELEASED_CONTENT=$(echo "$UNRELEASED_CONTENT" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')
+      echo "" >> "$TEMP_CHANGELOG"
+      echo "$UNRELEASED_CONTENT" >> "$TEMP_CHANGELOG"
+    fi
+  fi
+  
+  # Replace the original changelog with the updated one
+  mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
+  
+  # Stage and commit the changelog
+  git add "$CHANGELOG_FILE"
+  
+  # Check if there are changes to commit
+  if git diff --cached --quiet "$CHANGELOG_FILE"; then
+    echo "No changes to CHANGELOG.md"
+  else
+    git commit -m "chore: update CHANGELOG.md for ${NEW_TAG}" >/dev/null 2>&1
+    echo "CHANGELOG.md updated and committed for version ${VERSION_NUMBER}"
+    # Push the changelog commit
+    git push origin HEAD >/dev/null 2>&1 || true
+  fi
+fi
+
 # Create and push new tag
 echo "Creating new tag: $NEW_TAG"
 git tag "$NEW_TAG" && git push origin "$NEW_TAG"
