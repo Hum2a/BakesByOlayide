@@ -11,7 +11,6 @@ const ContactUs = () => {
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
     subject: '',
     inquiry: ''
   });
@@ -44,7 +43,6 @@ const ContactUs = () => {
         firstName: '',
         lastName: '',
         email: '',
-        phone: '',
         subject: '',
         inquiry: ''
       });
@@ -61,6 +59,9 @@ const ContactUs = () => {
       <Header />
       <div className="contactus-header">
         <h1>Contact Us</h1>
+        <p className="contactus-intro">
+          For custom flavours, large orders requiring deliveries or simple enquiries, please fill in this form. Please allow two working days for a response.
+        </p>
       </div>
       <div className="contactus-content contactus-content-centered">
         <div className="contactus-form-section contactus-form-centered">
@@ -131,7 +132,7 @@ const ContactUs = () => {
                 />
               </div>
               <div className="contactus-form-group">
-                <label htmlFor="inquiry">Inquiry</label>
+                <label htmlFor="inquiry">Enquiry</label>
                 <textarea
                   id="inquiry"
                   name="inquiry"
