@@ -9,6 +9,7 @@ import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 import OptimizedImage from '../../common/OptimizedImage';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
 
 const SpecificCakePage = () => {
@@ -428,39 +429,44 @@ const SpecificCakePage = () => {
                 </div>
               )}
               <div className="specific-cake-selector-group">
-                <span className="specific-cake-selector-label">Occasion:</span>
-                <select
-                  className="specific-cake-dropdown"
+                <label className="specific-cake-selector-label" htmlFor="cake-occasion-select">
+                  Occasion:
+                </label>
+                <AnimatedProductSelect
+                  id="cake-occasion-select"
                   value={occasion}
-                  onChange={e => setOccasion(e.target.value)}
-                >
-                  <option value="">Choose</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Wedding">Wedding</option>
-                  <option value="Anniversary">Anniversary</option>
-                  <option value="Baby Shower">Baby Shower</option>
-                  <option value="Other">Other</option>
-                </select>
+                  onChange={setOccasion}
+                  options={[
+                    { value: '', label: 'Choose' },
+                    { value: 'Birthday', label: 'Birthday' },
+                    { value: 'Wedding', label: 'Wedding' },
+                    { value: 'Anniversary', label: 'Anniversary' },
+                    { value: 'Baby Shower', label: 'Baby Shower' },
+                    { value: 'Other', label: 'Other' },
+                  ]}
+                />
               </div>
               {cake.toppers && cake.toppers.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Topper</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cake-topper-select">
+                    Topper
+                  </label>
+                  <AnimatedProductSelect
+                    id="cake-topper-select"
                     value={topper}
-                    onChange={e => {
-                      const selectedTopper = cake.toppers.find(t => t.name === e.target.value);
-                      setTopper(e.target.value);
+                    onChange={(v) => {
+                      const selectedTopper = cake.toppers.find(t => t.name === v);
+                      setTopper(v);
                       setTopperPrice(selectedTopper ? selectedTopper.price : 0);
                     }}
-                  >
-                    <option value="">No topper</option>
-                    {cake.toppers.map((topperOption, idx) => (
-                      <option key={idx} value={topperOption.name}>
-                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'No topper' },
+                      ...cake.toppers.map((topperOption) => ({
+                        value: topperOption.name,
+                        label: `${topperOption.name} (+£${Number(topperOption.price).toFixed(2)})`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {addOns && addOns.length > 0 && (

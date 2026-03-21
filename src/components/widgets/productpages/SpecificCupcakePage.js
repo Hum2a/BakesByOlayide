@@ -9,6 +9,7 @@ import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 
 const SpecificCupcakePage = () => {
   const { id } = useParams();
@@ -175,9 +176,9 @@ const SpecificCupcakePage = () => {
     return selectedAddons.reduce((total, addon) => total + getAddonPrice(addon), 0);
   };
 
-  const handleTopperChange = (e) => {
-    const selectedTopper = cupcake.toppers.find(t => t.name === e.target.value);
-    setTopper(e.target.value);
+  const handleTopperChange = (value) => {
+    const selectedTopper = cupcake.toppers.find(t => t.name === value);
+    setTopper(value);
     setTopperPrice(selectedTopper && !isNaN(Number(selectedTopper.price)) ? Number(selectedTopper.price) : 0);
   };
 
@@ -386,55 +387,61 @@ const SpecificCupcakePage = () => {
 
               {cupcake.decorationStyles && cupcake.decorationStyles.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Decoration Style</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cupcake-decoration-select">
+                    Decoration Style
+                  </label>
+                  <AnimatedProductSelect
+                    id="cupcake-decoration-select"
                     value={decorationStyle}
-                    onChange={(e) => setDecorationStyle(e.target.value)}
-                  >
-                    <option value="">Choose a style</option>
-                    {cupcake.decorationStyles.map((style, idx) => (
-                      <option key={idx} value={style.name}>
-                        {style.name} {style.price ? `(+£${Number(style.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setDecorationStyle}
+                    options={[
+                      { value: '', label: 'Choose a style' },
+                      ...cupcake.decorationStyles.map((style) => ({
+                        value: style.name,
+                        label: `${style.name}${style.price ? ` (+£${Number(style.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
 
               {cupcake.occasions && cupcake.occasions.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Occasion</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cupcake-occasion-select">
+                    Occasion
+                  </label>
+                  <AnimatedProductSelect
+                    id="cupcake-occasion-select"
                     value={occasion}
-                    onChange={(e) => setOccasion(e.target.value)}
-                  >
-                    <option value="">No special occasion</option>
-                    {cupcake.occasions.map((occasionOption, idx) => (
-                      <option key={idx} value={occasionOption.name}>
-                        {occasionOption.name} (+£{Number(occasionOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setOccasion}
+                    options={[
+                      { value: '', label: 'No special occasion' },
+                      ...cupcake.occasions.map((occasionOption) => ({
+                        value: occasionOption.name,
+                        label: `${occasionOption.name} (+£${Number(occasionOption.price).toFixed(2)})`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
 
               {cupcake.toppers && cupcake.toppers.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Topper</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cupcake-topper-select">
+                    Topper
+                  </label>
+                  <AnimatedProductSelect
+                    id="cupcake-topper-select"
                     value={topper}
                     onChange={handleTopperChange}
-                  >
-                    <option value="">No topper</option>
-                    {cupcake.toppers.map((topperOption, idx) => (
-                      <option key={idx} value={topperOption.name}>
-                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'No topper' },
+                      ...cupcake.toppers.map((topperOption) => ({
+                        value: topperOption.name,
+                        label: `${topperOption.name} (+£${Number(topperOption.price).toFixed(2)})`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
 

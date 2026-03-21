@@ -8,6 +8,7 @@ import Footer from '../../common/Footer';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 
 const SpecificBentoCakePage = () => {
   const { id } = useParams();
@@ -375,61 +376,67 @@ const SpecificBentoCakePage = () => {
               </div>
               {bento.decorationStyles && bento.decorationStyles.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Decoration Style</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="bento-decoration-select">
+                    Decoration Style
+                  </label>
+                  <AnimatedProductSelect
+                    id="bento-decoration-select"
                     value={decorationStyle}
-                    onChange={(e) => {
-                      const selected = bento.decorationStyles.find(t => t.name === e.target.value);
-                      setDecorationStyle(e.target.value);
+                    onChange={(v) => {
+                      const selected = bento.decorationStyles.find(t => t.name === v);
+                      setDecorationStyle(v);
                       setDecorationStylePrice(selected ? Number(selected.price) : 0);
                     }}
-                  >
-                    <option value="">Choose a style</option>
-                    {bento.decorationStyles.map((style, idx) => (
-                      <option key={idx} value={style.name}>
-                        {style.name} {style.price ? `(+£${Number(style.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'Choose a style' },
+                      ...bento.decorationStyles.map((style) => ({
+                        value: style.name,
+                        label: `${style.name}${style.price ? ` (+£${Number(style.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {Array.isArray(bento.occasions) && bento.occasions.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Occasion</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="bento-occasion-select">
+                    Occasion
+                  </label>
+                  <AnimatedProductSelect
+                    id="bento-occasion-select"
                     value={occasion}
-                    onChange={(e) => setOccasion(e.target.value)}
-                  >
-                    <option value="">No special occasion</option>
-                    {bento.occasions.map((occasionOption, idx) => (
-                      <option key={idx} value={occasionOption.name}>
-                        {occasionOption.name} (+£{Number(occasionOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setOccasion}
+                    options={[
+                      { value: '', label: 'No special occasion' },
+                      ...bento.occasions.map((occasionOption) => ({
+                        value: occasionOption.name,
+                        label: `${occasionOption.name} (+£${Number(occasionOption.price).toFixed(2)})`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {Array.isArray(bento.toppers) && bento.toppers.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Topper</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="bento-topper-select">
+                    Topper
+                  </label>
+                  <AnimatedProductSelect
+                    id="bento-topper-select"
                     value={topper}
-                    onChange={(e) => {
-                      const selected = bento.toppers.find(t => t.name === e.target.value);
-                      setTopper(e.target.value);
+                    onChange={(v) => {
+                      const selected = bento.toppers.find(t => t.name === v);
+                      setTopper(v);
                       setTopperPrice(selected ? Number(selected.price) : 0);
                     }}
-                  >
-                    <option value="">No topper</option>
-                    {bento.toppers.map((topperOption, idx) => (
-                      <option key={idx} value={topperOption.name}>
-                        {topperOption.name} {topperOption.price ? `(+£${Number(topperOption.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'No topper' },
+                      ...bento.toppers.map((topperOption) => ({
+                        value: topperOption.name,
+                        label: `${topperOption.name}${topperOption.price ? ` (+£${Number(topperOption.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {bento.addOns && bento.addOns.length > 0 && (

@@ -8,6 +8,7 @@ import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 
 const SpecificBrowniesPage = () => {
   const { id } = useParams();
@@ -380,23 +381,25 @@ const SpecificBrowniesPage = () => {
               </div>
               {brownie.decorationStyles && brownie.decorationStyles.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Decoration Style</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="brownie-decoration-select">
+                    Decoration Style
+                  </label>
+                  <AnimatedProductSelect
+                    id="brownie-decoration-select"
                     value={decorationStyle}
-                    onChange={(e) => {
-                      const selected = brownie.decorationStyles.find(t => t.name === e.target.value);
-                      setDecorationStyle(e.target.value);
+                    onChange={(v) => {
+                      const selected = brownie.decorationStyles.find(t => t.name === v);
+                      setDecorationStyle(v);
                       setDecorationStylePrice(selected ? Number(selected.price) : 0);
                     }}
-                  >
-                    <option value="">Choose a style</option>
-                    {brownie.decorationStyles.map((style, idx) => (
-                      <option key={idx} value={style.name}>
-                        {style.name} {style.price ? `(+£${Number(style.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'Choose a style' },
+                      ...brownie.decorationStyles.map((style) => ({
+                        value: style.name,
+                        label: `${style.name}${style.price ? ` (+£${Number(style.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               <div className="specific-cake-selector-group">
