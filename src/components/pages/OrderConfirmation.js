@@ -9,7 +9,7 @@ import '../styles/OrderConfirmation.css';
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderId, total, items, guestInfo, emailDeliveryFailed } = location.state || {};
+  const { orderId, total, items, guestInfo, emailDeliveryFailed, emailInBackground } = location.state || {};
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const [orderData, setOrderData] = useState(null);
   const [user, setUser] = useState(null);
@@ -58,7 +58,9 @@ const OrderConfirmation = () => {
             Your order enquiry is saved
             {emailDeliveryFailed
               ? '. We could not send emails automatically — please contact the bakery with your order reference below.'
-              : ' and we’ve emailed you a summary. Our team will contact you by email or phone to confirm details and arrange payment in person.'}
+              : emailInBackground
+                ? '. Confirmation emails are being sent now — you should see them shortly (check spam). Our team will contact you by email or phone to confirm details and arrange payment in person.'
+                : ' and we’ve emailed you a summary. Our team will contact you by email or phone to confirm details and arrange payment in person.'}
           </p>
           
           {orderData && (
@@ -96,7 +98,11 @@ const OrderConfirmation = () => {
             <p>We’ll review your basket and confirm pickup, pricing, and payment (in person) with you directly.</p>
             {guestInfo && !emailDeliveryFailed && (
               <div className="guest-info">
-                <p>A copy has been sent to: {guestInfo.email}</p>
+                <p>
+                  {emailInBackground
+                    ? `We’re sending a copy to: ${guestInfo.email}`
+                    : `A copy has been sent to: ${guestInfo.email}`}
+                </p>
               </div>
             )}
           </div>

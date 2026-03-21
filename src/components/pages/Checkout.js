@@ -246,6 +246,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [guestInfo, setGuestInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  /** 'saving' = writing to Firestore; 'ready' = saved, about to redirect (emails run in background) */
+  const [submitPhase, setSubmitPhase] = useState(null);
   const [pickupDate, setPickupDate] = useState('');
   const [pickupTime, setPickupTime] = useState('');
   const [discountCode, setDiscountCode] = useState('');
@@ -550,6 +552,9 @@ const Checkout = () => {
         enquiryNotes: enquiryNotes.trim() || null,
       };
 
+      const invoiceId = orderId;
+      const invoiceRefPath = `invoices/${invoiceId}`;
+
       const orderData = {
         orderId,
         items: cart,
@@ -564,11 +569,12 @@ const Checkout = () => {
         paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         status: 'pending',
+        invoiceRef: invoiceRefPath,
+        enquiryEmailStatus: 'pending',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
 
-      const invoiceId = orderId;
       const invoiceData = {
         invoiceId,
         orderId,
@@ -582,44 +588,79 @@ const Checkout = () => {
         ...(userEmail && { userEmail }),
       };
 
-      await setDoc(doc(db, 'orders', orderId), orderData);
-      await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
-      await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
+      setSubmitPhase('saving');
 
+      const persistTasks = [
+        setDoc(doc(db, 'orders', orderId), orderData),
+        setDoc(doc(db, 'invoices', invoiceId), invoiceData),
+      ];
       if (user) {
-        const mergedOrderData = { ...orderData, invoiceRef: `invoices/${invoiceId}` };
-        try {
-          await setDoc(doc(db, 'users', user.uid, 'Orders', orderId), mergedOrderData);
-        } catch (err) {
-          console.error('Error writing order to user subcollection:', err);
-        }
+        persistTasks.push(
+          setDoc(doc(db, 'users', user.uid, 'Orders', orderId), orderData).catch((err) => {
+            console.error('Error writing order to user subcollection:', err);
+          })
+        );
       }
+      await Promise.all(persistTasks);
 
       const shopHtml = buildShopEnquiryEmail(emailPayload);
       const customerHtml = buildCustomerEnquiryAckEmail(emailPayload);
-
-      const mailRes = await fetch(`${API_BASE_URL}/api/send-order-enquiry`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shopSubject: shopEnquirySubject(emailPayload),
-          shopHtml,
-          customerEmail: customerInfo?.email || '',
-          customerSubject: `We received your order request — ${orderId}`,
-          customerHtml,
-        }),
+      const mailBody = JSON.stringify({
+        shopSubject: shopEnquirySubject(emailPayload),
+        shopHtml,
+        customerEmail: customerInfo?.email || '',
+        customerSubject: `We received your order request — ${orderId}`,
+        customerHtml,
       });
 
-      let emailDeliveryFailed = false;
-      if (!mailRes.ok) {
-        const errText = await mailRes.text();
-        console.error('Order enquiry email failed:', errText);
-        emailDeliveryFailed = true;
-      }
+      setSubmitPhase('ready');
 
       const cartSnapshot = cart.map((i) => ({ ...i }));
       clearCart();
       setEnquiryNotes('');
+
+      void fetch(`${API_BASE_URL}/api/send-order-enquiry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: mailBody,
+        keepalive: true,
+      })
+        .then(async (mailRes) => {
+          if (!mailRes.ok) {
+            const errText = await mailRes.text();
+            console.error('Order enquiry email failed:', errText);
+            try {
+              await setDoc(
+                doc(db, 'orders', orderId),
+                { enquiryEmailStatus: 'failed', enquiryEmailFailedAt: Timestamp.now() },
+                { merge: true }
+              );
+            } catch (e) {
+              console.error('Could not record email failure on order:', e);
+            }
+            return;
+          }
+          try {
+            await setDoc(
+              doc(db, 'orders', orderId),
+              { enquiryEmailStatus: 'sent', enquiryEmailSentAt: Timestamp.now() },
+              { merge: true }
+            );
+          } catch (e) {
+            console.error('Could not record email success on order:', e);
+          }
+        })
+        .catch((err) => {
+          console.error('Order enquiry email request failed:', err);
+          setDoc(
+            doc(db, 'orders', orderId),
+            { enquiryEmailStatus: 'failed', enquiryEmailFailedAt: Timestamp.now() },
+            { merge: true }
+          ).catch(() => {});
+        });
+
+      await new Promise((r) => setTimeout(r, 400));
+
       navigate('/order-confirmation', {
         state: {
           orderId,
@@ -628,7 +669,7 @@ const Checkout = () => {
           guestInfo: customerInfo,
           pickupDate: formattedPickupDate,
           pickupTime,
-          emailDeliveryFailed,
+          emailInBackground: true,
         },
       });
     } catch (err) {
@@ -636,6 +677,7 @@ const Checkout = () => {
       setSubmitError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
+      setSubmitPhase(null);
     }
   };
 
@@ -926,11 +968,44 @@ const Checkout = () => {
               onClick={handleSubmitEnquiry}
               disabled={isLoading || (user && showUserInfoForm)}
             >
-              {isLoading ? 'Submitting…' : 'Submit order enquiry'}
+              {isLoading
+                ? submitPhase === 'ready'
+                  ? 'Finishing up…'
+                  : 'Saving your order…'
+                : 'Submit order enquiry'}
             </button>
           </div>
         )}
       </div>
+      {submitPhase && (
+        <div className="checkout-submit-overlay" role="status" aria-live="polite" aria-busy="true">
+          <div className="checkout-submit-progress-card">
+            <div className="checkout-submit-spinner-wrap" aria-hidden>
+              {submitPhase === 'ready' ? (
+                <span className="checkout-submit-check">✓</span>
+              ) : (
+                <div className="checkout-submit-spinner" />
+              )}
+            </div>
+            <h2 id="checkout-submit-progress-title" className="checkout-submit-progress-title">
+              {submitPhase === 'ready' ? 'Order saved' : 'Placing your order'}
+            </h2>
+            <ol className="checkout-submit-steps">
+              <li className={submitPhase === 'saving' ? 'is-active' : 'is-done'}>
+                <span className="checkout-submit-step-marker" aria-hidden />
+                <span>Saving your order and invoice</span>
+              </li>
+              <li className={submitPhase === 'ready' ? 'is-active' : ''}>
+                <span className="checkout-submit-step-marker" aria-hidden />
+                <span>
+                  Sending confirmation emails
+                  <span className="checkout-submit-step-note"> (runs in the background — you won’t wait on the mail server)</span>
+                </span>
+              </li>
+            </ol>
+          </div>
+        </div>
+      )}
       <Footer />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>

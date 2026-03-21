@@ -110,7 +110,7 @@ async function sendOrderEnquiry(req, res) {
   }
 
   try {
-    await ordersTransporter.sendMail({
+    const shopMail = ordersTransporter.sendMail({
       from: `"Bakes by Olayide Orders" <${ordersInbox}>`,
       to: ordersInbox,
       replyTo: customerEmail || undefined,
@@ -118,14 +118,17 @@ async function sendOrderEnquiry(req, res) {
       html: shopHtml,
     });
 
-    if (customerEmail && customerHtml) {
-      await ordersTransporter.sendMail({
-        from: `"Bakes by Olayide" <${ordersInbox}>`,
-        to: customerEmail,
-        subject: customerSubject || 'We received your order request',
-        html: customerHtml,
-      });
-    }
+    const customerMail =
+      customerEmail && customerHtml
+        ? ordersTransporter.sendMail({
+            from: `"Bakes by Olayide" <${ordersInbox}>`,
+            to: customerEmail,
+            subject: customerSubject || 'We received your order request',
+            html: customerHtml,
+          })
+        : Promise.resolve();
+
+    await Promise.all([shopMail, customerMail]);
 
     res.json({ success: true });
   } catch (e) {
