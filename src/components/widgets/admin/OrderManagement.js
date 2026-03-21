@@ -1,11 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes, FaFileInvoice, FaEnvelope, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import {
+  FaCalendar,
+  FaUser,
+  FaClock,
+  FaBox,
+  FaTruck,
+  FaTimes,
+  FaFileInvoice,
+  FaEnvelope,
+  FaChevronDown,
+  FaChevronUp,
+  FaSearch,
+  FaSort,
+} from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import '../../styles/OrderManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'pending', label: 'Awaiting approval' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'ready', label: 'Ready' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'paid', label: 'Paid (legacy)' },
+  { value: 'unpaid', label: 'Unpaid' },
+  { value: 'incomplete', label: 'Incomplete' },
+];
+
+function getOrderCreatedMs(order) {
+  if (!order?.createdAt?.toDate) return 0;
+  return order.createdAt.toDate().getTime();
+}
+
+function orderTotalNumber(order) {
+  const n = Number(order?.total);
+  return Number.isFinite(n) ? n : 0;
+}
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -33,6 +67,17 @@ const OrderManagement = () => {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilters, setStatusFilters] = useState([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [minTotal, setMinTotal] = useState('');
+  const [maxTotal, setMaxTotal] = useState('');
+  const [invoiceFilter, setInvoiceFilter] = useState('all');
+  const [accountFilter, setAccountFilter] = useState('all');
+  const [sortKey, setSortKey] = useState('createdAt');
+  const [sortDir, setSortDir] = useState('desc');
 
   useEffect(() => {
     fetchOrders();
@@ -375,6 +420,174 @@ const OrderManagement = () => {
     setOrderToDelete(null);
   };
 
+  const toggleStatusFilter = useCallback((value) => {
+    setStatusFilters((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  }, []);
+
+  const clearAllFilters = useCallback(() => {
+    setSearchQuery('');
+    setStatusFilters([]);
+    setDateFrom('');
+    setDateTo('');
+    setMinTotal('');
+    setMaxTotal('');
+    setInvoiceFilter('all');
+    setAccountFilter('all');
+    setSortKey('createdAt');
+    setSortDir('desc');
+  }, []);
+
+  const setDatePreset = useCallback((preset) => {
+    const end = new Date();
+    const start = new Date();
+    if (preset === 'today') {
+      /* start already today */
+    } else if (preset === 'week') {
+      start.setDate(end.getDate() - 6);
+    } else if (preset === 'month') {
+      start.setDate(1);
+    } else if (preset === 'clear') {
+      setDateFrom('');
+      setDateTo('');
+      return;
+    }
+    const toYmd = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    setDateFrom(toYmd(start));
+    setDateTo(toYmd(end));
+  }, []);
+
+  const defaultSortDir = useCallback((key) => {
+    if (key === 'createdAt' || key === 'total') return 'desc';
+    return 'asc';
+  }, []);
+
+  const toggleSort = useCallback(
+    (key) => {
+      if (sortKey === key) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setSortKey(key);
+        setSortDir(defaultSortDir(key));
+      }
+    },
+    [sortKey, defaultSortDir]
+  );
+
+  const filteredSortedOrders = useMemo(() => {
+    let list = [...orders];
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((order) => {
+        const name = (order.customerName || '').toLowerCase();
+        const email = (order.customerEmail || '').toLowerCase();
+        const id = (order.id || '').toLowerCase();
+        const shortId = id.slice(-8);
+        const uid = (order.userId || '').toLowerCase();
+        const itemsStr = (order.items || [])
+          .map((i) => `${i?.name || ''} ${i?.quantity || ''}`.toLowerCase())
+          .join(' ');
+        return (
+          id.includes(q) ||
+          shortId.includes(q) ||
+          name.includes(q) ||
+          email.includes(q) ||
+          uid.includes(q) ||
+          itemsStr.includes(q)
+        );
+      });
+    }
+
+    if (statusFilters.length > 0) {
+      list = list.filter((order) =>
+        statusFilters.includes((order.status || 'pending').toLowerCase())
+      );
+    }
+
+    if (dateFrom) {
+      const fromMs = new Date(`${dateFrom}T00:00:00`).getTime();
+      list = list.filter((order) => getOrderCreatedMs(order) >= fromMs);
+    }
+    if (dateTo) {
+      const toMs = new Date(`${dateTo}T23:59:59.999`).getTime();
+      list = list.filter((order) => getOrderCreatedMs(order) <= toMs);
+    }
+
+    const minN = minTotal === '' ? null : Number(minTotal);
+    const maxN = maxTotal === '' ? null : Number(maxTotal);
+    if (minN !== null && !Number.isNaN(minN)) {
+      list = list.filter((order) => orderTotalNumber(order) >= minN);
+    }
+    if (maxN !== null && !Number.isNaN(maxN)) {
+      list = list.filter((order) => orderTotalNumber(order) <= maxN);
+    }
+
+    if (invoiceFilter === 'yes') {
+      list = list.filter((order) => Boolean(order.invoiceRef));
+    } else if (invoiceFilter === 'no') {
+      list = list.filter((order) => !order.invoiceRef);
+    }
+
+    if (accountFilter === 'guest') {
+      list = list.filter((order) => !order.userId);
+    } else if (accountFilter === 'registered') {
+      list = list.filter((order) => Boolean(order.userId));
+    }
+
+    list.sort((a, b) => {
+      let cmp = 0;
+      switch (sortKey) {
+        case 'createdAt':
+          cmp = getOrderCreatedMs(a) - getOrderCreatedMs(b);
+          break;
+        case 'total':
+          cmp = orderTotalNumber(a) - orderTotalNumber(b);
+          break;
+        case 'customer':
+          cmp = (a.customerName || '').localeCompare(b.customerName || '', undefined, {
+            sensitivity: 'base',
+          });
+          break;
+        case 'id':
+          cmp = (a.id || '').localeCompare(b.id || '');
+          break;
+        case 'status':
+          cmp = (a.status || '').localeCompare(b.status || '', undefined, { sensitivity: 'base' });
+          break;
+        default:
+          break;
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+
+    return list;
+  }, [
+    orders,
+    searchQuery,
+    statusFilters,
+    dateFrom,
+    dateTo,
+    minTotal,
+    maxTotal,
+    invoiceFilter,
+    accountFilter,
+    sortKey,
+    sortDir,
+  ]);
+
+  const sortIndicator = (key) =>
+    sortKey === key ? (
+      <span className="sort-indicator" aria-hidden>
+        {sortDir === 'asc' ? <FaChevronUp /> : <FaChevronDown />}
+      </span>
+    ) : null;
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -396,28 +609,215 @@ const OrderManagement = () => {
   return (
     <div className="order-management">
       <div className="order-management-header">
-        <h2>Order Management</h2>
-        <button onClick={fetchOrders} className="refresh-button">
+        <div className="order-management-title-block">
+          <h2>Order Management</h2>
+          <p className="order-management-subtitle">
+            {filteredSortedOrders.length} of {orders.length} orders
+            {orders.length > 0 && filteredSortedOrders.length !== orders.length ? ' (filtered)' : ''}
+          </p>
+        </div>
+        <button type="button" onClick={fetchOrders} className="refresh-button">
           Refresh Orders
         </button>
+      </div>
+
+      <div className="orders-toolbar">
+        <div className="orders-search-row">
+          <label className="orders-search-label" htmlFor="orders-search-input">
+            <FaSearch className="orders-search-icon" aria-hidden />
+            <span className="sr-only">Search orders</span>
+          </label>
+          <input
+            id="orders-search-input"
+            className="orders-search-input"
+            type="search"
+            placeholder="Search by order ID, customer, email, user ID, or product name…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="orders-filters-grid">
+          <div className="orders-filter-group orders-filter-group--status">
+            <span className="orders-filter-label">Status</span>
+            <div className="orders-status-chips" role="group" aria-label="Filter by status">
+              {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`orders-chip ${statusFilters.includes(value) ? 'orders-chip--active' : ''}`}
+                  onClick={() => toggleStatusFilter(value)}
+                  aria-pressed={statusFilters.includes(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="orders-filter-hint">Select none to show all statuses.</p>
+          </div>
+
+          <div className="orders-filter-group">
+            <span className="orders-filter-label">Placed on</span>
+            <div className="orders-date-presets">
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('today')}>
+                Today
+              </button>
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('week')}>
+                Last 7 days
+              </button>
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('month')}>
+                This month
+              </button>
+              <button type="button" className="orders-preset-btn orders-preset-btn--ghost" onClick={() => setDatePreset('clear')}>
+                Clear dates
+              </button>
+            </div>
+            <div className="orders-date-inputs">
+              <label className="orders-field">
+                <span className="orders-field-label">From</span>
+                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+              </label>
+              <label className="orders-field">
+                <span className="orders-field-label">To</span>
+                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+              </label>
+            </div>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--compact">
+            <span className="orders-filter-label">Total (£)</span>
+            <div className="orders-range-row">
+              <label className="orders-field">
+                <span className="orders-field-label">Min</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                  value={minTotal}
+                  onChange={(e) => setMinTotal(e.target.value)}
+                />
+              </label>
+              <label className="orders-field">
+                <span className="orders-field-label">Max</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Any"
+                  value={maxTotal}
+                  onChange={(e) => setMaxTotal(e.target.value)}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--compact">
+            <label className="orders-field orders-field--select">
+              <span className="orders-filter-label">Invoice</span>
+              <select value={invoiceFilter} onChange={(e) => setInvoiceFilter(e.target.value)}>
+                <option value="all">All orders</option>
+                <option value="yes">Has invoice</option>
+                <option value="no">No invoice</option>
+              </select>
+            </label>
+            <label className="orders-field orders-field--select">
+              <span className="orders-filter-label">Account</span>
+              <select value={accountFilter} onChange={(e) => setAccountFilter(e.target.value)}>
+                <option value="all">All customers</option>
+                <option value="registered">Registered</option>
+                <option value="guest">Guest checkout</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--sort">
+            <span className="orders-filter-label orders-filter-label--inline">
+              <FaSort className="orders-sort-label-icon" aria-hidden />
+              Quick sort
+            </span>
+            <select
+              className="orders-sort-select"
+              value={`${sortKey}:${sortDir}`}
+              onChange={(e) => {
+                const [k, d] = e.target.value.split(':');
+                setSortKey(k);
+                setSortDir(d);
+              }}
+            >
+              <option value="createdAt:desc">Newest first</option>
+              <option value="createdAt:asc">Oldest first</option>
+              <option value="total:desc">Total: high → low</option>
+              <option value="total:asc">Total: low → high</option>
+              <option value="customer:asc">Customer A → Z</option>
+              <option value="customer:desc">Customer Z → A</option>
+              <option value="status:asc">Status A → Z</option>
+              <option value="status:desc">Status Z → A</option>
+              <option value="id:asc">Order ID (ascending)</option>
+              <option value="id:desc">Order ID (descending)</option>
+            </select>
+            <button type="button" className="orders-clear-filters" onClick={clearAllFilters}>
+              Reset filters &amp; sort
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="orders-table-container">
         <table className="orders-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Date</th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('id')}>
+                  Order ID {sortIndicator('id')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('customer')}>
+                  Customer {sortIndicator('customer')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('createdAt')}>
+                  Date {sortIndicator('createdAt')}
+                </button>
+              </th>
               <th>Items</th>
-              <th>Total</th>
-              <th>Status</th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('total')}>
+                  Total {sortIndicator('total')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('status')}>
+                  Status {sortIndicator('status')}
+                </button>
+              </th>
               <th>Invoice</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => {
+            {filteredSortedOrders.length === 0 && (
+              <tr>
+                <td colSpan={8} className="orders-empty-cell">
+                  <div className="orders-empty">
+                    <p>
+                      {orders.length === 0
+                        ? 'No orders yet.'
+                        : 'No orders match your filters.'}
+                    </p>
+                    {orders.length > 0 && (
+                      <button type="button" className="orders-clear-filters orders-clear-filters--inline" onClick={clearAllFilters}>
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )}
+            {filteredSortedOrders.map(order => {
               const formattedDate = formatDate(order.createdAt);
               const statusInfo = getStatusInfo(order.status);
               const isExpanded = expandedOrderId === order.id;
@@ -434,12 +834,11 @@ const OrderManagement = () => {
                         {order.customerName || 'Unknown Customer'}
                       </div>
                       <div className="customer-email">{order.customerEmail || 'N/A'}</div>
-                      {/* Show userId and userEmail if available */}
                       {order.userId && (
-                        <div className="customer-userid" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User ID: {order.userId}</div>
+                        <div className="customer-meta">User ID: {order.userId}</div>
                       )}
                       {order.userEmail && order.userEmail !== order.customerEmail && (
-                        <div className="customer-useremail" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User Email: {order.userEmail}</div>
+                        <div className="customer-meta">Account email: {order.userEmail}</div>
                       )}
                     </td>
                     <td className="order-date">
@@ -450,14 +849,14 @@ const OrderManagement = () => {
                       <div className="time">{formattedDate.time}</div>
                     </td>
                     <td className="order-items">
-                      {order.items.map((item, index) => (
+                      {(order.items || []).map((item, index) => (
                         <div key={index} className="order-item-mini">
                           <span className="item-name">{item.name}</span>
                           <span className="item-quantity">×{item.quantity}</span>
                         </div>
                       ))}
                     </td>
-                    <td className="order-total">£{order.total.toFixed(2)}</td>
+                    <td className="order-total">£{orderTotalNumber(order).toFixed(2)}</td>
                     <td className="order-status">
                       <span className={`status-badge ${statusInfo.class}`}>
                         {statusInfo.icon}
@@ -475,7 +874,7 @@ const OrderManagement = () => {
                           <FaFileInvoice style={{ marginRight: '0.4em' }} />View Invoice
                         </button>
                       ) : (
-                        <span style={{ color: '#bbb' }}>N/A</span>
+                        <span className="orders-na">—</span>
                       )}
                     </td>
                     <td className="order-actions">
@@ -493,28 +892,25 @@ const OrderManagement = () => {
                       {/* Manual confirm button for incomplete/unpaid/pending orders */}
                       {['pending', 'unpaid', 'incomplete'].includes((order.status || '').toLowerCase()) && (
                         <button
+                          type="button"
                           className="manual-confirm-btn"
-                          style={{ marginTop: 8, background: '#f3c307', color: '#111', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
                           onClick={() => updateOrderStatus(order.id, 'confirmed', order.invoiceRef)}
                           title="Manually confirm this order and mark invoice as paid"
                         >
                           Confirm Order
                         </button>
                       )}
-                      {/* Expand Email Actions */}
                       <button
+                        type="button"
                         className="expand-email-btn"
-                        style={{ marginTop: 8, background: '#ffe066', color: '#222', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                         onClick={() => toggleExpandRow(order.id)}
                         title={isExpanded ? 'Hide Email Actions' : 'Show Email Actions'}
-                        type="button"
                       >
                         <FaEnvelope /> Email {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
                       </button>
-                      {/* Delete order button */}
                       <button
+                        type="button"
                         className="delete-order-btn"
-                        style={{ marginTop: 8, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
                         onClick={() => handleDeleteClick(order)}
                         title="Delete this order and its invoice"
                       >
@@ -524,32 +920,29 @@ const OrderManagement = () => {
                   </tr>
                   {isExpanded && (
                     <tr className="email-actions-row">
-                      <td colSpan={8} style={{ background: '#fffbe6', padding: '1.2em 2em' }}>
-                        <div style={{ display: 'flex', gap: '1.2em', flexWrap: 'wrap' }}>
+                      <td colSpan={8} className="email-actions-cell">
+                        <div className="email-actions-inner">
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#3498db', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--primary"
                             onClick={() => openEmailModal(order, 'confirmation')}
                             title="Send Order Confirmation Email"
-                            type="button"
                           >
                             <FaEnvelope /> Confirmation
                           </button>
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#27ae60', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--success"
                             onClick={() => openEmailModal(order, 'complete')}
                             title="Send Order Complete Email"
-                            type="button"
                           >
                             <FaEnvelope /> Complete
                           </button>
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#f3c307', color: '#111', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--muted"
                             onClick={() => openEmailModal(order, 'delivery')}
                             title="Send Delivery Email"
-                            type="button"
                           >
                             <FaEnvelope /> Delivery
                           </button>
