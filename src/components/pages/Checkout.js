@@ -13,8 +13,7 @@ import {
   buildCustomerEnquiryAckEmail,
   shopEnquirySubject,
 } from '../../utils/orderEnquiryEmail';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://bakesbyolayide-server.onrender.com';
+import { apiUrl } from '../../config/environment';
 
 const GuestForm = ({ onSubmit, isLoading, submitLabel = 'Continue' }) => (
   <form onSubmit={onSubmit} className="guest-form">
@@ -619,7 +618,7 @@ const Checkout = () => {
       clearCart();
       setEnquiryNotes('');
 
-      void fetch(`${API_BASE_URL}/api/send-order-enquiry`, {
+      void fetch(apiUrl('/api/send-order-enquiry'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: mailBody,

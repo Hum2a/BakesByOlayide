@@ -3,6 +3,7 @@ import { db } from '../../../firebase/firebase';
 import { collection, getDocs, doc, updateDoc, query, orderBy } from 'firebase/firestore';
 import { FaEnvelope, FaCheck, FaTimes, FaClock, FaReply, FaFilter, FaSearch } from 'react-icons/fa';
 import '../../styles/Enquiries.css';
+import { apiUrl } from '../../../config/environment';
 
 const Enquiries = () => {
   const [enquiries, setEnquiries] = useState([]);
@@ -13,9 +14,6 @@ const Enquiries = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-
-  // Use env variable or fallback to hardcoded URL
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://bakesbyolayide-server.onrender.com';
 
   useEffect(() => {
     fetchEnquiries();
@@ -62,7 +60,7 @@ const Enquiries = () => {
       if (!enquiry) throw new Error('Enquiry not found');
 
       // Send the reply email
-      const response = await fetch(`${API_BASE_URL}/api/send-enquiry-reply`, {
+      const response = await fetch(apiUrl('/api/send-enquiry-reply'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

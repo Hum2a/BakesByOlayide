@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import '../../styles/OrderManagement.css';
+import { apiUrl } from '../../../config/environment';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -349,7 +350,7 @@ const OrderManagement = () => {
       emailAttachments.forEach((file, idx) => {
         formData.append('attachments', file);
       });
-      const response = await fetch('/api/send-order-confirmation', {
+      const response = await fetch(apiUrl('/api/send-order-confirmation'), {
         method: 'POST',
         body: formData
       });

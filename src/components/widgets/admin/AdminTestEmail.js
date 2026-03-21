@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+import { apiUrl } from '../../../config/environment';
 
 const AdminTestEmail = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +9,7 @@ const AdminTestEmail = () => {
     e.preventDefault();
     setStatus('Sending...');
     try {
-      const res = await fetch(`${API_BASE_URL}/api/test-email`, {
+      const res = await fetch(apiUrl('/api/test-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ to: email }),

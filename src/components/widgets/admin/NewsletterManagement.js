@@ -4,9 +4,10 @@ import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc, arrayUn
 import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiUrl } from '../../../config/environment';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
-const MARKETING_EMAIL = process.env.ZOHO_MARKETING_USER || 'marketing@bakesbyolayide.com';
+const MARKETING_EMAIL =
+  process.env.REACT_APP_MARKETING_CONTACT_EMAIL || 'marketing@bakesbyolayide.com';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -134,7 +135,7 @@ const NewsletterManagement = () => {
     setSending(true);
     setSendStatus('Sending...');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/send-marketing-email`, {
+      const response = await fetch(apiUrl('/api/send-marketing-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
