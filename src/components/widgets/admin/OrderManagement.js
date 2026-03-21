@@ -125,6 +125,11 @@ const OrderManagement = () => {
           }
         }
         
+        orderData.customerName =
+          orderData.customerName || orderData.guestInfo?.name || orderData.guestInfo?.displayName;
+        orderData.customerEmail =
+          orderData.customerEmail || orderData.guestInfo?.email;
+
         return orderData;
       }));
       
@@ -208,6 +213,18 @@ const OrderManagement = () => {
 
   const getStatusInfo = (status) => {
     switch (status?.toLowerCase()) {
+      case 'pending':
+        return {
+          icon: <FaClock />,
+          class: 'status-pending',
+          label: 'Awaiting approval',
+        };
+      case 'paid':
+        return {
+          icon: <FaBox />,
+          class: 'status-confirmed',
+          label: 'Paid (legacy)',
+        };
       case 'confirmed':
         return {
           icon: <FaBox />,
@@ -271,7 +288,8 @@ const OrderManagement = () => {
   };
 
   const handleSendOrderEmail = async () => {
-    if (!emailOrder?.customerEmail) {
+    const recipient = emailOrder?.guestInfo?.email || emailOrder?.customerEmail;
+    if (!recipient) {
       setEmailStatus('No customer email found.');
       return;
     }
@@ -279,7 +297,7 @@ const OrderManagement = () => {
     setEmailStatus('Sending...');
     try {
       const formData = new FormData();
-      formData.append('to', emailOrder.customerEmail);
+      formData.append('to', recipient);
       formData.append('subject', emailSubject);
       formData.append('html', emailBody);
       if (emailCC) formData.append('cc', emailCC);
@@ -336,8 +354,8 @@ const OrderManagement = () => {
   function fillTemplate(str, order) {
     if (!str) return '';
     return str
-      .replace(/\{customerName\}/g, order.customerName || 'Customer')
-      .replace(/\{orderId\}/g, order.id || '');
+      .replace(/\{customerName\}/g, order.customerName || order.guestInfo?.name || 'Customer')
+      .replace(/\{orderId\}/g, order.id || order.orderId || '');
   }
 
   const handleDeleteClick = (order) => {
@@ -462,10 +480,11 @@ const OrderManagement = () => {
                     </td>
                     <td className="order-actions">
                       <select
-                        value={order.status}
+                        value={order.status || 'pending'}
                         onChange={(e) => updateOrderStatus(order.id, e.target.value, order.invoiceRef)}
                         className="status-select"
                       >
+                        <option value="pending">Awaiting approval</option>
                         <option value="confirmed">Confirm</option>
                         <option value="ready">Ready for Pickup</option>
                         <option value="completed">Complete</option>
@@ -566,7 +585,7 @@ const OrderManagement = () => {
             <form onSubmit={e => { e.preventDefault(); handleSendOrderEmail(); }}>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontWeight: 600 }}>To:</label>
-                <input type="email" value={emailOrder?.customerEmail || ''} disabled className="newsletter-add-input" style={{ width: '100%', marginTop: 4 }} />
+                <input type="email" value={emailOrder?.guestInfo?.email || emailOrder?.customerEmail || ''} disabled className="newsletter-add-input" style={{ width: '100%', marginTop: 4 }} />
               </div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontWeight: 600 }}>CC:</label>

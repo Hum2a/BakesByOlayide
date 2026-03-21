@@ -35,7 +35,6 @@ import SubscriptionBoxesCollection from '../components/widgets/collections/Subsc
 import VeganRangeCollection from '../components/widgets/collections/VeganRangeCollection';
 
 // --- Shopping & Orders ---
-import ShoppingBasket from '../components/pages/ShoppingBasket';
 import Checkout from '../components/pages/Checkout';
 import OrderConfirmation from '../components/pages/OrderConfirmation';
 
@@ -84,9 +83,9 @@ const AppRouter = () => {
           <Route path="/collections/subscription-boxes" element={<SubscriptionBoxesCollection />} />
           <Route path="/collections/vegan-range" element={<VeganRangeCollection />} />
 
-          {/* --- Shopping & Orders --- */}
-          <Route path="/basket" element={<ShoppingBasket />} />
-          <Route path="/checkout" element={<Checkout />} />
+          {/* --- Shopping & Orders (basket = order enquiry, pay in person) --- */}
+          <Route path="/basket" element={<Checkout />} />
+          <Route path="/checkout" element={<Navigate to="/basket" replace />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
           {/* --- Admin --- */}

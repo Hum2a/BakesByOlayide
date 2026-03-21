@@ -1138,7 +1138,7 @@
   }
 }
 
-.checkout-stripe-btn {
+.checkout-submit-enquiry-btn {
   width: 100%;
   padding: 1.2rem 0;
   background: #111;
@@ -1155,7 +1155,7 @@
   overflow: hidden;
 }
 
-.checkout-stripe-btn:hover, .checkout-stripe-btn:focus {
+.checkout-submit-enquiry-btn:hover, .checkout-submit-enquiry-btn:focus {
   background: #222;
   color: #f3c307;
   transform: scale(1.04);
@@ -1163,7 +1163,7 @@
   outline: none;
 }
 
-.checkout-stripe-btn::after {
+.checkout-submit-enquiry-btn::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -1177,23 +1177,42 @@
   z-index: 0;
 }
 
-.checkout-stripe-btn:hover::after, .checkout-stripe-btn:focus::after {
+.checkout-submit-enquiry-btn:hover::after, .checkout-submit-enquiry-btn:focus::after {
   width: 180%;
   height: 400%;
   opacity: 0.18;
 }
 
-.checkout-stripe-btn:active {
+.checkout-submit-enquiry-btn:active {
   transform: scale(0.98);
   box-shadow: 0 2px 8px #f3c30744;
 }
 
-.checkout-stripe-btn[disabled] {
+.checkout-submit-enquiry-btn[disabled] {
   background: #444;
   color: #bbb;
   cursor: not-allowed;
   box-shadow: none;
   opacity: 0.7;
+}
+
+.checkout-enquiry-textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  box-sizing: border-box;
+}
+
+.checkout-enquiry-textarea:focus {
+  outline: none;
+  border-color: #f3c307;
+  box-shadow: 0 0 0 2px rgba(243, 195, 7, 0.25);
 }
 
 /* Calendar month navigation */

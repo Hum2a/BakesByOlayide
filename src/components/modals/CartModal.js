@@ -11,7 +11,7 @@ const CartModal = ({ onClose }) => {
 
   const handleCheckout = () => {
     onClose();
-    navigate('/checkout');
+    navigate('/basket');
   };
 
   const handleRemoveItem = (itemId) => {
@@ -105,14 +105,14 @@ const CartModal = ({ onClose }) => {
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>Quoted on basket page</span>
               </div>
               <div className="summary-row total">
                 <span>Total</span>
                 <span>£{totalPrice.toFixed(2)}</span>
               </div>
               <button className="checkout-btn" onClick={handleCheckout}>
-                Proceed to Checkout
+                Go to basket
               </button>
               <button className="continue-shopping" onClick={onClose}>
                 Continue Shopping

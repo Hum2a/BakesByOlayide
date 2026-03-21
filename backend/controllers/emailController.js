@@ -87,4 +87,55 @@ async function sendMarketingEmail(req, res) {
   }
 }
 
-module.exports = { sendOrderConfirmation, sendEnquiryReply, sendMarketingEmail }; 
+/**
+ * New basket enquiry: notify orders inbox (Zoho) and optionally acknowledge the customer.
+ * replyTo is set to the customer so staff can reply from their mail client.
+ */
+async function sendOrderEnquiry(req, res) {
+  const {
+    shopSubject,
+    shopHtml,
+    customerEmail,
+    customerSubject,
+    customerHtml,
+  } = req.body;
+
+  if (!shopHtml || typeof shopHtml !== 'string') {
+    return res.status(400).json({ error: 'Missing shop email body' });
+  }
+
+  const ordersInbox = process.env.ZOHO_ORDERS_USER;
+  if (!ordersInbox) {
+    return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
+  }
+
+  try {
+    await ordersTransporter.sendMail({
+      from: `"Bakes by Olayide Orders" <${ordersInbox}>`,
+      to: ordersInbox,
+      replyTo: customerEmail || undefined,
+      subject: shopSubject || 'New order enquiry',
+      html: shopHtml,
+    });
+
+    if (customerEmail && customerHtml) {
+      await ordersTransporter.sendMail({
+        from: `"Bakes by Olayide" <${ordersInbox}>`,
+        to: customerEmail,
+        subject: customerSubject || 'We received your order request',
+        html: customerHtml,
+      });
+    }
+
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
+module.exports = {
+  sendOrderConfirmation,
+  sendEnquiryReply,
+  sendMarketingEmail,
+  sendOrderEnquiry,
+};

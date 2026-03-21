@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Elements } from '@stripe/react-stripe-js';
-import stripePromise from '../../stripe/config';
-import StripePaymentForm from '../payment/StripePaymentForm';
 import { auth, db } from '../../firebase/firebase';
-import { doc, setDoc, collection, getDocs, query, where, Timestamp, increment, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, query, where, Timestamp, getDoc } from 'firebase/firestore';
 import '../styles/Checkout.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import AuthModal from '../modals/AuthModal';
-import { loadStripe } from '@stripe/stripe-js';
+import {
+  buildShopEnquiryEmail,
+  buildCustomerEnquiryAckEmail,
+  shopEnquirySubject,
+} from '../../utils/orderEnquiryEmail';
 
-const GuestForm = ({ onSubmit, isLoading }) => (
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://bakesbyolayide-server.onrender.com';
+
+const GuestForm = ({ onSubmit, isLoading, submitLabel = 'Continue' }) => (
   <form onSubmit={onSubmit} className="guest-form">
     <div className="form-group">
       <label htmlFor="name">Full Name *</label>
@@ -255,6 +258,8 @@ const Checkout = () => {
   const [userInfoForm, setUserInfoForm] = useState({ name: '', phone: '' });
   const [showUserInfoForm, setShowUserInfoForm] = useState(false);
   const [userInfoError, setUserInfoError] = useState('');
+  const [enquiryNotes, setEnquiryNotes] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
   // Listen for auth state changes
   useEffect(() => {
@@ -442,8 +447,8 @@ const Checkout = () => {
   if (cart.length === 0) {
     return (
       <div className="checkout-empty">
-        <h2>Your cart is empty</h2>
-        <p>Please add some items to your cart before proceeding to checkout.</p>
+        <h2>Your basket is empty</h2>
+        <p>Add some items from the shop before sending an order enquiry.</p>
         <button onClick={() => navigate('/collections')} className="return-to-shop">
           Return to Shop
         </button>
@@ -461,136 +466,174 @@ const Checkout = () => {
     });
   };
 
-  const handleStripeCheckout = async () => {
-    try {
-      setIsLoading(true);
-
-      // 1. Generate a new order ID in the format ORD-{timestamp}-{randomString}
-      const randomString = Math.random().toString(36).substring(2, 10);
-      const orderId = `ORD-${Date.now()}-${randomString}`;
-
-      // 2. Prepare order data
-      const userId = user ? user.uid : null;
-      const userEmail = user ? user.email : null;
-      // Format pickupDate as YYYY-MM-DD only
-      let formattedPickupDate = pickupDate;
-      if (pickupDate) {
-        try {
-          const dateObj = new Date(pickupDate);
-          formattedPickupDate = dateObj.toISOString().slice(0, 10);
-        } catch (e) {}
-      }
-      // Always populate guestInfo: for logged-in users, use their info from Firestore; for guests, use guestInfo from form
-      let customerInfo = guestInfo;
-      if (user && !guestInfo) {
-        // Fetch from Firestore profile doc
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const data = userDocSnap.data();
-            customerInfo = {
-              name: data.displayName || '',
-              email: user.email || '',
-              phone: data.phoneNumber || '',
-            };
-          } else {
-            customerInfo = {
-              name: '',
-              email: user.email || '',
-              phone: '',
-            };
-          }
-        } catch (e) {
+  const resolveCustomerInfo = async () => {
+    let customerInfo = guestInfo;
+    if (user && !guestInfo) {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          customerInfo = {
+            name: data.displayName || '',
+            email: user.email || '',
+            phone: data.phoneNumber || '',
+          };
+        } else {
           customerInfo = {
             name: '',
             email: user.email || '',
             phone: '',
           };
         }
+      } catch (e) {
+        customerInfo = {
+          name: '',
+          email: user.email || '',
+          phone: '',
+        };
       }
-      const orderData = {
+    }
+    return customerInfo;
+  };
+
+  const handleSubmitEnquiry = async () => {
+    setSubmitError('');
+    if (!pickupDate || !pickupTime) {
+      setSubmitError('Please choose a pick-up date and time before submitting your order request.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const randomString = Math.random().toString(36).substring(2, 10);
+      const orderId = `ORD-${Date.now()}-${randomString}`;
+
+      const userId = user ? user.uid : null;
+      const userEmail = user ? user.email : null;
+
+      let formattedPickupDate = pickupDate;
+      if (pickupDate) {
+        try {
+          const dateObj = new Date(pickupDate);
+          formattedPickupDate = dateObj.toISOString().slice(0, 10);
+        } catch (e) {
+          /* keep as-is */
+        }
+      }
+
+      const customerInfo = await resolveCustomerInfo();
+      if (!customerInfo?.email?.trim() || !customerInfo?.name?.trim() || !customerInfo?.phone?.trim()) {
+        setSubmitError('Please provide your full name, email, and phone number before submitting your order request.');
+        setIsLoading(false);
+        return;
+      }
+
+      const discountAmount = calculateDiscountAmount();
+      const emailPayload = {
         orderId,
         items: cart,
-        total: totalPrice,
+        subtotal: totalPrice,
+        total: finalPrice,
+        appliedDiscount: appliedDiscount
+          ? {
+              code: appliedDiscount.code,
+              description: appliedDiscount.description,
+              amount: appliedDiscount.amount,
+              percentage: appliedDiscount.percentage,
+            }
+          : null,
         guestInfo: customerInfo,
         pickupDate: formattedPickupDate,
         pickupTime,
+        enquiryNotes: enquiryNotes.trim() || null,
+      };
+
+      const orderData = {
+        orderId,
+        items: cart,
+        subtotal: totalPrice,
+        total: finalPrice,
+        discountAmount,
+        appliedDiscount: emailPayload.appliedDiscount,
+        guestInfo: customerInfo,
+        pickupDate: formattedPickupDate,
+        pickupTime,
+        enquiryNotes: enquiryNotes.trim() || null,
+        paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         status: 'pending',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
 
-      // 3. Prepare invoice data
-      const invoiceId = orderId; // Use the same ID for easy lookup
+      const invoiceId = orderId;
       const invoiceData = {
         invoiceId,
         orderId,
         items: cart.map(item => ({ ...item, total: item.price * item.quantity })),
-        amount: totalPrice,
+        amount: finalPrice,
         status: 'unpaid',
+        paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         customerEmail: customerInfo?.email || '',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
 
-      // 4. Save order and invoice to Firestore
       await setDoc(doc(db, 'orders', orderId), orderData);
       await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
-      // Read back the invoice document to confirm
-      try {
-        const invoiceDocRef = doc(db, 'invoices', invoiceId);
-        const writtenInvoice = await getDoc(invoiceDocRef);
-        if (writtenInvoice.exists()) {
-          console.log('Invoice found after write:', writtenInvoice.data());
-        } else {
-          console.error('Invoice NOT found after write!');
-        }
-      } catch (err) {
-        console.error('Error reading back invoice after write:', err);
-      }
-      // Add invoiceRef to the order document
       await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
-      // 4b. If user is logged in, also save the exact same orderData (with invoiceRef merged) to /users/{uid}/Orders/{orderId}
+
       if (user) {
         const mergedOrderData = { ...orderData, invoiceRef: `invoices/${invoiceId}` };
-        console.log('Saving order to user subcollection for user:', user);
         try {
-          const orderDocRef = doc(db, 'users', user.uid, 'Orders', orderId);
-          await setDoc(orderDocRef, mergedOrderData);
-          console.log('Order successfully written to user subcollection!');
-          // Read back the document to confirm
-          const writtenDoc = await getDoc(orderDocRef);
-          if (writtenDoc.exists()) {
-            console.log('Order found after write:', writtenDoc.data());
-          } else {
-            console.error('Order NOT found after write!');
-          }
+          await setDoc(doc(db, 'users', user.uid, 'Orders', orderId), mergedOrderData);
         } catch (err) {
           console.error('Error writing order to user subcollection:', err);
         }
       }
 
-      // 5. Call backend to create Stripe session, passing orderId
-      const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
+      const shopHtml = buildShopEnquiryEmail(emailPayload);
+      const customerHtml = buildCustomerEnquiryAckEmail(emailPayload);
+
+      const mailRes = await fetch(`${API_BASE_URL}/api/send-order-enquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cart,
-          guestInfo: customerInfo,
-          pickupDate,
-          pickupTime,
-          orderId, // Pass orderId to backend
+          shopSubject: shopEnquirySubject(emailPayload),
+          shopHtml,
+          customerEmail: customerInfo?.email || '',
+          customerSubject: `We received your order request — ${orderId}`,
+          customerHtml,
         }),
       });
-      const { sessionId, error } = await response.json();
-      if (error) throw new Error(error);
-      const stripe = await stripePromise;
-      await stripe.redirectToCheckout({ sessionId });
+
+      let emailDeliveryFailed = false;
+      if (!mailRes.ok) {
+        const errText = await mailRes.text();
+        console.error('Order enquiry email failed:', errText);
+        emailDeliveryFailed = true;
+      }
+
+      const cartSnapshot = cart.map((i) => ({ ...i }));
+      clearCart();
+      setEnquiryNotes('');
+      navigate('/order-confirmation', {
+        state: {
+          orderId,
+          items: cartSnapshot,
+          total: finalPrice,
+          guestInfo: customerInfo,
+          pickupDate: formattedPickupDate,
+          pickupTime,
+          emailDeliveryFailed,
+        },
+      });
     } catch (err) {
-      alert('Error redirecting to Stripe: ' + err.message);
+      console.error(err);
+      setSubmitError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -624,7 +667,7 @@ const Checkout = () => {
 
   return (
     <div className="checkout-container">
-      <PageTitle title="Checkout" />
+      <PageTitle title="Basket" />
       <Header user={user} />
       <div className="checkout-content">
         <div className="order-summary">
@@ -778,8 +821,8 @@ const Checkout = () => {
             </div>
 
             <div className="total-row grand-total">
-              <span>Total</span>
-              <span>${finalPrice.toFixed(2)}</span>
+              <span>Total (pay in person)</span>
+              <span>£{finalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -796,7 +839,7 @@ const Checkout = () => {
               <div className="guest-option">
                 <h3>Continue as Guest</h3>
                 <p>You can place your order without creating an account.</p>
-                <GuestForm onSubmit={handleGuestSubmit} isLoading={isLoading} />
+                <GuestForm onSubmit={handleGuestSubmit} isLoading={isLoading} submitLabel="Continue" />
               </div>
             </div>
           </div>
@@ -849,18 +892,41 @@ const Checkout = () => {
                 </button>
               </div>
             )}
+            <div className="checkout-enquiry-notes" style={{ marginBottom: '1.5rem' }}>
+              <label htmlFor="enquiry-notes" style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem' }}>
+                Message for the bakery (optional)
+              </label>
+              <textarea
+                id="enquiry-notes"
+                className="checkout-enquiry-textarea"
+                rows={4}
+                placeholder="Allergies, delivery questions, or anything else we should know before we confirm your order."
+                value={enquiryNotes}
+                onChange={(e) => setEnquiryNotes(e.target.value)}
+                maxLength={2000}
+              />
+            </div>
+            {submitError && (
+              <div className="checkout-submit-error" role="alert" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: '#fdecea', color: '#611a15', borderRadius: 8 }}>
+                {submitError}
+              </div>
+            )}
             <PickupSchedule
               pickupDate={pickupDate}
               setPickupDate={setPickupDate}
               pickupTime={pickupTime}
               setPickupTime={setPickupTime}
             />
+            <p className="checkout-payment-notice" style={{ margin: '1rem 0 1.25rem', fontSize: '0.95rem', color: '#555', lineHeight: 1.5 }}>
+              No online payment — we will contact you by email or phone to confirm your order and arrange payment in person (card or cash as agreed).
+            </p>
             <button
-              className="checkout-stripe-btn"
-              onClick={handleStripeCheckout}
+              type="button"
+              className="checkout-submit-enquiry-btn"
+              onClick={handleSubmitEnquiry}
               disabled={isLoading || (user && showUserInfoForm)}
             >
-              {isLoading ? 'Redirecting to Stripe...' : 'Pay with Card (Stripe Checkout)'}
+              {isLoading ? 'Submitting…' : 'Submit order enquiry'}
             </button>
           </div>
         )}
