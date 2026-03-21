@@ -7,6 +7,7 @@ import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
 
 const SpecificBrowniesPage = () => {
   const { id } = useParams();
@@ -34,6 +35,15 @@ const SpecificBrowniesPage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
+
+  const sizeSlider = useProductOptionSlider(
+    selectedSizeIdx,
+    Array.isArray(brownie?.sizes) ? brownie.sizes.length : 0
+  );
+  const flavourSlider = useProductOptionSlider(
+    selectedFlavourIdx,
+    Array.isArray(brownie?.flavours) ? brownie.flavours.length : 0
+  );
 
   // Auth state listener
   useEffect(() => {
@@ -245,7 +255,7 @@ const SpecificBrowniesPage = () => {
           <span>Successfully added to cart!</span>
         </div>
       )}
-      <div className="specific-cake-container">
+      <div className="specific-cake-container specific-cake-container--enter">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -330,10 +340,16 @@ const SpecificBrowniesPage = () => {
               {Array.isArray(flavourOptions) && flavourOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Flavour</label>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={flavourSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={flavourSlider.sliderStyle} aria-hidden />
                     {flavourOptions.map((flavour, idx) => (
                       <button
                         key={idx}
+                        ref={flavourSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn ${selectedFlavourIdx === idx ? 'selected' : ''}`}
                         onClick={() => setSelectedFlavourIdx(idx)}
                       >

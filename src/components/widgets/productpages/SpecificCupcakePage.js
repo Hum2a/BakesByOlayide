@@ -8,6 +8,7 @@ import Footer from '../../common/Footer';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
 
 const SpecificCupcakePage = () => {
   const { id } = useParams();
@@ -36,6 +37,11 @@ const SpecificCupcakePage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
+
+  const batchSlider = useProductOptionSlider(
+    selectedSizeIdx,
+    Array.isArray(cupcake?.sizes) ? cupcake.sizes.length : 0
+  );
 
   // Auth state listener
   useEffect(() => {
@@ -271,7 +277,7 @@ const SpecificCupcakePage = () => {
           <span>Successfully added to cart!</span>
         </div>
       )}
-      <div className="specific-cake-container">
+      <div className="specific-cake-container specific-cake-container--enter">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -340,10 +346,16 @@ const SpecificCupcakePage = () => {
             <div className="specific-cake-selectors">
               <div className="specific-cake-selector-group">
                 <label className="specific-cake-selector-label">Batch Size</label>
-                <div className="specific-cake-selector-options">
+                <div
+                  ref={batchSlider.trackRef}
+                  className="specific-cake-selector-options specific-cake-selector-options--slider"
+                >
+                  <div className="specific-cake-option-slider" style={batchSlider.sliderStyle} aria-hidden />
                   {sizeOptions.map((size, idx) => (
                     <button
                       key={idx}
+                      ref={batchSlider.assignBtnRef(idx)}
+                      type="button"
                       className={`specific-cake-selector-btn ${selectedSizeIdx === idx ? 'selected' : ''}`}
                       onClick={() => setSelectedSizeIdx(idx)}
                     >

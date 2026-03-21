@@ -9,6 +9,7 @@ import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 import OptimizedImage from '../../common/OptimizedImage';
+import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
 
 const SpecificCakePage = () => {
   const { id } = useParams();
@@ -37,6 +38,19 @@ const SpecificCakePage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const sizeSlider = useProductOptionSlider(
+    selectedSizeIdx,
+    Array.isArray(cake?.sizes) ? cake.sizes.length : 0
+  );
+  const shapeSlider = useProductOptionSlider(
+    selectedShapeIdx,
+    Array.isArray(cake?.shapes) ? cake.shapes.length : 0
+  );
+  const finishSlider = useProductOptionSlider(
+    selectedFinishIdx,
+    Array.isArray(cake?.finishes) ? cake.finishes.length : 0
+  );
 
   // Auth state listener
   useEffect(() => {
@@ -269,7 +283,7 @@ const SpecificCakePage = () => {
           <span>Successfully added to cart!</span>
         </div>
       )}
-      <div className="specific-cake-container">
+      <div className="specific-cake-container specific-cake-container--enter">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
             // Determine if this is the last crumb
@@ -372,10 +386,16 @@ const SpecificCakePage = () => {
               {shapeOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <span className="specific-cake-selector-label">Shape:</span>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={shapeSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={shapeSlider.sliderStyle} aria-hidden />
                     {shapeOptions.map((shape, idx) => (
                       <button
                         key={idx}
+                        ref={shapeSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
@@ -388,10 +408,16 @@ const SpecificCakePage = () => {
               {finishOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <span className="specific-cake-selector-label">Finish:</span>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={finishSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={finishSlider.sliderStyle} aria-hidden />
                     {finishOptions.map((finish, idx) => (
                       <button
                         key={idx}
+                        ref={finishSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
