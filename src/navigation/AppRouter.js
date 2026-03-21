@@ -37,6 +37,7 @@ import VeganRangeCollection from '../components/widgets/collections/VeganRangeCo
 // --- Shopping & Orders ---
 import Checkout from '../components/pages/Checkout';
 import OrderConfirmation from '../components/pages/OrderConfirmation';
+import AccountPage from '../components/pages/AccountPage';
 
 // --- Modals ---
 import CartModal from '../components/modals/CartModal';
@@ -87,6 +88,7 @@ const AppRouter = () => {
           <Route path="/basket" element={<Checkout />} />
           <Route path="/checkout" element={<Navigate to="/basket" replace />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          <Route path="/account" element={<AccountPage />} />
 
           {/* --- Admin --- */}
           <Route path="/admin" element={<Admin />} />

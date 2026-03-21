@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory, FaUserShield, FaEdit } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory, FaUserShield, FaEdit, FaUserCircle } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
@@ -161,6 +161,15 @@ const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
       </div>
 
       <div className="profile-dropdown-menu">
+        <button
+          className="dropdown-item"
+          onClick={() => {
+            navigate('/account');
+            onClose();
+          }}
+        >
+          <FaUserCircle /> My Account
+        </button>
         <button className="dropdown-item" onClick={() => onModalOpen('profile')}>
           <FaUser /> My Profile
         </button>
