@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import '../styles/ProfileDropdown.css';
+import { hasStaffAccess } from '../../utils/staffAccess';
 
 const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
   const [user, setUser] = useState(null);
@@ -24,7 +25,7 @@ const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setIsAdmin((userData.isAdmin || userData.isDeveloper) || false);
+            setIsAdmin(hasStaffAccess(userData));
           }
         } catch (error) {
           console.error('Error checking admin status:', error);

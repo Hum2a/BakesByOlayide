@@ -15,6 +15,7 @@ import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
 import AdminTestEmail from '../widgets/admin/AdminTestEmail';
+import { hasStaffAccess } from '../../utils/staffAccess';
 import '../styles/Admin.css';
 
 const Admin = () => {
@@ -42,7 +43,7 @@ const Admin = () => {
         }
 
         const userData = userDoc.data();
-        if (!userData.isAdmin && !userData.isDeveloper) {
+        if (!hasStaffAccess(userData)) {
           navigate('/');
           return;
         }

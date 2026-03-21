@@ -11,6 +11,7 @@ import BrowniesForm from './forms/BrowniesForm';
 import CookiesForm from './forms/CookiesForm';
 import RegularForm from './forms/RegularForm';
 import EditForm from './forms/EditForm';
+import { hasStaffAccess } from '../../../utils/staffAccess';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -38,7 +39,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [cakeImages, setCakeImages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  /** null = permission check in progress; true/false after Firestore read */
+  const [cakeMgmtAccess, setCakeMgmtAccess] = useState(null);
   const [debugInfo, setDebugInfo] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [imageWarningModal, setImageWarningModal] = useState({ open: false, message: '' });
@@ -97,18 +99,21 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const isAdminUser = userData.isAdmin || userData.isDeveloper;
-            setIsAdmin(isAdminUser);
-            setDebugInfo(`User ${user.uid} is ${isAdminUser ? 'admin' : 'not admin'}`);
+            const allowed = hasStaffAccess(userData);
+            setCakeMgmtAccess(allowed);
+            setDebugInfo(`User ${user.uid} cake admin access: ${allowed ? 'granted' : 'denied'}`);
           } else {
+            setCakeMgmtAccess(false);
             setDebugInfo(`User document not found for ${user.uid}`);
           }
         } catch (error) {
           console.error('Error checking admin status:', error);
           setError('Failed to verify admin status');
+          setCakeMgmtAccess(false);
           setDebugInfo(`Error checking admin status: ${error.message}`);
         }
       } else {
+        setCakeMgmtAccess(false);
         setDebugInfo('No authenticated user');
       }
     };
@@ -360,7 +365,7 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       }
 
       const userData = userDoc.data();
-      if (!userData.isAdmin && !userData.isDeveloper) {
+      if (!hasStaffAccess(userData)) {
         throw new Error('User does not have permission to manage cakes');
       }
 
@@ -711,7 +716,13 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     ? cakes
     : (cakes || []).filter(cake => (cake.categories || []).includes(categoryFilter));
 
-  if (!isAdmin) {
+  if (cakeMgmtAccess === null) {
+    return (
+      <div className="cakemanagement-loading"></div>
+    );
+  }
+
+  if (!cakeMgmtAccess) {
     return (
       <div className="cakemanagement-error">
         You do not have permission to manage cakes.
