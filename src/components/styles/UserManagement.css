@@ -127,19 +127,14 @@
 .users-filters-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.1rem;
+  gap: 1.25rem;
+  align-items: start;
 }
 
-@media (min-width: 900px) {
+/* Role row full width; other groups share equal flexible columns (no ultra-narrow cells) */
+@media (min-width: 720px) {
   .users-filters-grid {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
-}
-
-@media (min-width: 1200px) {
-  .users-filters-grid {
-    grid-template-columns: 1.2fr 0.55fr 1fr 0.95fr;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 }
 
@@ -216,13 +211,16 @@
 .users-preset-btn {
   font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.35rem 0.65rem;
+  padding: 0.45rem 0.65rem;
+  min-height: 2.25rem;
   border-radius: 8px;
   border: 1px solid var(--um-border);
   background: var(--um-surface);
   color: var(--um-text);
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+  line-height: 1.25;
 }
 
 .users-preset-btn:hover {
@@ -233,6 +231,10 @@
 .users-preset-btn--ghost {
   background: transparent;
   color: var(--um-text-muted);
+}
+
+.users-login-presets .users-preset-btn--ghost {
+  grid-column: 1 / -1;
 }
 
 .users-date-inputs {
@@ -282,9 +284,13 @@
   min-width: 0;
 }
 
+.users-filter-group--compact {
+  min-width: 0;
+}
+
 .users-filter-group--sort .users-sort-select {
   width: 100%;
-  max-width: 280px;
+  max-width: none;
 }
 
 .users-clear-filters {
@@ -371,16 +377,28 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   border-bottom: 1px solid var(--um-border);
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .users-table td {
-  padding: 0.55rem 0.75rem;
+  padding: 0.65rem 0.85rem;
   border-top: 1px solid var(--um-border);
   vertical-align: middle;
   font-size: 0.9rem;
+}
+
+.users-th-actions {
+  width: 1%;
+  min-width: 10.5rem;
+  white-space: nowrap;
+}
+
+td.user-actions {
+  width: 1%;
+  min-width: 10.5rem;
 }
 
 .users-table-row {
@@ -394,9 +412,10 @@
 
 .user-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
-  min-width: 200px;
+  min-width: 220px;
+  max-width: 22rem;
 }
 
 .user-avatar {
@@ -445,6 +464,7 @@
 
 .user-contact {
   min-width: 200px;
+  max-width: 24rem;
 }
 
 .email {
@@ -527,15 +547,24 @@
   color: #b91c1c;
 }
 
+/* Stack so toggle + edit never overlap (row flex + flex:1 on toggle caused collapse) */
 .user-actions {
-  min-width: 130px;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 0.45rem;
-  align-items: center;
+  min-width: 9.75rem;
+  width: 1%;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
 .edit-button {
-  padding: 0.4rem;
+  flex-shrink: 0;
+  align-self: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   border: 1px solid var(--um-border);
   border-radius: 8px;
   background-color: var(--um-surface);
@@ -545,6 +574,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .edit-button:hover {
@@ -553,15 +583,20 @@
 }
 
 .status-toggle {
-  flex: 1;
+  flex: none;
+  width: 100%;
   min-width: 0;
-  padding: 0.4rem 0.5rem;
+  padding: 0.5rem 0.65rem;
+  min-height: 2.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: filter 0.15s ease;
+  box-sizing: border-box;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .status-toggle.activate {
@@ -632,7 +667,7 @@
   }
 
   .users-table {
-    min-width: 880px;
+    min-width: 960px;
   }
 }
 

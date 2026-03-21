@@ -500,7 +500,9 @@ const UserManagement = () => {
                   Status {sortIndicator('status')}
                 </button>
               </th>
-              <th>Actions</th>
+              <th className="users-th-actions" scope="col">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
