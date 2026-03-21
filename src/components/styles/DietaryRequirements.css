@@ -16,7 +16,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 }
 
 .DietaryRequirements-footer-wrap {
@@ -34,6 +34,10 @@
 .DietaryRequirements-main {
   margin: 0 auto;
   padding: 3.5rem 1.5rem 3.5rem 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  text-align: left;
+  box-sizing: border-box;
 }
 
 .DietaryRequirements-title {
@@ -47,17 +51,16 @@
 }
 
 .DietaryRequirements-subtitle {
-  text-align: center;
+  text-align: left;
   color: #444;
   margin-bottom: 2.2rem;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
   font-weight: 400;
   font-size: 1.05rem;
   line-height: 150%;
   letter-spacing: 0%;
-  vertical-align: middle;
-
 }
 
 .DietaryRequirements-main-image-wrap {
@@ -83,9 +86,10 @@
 }
 
 .DietaryRequirements-content ul {
-  margin: 1.2rem 0 1.2rem 2rem;
-  padding-left: 1.2rem;
-  list-style: disc inside;
+  margin: 1.2rem 0 1.2rem 0;
+  padding-left: 1.5rem;
+  list-style: disc outside;
+  text-align: left;
 }
 
 .DietaryRequirements-content li {
