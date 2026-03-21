@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FaUser,
@@ -74,6 +74,56 @@ const AccountPage = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [reviewedItems, setReviewedItems] = useState(new Set());
   const [reviewItem, setReviewItem] = useState(null);
+
+  const tabListRef = useRef(null);
+  const tabBtnRefs = useRef([]);
+  const [tabSlider, setTabSlider] = useState({ top: 0, height: 0, visible: false });
+  const prevTabIdRef = useRef(null);
+
+  const assignTabBtnRef = (index) => (el) => {
+    tabBtnRefs.current[index] = el;
+  };
+
+  const measureTabSlider = useCallback(() => {
+    if (typeof window === 'undefined' || !user) return;
+    const nav = tabListRef.current;
+    const idx = TABS.findIndex((t) => t.id === activeTab);
+    const btn = tabBtnRefs.current[idx];
+    if (!nav || !btn) return;
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      setTabSlider((s) => ({ ...s, visible: false }));
+      return;
+    }
+    setTabSlider({
+      top: btn.offsetTop,
+      height: btn.offsetHeight,
+      visible: true,
+    });
+  }, [activeTab, user]);
+
+  useLayoutEffect(() => {
+    measureTabSlider();
+  }, [measureTabSlider]);
+
+  useEffect(() => {
+    window.addEventListener('resize', measureTabSlider);
+    const nav = tabListRef.current;
+    const ro =
+      typeof ResizeObserver !== 'undefined' && nav ? new ResizeObserver(() => measureTabSlider()) : null;
+    if (ro && nav) ro.observe(nav);
+    return () => {
+      window.removeEventListener('resize', measureTabSlider);
+      ro?.disconnect();
+    };
+  }, [measureTabSlider]);
+
+  let tabPanelEnterDir = 'none';
+  if (prevTabIdRef.current !== null && prevTabIdRef.current !== activeTab) {
+    const pi = TABS.findIndex((t) => t.id === prevTabIdRef.current);
+    const ni = TABS.findIndex((t) => t.id === activeTab);
+    tabPanelEnterDir = ni > pi ? 'forward' : 'backward';
+  }
+  prevTabIdRef.current = activeTab;
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged((u) => {
@@ -224,7 +274,7 @@ const AccountPage = () => {
       <div className="account-page">
         <PageTitle title="Account" />
         <Header />
-        <div className="account-loading">Loading…</div>
+        <div className="account-loading account-loading--pulse">Loading…</div>
         <Footer />
       </div>
     );
@@ -236,7 +286,7 @@ const AccountPage = () => {
         <PageTitle title="Account" />
         <Header />
         <main className="account-main account-main--guest">
-          <div className="account-guest-card">
+          <div className="account-guest-card account-guest-card--enter">
             <h1>Account</h1>
             <p className="account-guest-lead">
               Sign in to manage your profile, track order enquiries, and speed up checkout with saved
@@ -263,25 +313,45 @@ const AccountPage = () => {
     <div className="account-page">
       <PageTitle title="Account" />
       <Header />
-      <main className="account-main">
-        <header className="account-page-header">
+      <main className="account-main account-main--signed-in">
+        <header className="account-page-header account-page-header--enter">
           <h1>Account</h1>
           <p className="account-page-subtitle">
             Your details, enquiries, and shortcuts — all in one place.
           </p>
         </header>
 
-        <div className="account-layout">
-          <aside className="account-sidebar" aria-label="Account sections">
-            <nav className="account-tab-list">
-              {TABS.map(({ id, label, icon: Icon }) => (
+        <div className="account-layout account-layout--enter">
+          <aside className="account-sidebar account-sidebar--enter" aria-label="Account sections">
+            <nav
+              ref={tabListRef}
+              className="account-tab-list account-tab-list--slider"
+              role="tablist"
+              aria-label="Account sections"
+            >
+              <div
+                className="account-tab-slider"
+                aria-hidden
+                style={{
+                  transform: `translateY(${tabSlider.top}px)`,
+                  height: tabSlider.height || undefined,
+                  opacity: tabSlider.visible ? 1 : 0,
+                  pointerEvents: 'none',
+                }}
+              />
+              {TABS.map(({ id, label, icon: Icon }, index) => (
                 <button
                   key={id}
+                  ref={assignTabBtnRef(index)}
+                  id={`account-tab-${id}`}
                   type="button"
+                  role="tab"
+                  aria-selected={activeTab === id}
+                  aria-controls="account-tabpanel"
                   className={`account-tab ${activeTab === id ? 'account-tab--active' : ''}`}
                   onClick={() => setActiveTab(id)}
                 >
-                  <Icon aria-hidden />
+                  <Icon aria-hidden className="account-tab-icon" />
                   <span>{label}</span>
                 </button>
               ))}
@@ -296,13 +366,20 @@ const AccountPage = () => {
             </div>
           </aside>
 
-          <div className="account-panel">
+          <div className="account-panel account-panel--enter">
             {profileMessage && (
               <div className="account-banner account-banner--success" role="status">
                 {profileMessage}
               </div>
             )}
 
+            <div
+              key={activeTab}
+              id="account-tabpanel"
+              role="tabpanel"
+              aria-labelledby={`account-tab-${activeTab}`}
+              className={`account-tab-panel account-tab-panel-shell account-tab-panel-shell--${tabPanelEnterDir}`}
+            >
             {activeTab === 'overview' && (
               <section className="account-section" aria-labelledby="account-overview-heading">
                 <h2 id="account-overview-heading" className="account-section-title">
@@ -397,7 +474,7 @@ const AccountPage = () => {
                   number up to date.
                 </p>
                 {profileError && (
-                  <div className="account-banner account-banner--error" role="alert">
+                  <div className="account-banner account-banner--error account-banner--enter" role="alert">
                     {profileError}
                   </div>
                 )}
@@ -662,6 +739,7 @@ const AccountPage = () => {
                 </div>
               </section>
             )}
+            </div>
           </div>
         </div>
       </main>
