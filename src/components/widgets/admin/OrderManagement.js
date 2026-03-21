@@ -795,8 +795,12 @@ const OrderManagement = () => {
                   Status {sortIndicator('status')}
                 </button>
               </th>
-              <th>Invoice</th>
-              <th>Actions</th>
+              <th className="orders-th-invoice" scope="col">
+                Invoice
+              </th>
+              <th className="orders-th-actions" scope="col">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1016,8 +1020,8 @@ const OrderManagement = () => {
           </div>
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button className="newsletter-add-btn" style={{ background: '#ffe066', color: '#222' }} onClick={openManageTemplates}>
+      <div className="order-mgmt-footer">
+        <button type="button" className="order-mgmt-templates-btn" onClick={openManageTemplates}>
           Manage Email Templates
         </button>
       </div>
