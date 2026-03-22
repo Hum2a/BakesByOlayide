@@ -147,6 +147,50 @@ const DeveloperSettings = () => {
         browser (localhost is your machine, not the server).
       </p>
 
+      {process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location.port === '5000' && (
+        <div className="developer-settings-alert developer-settings-alert--warn" role="status">
+          <strong>React dev server on port 5000</strong> clashes with this project: the API is also meant to run on{' '}
+          <code>5000</code>, and <code>package.json</code> proxies <code>/api</code> to that port. The dev server then
+          proxies to itself and you see errors like “Proxy error… ECONNREFUSED”. Fix: remove{' '}
+          <code>PORT=5000</code> for the frontend so <code>npm start</code> uses <strong>3000</strong>, then run{' '}
+          <code>npm run server</code> in another terminal (or use <code>npm run dev</code> to start both). Open the
+          app at <code>http://localhost:3000</code>.
+        </div>
+      )}
+
+      <aside className="developer-settings-help">
+        <h4 className="developer-settings-help-title">What the Node backend is for</h4>
+        <p>
+          The React app uses the <strong>Firebase client SDK</strong> for sign-in and almost all database access.
+          The <strong>Express server</strong> is still required for things browsers cannot do safely: sending mail via{' '}
+          <strong>Zoho SMTP</strong> (order confirmations, enquiry replies, newsletters, checkout enquiries) and using{' '}
+          <strong>Firebase Admin</strong> on the server for the marketing email flow. Without the API running locally,
+          those features fail even though Firebase looks “fine” in the checks above.
+        </p>
+        <h4 className="developer-settings-help-title">Local setup</h4>
+        <ul>
+          <li>
+            Run <code>npm run dev</code> (API + React together) or two terminals: <code>npm run server</code> then{' '}
+            <code>npm start</code>.
+          </li>
+          <li>
+            Use <code>http://localhost:3000</code> for the site; keep the API on <code>5000</code> (default in{' '}
+            <code>server.js</code>).
+          </li>
+          <li>
+            Copy <code>backend/.env.example</code> to <code>.env</code> at the repo root (where <code>server.js</code>{' '}
+            loads dotenv) and fill Zoho + Firebase Admin values.
+          </li>
+        </ul>
+        <h4 className="developer-settings-help-title">Live (Render) “Failed to fetch”</h4>
+        <p>
+          Free/sleeping hosts can take a long time to wake; if it still fails, the service may be down or your network
+          is blocking the request. Open the Render URL in a new tab—if the site does not load, the check will not
+          either. Use <code>http://localhost:3000</code> not <code>127.0.0.1</code> unless CORS includes it (this
+          project now allows both).
+        </p>
+      </aside>
+
       <div className="developer-settings-toolbar">
         <button type="button" className="developer-settings-run" onClick={runChecks} disabled={running}>
           {running ? 'Running checks…' : 'Run all checks'}
