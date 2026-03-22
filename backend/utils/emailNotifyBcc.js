@@ -43,27 +43,43 @@ function uniqueEmailList(emails) {
   return out;
 }
 
+const DEFAULT_STAFF_NOTIFY_EMAILS = ['bakedbyolayide@gmail.com'];
+
 /**
- * BCC recipients for the shop copy of a new basket/checkout order (Orders SMTP).
- * Defaults to bakedbyolayide@gmail.com when EMAIL_NEW_ORDER_NOTIFY_TO is unset.
- * Set EMAIL_NEW_ORDER_NOTIFY_TO to a comma-separated list to override; set to empty string to disable.
+ * @param {string} envKey - e.g. EMAIL_NEW_ORDER_NOTIFY_TO
+ * @param {string} primaryInbox - do not duplicate this address in BCC
  */
-function newOrderNotifyBcc(ordersInbox) {
-  const raw = process.env.EMAIL_NEW_ORDER_NOTIFY_TO;
+function notifyListForEnv(envKey, primaryInbox) {
+  const raw = process.env[envKey];
   let list;
   if (raw === undefined || raw === null) {
-    list = ['bakedbyolayide@gmail.com'];
+    list = [...DEFAULT_STAFF_NOTIFY_EMAILS];
   } else if (String(raw).trim() === '') {
     list = [];
   } else {
     list = parseList(raw);
   }
-  const blocked = normalizeAddr(ordersInbox);
+  const blocked = normalizeAddr(primaryInbox);
   return list.filter((e) => normalizeAddr(e) !== blocked);
 }
 
+/** Checkout basket → Orders inbox (see EMAIL_NEW_ORDER_NOTIFY_TO). */
+function newOrderNotifyBcc(ordersInbox) {
+  return notifyListForEnv('EMAIL_NEW_ORDER_NOTIFY_TO', ordersInbox);
+}
+
+/** Contact form → Enquiries inbox (see EMAIL_NEW_CONTACT_ENQUIRY_NOTIFY_TO). */
+function newContactEnquiryNotifyBcc(enquiriesInbox) {
+  return notifyListForEnv('EMAIL_NEW_CONTACT_ENQUIRY_NOTIFY_TO', enquiriesInbox);
+}
+
+/** New product review → Enquiries inbox (see EMAIL_NEW_REVIEW_NOTIFY_TO). */
+function newReviewNotifyBcc(enquiriesInbox) {
+  return notifyListForEnv('EMAIL_NEW_REVIEW_NOTIFY_TO', enquiriesInbox);
+}
+
 /**
- * Shop enquiry mail: staff BCC env + new-order notify list, deduped.
+ * Shop order mail: staff BCC env + new-order notify list, deduped.
  */
 function orderEnquiryShopBcc(ordersInbox) {
   const staff = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, []) || [];
@@ -72,4 +88,35 @@ function orderEnquiryShopBcc(ordersInbox) {
   return merged.length ? merged : undefined;
 }
 
-module.exports = { staffBccFor, parseList, newOrderNotifyBcc, orderEnquiryShopBcc, uniqueEmailList };
+/**
+ * Contact form staff copy: EMAIL_NOTIFY_BCC_ENQUIRIES + contact notify list.
+ */
+function contactEnquiryInboxBcc(enquiriesInbox) {
+  const staff = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', enquiriesInbox, []) || [];
+  const notify = newContactEnquiryNotifyBcc(enquiriesInbox);
+  const merged = uniqueEmailList([...staff, ...notify]);
+  return merged.length ? merged : undefined;
+}
+
+/**
+ * New review staff mail: EMAIL_NOTIFY_BCC_ENQUIRIES + review notify list.
+ */
+function newReviewInboxBcc(enquiriesInbox) {
+  const staff = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', enquiriesInbox, []) || [];
+  const notify = newReviewNotifyBcc(enquiriesInbox);
+  const merged = uniqueEmailList([...staff, ...notify]);
+  return merged.length ? merged : undefined;
+}
+
+module.exports = {
+  staffBccFor,
+  parseList,
+  uniqueEmailList,
+  notifyListForEnv,
+  newOrderNotifyBcc,
+  newContactEnquiryNotifyBcc,
+  newReviewNotifyBcc,
+  orderEnquiryShopBcc,
+  contactEnquiryInboxBcc,
+  newReviewInboxBcc,
+};

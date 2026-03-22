@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../../firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { apiUrl } from '../../config/environment';
 import '../styles/ContactUs.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
@@ -11,6 +12,7 @@ const ContactUs = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     subject: '',
     inquiry: ''
   });
@@ -31,6 +33,14 @@ const ContactUs = () => {
     setLoading(true);
     setError(null);
     try {
+      const notifyPayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.inquiry,
+      };
       await addDoc(collection(db, 'enquiries'), {
         ...formData,
         name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -38,11 +48,18 @@ const ContactUs = () => {
         timestamp: new Date(),
         status: 'new'
       });
+      void fetch(apiUrl('/api/notify-contact-enquiry'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notifyPayload),
+        keepalive: true,
+      }).catch(() => {});
       setSubmitted(true);
       setFormData({
         firstName: '',
         lastName: '',
         email: '',
+        phone: '',
         subject: '',
         inquiry: ''
       });

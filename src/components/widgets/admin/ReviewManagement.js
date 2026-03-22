@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, doc, deleteDoc, orderBy, addDoc, Timestamp } from 'firebase/firestore';
 import { FaStar, FaTrash, FaSearch, FaPlus } from 'react-icons/fa';
+import { apiUrl } from '../../../config/environment';
 import '../../styles/ReviewManagement.css';
 import MessageModal from '../../modals/MessageModal';
 
@@ -148,6 +149,22 @@ const ReviewManagement = () => {
         verifiedPurchase: newReview.verifiedPurchase,
         createdAt: Timestamp.fromDate(reviewDate)
       });
+
+      const productName =
+        products.find((p) => p.id === newReview.productId)?.name || newReview.productId;
+      void fetch(apiUrl('/api/notify-new-review'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: newReview.productId,
+          itemName: productName,
+          userName: newReview.userName,
+          rating: newReview.rating,
+          reviewText: newReview.review,
+          source: 'admin',
+        }),
+        keepalive: true,
+      }).catch(() => {});
 
       setNewReview({
         productId: '',

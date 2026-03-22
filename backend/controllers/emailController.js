@@ -1,6 +1,20 @@
 const { ordersTransporter, enquiriesTransporter, marketingTransporter } = require('../config/nodemailer');
 const { firestore } = require('../config/firebase');
-const { staffBccFor, orderEnquiryShopBcc } = require('../utils/emailNotifyBcc');
+const {
+  staffBccFor,
+  orderEnquiryShopBcc,
+  contactEnquiryInboxBcc,
+  newReviewInboxBcc,
+} = require('../utils/emailNotifyBcc');
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 async function sendOrderConfirmation(req, res) {
   // For multipart/form-data, fields are in req.body, files in req.files
@@ -156,6 +170,97 @@ async function sendOrderEnquiry(req, res) {
   }
 }
 
+/**
+ * Contact form: email Enquiries inbox (+ BCC staff notify). Firestore save happens in the client first.
+ */
+async function notifyContactEnquiry(req, res) {
+  const { firstName, lastName, email, phone, subject, message, inquiry } = req.body || {};
+  const msg = (message || inquiry || '').trim();
+  const subj = (subject || '').trim();
+  const em = (email || '').trim();
+  if (!em || !subj || !msg) {
+    return res.status(400).json({ error: 'Missing required fields (email, subject, message)' });
+  }
+
+  const enquiriesInbox = process.env.ZOHO_ENQUIRIES_USER;
+  if (!enquiriesInbox) {
+    return res.status(500).json({ error: 'ZOHO_ENQUIRIES_USER is not configured' });
+  }
+
+  const name = [firstName, lastName].filter(Boolean).join(' ').trim() || '—';
+  const phoneLine = (phone || '').trim();
+  const bcc = contactEnquiryInboxBcc(enquiriesInbox);
+  const html = `
+    <h1 style="margin:0 0 12px;">New contact form enquiry</h1>
+    <p style="margin:0 0 8px;"><strong>Name:</strong> ${escapeHtml(name)}</p>
+    <p style="margin:0 0 8px;"><strong>Email:</strong> ${escapeHtml(em)}</p>
+    ${phoneLine ? `<p style="margin:0 0 8px;"><strong>Phone:</strong> ${escapeHtml(phoneLine)}</p>` : ''}
+    <p style="margin:0 0 8px;"><strong>Subject:</strong> ${escapeHtml(subj)}</p>
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
+    <p style="white-space:pre-wrap;">${escapeHtml(msg)}</p>
+  `;
+
+  try {
+    await enquiriesTransporter.sendMail({
+      from: `"Bakes by Olayide Enquiries" <${enquiriesInbox}>`,
+      to: enquiriesInbox,
+      replyTo: em,
+      bcc,
+      subject: `[Contact] ${subj}`,
+      html,
+    });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
+/**
+ * New product review (customer or admin): notify Enquiries inbox (+ BCC staff notify).
+ */
+async function notifyNewReview(req, res) {
+  const { itemId, itemName, userName, rating, reviewText, orderId, source } = req.body || {};
+  const text = (reviewText ?? '').toString().trim();
+  const name = (itemName || '').toString().trim();
+  const id = (itemId || '').toString().trim();
+  const r = Number(rating);
+  if (!id || !name || !Number.isFinite(r) || r < 1 || r > 5) {
+    return res.status(400).json({ error: 'Missing or invalid fields (itemId, itemName, rating 1–5)' });
+  }
+
+  const enquiriesInbox = process.env.ZOHO_ENQUIRIES_USER;
+  if (!enquiriesInbox) {
+    return res.status(500).json({ error: 'ZOHO_ENQUIRIES_USER is not configured' });
+  }
+
+  const who = (userName || 'Customer').trim();
+  const bcc = newReviewInboxBcc(enquiriesInbox);
+  const src = (source || 'website').toString();
+  const html = `
+    <h1 style="margin:0 0 12px;">New product review</h1>
+    <p style="margin:0 0 8px;"><strong>Product:</strong> ${escapeHtml(name)} <span style="color:#666;">(${escapeHtml(id)})</span></p>
+    <p style="margin:0 0 8px;"><strong>Reviewer:</strong> ${escapeHtml(who)}</p>
+    <p style="margin:0 0 8px;"><strong>Rating:</strong> ${r} / 5</p>
+    ${orderId ? `<p style="margin:0 0 8px;"><strong>Order:</strong> ${escapeHtml(String(orderId))}</p>` : ''}
+    <p style="margin:0 0 8px;"><strong>Source:</strong> ${escapeHtml(src)}</p>
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
+    <p style="white-space:pre-wrap;">${escapeHtml(text || '(No written comment)')}</p>
+  `;
+
+  try {
+    await enquiriesTransporter.sendMail({
+      from: `"Bakes by Olayide Enquiries" <${enquiriesInbox}>`,
+      to: enquiriesInbox,
+      bcc,
+      subject: `[Review] ${name} — ${r}/5`,
+      html,
+    });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 async function sendTestEmail(req, res) {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: 'Missing recipient email' });
@@ -213,6 +318,8 @@ module.exports = {
   sendEnquiryReply,
   sendMarketingEmail,
   sendOrderEnquiry,
+  notifyContactEnquiry,
+  notifyNewReview,
   sendTestEmail,
   sendMarketingTestEmail,
 };
