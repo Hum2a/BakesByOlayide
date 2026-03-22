@@ -1,8 +1,9 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Zoho: 465 = SSL from connect → secure: true. 587 = plain then STARTTLS → secure: false.
+ * Zoho: 465 = SSL from connect → secure: true. 587 = STARTTLS → secure: false.
  * Using secure:true on 587 often works locally by luck but fails or hangs on some hosts (e.g. Render).
+ * Longer timeouts help cold Render → Zoho connections; TLS 1.2+ avoids legacy handshake issues.
  */
 function parseSmtpPort() {
   const n = parseInt(String(process.env.ZOHO_SMTP_PORT || '').trim(), 10);
@@ -28,7 +29,12 @@ function createZohoTransport(userEnvKey, passEnvKey) {
       user: process.env[userEnvKey],
       pass: process.env[passEnvKey],
     },
-    ...(secure ? {} : { requireTLS: true }),
+    connectionTimeout: 60_000,
+    greetingTimeout: 30_000,
+    socketTimeout: 60_000,
+    tls: {
+      minVersion: 'TLSv1.2',
+    },
   });
 }
 

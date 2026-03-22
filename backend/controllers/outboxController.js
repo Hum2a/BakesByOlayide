@@ -15,6 +15,24 @@ function transporterForChannel(channel) {
   }
 }
 
+function missingSmtpEnvForChannel(channel) {
+  const c = String(channel || '').toLowerCase();
+  if (c === 'orders') {
+    if (!process.env.ZOHO_ORDERS_USER?.trim() || !process.env.ZOHO_ORDERS_PASS?.trim()) {
+      return 'ZOHO_ORDERS_USER / ZOHO_ORDERS_PASS';
+    }
+  } else if (c === 'enquiries') {
+    if (!process.env.ZOHO_ENQUIRIES_USER?.trim() || !process.env.ZOHO_ENQUIRIES_PASS?.trim()) {
+      return 'ZOHO_ENQUIRIES_USER / ZOHO_ENQUIRIES_PASS';
+    }
+  } else if (c === 'marketing') {
+    if (!process.env.ZOHO_MARKETING_USER?.trim() || !process.env.ZOHO_MARKETING_PASS?.trim()) {
+      return 'ZOHO_MARKETING_USER / ZOHO_MARKETING_PASS';
+    }
+  }
+  return null;
+}
+
 function fromHeaderForResend(channel, kind) {
   const k = String(kind || '');
   if (channel === 'orders') {
@@ -41,6 +59,15 @@ function fromHeaderForResend(channel, kind) {
 function asAddrArray(v) {
   if (!Array.isArray(v)) return [];
   return v.map((e) => String(e).trim()).filter(Boolean);
+}
+
+/** Prefer ccRecipients; fall back to legacy string field `cc` from older outbox rows. */
+function ccListForResend(data) {
+  let cc = asAddrArray(data.ccRecipients);
+  if (cc.length) return cc;
+  const legacy = data.cc != null ? String(data.cc).trim() : '';
+  if (!legacy || legacy.toLowerCase() === 'null') return [];
+  return asAddrArray(legacy.split(/[,;]+/).map((s) => s.trim()).filter(Boolean));
 }
 
 /**
@@ -86,12 +113,19 @@ async function resendOutboxEmail(req, res) {
     return res.status(400).json({ error: `Unknown channel "${channel}"; cannot choose SMTP transport.` });
   }
 
+  const missingEnv = missingSmtpEnvForChannel(channel);
+  if (missingEnv) {
+    return res.status(500).json({
+      error: `SMTP is not configured on this server (${missingEnv}). Add them in Render (or host) env and redeploy.`,
+    });
+  }
+
   const from = fromHeaderForResend(channel, kind);
   if (!from) {
     return res.status(500).json({ error: 'Zoho user env var for this channel is not configured.' });
   }
 
-  const cc = asAddrArray(data.ccRecipients);
+  const cc = ccListForResend(data);
   const bcc = asAddrArray(data.bccRecipients);
   const replyTo = data.replyTo != null ? String(data.replyTo).trim() : '';
 
@@ -115,6 +149,7 @@ async function resendOutboxEmail(req, res) {
     await ref.update({
       status: 'sent',
       errorMessage: admin.firestore.FieldValue.delete(),
+      lastResendError: admin.firestore.FieldValue.delete(),
       sentAt: admin.firestore.FieldValue.serverTimestamp(),
       resentAt: admin.firestore.FieldValue.serverTimestamp(),
       resentByUid: req.staffUid || null,
@@ -122,7 +157,17 @@ async function resendOutboxEmail(req, res) {
     });
     return res.json({ success: true, warnings });
   } catch (e) {
-    return res.status(500).json({ error: e.message || 'Resend failed' });
+    const msg = (e && e.message) || String(e);
+    console.error('[resend-outbox-email]', docId, channel, kind, msg);
+    try {
+      await ref.update({
+        lastResendAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastResendError: msg.slice(0, 2000),
+      });
+    } catch (logErr) {
+      console.error('[resend-outbox-email] could not write lastResendError:', logErr.message);
+    }
+    return res.status(500).json({ error: msg });
   }
 }
 

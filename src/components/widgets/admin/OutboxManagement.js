@@ -423,6 +423,12 @@ const OutboxManagement = () => {
                                   ) : null}
                                 </div>
                               ) : null}
+                              {sentAtMs(r, 'lastResendAt') != null ? (
+                                <div>
+                                  <strong>Last resend attempt:</strong>{' '}
+                                  {formatWhen(sentAtMs(r, 'lastResendAt'))}
+                                </div>
+                              ) : null}
                               {ccLine ? (
                                 <div>
                                   <strong>CC:</strong> {ccLine}
@@ -457,6 +463,11 @@ const OutboxManagement = () => {
                             {r.status === 'failed' && r.errorMessage ? (
                               <p className="outbox-error">
                                 <strong>Error:</strong> {r.errorMessage}
+                              </p>
+                            ) : null}
+                            {r.lastResendError ? (
+                              <p className="outbox-error">
+                                <strong>Last resend error:</strong> {r.lastResendError}
                               </p>
                             ) : null}
                             {!showResend && r.status === 'failed' && r.kind === 'marketing_broadcast' ? (
