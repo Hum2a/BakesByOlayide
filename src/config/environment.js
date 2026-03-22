@@ -8,8 +8,11 @@
  * Override with REACT_APP_API_BASE_URL and/or REACT_APP_RUNTIME_ENV=local|live
  */
 
-const LIVE_API_DEFAULT = 'https://bakesbyolayide-server.onrender.com';
-const LOCAL_API_DEFAULT = 'http://localhost:5000';
+export const LIVE_API_ORIGIN = 'https://bakesbyolayide-server.onrender.com';
+export const LOCAL_API_ORIGIN = 'http://localhost:5000';
+
+const LIVE_API_DEFAULT = LIVE_API_ORIGIN;
+const LOCAL_API_DEFAULT = LOCAL_API_ORIGIN;
 
 const TRAILING_SLASH = /\/+$/;
 
@@ -42,6 +45,13 @@ export function getApiBaseUrl() {
  */
 export function apiUrl(path) {
   const base = getApiBaseUrl();
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${p}`;
+}
+
+/** Same as apiUrl but for an explicit origin (e.g. probing local vs live servers). */
+export function apiUrlAtBase(baseOrigin, path) {
+  const base = normalizeBaseUrl(baseOrigin);
   const p = path.startsWith('/') ? path : `/${path}`;
   return `${base}${p}`;
 }

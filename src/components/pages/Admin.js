@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt, FaCode } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
@@ -15,6 +15,7 @@ import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
 import AdminTestEmail from '../widgets/admin/AdminTestEmail';
+import DeveloperSettings from '../widgets/admin/DeveloperSettings';
 import { hasStaffAccess } from '../../utils/staffAccess';
 import '../styles/Admin.css';
 
@@ -199,6 +200,12 @@ const Admin = () => {
             <FaCog /> Settings
           </button>
           <button
+            className={`nav-item ${activeTab === 'developer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('developer')}
+          >
+            <FaCode /> Developer settings
+          </button>
+          <button
             className={`nav-item ${activeTab === 'test-email' ? 'active' : ''}`}
             onClick={() => setActiveTab('test-email')}
           >
@@ -281,6 +288,8 @@ const Admin = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'developer' && <DeveloperSettings />}
 
         {activeTab === 'test-email' && <AdminTestEmail />}
       </div>

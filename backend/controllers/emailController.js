@@ -136,9 +136,30 @@ async function sendOrderEnquiry(req, res) {
   }
 }
 
+async function sendTestEmail(req, res) {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  const ordersInbox = process.env.ZOHO_ORDERS_USER;
+  if (!ordersInbox) {
+    return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
+  }
+  try {
+    await ordersTransporter.sendMail({
+      from: `"Bakes by Olayide" <${ordersInbox}>`,
+      to,
+      subject: 'Bakes by Olayide – test email',
+      html: '<p>This is a test email from the admin dashboard.</p>',
+    });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 module.exports = {
   sendOrderConfirmation,
   sendEnquiryReply,
   sendMarketingEmail,
   sendOrderEnquiry,
+  sendTestEmail,
 };

@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const emailRoutes = require('./routes/email');
+const integrationsRoutes = require('./routes/integrations');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // API routes (register before static + SPA fallback)
 app.use('/api', emailRoutes);
+app.use('/api', integrationsRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
