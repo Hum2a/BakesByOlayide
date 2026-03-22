@@ -191,3 +191,97 @@
   background: #fdecea;
   color: #922b21;
 }
+
+.outbox-msg--ok {
+  background: #e8f6ef;
+  color: #1e5630;
+}
+
+.outbox-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.outbox-badge--browser {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.outbox-badge--api {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.outbox-trigger {
+  max-width: 170px;
+}
+
+.outbox-trigger-detail {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #555;
+}
+
+.outbox-actions-cell {
+  white-space: nowrap;
+}
+
+.outbox-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.outbox-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccd;
+  background: #fff;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: #2c3e50;
+}
+
+.outbox-icon-btn:hover:not(:disabled) {
+  background: #f0f4f8;
+}
+
+.outbox-icon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.outbox-icon-btn--primary {
+  border-color: #3498db;
+  color: #2980b9;
+}
+
+.outbox-icon-btn--danger {
+  border-color: #e74c3c;
+  color: #c0392b;
+}
+
+.outbox-muted {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.outbox-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  background: #fffbeb;
+  border-radius: 6px;
+  border: 1px solid #f5e6c8;
+}
