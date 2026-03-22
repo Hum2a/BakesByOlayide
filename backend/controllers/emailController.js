@@ -4,6 +4,7 @@ const {
   staffBccFor,
   orderEnquiryShopCcAndBcc,
   contactEnquiryInboxBcc,
+  enquiryReplyBcc,
   newReviewInboxBcc,
 } = require('../utils/emailNotifyBcc');
 const { logEmailOutboxSafe } = require('../utils/emailOutboxLog');
@@ -95,7 +96,7 @@ async function sendEnquiryReply(req, res) {
   if (cc) {
     ccList = cc.split(',').map((e) => e.trim()).filter(Boolean);
   }
-  const bcc = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', to, ccList);
+  const bcc = enquiryReplyBcc(to, ccList);
 
   const outboxBase = {
     channel: 'enquiries',

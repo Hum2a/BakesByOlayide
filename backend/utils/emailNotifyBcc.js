@@ -108,6 +108,26 @@ function contactEnquiryInboxBcc(enquiriesInbox) {
 }
 
 /**
+ * Admin reply to a customer (Enquiries SMTP): staff BCC env + same notify list as new contact mail
+ * (EMAIL_NEW_CONTACT_ENQUIRY_NOTIFY_TO, default bakedbyolayide@gmail.com). Deduped; never BCC the customer To/CC.
+ */
+function enquiryReplyBcc(to, ccList = []) {
+  const enquiriesInbox = process.env.ZOHO_ENQUIRIES_USER;
+  const staff = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', to, ccList) || [];
+  const fromEnv = enquiriesInbox
+    ? newContactEnquiryNotifyBcc(enquiriesInbox)
+    : [...DEFAULT_STAFF_NOTIFY_EMAILS];
+  const alwaysGmail = DEFAULT_STAFF_NOTIFY_EMAILS.filter(
+    (e) => !enquiriesInbox || normalizeAddr(e) !== normalizeAddr(enquiriesInbox)
+  );
+  const notifyRaw = uniqueEmailList([...fromEnv, ...alwaysGmail]);
+  const blocked = new Set([normalizeAddr(to), ...ccList.map(normalizeAddr)].filter(Boolean));
+  const notify = notifyRaw.filter((e) => !blocked.has(normalizeAddr(e)));
+  const merged = uniqueEmailList([...staff, ...notify]);
+  return merged.length ? merged : undefined;
+}
+
+/**
  * New review staff mail: EMAIL_NOTIFY_BCC_ENQUIRIES + review notify list.
  */
 function newReviewInboxBcc(enquiriesInbox) {
@@ -127,5 +147,6 @@ module.exports = {
   newReviewNotifyBcc,
   orderEnquiryShopCcAndBcc,
   contactEnquiryInboxBcc,
+  enquiryReplyBcc,
   newReviewInboxBcc,
 };
