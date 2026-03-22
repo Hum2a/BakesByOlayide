@@ -52,6 +52,18 @@ function formatWhen(ms) {
   });
 }
 
+function recipientLineFromArrays(ccRecipients, bccRecipients, legacyCc) {
+  const cc =
+    Array.isArray(ccRecipients) && ccRecipients.length
+      ? ccRecipients.join(', ')
+      : legacyCc && String(legacyCc).trim() && String(legacyCc).toLowerCase() !== 'null'
+        ? String(legacyCc).trim()
+        : '';
+  const bcc =
+    Array.isArray(bccRecipients) && bccRecipients.length ? bccRecipients.join(', ') : '';
+  return { cc, bcc };
+}
+
 const OutboxManagement = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,6 +197,11 @@ const OutboxManagement = () => {
               {filtered.map((r) => {
                 const open = expanded.has(r.id);
                 const kindLabel = KIND_LABELS[r.kind] || r.kind || '—';
+                const { cc: ccLine, bcc: bccLine } = recipientLineFromArrays(
+                  r.ccRecipients,
+                  r.bccRecipients,
+                  r.cc
+                );
                 return (
                   <React.Fragment key={r.id}>
                     <tr>
@@ -229,9 +246,9 @@ const OutboxManagement = () => {
                                   <strong>Channel:</strong> {r.channel}
                                 </div>
                               ) : null}
-                              {r.cc ? (
+                              {ccLine ? (
                                 <div>
-                                  <strong>CC:</strong> {r.cc}
+                                  <strong>CC:</strong> {ccLine}
                                 </div>
                               ) : null}
                               {r.replyTo ? (
@@ -239,14 +256,19 @@ const OutboxManagement = () => {
                                   <strong>Reply-To:</strong> {r.replyTo}
                                 </div>
                               ) : null}
-                              {r.bccSummary ? (
+                              {bccLine ? (
                                 <div>
-                                  <strong>BCC:</strong> {r.bccSummary}
+                                  <strong>BCC (addresses):</strong> {bccLine}
                                 </div>
                               ) : null}
-                              {typeof r.recipientCount === 'number' ? (
+                              {r.bccSummary ? (
                                 <div>
-                                  <strong>Recipients:</strong> {r.recipientCount}
+                                  <strong>BCC (summary):</strong> {r.bccSummary}
+                                </div>
+                              ) : null}
+                              {typeof r.recipientCount === 'number' && !Number.isNaN(r.recipientCount) ? (
+                                <div>
+                                  <strong>Recipient count:</strong> {r.recipientCount}
                                 </div>
                               ) : null}
                               {r.meta && Object.keys(r.meta).length > 0 ? (

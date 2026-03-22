@@ -1,8 +1,11 @@
-require('dotenv').config();
+const path = require('path');
+// Works no matter which working directory Node was started from (pairs with repo-root server.js).
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const emailRoutes = require('./routes/email');
 const integrationsRoutes = require('./routes/integrations');
 
@@ -11,8 +14,11 @@ const app = express();
 app.use(cors({
   origin: [
     'https://bakesbyolayide.co.uk',
+    'https://www.bakesbyolayide.co.uk',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
   ],
   credentials: true
 }));

@@ -2,7 +2,7 @@ const { ordersTransporter, enquiriesTransporter, marketingTransporter } = requir
 const { firestore } = require('../config/firebase');
 const {
   staffBccFor,
-  orderEnquiryShopBcc,
+  orderEnquiryShopCcAndBcc,
   contactEnquiryInboxBcc,
   newReviewInboxBcc,
 } = require('../utils/emailNotifyBcc');
@@ -62,7 +62,8 @@ async function sendOrderConfirmation(req, res) {
     channel: 'orders',
     kind: 'order_confirmation',
     to,
-    cc: ccList.length ? ccList.join(', ') : null,
+    ccRecipients: ccList,
+    bccRecipients: Array.isArray(bcc) ? bcc : [],
     bccSummary: bccSummary(bcc),
     subject,
     html,
@@ -100,7 +101,8 @@ async function sendEnquiryReply(req, res) {
     channel: 'enquiries',
     kind: 'enquiry_reply',
     to,
-    cc: ccList.length ? ccList.join(', ') : null,
+    ccRecipients: ccList,
+    bccRecipients: Array.isArray(bcc) ? bcc : [],
     bccSummary: bccSummary(bcc),
     subject,
     html,
@@ -135,6 +137,7 @@ async function sendMarketingEmail(req, res) {
         <div style="color: ${bodyColor || '#000'};">${html}</div>
       </div>
     `;
+  let subscriberCount = 0;
   try {
     let query = firestore.collection('newsletter').where('optedIn', '==', true);
     if (Array.isArray(lists) && lists.length > 0) {
@@ -158,11 +161,16 @@ async function sendMarketingEmail(req, res) {
       kind: 'marketing_broadcast',
       status: 'sent',
       to: process.env.ZOHO_MARKETING_USER,
-      bccSummary: `${emails.length} newsletter subscribers (BCC)`,
+      ccRecipients: [],
+      bccRecipients: [],
+      bccSummary: `${emails.length} newsletter subscribers (BCC; addresses not stored)`,
       recipientCount: emails.length,
       subject,
       html: styledHtml,
-      meta: { lists: Array.isArray(lists) ? lists : [] },
+      meta: {
+        lists: Array.isArray(lists) ? lists : [],
+        bccListRedacted: true,
+      },
     });
     res.json({ success: true, sent: emails.length });
   } catch (err) {
@@ -172,10 +180,16 @@ async function sendMarketingEmail(req, res) {
       kind: 'marketing_broadcast',
       status: 'failed',
       to: process.env.ZOHO_MARKETING_USER || '',
+      ccRecipients: [],
+      bccRecipients: [],
       subject: subject || '',
       html: styledHtml,
       errorMessage: err.message,
-      meta: { lists: Array.isArray(lists) ? lists : [] },
+      recipientCount: subscriberCount > 0 ? subscriberCount : undefined,
+      meta: {
+        lists: Array.isArray(lists) ? lists : [],
+        bccListRedacted: true,
+      },
     });
     res.status(500).json({ error: err.message });
   }
@@ -203,7 +217,7 @@ async function sendOrderEnquiry(req, res) {
     return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
   }
 
-  const shopBcc = orderEnquiryShopBcc(ordersInbox);
+  const { cc: shopCc, bcc: shopBcc } = orderEnquiryShopCcAndBcc(ordersInbox);
   const customerBcc =
     customerEmail && customerHtml
       ? staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', customerEmail, [])
@@ -213,6 +227,7 @@ async function sendOrderEnquiry(req, res) {
     const shopMail = ordersTransporter.sendMail({
       from: `"Bakes by Olayide Orders" <${ordersInbox}>`,
       to: ordersInbox,
+      cc: shopCc,
       replyTo: customerEmail || undefined,
       bcc: shopBcc,
       subject: shopSubject || 'New order enquiry',
@@ -238,6 +253,8 @@ async function sendOrderEnquiry(req, res) {
       kind: 'order_enquiry_shop',
       status: 'sent',
       to: ordersInbox,
+      ccRecipients: Array.isArray(shopCc) ? shopCc : [],
+      bccRecipients: Array.isArray(shopBcc) ? shopBcc : [],
       replyTo: customerEmail || null,
       bccSummary: bccSummary(shopBcc),
       subject: shopSubject || 'New order enquiry',
@@ -251,6 +268,8 @@ async function sendOrderEnquiry(req, res) {
         kind: 'order_enquiry_customer_ack',
         status: 'sent',
         to: customerEmail,
+        ccRecipients: [],
+        bccRecipients: Array.isArray(customerBcc) ? customerBcc : [],
         bccSummary: bccSummary(customerBcc),
         subject: customerSubject || 'We received your order request',
         html: customerHtml,
@@ -266,6 +285,8 @@ async function sendOrderEnquiry(req, res) {
       kind: 'order_enquiry',
       status: 'failed',
       to: ordersInbox,
+      ccRecipients: Array.isArray(shopCc) ? shopCc : [],
+      bccRecipients: Array.isArray(shopBcc) ? shopBcc : [],
       replyTo: customerEmail || null,
       bccSummary: bccSummary(shopBcc),
       subject: shopSubject || 'New order enquiry',
@@ -311,6 +332,8 @@ async function notifyContactEnquiry(req, res) {
     channel: 'enquiries',
     kind: 'contact_form_notify',
     to: enquiriesInbox,
+    ccRecipients: [],
+    bccRecipients: Array.isArray(bcc) ? bcc : [],
     replyTo: em,
     bccSummary: bccSummary(bcc),
     subject: `[Contact] ${subj}`,
@@ -371,6 +394,8 @@ async function notifyNewReview(req, res) {
     channel: 'enquiries',
     kind: 'new_review_notify',
     to: enquiriesInbox,
+    ccRecipients: [],
+    bccRecipients: Array.isArray(bcc) ? bcc : [],
     bccSummary: bccSummary(bcc),
     subject: `[Review] ${name} — ${r}/5`,
     html,
@@ -385,10 +410,10 @@ async function notifyNewReview(req, res) {
       subject: `[Review] ${name} — ${r}/5`,
       html,
     });
-    await logEmailOutboxSafe({ ...outboxBase, status: 'sent' });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, status: 'failed', errorMessage: e.message });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -405,6 +430,8 @@ async function sendTestEmail(req, res) {
     channel: 'orders',
     kind: 'admin_test_email',
     to,
+    ccRecipients: [],
+    bccRecipients: [],
     subject: 'Bakes by Olayide – test email',
     html: testHtml,
     meta: {},
@@ -448,6 +475,8 @@ async function sendMarketingTestEmail(req, res) {
     channel: 'marketing',
     kind: 'admin_marketing_test',
     to,
+    ccRecipients: [],
+    bccRecipients: [],
     subject: `[TEST] ${subject}`,
     html: styledHtml,
     meta: {},

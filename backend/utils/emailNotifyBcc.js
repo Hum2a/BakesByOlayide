@@ -79,13 +79,22 @@ function newReviewNotifyBcc(enquiriesInbox) {
 }
 
 /**
- * Shop order mail: staff BCC env + new-order notify list, deduped.
+ * Basket enquiry → shop inbox: visible CC copies (notify list + always bakedbyolayide@gmail.com when
+ * it is not the orders inbox). Hidden BCC from EMAIL_NOTIFY_BCC_ORDERS only (deduped against To/CC).
+ *
+ * CC is used so Zoho reliably delivers a copy; BCC-only was easy to drop when EMAIL_NEW_ORDER_NOTIFY_TO was empty.
  */
-function orderEnquiryShopBcc(ordersInbox) {
-  const staff = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, []) || [];
-  const notify = newOrderNotifyBcc(ordersInbox);
-  const merged = uniqueEmailList([...staff, ...notify]);
-  return merged.length ? merged : undefined;
+function orderEnquiryShopCcAndBcc(ordersInbox) {
+  const notifyFromEnv = notifyListForEnv('EMAIL_NEW_ORDER_NOTIFY_TO', ordersInbox);
+  const alwaysCc = DEFAULT_STAFF_NOTIFY_EMAILS.filter(
+    (e) => normalizeAddr(e) !== normalizeAddr(ordersInbox)
+  );
+  const ccList = uniqueEmailList([...notifyFromEnv, ...alwaysCc]);
+  const bccArr = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, ccList);
+  return {
+    cc: ccList.length ? ccList : undefined,
+    bcc: bccArr && bccArr.length ? bccArr : undefined,
+  };
 }
 
 /**
@@ -116,7 +125,7 @@ module.exports = {
   newOrderNotifyBcc,
   newContactEnquiryNotifyBcc,
   newReviewNotifyBcc,
-  orderEnquiryShopBcc,
+  orderEnquiryShopCcAndBcc,
   contactEnquiryInboxBcc,
   newReviewInboxBcc,
 };

@@ -34,11 +34,12 @@
     "zcrmsdk": "^1.1.0"
   },
   "scripts": {
-    "start": "craco start",
-    "start:local": "craco start",
-    "start:live-api": "cross-env REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com craco start",
+    "start": "cross-env PORT=3000 craco start",
+    "start:local": "cross-env PORT=3000 craco start",
+    "start:live-api": "cross-env PORT=3000 REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com craco start",
     "server": "node server.js",
     "server:local": "node server.js",
+    "free-port-5000": "npx --yes kill-port 5000",
     "dev": "concurrently \"npm run server:local\" \"npm run start:local\"",
     "dev:local": "concurrently \"npm run server:local\" \"npm run start:local\"",
     "build": "craco build",

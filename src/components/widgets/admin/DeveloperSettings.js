@@ -61,11 +61,14 @@ function explainFetchFailure(requestUrl, error) {
   return hints.join('\n\n');
 }
 
-async function pingApiTest(baseLabel, baseOrigin) {
+async function pingApiTest(baseLabel, baseOrigin, { timeoutMs } = {}) {
   const url = apiUrlAtBase(baseOrigin, '/api/test');
   const start = performance.now();
+  const controller = new AbortController();
+  const tid =
+    timeoutMs != null && timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
-    const res = await fetch(url, { method: 'GET' });
+    const res = await fetch(url, { method: 'GET', signal: controller.signal });
     const ms = Math.round(performance.now() - start);
     if (!res.ok) {
       return { label: baseLabel, url, ok: false, ms, message: `HTTP ${res.status}` };
@@ -80,8 +83,59 @@ async function pingApiTest(baseLabel, baseOrigin) {
     };
   } catch (e) {
     const ms = Math.round(performance.now() - start);
+    if (e?.name === 'AbortError') {
+      const isRender = /onrender\.com/i.test(url);
+      return {
+        label: baseLabel,
+        url,
+        ok: false,
+        ms,
+        message: isRender
+          ? `Timed out after ${timeoutMs}ms — Render free tier often sleeps; open ${url} in a new tab to wake the service, wait until you see JSON, then run checks again.`
+          : `Timed out after ${timeoutMs}ms — nothing responded in time.`,
+      };
+    }
     return {
       label: baseLabel,
+      url,
+      ok: false,
+      ms,
+      message: explainFetchFailure(url, e),
+    };
+  } finally {
+    if (tid) clearTimeout(tid);
+  }
+}
+
+/** CRA only: hits /api/test on the dev server origin so package.json "proxy" forwards to Node. */
+async function pingRelativeDevProxy() {
+  if (typeof window === 'undefined') return null;
+  const url = `${window.location.origin}/api/test`;
+  const start = performance.now();
+  try {
+    const res = await fetch(url, { method: 'GET' });
+    const ms = Math.round(performance.now() - start);
+    if (!res.ok) {
+      return {
+        label: 'Backend (dev · CRA proxy)',
+        url,
+        ok: false,
+        ms,
+        message: `HTTP ${res.status}`,
+      };
+    }
+    const data = await res.json().catch(() => ({}));
+    return {
+      label: 'Backend (dev · CRA proxy)',
+      url,
+      ok: true,
+      ms,
+      message: `${data.message || 'OK'} · uses package.json "proxy" → Node (works even if REACT_APP_API_BASE_URL is wrong)`,
+    };
+  } catch (e) {
+    const ms = Math.round(performance.now() - start);
+    return {
+      label: 'Backend (dev · CRA proxy)',
       url,
       ok: false,
       ms,
@@ -130,42 +184,56 @@ const DeveloperSettings = () => {
   const [livePing, setLivePing] = useState(null);
   const [firebaseClient, setFirebaseClient] = useState(null);
   const [serverDiag, setServerDiag] = useState(null);
+  const [devProxyPing, setDevProxyPing] = useState(null);
   const [lastRun, setLastRun] = useState(null);
 
   const runChecks = useCallback(async () => {
     setRunning(true);
     setLastRun(new Date().toISOString());
     setServerDiag(null);
+    setDevProxyPing(null);
 
     const configuredBase = getApiBaseUrl();
     const localTasks = [];
     if (isLocalRuntime) {
       localTasks.push(
-        pingApiTest('Backend (local · this app’s URL)', configuredBase)
+        pingApiTest('Backend (local · this app’s URL)', configuredBase, { timeoutMs: 12000 })
       );
       if (normalizeBaseUrl(configuredBase) !== normalizeBaseUrl(LOCAL_API_ORIGIN)) {
         localTasks.push(
-          pingApiTest('Backend (localhost:5000 — default dev port)', LOCAL_API_ORIGIN)
+          pingApiTest('Backend (localhost:5000 — default dev port)', LOCAL_API_ORIGIN, {
+            timeoutMs: 12000,
+          })
         );
       }
     } else {
-      localTasks.push(pingApiTest('Backend (localhost:5000)', LOCAL_API_ORIGIN));
+      localTasks.push(
+        pingApiTest('Backend (localhost:5000)', LOCAL_API_ORIGIN, { timeoutMs: 12000 })
+      );
     }
 
-    const [fb, live, ...locals] = await Promise.all([
+    const devProxyPromise =
+      process.env.NODE_ENV === 'development' ? pingRelativeDevProxy() : Promise.resolve(null);
+
+    const [fb, live, devProxy, ...locals] = await Promise.all([
       checkFirebaseClient(),
-      pingApiTest('Backend (live / Render)', LIVE_API_ORIGIN),
+      pingApiTest('Backend (live / Render)', LIVE_API_ORIGIN, { timeoutMs: 120000 }),
+      devProxyPromise,
       ...localTasks,
     ]);
 
     setFirebaseClient(fb);
     setLocalPings(locals);
     setLivePing(live);
+    setDevProxyPing(devProxy);
 
     const diagUrl = apiUrl('/api/integrations/status');
+    const diagTimeoutMs = /onrender\.com/i.test(diagUrl) ? 120000 : 25000;
     const start = performance.now();
+    const controller = new AbortController();
+    const diagTid = setTimeout(() => controller.abort(), diagTimeoutMs);
     try {
-      const res = await fetch(diagUrl, { method: 'GET' });
+      const res = await fetch(diagUrl, { method: 'GET', signal: controller.signal });
       const ms = Math.round(performance.now() - start);
       if (!res.ok) {
         const text = await res.text();
@@ -182,13 +250,22 @@ const DeveloperSettings = () => {
       }
     } catch (e) {
       const ms = Math.round(performance.now() - start);
+      const aborted = e?.name === 'AbortError';
       setServerDiag({
         ok: false,
         url: diagUrl,
         ms,
-        message: explainFetchFailure(diagUrl, e),
+        message: aborted
+          ? `Timed out after ${diagTimeoutMs}ms — ${
+              /onrender\.com/i.test(diagUrl)
+                ? 'Render may be sleeping; open the URL in a new tab, wait for JSON, retry.'
+                : 'API did not respond — is npm run server running on the expected PORT?'
+            }`
+          : explainFetchFailure(diagUrl, e),
         body: null,
       });
+    } finally {
+      clearTimeout(diagTid);
     }
 
     setRunning(false);
@@ -260,8 +337,14 @@ const DeveloperSettings = () => {
             <code>server.js</code>).
           </li>
           <li>
-            Copy <code>backend/.env.example</code> to <code>.env</code> at the repo root (where <code>server.js</code>{' '}
-            loads dotenv) and fill Zoho + Firebase Admin values.
+            Env files: root <code>server.js</code> loads <code>.env</code> at the repo root and{' '}
+            <code>backend/.env</code>. Either location can hold Zoho + Firebase Admin keys.
+          </li>
+          <li>
+            <strong>Port 5000 busy?</strong> You may have had the React dev server on 5000 because CRA reads{' '}
+            <code>PORT</code> from <code>.env</code>. This project pins the dev UI to <strong>3000</strong> in{' '}
+            <code>craco.config.js</code>. Stop all Node terminals, run <code>npm run free-port-5000</code>, then{' '}
+            <code>npm run dev</code> again.
           </li>
         </ul>
         <h4 className="developer-settings-help-title">Live (Render) “Failed to fetch”</h4>
@@ -296,6 +379,15 @@ const DeveloperSettings = () => {
           ms={firebaseClient?.ms}
           message={firebaseClient?.message}
         />
+        {process.env.NODE_ENV === 'development' && devProxyPing && (
+          <ResultCard
+            title={devProxyPing.label}
+            ok={devProxyPing.ok}
+            url={devProxyPing.url}
+            ms={devProxyPing.ms}
+            message={devProxyPing.message}
+          />
+        )}
         {localPings.map((lp, idx) => (
           <ResultCard
             key={`${lp.url}-${idx}`}
