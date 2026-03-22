@@ -15,6 +15,53 @@ import {
 } from '../../utils/orderEnquiryEmail';
 import { apiUrl } from '../../config/environment';
 
+const ALLERGY_OPTIONS = [
+  'Gluten',
+  'Nuts',
+  'Tree Nuts',
+  'Milk',
+  'Lupin',
+  'Sulphites',
+  'Eggs',
+  'Soya',
+];
+
+const emptyCustomerDetails = () => ({
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  allergies: [],
+  allergyOther: '',
+  applyAllergiesToAll: false,
+  fruitPreference: '',
+  message: '',
+});
+
+function getCheckoutItemSpecs(item) {
+  const rows = [];
+  if (item.selectedSize) {
+    rows.push({
+      label: 'Size',
+      value: `${item.selectedSize.size}${typeof item.selectedSize.size === 'number' ? '"' : ''}`,
+    });
+  }
+  if (item.batchSize) rows.push({ label: 'Batch size', value: item.batchSize });
+  if (item.selectedShape?.name) rows.push({ label: 'Shape', value: item.selectedShape.name });
+  if (item.decorationStyle) rows.push({ label: 'Decoration', value: item.decorationStyle });
+  if (item.selectedFinish?.name) rows.push({ label: 'Finish', value: item.selectedFinish.name });
+  if (item.occasion) rows.push({ label: 'Occasion', value: item.occasion });
+  if (item.topper) rows.push({ label: 'Topper', value: item.topper });
+  const addonList = item.addons ?? item.addon;
+  if (addonList) {
+    const parts = Array.isArray(addonList)
+      ? addonList.map((a) => (typeof a === 'string' ? a : a?.name)).filter(Boolean)
+      : [String(addonList)];
+    if (parts.length) rows.push({ label: 'Add-ons', value: parts.join(', ') });
+  }
+  return rows;
+}
+
 const GuestForm = ({ onSubmit, isLoading, submitLabel = 'Continue' }) => (
   <form onSubmit={onSubmit} className="guest-form">
     <div className="form-group">
@@ -66,9 +113,10 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 
   useEffect(() => {
     const times = [];
-    for (let hour = 9; hour <= 19; hour++) {
-      times.push(`${hour}:00`);
-      if (hour !== 19) times.push(`${hour}:30`);
+    for (let mins = 8 * 60 + 30; mins <= 18 * 60; mins += 30) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      times.push(`${h}:${m === 0 ? '00' : '30'}`);
     }
     setAvailableTimes(times);
     setLoading(false);
@@ -109,7 +157,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const isDateDisabled = (date) => {
     const today = new Date();
     const minPickupDate = new Date(today);
-    minPickupDate.setDate(today.getDate() + 5);
+    minPickupDate.setDate(today.getDate() + 14);
     
     // Check if date is before minimum pickup date
     if (date < minPickupDate) return true;
@@ -184,55 +232,64 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const datesByWeek = formatDatesByWeekMondayStart(availableDates);
 
   return (
-    <div className="pickup-schedule">
-      <h3 className="pickup-schedule-title">Schedule Order</h3>
-      <div className="schedule-grid">
-        {/* Calendar and notice */}
-        <div>
-          <label className="pickup-date-label">Pick-up Date:</label>
-          <div className="pickup-notice">
-            All orders require a minimum of 5 days notice before pick-up.
-          </div>
-          {/* Month navigation */}
+    <div className="pickup-schedule pickup-schedule--narrow">
+      <h3 className="pickup-schedule-title pickup-schedule-title--center">Schedule Order</h3>
+      <div className="schedule-grid schedule-grid--panels">
+        <div className="schedule-panel schedule-panel--calendar">
+          <label className="schedule-panel-label" htmlFor="checkout-calendar-anchor">Pick-up Date</label>
+          <p id="checkout-calendar-anchor" className="schedule-panel-hint">
+            All cake orders require at least 14 days notice for picking.
+          </p>
           <div className="calendar-month-nav">
-            <button type="button" onClick={goToPrevMonth} aria-label="Previous Month">&lt;</button>
+            <button type="button" onClick={goToPrevMonth} aria-label="Previous month">&lsaquo;</button>
             <span className="calendar-month-name">{monthName}</span>
-            <button type="button" onClick={goToNextMonth} aria-label="Next Month">&gt;</button>
+            <button type="button" onClick={goToNextMonth} aria-label="Next month">&rsaquo;</button>
           </div>
           <div className="weekday-header">
-            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
-              <div key={day} className="weekday-name">{day}</div>
+            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+              <div key={day} className="weekday-name">
+                {day}
+              </div>
             ))}
           </div>
           <div className="calendar-month">
             {datesByWeek.map((week, weekIndex) => (
               <div key={weekIndex} className="calendar-week">
                 {week.map((date, dayIndex) => (
-                  <div
+                  <button
                     key={dayIndex}
+                    type="button"
+                    disabled={!date || isDateDisabled(date)}
                     className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
                     onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
                   >
                     {date ? date.getDate() : ''}
-                  </div>
+                  </button>
                 ))}
               </div>
             ))}
           </div>
         </div>
-        {/* Time slots */}
-        <div>
-          <label className="pickup-time-label">Pick-up Time:</label>
-          <div className="clock-grid">
-            {availableTimes.map((time) => (
-              <div
-                key={time}
-                className={`clock-time${selectedTime === time ? ' selected' : ''}${isTimeBlocked(time) ? ' disabled' : ''}`}
-                onClick={() => !isTimeBlocked(time) && handleTimeSelect(time)}
-              >
-                {time}
-              </div>
-            ))}
+        <div className="schedule-panel schedule-panel--time">
+          <label className="schedule-panel-label">Pick-up Time</label>
+          <p className="schedule-panel-hint schedule-panel-hint--time">
+            All orders will be ready the day before they are due. If you require a later pick-up time, please send an email to{' '}
+            <a href="mailto:Enquiries@bakesbyolayide.co.uk">Enquiries@bakesbyolayide.co.uk</a>.
+          </p>
+          <div className="schedule-panel-time-slots">
+            <div className="clock-grid clock-grid--four">
+              {availableTimes.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  disabled={isTimeBlocked(time)}
+                  className={`clock-time${selectedTime === time ? ' selected' : ''}${isTimeBlocked(time) ? ' disabled' : ''}`}
+                  onClick={() => !isTimeBlocked(time) && handleTimeSelect(time)}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -256,47 +313,57 @@ const Checkout = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [tempCart, setTempCart] = useState(null);
   const [user, setUser] = useState(null);
-  const [userInfoForm, setUserInfoForm] = useState({ name: '', phone: '' });
-  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
-  const [userInfoError, setUserInfoError] = useState('');
-  const [enquiryNotes, setEnquiryNotes] = useState('');
+  const [customerDetails, setCustomerDetails] = useState(() => emptyCustomerDetails());
   const [submitError, setSubmitError] = useState('');
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
-      if (firebaseUser) {
-        // If missing displayName or phoneNumber, show form
-        const needsName = !firebaseUser.displayName || firebaseUser.displayName.trim() === '';
-        const needsPhone = !firebaseUser.phoneNumber || firebaseUser.phoneNumber.trim() === '';
-        if (needsName || needsPhone) {
-          // Try to fetch from Firestore profile doc
-          const fetchProfile = async () => {
-            let name = firebaseUser.displayName || '';
-            let phone = firebaseUser.phoneNumber || '';
-            try {
-              const userDocRef = doc(db, 'users', firebaseUser.uid);
-              const userDocSnap = await getDoc(userDocRef);
-              if (userDocSnap.exists()) {
-                const data = userDocSnap.data();
-                if (data.displayName) name = data.displayName;
-                if (data.phoneNumber) phone = data.phoneNumber;
-              }
-            } catch (e) {}
-            setUserInfoForm({ name, phone });
-            setShowUserInfoForm(!name.trim() || !phone.trim());
-          };
-          fetchProfile();
-        } else {
-          setShowUserInfoForm(false);
-        }
-      } else {
-        setShowUserInfoForm(false);
-      }
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) return undefined;
+    let cancelled = false;
+    (async () => {
+      let firstName = '';
+      let lastName = '';
+      let phone = '';
+      const dn = user.displayName?.trim();
+      if (dn) {
+        const bits = dn.split(/\s+/);
+        firstName = bits[0] || '';
+        lastName = bits.slice(1).join(' ') || '';
+      }
+      try {
+        const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          if (data.displayName?.trim()) {
+            const bits = data.displayName.trim().split(/\s+/);
+            firstName = bits[0] || firstName;
+            lastName = bits.slice(1).join(' ') || lastName;
+          }
+          if (data.phoneNumber) phone = String(data.phoneNumber);
+        }
+      } catch (e) {
+        /* ignore */
+      }
+      if (!cancelled) {
+        setCustomerDetails((prev) => ({
+          ...prev,
+          firstName: firstName || prev.firstName,
+          lastName: lastName || prev.lastName,
+          email: user.email || prev.email,
+          phone: phone || prev.phone,
+        }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid, user?.email, user?.displayName]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -460,42 +527,59 @@ const Checkout = () => {
   const handleGuestSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    setGuestInfo({
-      name: formData.get('name'),
-      email: formData.get('email'),
-      phone: formData.get('phone')
-    });
+    const nameRaw = (formData.get('name') || '').toString().trim();
+    const bits = nameRaw.split(/\s+/).filter(Boolean);
+    const firstName = bits[0] || '';
+    const lastName = bits.slice(1).join(' ') || '';
+    const email = (formData.get('email') || '').toString();
+    const phone = (formData.get('phone') || '').toString();
+    setGuestInfo({ name: nameRaw, email, phone });
+    setCustomerDetails((prev) => ({
+      ...prev,
+      firstName,
+      lastName,
+      email,
+      phone,
+    }));
   };
 
-  const resolveCustomerInfo = async () => {
-    let customerInfo = guestInfo;
-    if (user && !guestInfo) {
-      try {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          const data = userDocSnap.data();
-          customerInfo = {
-            name: data.displayName || '',
-            email: user.email || '',
-            phone: data.phoneNumber || '',
-          };
-        } else {
-          customerInfo = {
-            name: '',
-            email: user.email || '',
-            phone: '',
-          };
-        }
-      } catch (e) {
-        customerInfo = {
-          name: '',
-          email: user.email || '',
-          phone: '',
-        };
-      }
+  const buildCustomerPayload = () => {
+    const firstName = customerDetails.firstName.trim();
+    const lastName = customerDetails.lastName.trim();
+    const name = [firstName, lastName].filter(Boolean).join(' ') || customerDetails.email.trim();
+    return {
+      name,
+      firstName,
+      lastName,
+      email: customerDetails.email.trim(),
+      phone: customerDetails.phone.trim(),
+      allergies: [...customerDetails.allergies],
+      allergyOther: customerDetails.allergyOther.trim(),
+      applyAllergiesToAllItems: customerDetails.applyAllergiesToAll,
+      fruitPreference: customerDetails.fruitPreference.trim(),
+    };
+  };
+
+  const toggleAllergy = (key) => {
+    if (key === 'None') {
+      setCustomerDetails((prev) => ({ ...prev, allergies: ['None'], allergyOther: '' }));
+      return;
     }
-    return customerInfo;
+    if (key === 'Other') {
+      setCustomerDetails((prev) => {
+        const withoutNone = (prev.allergies || []).filter((a) => a !== 'None');
+        const has = withoutNone.includes('Other');
+        const allergies = has ? withoutNone.filter((a) => a !== 'Other') : [...withoutNone, 'Other'];
+        return { ...prev, allergies };
+      });
+      return;
+    }
+    setCustomerDetails((prev) => {
+      let next = (prev.allergies || []).filter((a) => a !== 'None');
+      if (next.includes(key)) next = next.filter((a) => a !== key);
+      else next = [...next, key];
+      return { ...prev, allergies: next };
+    });
   };
 
   const handleSubmitEnquiry = async () => {
@@ -524,13 +608,21 @@ const Checkout = () => {
         }
       }
 
-      const customerInfo = await resolveCustomerInfo();
-      if (!customerInfo?.email?.trim() || !customerInfo?.name?.trim() || !customerInfo?.phone?.trim()) {
-        setSubmitError('Please provide your full name, email, and phone number before submitting your order request.');
+      const customerInfo = buildCustomerPayload();
+      if (
+        !customerInfo.firstName ||
+        !customerInfo.lastName ||
+        !customerInfo.email ||
+        !customerInfo.phone
+      ) {
+        setSubmitError(
+          'Please complete your details below: first name, last name, email, and phone number are required.'
+        );
         setIsLoading(false);
         return;
       }
 
+      const enquiryNotes = customerDetails.message.trim() || null;
       const discountAmount = calculateDiscountAmount();
       const emailPayload = {
         orderId,
@@ -548,7 +640,7 @@ const Checkout = () => {
         guestInfo: customerInfo,
         pickupDate: formattedPickupDate,
         pickupTime,
-        enquiryNotes: enquiryNotes.trim() || null,
+        enquiryNotes,
       };
 
       const invoiceId = orderId;
@@ -564,7 +656,7 @@ const Checkout = () => {
         guestInfo: customerInfo,
         pickupDate: formattedPickupDate,
         pickupTime,
-        enquiryNotes: enquiryNotes.trim() || null,
+        enquiryNotes,
         paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         status: 'pending',
@@ -616,7 +708,7 @@ const Checkout = () => {
 
       const cartSnapshot = cart.map((i) => ({ ...i }));
       clearCart();
-      setEnquiryNotes('');
+      setCustomerDetails(emptyCustomerDetails());
 
       void fetch(apiUrl('/api/send-order-enquiry'), {
         method: 'POST',
@@ -680,114 +772,84 @@ const Checkout = () => {
     }
   };
 
-  // Handler for updating user info (name/phone)
-  const handleUserInfoChange = (e) => {
-    const { name, value } = e.target;
-    setUserInfoForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUserInfoSubmit = async (e) => {
-    e.preventDefault();
-    setUserInfoError('');
-    const { name, phone } = userInfoForm;
-    if (!name.trim() || !phone.trim()) {
-      setUserInfoError('Please enter your full name and phone number.');
-      return;
-    }
-    try {
-      // Only update Firestore user doc with name, phone, and email
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, { displayName: name, phoneNumber: phone, email: user.email }, { merge: true });
-      }
-      setShowUserInfoForm(false);
-    } catch (err) {
-      setUserInfoError('Failed to update profile. Please try again.');
-    }
-  };
-
   return (
     <div className="checkout-container">
       <PageTitle title="Basket" />
       <Header user={user} />
       <div className="checkout-content">
         <div className="order-summary">
-          <h2>Order Summary</h2>
+          <h2 className="order-summary-heading">Order Summary</h2>
           <div className="checkout-items">
-            {cart.map((item) => (
-              <div key={item.id} className="checkout-item">
-                {/* Left: Image */}
-                <div className="checkout-item-image">
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} />
-                  ) : null}
-                </div>
-                {/* Price in top right */}
-                <div className="checkout-item-price-absolute">
-                  £{item.price.toFixed(2)}
-                </div>
-                {/* Right: Details */}
-                <div className="checkout-item-details">
-                  <div className="checkout-item-attributes">
-                    <h3>{item.name}</h3>
-                    {item.selectedSize && (
-                      <div><span className="checkout-attr-label">Size:</span> {item.selectedSize.size}{typeof item.selectedSize.size === 'number' ? '"' : ''}</div>
-                    )}
-                    {item.batchSize && (
-                      <div><span className="checkout-attr-label">Batch Size:</span> {item.batchSize}</div>
-                    )}
-                    {item.selectedShape && (
-                      <div><span className="checkout-attr-label">Shape:</span> {item.selectedShape.name}</div>
-                    )}
-                    {item.decorationStyle && (
-                      <div><span className="checkout-attr-label">Decoration Style:</span> {item.decorationStyle}</div>
-                    )}
-                    {item.selectedFinish && (
-                      <div><span className="checkout-attr-label">Finish:</span> {item.selectedFinish.name}</div>
-                    )}
-                    {item.occasion && (
-                      <div><span className="checkout-attr-label">Occasion:</span> {item.occasion}</div>
-                    )}
-                    {item.topper && (
-                      <div><span className="checkout-attr-label">Topper:</span> {item.topper}</div>
-                    )}
-                    {item.addon && (
-                      <div><span className="checkout-attr-label">Add ons:</span> {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
-                    )}
-                    {item.notes && (
-                      <div className="checkout-additional-notes"><span className="checkout-attr-label">Additional Notes:</span> <span className="checkout-notes-text">{item.notes}</span></div>
-                    )}
+            {cart.map((item) => {
+              const specs = getCheckoutItemSpecs(item);
+              return (
+                <div key={item.id} className="checkout-item checkout-item--figma">
+                  <div
+                    className={`checkout-item-thumb${item.image ? '' : ' checkout-item-thumb--placeholder'}`}
+                  >
+                    {item.image ? <img src={item.image} alt="" /> : null}
                   </div>
-                  <div className="checkout-item-meta">
-                    {item.designInspiration && (
-                      <div className="checkout-design-inspiration"><span className="checkout-attr-label">Design Inspirations:</span><br />{item.designInspiration}</div>
-                    )}
+                  <div className="checkout-item-body">
+                    <h3 className="checkout-item-title">{item.name}</h3>
+                    {specs.length > 0 ? (
+                      <div className="checkout-spec-grid">
+                        {specs.map((row) => (
+                          <div key={row.label} className="checkout-spec-pair">
+                            <span className="checkout-spec-k">{row.label}</span>
+                            <span className="checkout-spec-v">{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                </div>
-                {/* Actions in bottom right */}
-                <div className="checkout-item-actions">
-                  <Link to={`/change/${item.id}`} className="checkout-change-link">Change</Link>
-                  <div className="checkout-item-quantity-controls">
-                    <span className="checkout-quantity-label">Quantity:</span>
-                    <button 
-                      className="checkout-quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="checkout-quantity">{item.quantity}</span>
-                    <button 
-                      className="checkout-quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
+                  <div className="checkout-item-inspiration">
+                    {item.designInspiration ? (
+                      <div className="checkout-inspiration-block">
+                        <span className="checkout-inspiration-heading">Design inspiration</span>
+                        <p className="checkout-inspiration-text">{item.designInspiration}</p>
+                      </div>
+                    ) : null}
+                    {item.notes ? (
+                      <div className="checkout-inspiration-block">
+                        <span className="checkout-inspiration-heading">Additional notes</span>
+                        <p className="checkout-inspiration-text">{item.notes}</p>
+                      </div>
+                    ) : null}
+                    {!item.designInspiration && !item.notes ? (
+                      <span className="checkout-inspiration-empty">—</span>
+                    ) : null}
+                  </div>
+                  <div className="checkout-item-aside">
+                    <div className="checkout-item-price-tag">£{item.price.toFixed(2)}</div>
+                    <Link to={`/change/${item.id}`} className="checkout-change-link checkout-change-link--accent">
+                      Change
+                    </Link>
+                    <div className="checkout-item-quantity-controls">
+                      <span className="checkout-quantity-label">Quantity</span>
+                      <div className="checkout-qty-stepper">
+                        <button
+                          type="button"
+                          className="checkout-quantity-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <span className="checkout-quantity">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="checkout-quantity-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {/* Show pickup date and time if selected */}
           {(pickupDate || pickupTime) && (
@@ -885,94 +947,215 @@ const Checkout = () => {
             </div>
           </div>
         ) : (
-          <div>
-            {/* For logged-in users, show info form if needed */}
-            {user && showUserInfoForm ? (
-              <form className="user-info-form" onSubmit={handleUserInfoSubmit} style={{ marginBottom: '2rem', background: '#f9f9f9', padding: '1.5rem', borderRadius: 8 }}>
-                <h3>Enter Your Details</h3>
-                <div className="form-group">
-                  <label htmlFor="user-fullname">Full Name *</label>
-                  <input
-                    type="text"
-                    id="user-fullname"
-                    name="name"
-                    value={userInfoForm.name}
-                    onChange={handleUserInfoChange}
-                    required
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="user-phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    id="user-phone"
-                    name="phone"
-                    value={userInfoForm.phone}
-                    onChange={handleUserInfoChange}
-                    required
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-                {userInfoError && <div className="discount-error">{userInfoError}</div>}
-                <button type="submit" className="continue-button">Save Details</button>
-              </form>
-            ) : null}
-            {/* Show summary for guests or logged-in users with info */}
-            {guestInfo && (
-              <div className="guest-info-summary">
-                <h3>Order Information</h3>
-                <p>Name: {guestInfo.name}</p>
-                <p>Email: {guestInfo.email}</p>
-                <p>Phone: {guestInfo.phone}</p>
-                <button 
-                  onClick={() => setGuestInfo(null)} 
-                  className="edit-info-button"
-                >
-                  Edit Information
+          <div className="checkout-after-auth">
+            {guestInfo ? (
+              <div className="guest-info-summary guest-info-summary--compact">
+                <span>
+                  Continuing as <strong>{guestInfo.name}</strong> ({guestInfo.email})
+                </span>
+                <button type="button" onClick={() => setGuestInfo(null)} className="edit-info-button">
+                  Switch account
                 </button>
               </div>
-            )}
-            <div className="checkout-enquiry-notes" style={{ marginBottom: '1.5rem' }}>
-              <label htmlFor="enquiry-notes" style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem' }}>
-                Message for the bakery (optional)
-              </label>
-              <textarea
-                id="enquiry-notes"
-                className="checkout-enquiry-textarea"
-                rows={4}
-                placeholder="Allergies, delivery questions, or anything else we should know before we confirm your order."
-                value={enquiryNotes}
-                onChange={(e) => setEnquiryNotes(e.target.value)}
-                maxLength={2000}
-              />
-            </div>
-            {submitError && (
-              <div className="checkout-submit-error" role="alert" style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: '#fdecea', color: '#611a15', borderRadius: 8 }}>
-                {submitError}
-              </div>
-            )}
+            ) : null}
             <PickupSchedule
               pickupDate={pickupDate}
               setPickupDate={setPickupDate}
               pickupTime={pickupTime}
               setPickupTime={setPickupTime}
             />
-            <p className="checkout-payment-notice" style={{ margin: '1rem 0 1.25rem', fontSize: '0.95rem', color: '#555', lineHeight: 1.5 }}>
-              No online payment — we will contact you by email or phone to confirm your order and arrange payment in person (card or cash as agreed).
+            <p className="checkout-payment-notice">
+              No online payment — we will contact you by email or phone to confirm your order and arrange payment in
+              person (card or cash as agreed).
             </p>
+
+            <div className="checkout-customer-narrow">
+            <section className="checkout-customer-section" aria-labelledby="checkout-customer-heading">
+              <h2 id="checkout-customer-heading" className="checkout-customer-title">
+                Customer Details
+              </h2>
+              <div className="checkout-customer-names">
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-first">First name*</label>
+                  <input
+                    id="cd-first"
+                    type="text"
+                    autoComplete="given-name"
+                    className="checkout-customer-input"
+                    placeholder="Jane"
+                    value={customerDetails.firstName}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, firstName: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-last">Last name*</label>
+                  <input
+                    id="cd-last"
+                    type="text"
+                    autoComplete="family-name"
+                    className="checkout-customer-input"
+                    placeholder="Smith"
+                    value={customerDetails.lastName}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, lastName: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="checkout-customer-names">
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-email">Email address*</label>
+                  <input
+                    id="cd-email"
+                    type="email"
+                    autoComplete="email"
+                    className="checkout-customer-input"
+                    placeholder="email@example.co.uk"
+                    value={customerDetails.email}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, email: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-phone">Phone number*</label>
+                  <div className="checkout-phone-row">
+                    <span className="checkout-phone-prefix" aria-hidden="true">
+                      🇬🇧 +44
+                    </span>
+                    <input
+                      id="cd-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      className="checkout-customer-input checkout-customer-input--phone"
+                      placeholder="7000 012345"
+                      value={customerDetails.phone}
+                      onChange={(e) =>
+                        setCustomerDetails((p) => ({ ...p, phone: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="checkout-allergy-heading">
+                <p className="checkout-allergy-section-label">Allergens or Dietary Preferences*</p>
+                <p className="checkout-allergy-item-label">Item 1:</p>
+              </div>
+              <div className="checkout-allergy-grid">
+                {ALLERGY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className={`checkout-allergy-chip${
+                      customerDetails.allergies.includes(opt) ? ' is-selected' : ''
+                    }`}
+                    onClick={() => toggleAllergy(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={`checkout-allergy-chip checkout-allergy-chip--wide${
+                    customerDetails.allergies.includes('None') ? ' is-selected' : ''
+                  }`}
+                  onClick={() => toggleAllergy('None')}
+                >
+                  None
+                </button>
+                <button
+                  type="button"
+                  className={`checkout-allergy-chip checkout-allergy-chip--wide${
+                    customerDetails.allergies.includes('Other') ? ' is-selected' : ''
+                  }`}
+                  onClick={() => toggleAllergy('Other')}
+                >
+                  Other
+                </button>
+              </div>
+              {customerDetails.allergies.includes('Other') ? (
+                <div className="checkout-customer-field checkout-customer-field--full">
+                  <label htmlFor="cd-allergy-other">Other (please specify)</label>
+                  <input
+                    id="cd-allergy-other"
+                    type="text"
+                    className="checkout-customer-input"
+                    placeholder="Please specify"
+                    value={customerDetails.allergyOther}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, allergyOther: e.target.value }))
+                    }
+                  />
+                </div>
+              ) : null}
+
+              <div className="checkout-fruit-row">
+                <div className="checkout-customer-field checkout-customer-field--grow">
+                  <label htmlFor="cd-fruit">Fruit preference (optional)</label>
+                  <input
+                    id="cd-fruit"
+                    type="text"
+                    className="checkout-customer-input"
+                    placeholder="Other"
+                    value={customerDetails.fruitPreference}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, fruitPreference: e.target.value }))
+                    }
+                  />
+                </div>
+                <label className="checkout-apply-all">
+                  <input
+                    type="checkbox"
+                    checked={customerDetails.applyAllergiesToAll}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({
+                        ...p,
+                        applyAllergiesToAll: e.target.checked,
+                      }))
+                    }
+                  />
+                  <span>Apply to all items</span>
+                </label>
+              </div>
+
+              <div className="checkout-customer-field checkout-customer-field--full">
+                <label htmlFor="cd-message">Additional Notes</label>
+                <textarea
+                  id="cd-message"
+                  className="checkout-customer-textarea"
+                  rows={5}
+                  placeholder="Enter your message"
+                  maxLength={2000}
+                  value={customerDetails.message}
+                  onChange={(e) =>
+                    setCustomerDetails((p) => ({ ...p, message: e.target.value }))
+                  }
+                />
+              </div>
+            </section>
+
+            {submitError ? (
+              <div className="checkout-submit-error" role="alert">
+                {submitError}
+              </div>
+            ) : null}
             <button
               type="button"
-              className="checkout-submit-enquiry-btn"
+              className="checkout-enquire-btn"
               onClick={handleSubmitEnquiry}
-              disabled={isLoading || (user && showUserInfoForm)}
+              disabled={isLoading}
             >
               {isLoading
                 ? submitPhase === 'ready'
                   ? 'Finishing up…'
                   : 'Saving your order…'
-                : 'Submit order enquiry'}
+                : 'Enquire with Us'}
             </button>
+            </div>
           </div>
         )}
       </div>

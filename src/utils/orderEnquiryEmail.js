@@ -50,9 +50,14 @@ function itemOptionsHtml(item) {
   if (item.topper) {
     lines.push(`<div><b>Topper:</b> ${esc(item.topper)}</div>`);
   }
-  if (item.addon) {
-    const add = Array.isArray(item.addon) ? item.addon.join(', ') : item.addon;
-    lines.push(`<div><b>Add-ons:</b> ${esc(add)}</div>`);
+  const addonList = item.addons ?? item.addon;
+  if (addonList) {
+    const parts = Array.isArray(addonList)
+      ? addonList.map((a) => (typeof a === 'string' ? a : a?.name)).filter(Boolean)
+      : [String(addonList)];
+    if (parts.length) {
+      lines.push(`<div><b>Add-ons:</b> ${esc(parts.join(', '))}</div>`);
+    }
   }
   if (item.notes) {
     lines.push(`<div><b>Notes:</b> ${esc(item.notes)}</div>`);
@@ -109,6 +114,25 @@ export function buildShopEnquiryEmail(payload) {
        </div>`
     : '';
 
+  const dietaryBlock = (() => {
+    const g = guestInfo || {};
+    const lines = [];
+    if (g.allergies?.length) {
+      lines.push(`<div><b>Dietary / allergies:</b> ${esc(g.allergies.join(', '))}</div>`);
+    }
+    if (g.allergyOther) {
+      lines.push(`<div><b>Other dietary (specify):</b> ${esc(g.allergyOther)}</div>`);
+    }
+    if (g.applyAllergiesToAllItems) {
+      lines.push('<div><i>Customer indicated: apply dietary preferences to all items.</i></div>');
+    }
+    if (g.fruitPreference) {
+      lines.push(`<div><b>Fruit preference:</b> ${esc(g.fruitPreference)}</div>`);
+    }
+    if (!lines.length) return '';
+    return `<div style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:8px;">${lines.join('')}</div>`;
+  })();
+
   return `
     <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:700px;margin:0 auto;background:#fff;padding:24px;">
       <h1 style="color:#222;font-size:1.4rem;margin:0 0 8px;">New order enquiry (pay in person)</h1>
@@ -123,6 +147,7 @@ export function buildShopEnquiryEmail(payload) {
         <div><b>Email:</b> <a href="mailto:${esc(email)}">${esc(email)}</a></div>
         <div><b>Phone:</b> <a href="tel:${esc(phone)}">${esc(phone)}</a></div>
       </div>
+      ${dietaryBlock}
       ${notesBlock}
       <h2 style="font-size:1.05rem;margin:16px 0 8px;">Items</h2>
       <table style="width:100%;border-collapse:collapse;background:#fafbfc;border-radius:8px;overflow:hidden;">
