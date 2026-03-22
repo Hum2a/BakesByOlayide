@@ -162,6 +162,7 @@ const ReviewManagement = () => {
           rating: newReview.rating,
           reviewText: newReview.review,
           source: 'admin',
+          clientSource: 'admin_reviews',
         }),
         keepalive: true,
       }).catch(() => {});

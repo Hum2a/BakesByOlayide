@@ -144,7 +144,7 @@ const AdminTestEmail = () => {
         const res = await fetch(apiUrl('/api/test-email'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to: to.trim() }),
+          body: JSON.stringify({ to: to.trim(), clientSource: 'admin_test_email' }),
         });
         const data = await readEmailApiBody(res);
         if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
@@ -157,6 +157,7 @@ const AdminTestEmail = () => {
         formData.append('to', to.trim());
         formData.append('subject', subject);
         formData.append('html', html);
+        formData.append('clientSource', 'admin_test_email');
         if (cc.trim()) formData.append('cc', cc.trim());
         const res = await fetch(apiUrl('/api/send-order-confirmation'), {
           method: 'POST',
@@ -180,6 +181,7 @@ const AdminTestEmail = () => {
             to: to.trim(),
             subject,
             html,
+            clientSource: 'admin_test_email',
             ...(cc.trim() ? { cc: cc.trim() } : {}),
           }),
         });
@@ -197,6 +199,7 @@ const AdminTestEmail = () => {
           body: JSON.stringify({
             shopSubject,
             shopHtml,
+            clientSource: 'admin_test_email',
             ...(cust ? { customerEmail: cust } : {}),
             ...(sendCustomerAck && cust ? { customerSubject, customerHtml } : {}),
           }),
@@ -223,6 +226,7 @@ const AdminTestEmail = () => {
             html,
             subjectColor,
             bodyColor,
+            clientSource: 'admin_test_email',
           }),
         });
         const data = await readEmailApiBody(res);
@@ -241,6 +245,7 @@ const AdminTestEmail = () => {
             subjectColor,
             bodyColor,
             lists: selectedLists,
+            clientSource: 'admin_test_email',
           }),
         });
         const data = await readEmailApiBody(res);

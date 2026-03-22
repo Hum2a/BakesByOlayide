@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt, FaCode } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt, FaCode, FaPaperPlane } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
@@ -15,6 +15,7 @@ import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
 import DeveloperSettings from '../widgets/admin/DeveloperSettings';
+import OutboxManagement from '../widgets/admin/OutboxManagement';
 import { hasStaffAccess } from '../../utils/staffAccess';
 import '../styles/Admin.css';
 
@@ -195,6 +196,12 @@ const Admin = () => {
             <FaEnvelope /> Newsletter
           </button>
           <button
+            className={`nav-item ${activeTab === 'outbox' ? 'active' : ''}`}
+            onClick={() => setActiveTab('outbox')}
+          >
+            <FaPaperPlane /> Outbox
+          </button>
+          <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -266,6 +273,8 @@ const Admin = () => {
         )}
 
         {activeTab === 'newsletter' && <NewsletterManagement />}
+
+        {activeTab === 'outbox' && <OutboxManagement />}
 
         {activeTab === 'settings' && (
           <div className="settings-section">

@@ -162,6 +162,7 @@ const Enquiries = () => {
           html: `<p>Dear ${displayName(enquiry) === '—' ? 'Customer' : displayName(enquiry)},</p>
                  <p>${replyMessage.replace(/\n/g, '<br/>')}</p>
                  <p style="margin-top:2em;">Best regards,<br/>Bakes by Olayide Team</p>`,
+          clientSource: 'admin_enquiries',
         }),
       });
       const data = await readEmailApiBody(response);

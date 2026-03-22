@@ -820,6 +820,7 @@ const OrderManagement = () => {
       formData.append('to', recipient);
       formData.append('subject', emailSubject);
       formData.append('html', emailBody);
+      formData.append('clientSource', 'admin_orders');
       if (emailCC) formData.append('cc', emailCC);
       emailAttachments.forEach((file, idx) => {
         formData.append('attachments', file);

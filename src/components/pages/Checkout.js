@@ -766,6 +766,7 @@ const Checkout = () => {
         customerEmail: customerInfo?.email || '',
         customerSubject: `We received your order request — ${orderId}`,
         customerHtml,
+        clientSource: 'checkout',
       });
 
       setSubmitPhase('ready');

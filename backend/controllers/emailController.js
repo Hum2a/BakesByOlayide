@@ -6,6 +6,26 @@ const {
   contactEnquiryInboxBcc,
   newReviewInboxBcc,
 } = require('../utils/emailNotifyBcc');
+const { logEmailOutboxSafe } = require('../utils/emailOutboxLog');
+
+function bccSummary(bcc) {
+  if (!bcc) return null;
+  const n = Array.isArray(bcc) ? bcc.length : 1;
+  return n ? `${n} BCC` : null;
+}
+
+/** Optional UI origin: set by frontend on API calls (not the review `source` field). */
+function readClientSource(req) {
+  const raw = req.body && req.body.clientSource;
+  if (raw == null || typeof raw !== 'string') return null;
+  const s = raw.replace(/[\r\n\u0000]/g, '').trim().slice(0, 100);
+  return s || null;
+}
+
+function outboxClient(req) {
+  const clientSource = readClientSource(req);
+  return clientSource ? { clientSource } : {};
+}
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -38,6 +58,17 @@ async function sendOrderConfirmation(req, res) {
 
   const bcc = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', to, ccList);
 
+  const outboxBase = {
+    channel: 'orders',
+    kind: 'order_confirmation',
+    to,
+    cc: ccList.length ? ccList.join(', ') : null,
+    bccSummary: bccSummary(bcc),
+    subject,
+    html,
+    meta: { attachmentCount: attachments.length },
+  };
+
   try {
     await ordersTransporter.sendMail({
       from: `"Bakes by Olayide" <${process.env.ZOHO_ORDERS_USER}>`,
@@ -48,8 +79,10 @@ async function sendOrderConfirmation(req, res) {
       html,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -63,6 +96,17 @@ async function sendEnquiryReply(req, res) {
   }
   const bcc = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', to, ccList);
 
+  const outboxBase = {
+    channel: 'enquiries',
+    kind: 'enquiry_reply',
+    to,
+    cc: ccList.length ? ccList.join(', ') : null,
+    bccSummary: bccSummary(bcc),
+    subject,
+    html,
+    meta: {},
+  };
+
   try {
     await enquiriesTransporter.sendMail({
       from: `"Bakes by Olayide Enquiries" <${process.env.ZOHO_ENQUIRIES_USER}>`,
@@ -72,8 +116,10 @@ async function sendEnquiryReply(req, res) {
       subject,
       html,
     });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -83,6 +129,12 @@ async function sendMarketingEmail(req, res) {
   if (!subject || !html) {
     return res.status(400).json({ error: 'Missing subject or html' });
   }
+  const styledHtml = `
+      <div>
+        <h2 style="color: ${subjectColor || '#000'}; margin-bottom: 16px;">${subject}</h2>
+        <div style="color: ${bodyColor || '#000'};">${html}</div>
+      </div>
+    `;
   try {
     let query = firestore.collection('newsletter').where('optedIn', '==', true);
     if (Array.isArray(lists) && lists.length > 0) {
@@ -93,13 +145,6 @@ async function sendMarketingEmail(req, res) {
     if (!emails.length) {
       return res.status(400).json({ error: 'No opted-in subscribers found for the selected list(s).'});
     }
-    // Compose the styled email body
-    const styledHtml = `
-      <div>
-        <h2 style="color: ${subjectColor || '#000'}; margin-bottom: 16px;">${subject}</h2>
-        <div style="color: ${bodyColor || '#000'};">${html}</div>
-      </div>
-    `;
     await marketingTransporter.sendMail({
       from: `"Bakes by Olayide Marketing" <${process.env.ZOHO_MARKETING_USER}>`,
       to: process.env.ZOHO_MARKETING_USER,
@@ -107,8 +152,31 @@ async function sendMarketingEmail(req, res) {
       subject,
       html: styledHtml,
     });
+    await logEmailOutboxSafe({
+      ...outboxClient(req),
+      channel: 'marketing',
+      kind: 'marketing_broadcast',
+      status: 'sent',
+      to: process.env.ZOHO_MARKETING_USER,
+      bccSummary: `${emails.length} newsletter subscribers (BCC)`,
+      recipientCount: emails.length,
+      subject,
+      html: styledHtml,
+      meta: { lists: Array.isArray(lists) ? lists : [] },
+    });
     res.json({ success: true, sent: emails.length });
   } catch (err) {
+    await logEmailOutboxSafe({
+      ...outboxClient(req),
+      channel: 'marketing',
+      kind: 'marketing_broadcast',
+      status: 'failed',
+      to: process.env.ZOHO_MARKETING_USER || '',
+      subject: subject || '',
+      html: styledHtml,
+      errorMessage: err.message,
+      meta: { lists: Array.isArray(lists) ? lists : [] },
+    });
     res.status(500).json({ error: err.message });
   }
 }
@@ -164,8 +232,47 @@ async function sendOrderEnquiry(req, res) {
 
     await Promise.all([shopMail, customerMail]);
 
+    await logEmailOutboxSafe({
+      ...outboxClient(req),
+      channel: 'orders',
+      kind: 'order_enquiry_shop',
+      status: 'sent',
+      to: ordersInbox,
+      replyTo: customerEmail || null,
+      bccSummary: bccSummary(shopBcc),
+      subject: shopSubject || 'New order enquiry',
+      html: shopHtml,
+      meta: {},
+    });
+    if (customerEmail && customerHtml) {
+      await logEmailOutboxSafe({
+        ...outboxClient(req),
+        channel: 'orders',
+        kind: 'order_enquiry_customer_ack',
+        status: 'sent',
+        to: customerEmail,
+        bccSummary: bccSummary(customerBcc),
+        subject: customerSubject || 'We received your order request',
+        html: customerHtml,
+        meta: {},
+      });
+    }
+
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({
+      ...outboxClient(req),
+      channel: 'orders',
+      kind: 'order_enquiry',
+      status: 'failed',
+      to: ordersInbox,
+      replyTo: customerEmail || null,
+      bccSummary: bccSummary(shopBcc),
+      subject: shopSubject || 'New order enquiry',
+      html: shopHtml,
+      errorMessage: e.message,
+      meta: { hadCustomerAck: !!(customerEmail && customerHtml) },
+    });
     res.status(500).json({ error: e.message });
   }
 }
@@ -200,6 +307,17 @@ async function notifyContactEnquiry(req, res) {
     <p style="white-space:pre-wrap;">${escapeHtml(msg)}</p>
   `;
 
+  const outboxBase = {
+    channel: 'enquiries',
+    kind: 'contact_form_notify',
+    to: enquiriesInbox,
+    replyTo: em,
+    bccSummary: bccSummary(bcc),
+    subject: `[Contact] ${subj}`,
+    html,
+    meta: { visitorEmail: em },
+  };
+
   try {
     await enquiriesTransporter.sendMail({
       from: `"Bakes by Olayide Enquiries" <${enquiriesInbox}>`,
@@ -209,8 +327,10 @@ async function notifyContactEnquiry(req, res) {
       subject: `[Contact] ${subj}`,
       html,
     });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -247,6 +367,16 @@ async function notifyNewReview(req, res) {
     <p style="white-space:pre-wrap;">${escapeHtml(text || '(No written comment)')}</p>
   `;
 
+  const outboxBase = {
+    channel: 'enquiries',
+    kind: 'new_review_notify',
+    to: enquiriesInbox,
+    bccSummary: bccSummary(bcc),
+    subject: `[Review] ${name} — ${r}/5`,
+    html,
+    meta: { itemId: id, rating: r, source: src },
+  };
+
   try {
     await enquiriesTransporter.sendMail({
       from: `"Bakes by Olayide Enquiries" <${enquiriesInbox}>`,
@@ -255,8 +385,10 @@ async function notifyNewReview(req, res) {
       subject: `[Review] ${name} — ${r}/5`,
       html,
     });
+    await logEmailOutboxSafe({ ...outboxBase, status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -268,15 +400,27 @@ async function sendTestEmail(req, res) {
   if (!ordersInbox) {
     return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
   }
+  const testHtml = '<p>This is a test email from the admin dashboard.</p>';
+  const outboxBase = {
+    channel: 'orders',
+    kind: 'admin_test_email',
+    to,
+    subject: 'Bakes by Olayide – test email',
+    html: testHtml,
+    meta: {},
+  };
+
   try {
     await ordersTransporter.sendMail({
       from: `"Bakes by Olayide" <${ordersInbox}>`,
       to,
       subject: 'Bakes by Olayide – test email',
-      html: '<p>This is a test email from the admin dashboard.</p>',
+      html: testHtml,
     });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }
@@ -293,22 +437,33 @@ async function sendMarketingTestEmail(req, res) {
   if (!fromUser) {
     return res.status(500).json({ error: 'ZOHO_MARKETING_USER is not configured' });
   }
-  try {
-    const styledHtml = `
+  const styledHtml = `
       <div>
         <h2 style="color: ${subjectColor || '#000'}; margin-bottom: 16px;">${subject}</h2>
         <div style="color: ${bodyColor || '#000'};">${html}</div>
         <p style="margin-top:24px;font-size:12px;color:#666;">Admin test · Marketing SMTP (not a live broadcast)</p>
       </div>
     `;
+  const outboxBase = {
+    channel: 'marketing',
+    kind: 'admin_marketing_test',
+    to,
+    subject: `[TEST] ${subject}`,
+    html: styledHtml,
+    meta: {},
+  };
+
+  try {
     await marketingTransporter.sendMail({
       from: `"Bakes by Olayide Marketing" <${fromUser}>`,
       to,
       subject: `[TEST] ${subject}`,
       html: styledHtml,
     });
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
     res.status(500).json({ error: e.message });
   }
 }

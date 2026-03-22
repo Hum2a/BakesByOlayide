@@ -40,6 +40,7 @@ const ContactUs = () => {
         phone: formData.phone,
         subject: formData.subject,
         message: formData.inquiry,
+        clientSource: 'contact_page',
       };
       await addDoc(collection(db, 'enquiries'), {
         ...formData,

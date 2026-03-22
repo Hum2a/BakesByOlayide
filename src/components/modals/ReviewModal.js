@@ -51,6 +51,7 @@ const ReviewModal = ({ isOpen, onClose, item, orderId }) => {
           reviewText: reviewData.review,
           orderId: orderId || undefined,
           source: 'customer',
+          clientSource: 'customer_review_modal',
         }),
         keepalive: true,
       }).catch(() => {});

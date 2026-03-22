@@ -151,7 +151,8 @@ const NewsletterManagement = () => {
           html: emailBody,
           subjectColor,
           bodyColor,
-          lists: selectedLists
+          lists: selectedLists,
+          clientSource: 'admin_newsletter',
         }),
       });
       const data = await readEmailApiBody(response);
