@@ -30,6 +30,13 @@ function buildCorsOriginList() {
 
 const corsAllowedOrigins = buildCorsOriginList();
 
+function httpRequestLogEnabled() {
+  const v = (process.env.HTTP_LOG || '').toLowerCase().trim();
+  if (v === '0' || v === 'false' || v === 'off') return false;
+  if (v === '1' || v === 'true' || v === 'on') return true;
+  return process.env.NODE_ENV === 'production';
+}
+
 app.use(
   cors({
     origin(origin, callback) {
@@ -42,6 +49,19 @@ app.use(
   })
 );
 app.use(express.json());
+
+if (httpRequestLogEnabled()) {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const pathOnly = String(req.originalUrl || req.url || '').split('?')[0];
+    if (!pathOnly.startsWith('/api')) return next();
+    res.on('finish', () => {
+      const ms = Date.now() - start;
+      console.log(`[http] ${req.method} ${pathOnly} ${res.statusCode} ${ms}ms`);
+    });
+    next();
+  });
+}
 
 // API routes (register before static + SPA fallback)
 app.use('/api', emailRoutes);
@@ -63,6 +83,15 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   if (!fs.existsSync(indexHtmlPath)) return next();
   res.sendFile(indexHtmlPath);
+});
+
+// Log server-side failures that no route handled (does not run for 404 on API — add 404 handler if needed)
+app.use((err, req, res, next) => {
+  console.error('[express]', err && err.stack ? err.stack : err);
+  if (res.headersSent) return next(err);
+  res.status(err.status && Number.isFinite(err.status) ? err.status : 500).json({
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : String(err.message || err),
+  });
 });
 
 module.exports = app; 

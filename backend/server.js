@@ -34,7 +34,8 @@ if (process.env.NODE_ENV === 'production') {
 
 // 0.0.0.0: accept connections on all interfaces (Windows/WSL/LAN; localhost still works).
 app.listen(PORT, '0.0.0.0', () => {
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`API listening on http://localhost:${PORT} (bound to 0.0.0.0:${PORT})`);
-  }
+  const env = process.env.NODE_ENV || 'undefined';
+  console.log(
+    `[bakesbyolayide] API listening on 0.0.0.0:${PORT} (NODE_ENV=${env}) — ${env === 'production' ? 'see Render Logs / HTTP_LOG' : `http://localhost:${PORT}`}`
+  );
 }); 
