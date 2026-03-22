@@ -11,18 +11,36 @@ const integrationsRoutes = require('./routes/integrations');
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    'https://bakesbyolayide.co.uk',
-    'https://www.bakesbyolayide.co.uk',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-  ],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+const DEFAULT_CORS_ORIGINS = [
+  'https://bakesbyolayide.co.uk',
+  'https://www.bakesbyolayide.co.uk',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+];
+
+function buildCorsOriginList() {
+  const extra = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return [...new Set([...DEFAULT_CORS_ORIGINS, ...extra])];
+}
+
+const corsAllowedOrigins = buildCorsOriginList();
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (corsAllowedOrigins.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.use(express.json());
 
 // API routes (register before static + SPA fallback)

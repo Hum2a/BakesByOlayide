@@ -19,6 +19,19 @@ function resolveListenPort() {
 
 const PORT = resolveListenPort();
 
+if (process.env.NODE_ENV === 'production') {
+  const smtpChecks = [
+    ['ZOHO_ORDERS_USER', 'ZOHO_ORDERS_PASS', 'order confirmation / checkout emails'],
+    ['ZOHO_ENQUIRIES_USER', 'ZOHO_ENQUIRIES_PASS', 'enquiry replies / contact notify'],
+    ['ZOHO_MARKETING_USER', 'ZOHO_MARKETING_PASS', 'newsletter sends'],
+  ];
+  for (const [u, p, label] of smtpChecks) {
+    if (!process.env[u]?.trim() || !process.env[p]?.trim()) {
+      console.warn(`[bakesbyolayide] SMTP not configured for ${label}: set ${u} and ${p} on the host (e.g. Render).`);
+    }
+  }
+}
+
 // 0.0.0.0: accept connections on all interfaces (Windows/WSL/LAN; localhost still works).
 app.listen(PORT, '0.0.0.0', () => {
   if (process.env.NODE_ENV !== 'production') {

@@ -1,33 +1,39 @@
 const nodemailer = require('nodemailer');
 
-const ordersTransporter = nodemailer.createTransport({
-  host: process.env.ZOHO_SMTP_HOST,
-  port: process.env.ZOHO_SMTP_PORT,
-  secure: true,
-  auth: {
-    user: process.env.ZOHO_ORDERS_USER,
-    pass: process.env.ZOHO_ORDERS_PASS,
-  },
-});
+/**
+ * Zoho: 465 = SSL from connect → secure: true. 587 = plain then STARTTLS → secure: false.
+ * Using secure:true on 587 often works locally by luck but fails or hangs on some hosts (e.g. Render).
+ */
+function parseSmtpPort() {
+  const n = parseInt(String(process.env.ZOHO_SMTP_PORT || '').trim(), 10);
+  return Number.isFinite(n) && n > 0 ? n : 587;
+}
 
-const enquiriesTransporter = nodemailer.createTransport({
-  host: process.env.ZOHO_SMTP_HOST,
-  port: process.env.ZOHO_SMTP_PORT,
-  secure: true,
-  auth: {
-    user: process.env.ZOHO_ENQUIRIES_USER,
-    pass: process.env.ZOHO_ENQUIRIES_PASS,
-  },
-});
+function smtpSecureForPort(port) {
+  const o = (process.env.ZOHO_SMTP_SECURE || '').toLowerCase().trim();
+  if (o === 'true' || o === '1') return true;
+  if (o === 'false' || o === '0') return false;
+  return port === 465;
+}
 
-const marketingTransporter = nodemailer.createTransport({
-  host: process.env.ZOHO_SMTP_HOST,
-  port: process.env.ZOHO_SMTP_PORT,
-  secure: true,
-  auth: {
-    user: process.env.ZOHO_MARKETING_USER,
-    pass: process.env.ZOHO_MARKETING_PASS,
-  },
-});
+function createZohoTransport(userEnvKey, passEnvKey) {
+  const host = (process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com').trim();
+  const port = parseSmtpPort();
+  const secure = smtpSecureForPort(port);
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: {
+      user: process.env[userEnvKey],
+      pass: process.env[passEnvKey],
+    },
+    ...(secure ? {} : { requireTLS: true }),
+  });
+}
+
+const ordersTransporter = createZohoTransport('ZOHO_ORDERS_USER', 'ZOHO_ORDERS_PASS');
+const enquiriesTransporter = createZohoTransport('ZOHO_ENQUIRIES_USER', 'ZOHO_ENQUIRIES_PASS');
+const marketingTransporter = createZohoTransport('ZOHO_MARKETING_USER', 'ZOHO_MARKETING_PASS');
 
 module.exports = { ordersTransporter, enquiriesTransporter, marketingTransporter }; 
