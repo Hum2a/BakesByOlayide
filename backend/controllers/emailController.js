@@ -1,5 +1,6 @@
 const { ordersTransporter, enquiriesTransporter, marketingTransporter } = require('../config/nodemailer');
 const { firestore } = require('../config/firebase');
+const { staffBccFor } = require('../utils/emailNotifyBcc');
 
 async function sendOrderConfirmation(req, res) {
   // For multipart/form-data, fields are in req.body, files in req.files
@@ -21,11 +22,14 @@ async function sendOrderConfirmation(req, res) {
     ccList = cc.split(',').map(email => email.trim()).filter(Boolean);
   }
 
+  const bcc = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', to, ccList);
+
   try {
     await ordersTransporter.sendMail({
       from: `"Bakes by Olayide" <${process.env.ZOHO_ORDERS_USER}>`,
       to,
       cc: ccList.length > 0 ? ccList : undefined,
+      bcc,
       subject,
       html,
       attachments: attachments.length > 0 ? attachments : undefined,
@@ -43,11 +47,14 @@ async function sendEnquiryReply(req, res) {
   if (cc) {
     ccList = cc.split(',').map((e) => e.trim()).filter(Boolean);
   }
+  const bcc = staffBccFor('EMAIL_NOTIFY_BCC_ENQUIRIES', to, ccList);
+
   try {
     await enquiriesTransporter.sendMail({
       from: `"Bakes by Olayide Enquiries" <${process.env.ZOHO_ENQUIRIES_USER}>`,
       to,
       cc: ccList.length > 0 ? ccList : undefined,
+      bcc,
       subject,
       html,
     });
@@ -114,11 +121,18 @@ async function sendOrderEnquiry(req, res) {
     return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
   }
 
+  const shopBcc = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, []);
+  const customerBcc =
+    customerEmail && customerHtml
+      ? staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', customerEmail, [])
+      : undefined;
+
   try {
     const shopMail = ordersTransporter.sendMail({
       from: `"Bakes by Olayide Orders" <${ordersInbox}>`,
       to: ordersInbox,
       replyTo: customerEmail || undefined,
+      bcc: shopBcc,
       subject: shopSubject || 'New order enquiry',
       html: shopHtml,
     });
@@ -128,6 +142,7 @@ async function sendOrderEnquiry(req, res) {
         ? ordersTransporter.sendMail({
             from: `"Bakes by Olayide" <${ordersInbox}>`,
             to: customerEmail,
+            bcc: customerBcc,
             subject: customerSubject || 'We received your order request',
             html: customerHtml,
           })

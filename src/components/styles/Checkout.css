@@ -1635,6 +1635,13 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
+/* Fixed cell geometry: same idea as time-slot glider (--time-cell-*) */
+.schedule-panel.schedule-panel--calendar {
+  --cal-cell-w: 2.85rem;
+  --cal-cell-h: 2.85rem;
+  --cal-gap: 4px;
+}
+
 .schedule-panel-label {
   display: block;
   font-family: 'Old Standard TT', Georgia, serif;
@@ -1686,17 +1693,23 @@
   font-size: 1.2rem;
 }
 
-.schedule-panel .weekday-header {
+.schedule-panel .calendar-body-slide .weekday-header {
+  display: grid;
+  grid-template-columns: repeat(7, var(--cal-cell-w));
+  gap: var(--cal-gap);
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 0.45rem;
+  padding: 0;
 }
 
-.schedule-panel .weekday-name {
-  font-size: 0.8rem;
-  padding: 0.2rem 0;
-}
-
-.schedule-panel .calendar-week {
-  gap: 4px;
+.schedule-panel .calendar-body-slide .weekday-name {
+  font-size: 0.72rem;
+  padding: 0.15rem 0;
+  text-align: center;
+  font-family: 'Old Standard TT', Georgia, serif;
 }
 
 .schedule-panel button.calendar-day {
@@ -1707,17 +1720,11 @@
   font: inherit;
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .schedule-panel button.calendar-day:disabled {
   cursor: default;
-}
-
-.schedule-panel button.calendar-day.selected {
-  background: #f3c307;
-  color: #111;
-  font-weight: 700;
-  border-color: #f3c307;
 }
 
 .schedule-panel button.calendar-day.disabled:not(.empty) {
@@ -1725,16 +1732,26 @@
   color: #9a9a9a;
 }
 
-.schedule-panel button.calendar-day.empty {
+.schedule-panel .calendar-month--flat > button.calendar-day.empty {
   background: transparent !important;
   border: none !important;
   visibility: hidden;
-  min-height: 42px;
+  height: var(--cal-cell-h);
+  min-height: var(--cal-cell-h);
 }
 
-.schedule-panel button.calendar-day:not(.empty) {
-  min-height: 42px;
-  font-size: 1rem;
+.schedule-panel .calendar-month--flat > button.calendar-day:not(.empty) {
+  width: 100%;
+  height: var(--cal-cell-h);
+  min-height: var(--cal-cell-h);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.schedule-panel .calendar-month--flat > button.calendar-day:not(.selected):not(.disabled):not(.empty):hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .schedule-panel--time {
@@ -1789,15 +1806,133 @@
   box-sizing: border-box;
 }
 
-.schedule-panel button.clock-time.selected {
-  background: #f3c307;
-  font-weight: 700;
-}
-
 .schedule-panel button.clock-time:disabled,
 .schedule-panel button.clock-time.disabled {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* —— Calendar: month slide + sliding selection highlight —— */
+@keyframes checkoutCalEnterNext {
+  from {
+    opacity: 0.35;
+    transform: translateX(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes checkoutCalEnterPrev {
+  from {
+    opacity: 0.35;
+    transform: translateX(-1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.calendar-body-slide {
+  will-change: transform, opacity;
+}
+
+.calendar-body-slide--next {
+  animation: checkoutCalEnterNext 0.38s cubic-bezier(0.25, 0.85, 0.3, 1) forwards;
+}
+
+.calendar-body-slide--prev {
+  animation: checkoutCalEnterPrev 0.38s cubic-bezier(0.25, 0.85, 0.3, 1) forwards;
+}
+
+/* One 7-column grid (like clock-grid): glider uses fixed rem + gap — no % rounding */
+.schedule-panel .calendar-month--flat {
+  display: grid;
+  grid-template-columns: repeat(7, var(--cal-cell-w));
+  gap: var(--cal-gap);
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.calendar-selection-glider {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: var(--cal-cell-w);
+  height: var(--cal-cell-h);
+  left: calc(var(--cal-sel-col, 0) * (var(--cal-cell-w) + var(--cal-gap)));
+  top: calc(var(--cal-sel-row, 0) * (var(--cal-cell-h) + var(--cal-gap)));
+  background: #f3c307;
+  border-radius: 3px;
+  box-sizing: border-box;
+  transition:
+    left 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
+}
+
+.schedule-panel button.calendar-day.selected {
+  background: transparent;
+  border-color: transparent;
+  color: #111;
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+}
+
+/* —— Time grid: sliding selection highlight —— */
+.clock-grid--with-glider {
+  --time-cell-w: 4.35rem;
+  --time-cell-h: 2.85rem;
+  --time-gap-x: 0.6rem;
+  --time-gap-y: 0.55rem;
+  position: relative;
+}
+
+.clock-time-glider {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: var(--time-cell-w);
+  height: var(--time-cell-h);
+  left: calc(var(--time-sel-col, 0) * (var(--time-cell-w) + var(--time-gap-x)));
+  top: calc(var(--time-sel-row, 0) * (var(--time-cell-h) + var(--time-gap-y)));
+  background: #f3c307;
+  border-radius: 3px;
+  transition:
+    left 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
+}
+
+.schedule-panel button.clock-time.selected {
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+}
+
+.clock-grid--with-glider .clock-time:not(.selected):not(.disabled):hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-body-slide--next,
+  .calendar-body-slide--prev {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .calendar-selection-glider,
+  .clock-time-glider {
+    transition: none;
+  }
 }
 
 .checkout-after-auth {
@@ -2156,5 +2291,18 @@
     grid-template-columns: repeat(4, 1fr);
     width: 100%;
     max-width: 100%;
+  }
+
+  .clock-time-glider {
+    display: none;
+  }
+
+  .schedule-panel button.clock-time.selected {
+    background: #f3c307;
+  }
+
+  .schedule-panel.schedule-panel--calendar {
+    --cal-cell-w: 2.45rem;
+    --cal-cell-h: 2.45rem;
   }
 }

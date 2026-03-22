@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
@@ -110,6 +110,8 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
+  /** Drives slide-in keyframes when changing month ('next' | 'prev' | null) */
+  const [monthSlide, setMonthSlide] = useState(null);
 
   useEffect(() => {
     const times = [];
@@ -139,6 +141,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 
     fetchBlockedDates();
   }, []);
+
+  useEffect(() => {
+    if (!monthSlide) return undefined;
+    const id = setTimeout(() => setMonthSlide(null), 420);
+    return () => clearTimeout(id);
+  }, [displayedMonth, monthSlide]);
 
   const getDatesForMonth = (monthDate) => {
     const year = monthDate.getFullYear();
@@ -193,10 +201,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   };
 
   const goToPrevMonth = () => {
-    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setMonthSlide('prev');
+    setDisplayedMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
   const goToNextMonth = () => {
-    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setMonthSlide('next');
+    setDisplayedMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
   const monthName = displayedMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -225,11 +235,48 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     return weeks;
   };
 
+  const datesByWeek = useMemo(
+    () => formatDatesByWeekMondayStart(availableDates),
+    [availableDates]
+  );
+
+  /** Single flat row-major list so the grid matches the time-slot glider math */
+  const flatCalendarCells = useMemo(() => {
+    const cells = [];
+    datesByWeek.forEach((week) => {
+      week.forEach((d) => cells.push(d));
+    });
+    return cells;
+  }, [datesByWeek]);
+
+  const calSelIndex = useMemo(() => {
+    if (!selectedDate) return -1;
+    return flatCalendarCells.findIndex(
+      (d) => d && d.toDateString() === selectedDate.toDateString()
+    );
+  }, [selectedDate, flatCalendarCells]);
+
+  const calCol = calSelIndex >= 0 ? calSelIndex % 7 : 0;
+  const calRow = calSelIndex >= 0 ? Math.floor(calSelIndex / 7) : 0;
+
+  const timeIndex = useMemo(
+    () => (selectedTime ? availableTimes.indexOf(selectedTime) : -1),
+    [selectedTime, availableTimes]
+  );
+  const timeCol = timeIndex >= 0 ? timeIndex % 4 : 0;
+  const timeRow = timeIndex >= 0 ? Math.floor(timeIndex / 4) : 0;
+
+  const monthKey = `${displayedMonth.getFullYear()}-${displayedMonth.getMonth()}`;
+  const calendarSlideClass =
+    monthSlide === 'next'
+      ? 'calendar-body-slide--next'
+      : monthSlide === 'prev'
+        ? 'calendar-body-slide--prev'
+        : '';
+
   if (loading) {
     return <div className="loading">Loading pickup options...</div>;
   }
-
-  const datesByWeek = formatDatesByWeekMondayStart(availableDates);
 
   return (
     <div className="pickup-schedule pickup-schedule--narrow">
@@ -245,29 +292,38 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
             <span className="calendar-month-name">{monthName}</span>
             <button type="button" onClick={goToNextMonth} aria-label="Next month">&rsaquo;</button>
           </div>
-          <div className="weekday-header">
-            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-              <div key={day} className="weekday-name">
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className="calendar-month">
-            {datesByWeek.map((week, weekIndex) => (
-              <div key={weekIndex} className="calendar-week">
-                {week.map((date, dayIndex) => (
-                  <button
-                    key={dayIndex}
-                    type="button"
-                    disabled={!date || isDateDisabled(date)}
-                    className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
-                    onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
-                  >
-                    {date ? date.getDate() : ''}
-                  </button>
-                ))}
-              </div>
-            ))}
+          <div
+            key={monthKey}
+            className={`calendar-body-slide ${calendarSlideClass}`.trim()}
+          >
+            <div className="weekday-header">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                <div key={day} className="weekday-name">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div
+              className="calendar-month calendar-month--flat"
+              style={
+                calSelIndex >= 0
+                  ? { '--cal-sel-col': calCol, '--cal-sel-row': calRow }
+                  : undefined
+              }
+            >
+              {calSelIndex >= 0 ? <div className="calendar-selection-glider" aria-hidden="true" /> : null}
+              {flatCalendarCells.map((date, idx) => (
+                <button
+                  key={date ? `d-${date.getTime()}` : `e-${idx}`}
+                  type="button"
+                  disabled={!date || isDateDisabled(date)}
+                  className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
+                  onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
+                >
+                  {date ? date.getDate() : ''}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="schedule-panel schedule-panel--time">
@@ -277,7 +333,15 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
             <a href="mailto:Enquiries@bakesbyolayide.co.uk">Enquiries@bakesbyolayide.co.uk</a>.
           </p>
           <div className="schedule-panel-time-slots">
-            <div className="clock-grid clock-grid--four">
+            <div
+              className="clock-grid clock-grid--four clock-grid--with-glider"
+              style={
+                timeIndex >= 0
+                  ? { '--time-sel-col': timeCol, '--time-sel-row': timeRow }
+                  : undefined
+              }
+            >
+              {timeIndex >= 0 ? <div className="clock-time-glider" aria-hidden="true" /> : null}
               {availableTimes.map((time) => (
                 <button
                   key={time}
