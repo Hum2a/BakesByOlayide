@@ -37,12 +37,17 @@ async function sendOrderConfirmation(req, res) {
 }
 
 async function sendEnquiryReply(req, res) {
-  const { to, subject, html } = req.body;
+  const { to, subject, html, cc } = req.body;
   if (!to) return res.status(400).json({ error: 'Missing recipient email' });
+  let ccList = [];
+  if (cc) {
+    ccList = cc.split(',').map((e) => e.trim()).filter(Boolean);
+  }
   try {
     await enquiriesTransporter.sendMail({
       from: `"Bakes by Olayide Enquiries" <${process.env.ZOHO_ENQUIRIES_USER}>`,
       to,
+      cc: ccList.length > 0 ? ccList : undefined,
       subject,
       html,
     });
@@ -156,10 +161,43 @@ async function sendTestEmail(req, res) {
   }
 }
 
+/**
+ * Single-recipient marketing-style send for admin testing (avoids newsletter subscriber query).
+ */
+async function sendMarketingTestEmail(req, res) {
+  const { to, subject, html, subjectColor, bodyColor } = req.body;
+  if (!to || !subject || !html) {
+    return res.status(400).json({ error: 'Missing to, subject, or html' });
+  }
+  const fromUser = process.env.ZOHO_MARKETING_USER;
+  if (!fromUser) {
+    return res.status(500).json({ error: 'ZOHO_MARKETING_USER is not configured' });
+  }
+  try {
+    const styledHtml = `
+      <div>
+        <h2 style="color: ${subjectColor || '#000'}; margin-bottom: 16px;">${subject}</h2>
+        <div style="color: ${bodyColor || '#000'};">${html}</div>
+        <p style="margin-top:24px;font-size:12px;color:#666;">Admin test · Marketing SMTP (not a live broadcast)</p>
+      </div>
+    `;
+    await marketingTransporter.sendMail({
+      from: `"Bakes by Olayide Marketing" <${fromUser}>`,
+      to,
+      subject: `[TEST] ${subject}`,
+      html: styledHtml,
+    });
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
 module.exports = {
   sendOrderConfirmation,
   sendEnquiryReply,
   sendMarketingEmail,
   sendOrderEnquiry,
   sendTestEmail,
+  sendMarketingTestEmail,
 };

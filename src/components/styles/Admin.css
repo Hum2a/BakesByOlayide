@@ -580,6 +580,13 @@ td {
   margin: 0;
 }
 
+/* Lazy-loaded AdminTestEmail — must live here so Suspense fallback is styled before chunk loads */
+.admin-test-email-suspense-fallback {
+  padding: 2rem 1rem;
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
 /* Additional Mobile Styles */
 @media (max-width: 768px) {
   .admin-sidebar {

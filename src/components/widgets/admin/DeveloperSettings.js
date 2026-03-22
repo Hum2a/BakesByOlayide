@@ -3,11 +3,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
 import {
   apiUrl,
-  apiUrlAtBase,
   getApiBaseUrl,
   getRuntimeEnv,
+  isLocalRuntime,
   LIVE_API_ORIGIN,
   LOCAL_API_ORIGIN,
+  normalizeBaseUrl,
 } from '../../../config/environment';
 
 function envFlag(name) {
@@ -80,7 +81,7 @@ function ResultCard({ title, ok, url, ms, message, children }) {
 
 const DeveloperSettings = () => {
   const [running, setRunning] = useState(false);
-  const [localPing, setLocalPing] = useState(null);
+  const [localPings, setLocalPings] = useState([]);
   const [livePing, setLivePing] = useState(null);
   const [firebaseClient, setFirebaseClient] = useState(null);
   const [serverDiag, setServerDiag] = useState(null);
@@ -91,14 +92,29 @@ const DeveloperSettings = () => {
     setLastRun(new Date().toISOString());
     setServerDiag(null);
 
-    const [fb, loc, live] = await Promise.all([
+    const configuredBase = getApiBaseUrl();
+    const localTasks = [];
+    if (isLocalRuntime) {
+      localTasks.push(
+        pingApiTest('Backend (local · this app’s URL)', configuredBase)
+      );
+      if (normalizeBaseUrl(configuredBase) !== normalizeBaseUrl(LOCAL_API_ORIGIN)) {
+        localTasks.push(
+          pingApiTest('Backend (localhost:5000 — default dev port)', LOCAL_API_ORIGIN)
+        );
+      }
+    } else {
+      localTasks.push(pingApiTest('Backend (localhost:5000)', LOCAL_API_ORIGIN));
+    }
+
+    const [fb, live, ...locals] = await Promise.all([
       checkFirebaseClient(),
-      pingApiTest('Backend (local)', LOCAL_API_ORIGIN),
       pingApiTest('Backend (live / Render)', LIVE_API_ORIGIN),
+      ...localTasks,
     ]);
 
     setFirebaseClient(fb);
-    setLocalPing(loc);
+    setLocalPings(locals);
     setLivePing(live);
 
     const diagUrl = apiUrl('/api/integrations/status');
@@ -135,7 +151,6 @@ const DeveloperSettings = () => {
 
   const configured = getApiBaseUrl();
   const runtime = getRuntimeEnv();
-  const matchesLocal = configured === LOCAL_API_ORIGIN || configured.includes('localhost');
   const matchesLive = configured.includes('onrender.com') || configured === LIVE_API_ORIGIN;
 
   return (
@@ -214,17 +229,20 @@ const DeveloperSettings = () => {
           ms={firebaseClient?.ms}
           message={firebaseClient?.message}
         />
-        <ResultCard
-          title={localPing?.label || 'Backend (local)'}
-          ok={localPing?.ok}
-          url={localPing?.url}
-          ms={localPing?.ms}
-          message={
-            localPing?.ok
-              ? `${localPing.message}${matchesLocal ? ' · matches configured base' : ''}`
-              : localPing?.message
-          }
-        />
+        {localPings.map((lp, idx) => (
+          <ResultCard
+            key={`${lp.url}-${idx}`}
+            title={lp.label || 'Backend (local)'}
+            ok={lp.ok}
+            url={lp.url}
+            ms={lp.ms}
+            message={
+              lp.ok
+                ? `${lp.message}${idx === 0 && isLocalRuntime ? ' · primary URL for this build' : ''}`
+                : lp.message
+            }
+          />
+        ))}
         <ResultCard
           title={livePing?.label || 'Backend (live)'}
           ok={livePing?.ok}

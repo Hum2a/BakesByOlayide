@@ -6,6 +6,10 @@
  * - Production build (npm run build): live API at Render URL
  *
  * Override with REACT_APP_API_BASE_URL and/or REACT_APP_RUNTIME_ENV=local|live
+ *
+ * If the Express server uses PORT=5001 (or anything other than 5000), set e.g.
+ * REACT_APP_API_BASE_URL=http://localhost:5001 and restart the dev server. Also set
+ * package.json "proxy" to the same origin if you rely on CRA’s /api proxy.
  */
 
 export const LIVE_API_ORIGIN = 'https://bakesbyolayide-server.onrender.com';
