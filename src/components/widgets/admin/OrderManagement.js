@@ -15,6 +15,7 @@ import {
   FaChevronUp,
   FaSearch,
   FaSort,
+  FaClipboardList,
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
 import MessageModal from '../../modals/MessageModal';
@@ -96,6 +97,385 @@ function statusChangeEmailHint(newStatus) {
   return 'Consider emailing the customer so they know their order has been updated.';
 }
 
+function formatAnyTimestamp(ts) {
+  if (ts == null || ts === '') return '—';
+  try {
+    if (typeof ts.toDate === 'function') return ts.toDate().toLocaleString();
+    if (ts instanceof Date) return ts.toLocaleString();
+    if (typeof ts.seconds === 'number') return new Date(ts.seconds * 1000).toLocaleString();
+  } catch (_) {
+    /* ignore */
+  }
+  if (typeof ts === 'string' || typeof ts === 'number') {
+    const d = new Date(ts);
+    if (!Number.isNaN(d.getTime())) return d.toLocaleString();
+  }
+  return String(ts);
+}
+
+function getOrderItemSpecRows(item) {
+  const rows = [];
+  if (!item || typeof item !== 'object') return rows;
+  if (item.selectedSize) {
+    rows.push({
+      label: 'Size',
+      value: `${item.selectedSize.size}${typeof item.selectedSize.size === 'number' ? '"' : ''}`,
+    });
+  }
+  if (item.batchSize) rows.push({ label: 'Batch size', value: item.batchSize });
+  if (item.selectedShape?.name) rows.push({ label: 'Shape', value: item.selectedShape.name });
+  if (item.decorationStyle) rows.push({ label: 'Decoration', value: item.decorationStyle });
+  if (item.selectedFinish?.name) rows.push({ label: 'Finish', value: item.selectedFinish.name });
+  if (item.occasion) rows.push({ label: 'Occasion', value: item.occasion });
+  if (item.topper) rows.push({ label: 'Topper', value: item.topper });
+  const addonList = item.addons ?? item.addon;
+  if (addonList) {
+    const parts = Array.isArray(addonList)
+      ? addonList.map((a) => (typeof a === 'string' ? a : a?.name)).filter(Boolean)
+      : [String(addonList)];
+    if (parts.length) rows.push({ label: 'Add-ons', value: parts.join(', ') });
+  }
+  return rows;
+}
+
+const ORDER_DETAIL_MAIN_KEYS = new Set([
+  'id',
+  'orderId',
+  'items',
+  'status',
+  'paymentMethod',
+  'createdAt',
+  'updatedAt',
+  'subtotal',
+  'total',
+  'discountAmount',
+  'appliedDiscount',
+  'guestInfo',
+  'pickupDate',
+  'pickupTime',
+  'enquiryNotes',
+  'invoiceRef',
+  'enquiryEmailStatus',
+  'enquiryEmailSentAt',
+  'enquiryEmailFailedAt',
+  'userId',
+  'userEmail',
+  'customerName',
+  'customerEmail',
+]);
+
+const ITEM_DETAIL_USED_KEYS = new Set([
+  'name',
+  'quantity',
+  'price',
+  'total',
+  'selectedSize',
+  'batchSize',
+  'selectedShape',
+  'decorationStyle',
+  'selectedFinish',
+  'occasion',
+  'topper',
+  'addons',
+  'addon',
+]);
+
+function formatScalarForDetail(value, depth = 0) {
+  if (value == null) return '—';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '—';
+    if (value.every((v) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) {
+      return value.join(', ');
+    }
+    if (depth < 4) {
+      return (
+        <ul className="order-detail-nested-list">
+          {value.map((v, i) => (
+            <li key={i}>
+              {typeof v === 'object' && v !== null ? (
+                <pre className="order-detail-inline-pre">{JSON.stringify(v, null, 2)}</pre>
+              ) : (
+                String(v)
+              )}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'object') {
+    if (typeof value.toDate === 'function') return formatAnyTimestamp(value);
+    if (depth < 3) {
+      const entries = Object.entries(value);
+      if (entries.length === 0) return '—';
+      return (
+        <dl className="order-detail-subdl">
+          {entries.map(([k, v]) => (
+            <React.Fragment key={k}>
+              <dt>{k}</dt>
+              <dd>{formatScalarForDetail(v, depth + 1)}</dd>
+            </React.Fragment>
+          ))}
+        </dl>
+      );
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
+function orderToJsonString(order) {
+  try {
+    return JSON.stringify(
+      order,
+      (_k, v) => {
+        if (v && typeof v.toDate === 'function') {
+          try {
+            return v.toDate().toISOString();
+          } catch {
+            return null;
+          }
+        }
+        if (v instanceof Date) return v.toISOString();
+        return v;
+      },
+      2
+    );
+  } catch {
+    return 'Could not serialize order to JSON.';
+  }
+}
+
+function OrderFullDetailModal({ order, onClose }) {
+  if (!order) return null;
+  const gi = order.guestInfo && typeof order.guestInfo === 'object' ? order.guestInfo : null;
+  const discount = order.appliedDiscount;
+  const extraOrderKeys = Object.keys(order).filter((k) => !ORDER_DETAIL_MAIN_KEYS.has(k));
+
+  return (
+    <div
+      className="order-detail-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-detail-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="order-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="modal-close-btn order-detail-close" onClick={onClose} aria-label="Close">
+          <FaTimes />
+        </button>
+        <h3 id="order-detail-title" className="order-detail-title">
+          Full order detail
+        </h3>
+        <p className="order-detail-lead">
+          Document ID: <code className="order-detail-code">{order.id}</code>
+          {order.orderId && order.orderId !== order.id && (
+            <>
+              {' · '}
+              Order ref: <code className="order-detail-code">{order.orderId}</code>
+            </>
+          )}
+        </p>
+
+        <div className="order-detail-scroll">
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Summary</h4>
+            <dl className="order-detail-dl">
+              <dt>Status</dt>
+              <dd>{order.status ?? '—'}</dd>
+              <dt>Payment method</dt>
+              <dd>{order.paymentMethod ?? '—'}</dd>
+              <dt>Invoice ref</dt>
+              <dd>{order.invoiceRef ? <code className="order-detail-code">{order.invoiceRef}</code> : '—'}</dd>
+              <dt>Created</dt>
+              <dd>{formatAnyTimestamp(order.createdAt)}</dd>
+              <dt>Updated</dt>
+              <dd>{formatAnyTimestamp(order.updatedAt)}</dd>
+              <dt>Enquiry email</dt>
+              <dd>{order.enquiryEmailStatus ?? '—'}</dd>
+              {order.enquiryEmailSentAt && (
+                <>
+                  <dt>Email sent at</dt>
+                  <dd>{formatAnyTimestamp(order.enquiryEmailSentAt)}</dd>
+                </>
+              )}
+              {order.enquiryEmailFailedAt && (
+                <>
+                  <dt>Email failed at</dt>
+                  <dd>{formatAnyTimestamp(order.enquiryEmailFailedAt)}</dd>
+                </>
+              )}
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Customer &amp; account</h4>
+            <dl className="order-detail-dl">
+              <dt>Display name (resolved)</dt>
+              <dd>{order.customerName || '—'}</dd>
+              <dt>Email (resolved)</dt>
+              <dd>{order.customerEmail || '—'}</dd>
+              <dt>User ID</dt>
+              <dd>{order.userId ? <code className="order-detail-code">{order.userId}</code> : '—'}</dd>
+              <dt>Account email</dt>
+              <dd>{order.userEmail || '—'}</dd>
+            </dl>
+            {gi ? (
+              <>
+                <p className="order-detail-subheading">Guest / checkout payload</p>
+                <dl className="order-detail-dl">
+                  {Object.entries(gi).map(([k, v]) => (
+                    <React.Fragment key={k}>
+                      <dt>{k}</dt>
+                      <dd>{formatScalarForDetail(v)}</dd>
+                    </React.Fragment>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p className="order-detail-muted">No guestInfo object on this order.</p>
+            )}
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Pickup &amp; notes</h4>
+            <dl className="order-detail-dl">
+              <dt>Pickup date</dt>
+              <dd>{order.pickupDate ?? '—'}</dd>
+              <dt>Pickup time</dt>
+              <dd>{order.pickupTime ?? '—'}</dd>
+              <dt>Customer message / notes</dt>
+              <dd className="order-detail-pre-wrap">{order.enquiryNotes?.trim() ? order.enquiryNotes : '—'}</dd>
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Totals</h4>
+            <dl className="order-detail-dl">
+              <dt>Subtotal</dt>
+              <dd>{order.subtotal != null ? `£${Number(order.subtotal).toFixed(2)}` : '—'}</dd>
+              <dt>Discount amount</dt>
+              <dd>{order.discountAmount != null ? `£${Number(order.discountAmount).toFixed(2)}` : '—'}</dd>
+              <dt>Applied discount</dt>
+              <dd>
+                {discount && typeof discount === 'object' ? (
+                  <dl className="order-detail-subdl order-detail-subdl--inline">
+                    {Object.entries(discount).map(([k, v]) => (
+                      <React.Fragment key={k}>
+                        <dt>{k}</dt>
+                        <dd>{formatScalarForDetail(v)}</dd>
+                      </React.Fragment>
+                    ))}
+                  </dl>
+                ) : (
+                  '—'
+                )}
+              </dd>
+              <dt>Total</dt>
+              <dd>
+                <strong>{order.total != null ? `£${Number(order.total).toFixed(2)}` : '—'}</strong>
+              </dd>
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Line items</h4>
+            {(order.items || []).length === 0 ? (
+              <p className="order-detail-muted">No items.</p>
+            ) : (
+              <ul className="order-detail-item-list">
+                {(order.items || []).map((item, index) => {
+                  const qty = Number(item?.quantity) || 0;
+                  const price = Number(item?.price);
+                  const lineTotal =
+                    item?.total != null
+                      ? Number(item.total)
+                      : Number.isFinite(price) && qty
+                        ? price * qty
+                        : null;
+                  const specRows = getOrderItemSpecRows(item);
+                  const extraEntries = Object.entries(item || {}).filter(([k]) => !ITEM_DETAIL_USED_KEYS.has(k));
+
+                  return (
+                    <li key={index} className="order-detail-item-card">
+                      <div className="order-detail-item-head">
+                        <span className="order-detail-item-name">{item?.name ?? '(unnamed)'}</span>
+                        <span className="order-detail-item-meta">
+                          ×{qty || '—'}
+                          {Number.isFinite(price) && ` @ £${price.toFixed(2)}`}
+                          {lineTotal != null && Number.isFinite(lineTotal) && (
+                            <span className="order-detail-item-line-total"> · Line £{lineTotal.toFixed(2)}</span>
+                          )}
+                        </span>
+                      </div>
+                      {specRows.length > 0 && (
+                        <dl className="order-detail-dl order-detail-dl--compact">
+                          {specRows.map((row) => (
+                            <React.Fragment key={row.label}>
+                              <dt>{row.label}</dt>
+                              <dd>{row.value}</dd>
+                            </React.Fragment>
+                          ))}
+                        </dl>
+                      )}
+                      {extraEntries.length > 0 && (
+                        <>
+                          <p className="order-detail-subheading">Other fields on this line</p>
+                          <dl className="order-detail-dl order-detail-dl--compact">
+                            {extraEntries.map(([k, v]) => (
+                              <React.Fragment key={k}>
+                                <dt>{k}</dt>
+                                <dd>{formatScalarForDetail(v)}</dd>
+                              </React.Fragment>
+                            ))}
+                          </dl>
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          {extraOrderKeys.length > 0 && (
+            <section className="order-detail-section">
+              <h4 className="order-detail-section-title">Additional fields on document</h4>
+              <dl className="order-detail-dl">
+                {extraOrderKeys.map((k) => (
+                  <React.Fragment key={k}>
+                    <dt>{k}</dt>
+                    <dd>{formatScalarForDetail(order[k])}</dd>
+                  </React.Fragment>
+                ))}
+              </dl>
+            </section>
+          )}
+
+          <details className="order-detail-raw-details">
+            <summary>Complete raw record (JSON)</summary>
+            <pre className="order-detail-raw-json">{orderToJsonString(order)}</pre>
+          </details>
+        </div>
+
+        <div className="order-detail-footer">
+          <button type="button" className="order-detail-done-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +505,7 @@ const OrderManagement = () => {
   const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
   const [statusChangeModal, setStatusChangeModal] = useState(null);
   const [statusChangeSaving, setStatusChangeSaving] = useState(false);
+  const [orderDetailModal, setOrderDetailModal] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilters, setStatusFilters] = useState([]);
@@ -1005,6 +1386,14 @@ const OrderManagement = () => {
                       )}
                       <button
                         type="button"
+                        className="view-full-order-btn"
+                        onClick={() => setOrderDetailModal(order)}
+                        title="View every field on this order"
+                      >
+                        <FaClipboardList /> Full order
+                      </button>
+                      <button
+                        type="button"
                         className="expand-email-btn"
                         onClick={() => toggleExpandRow(order.id)}
                         title={isExpanded ? 'Hide Email Actions' : 'Show Email Actions'}
@@ -1156,6 +1545,11 @@ const OrderManagement = () => {
           </div>
         </div>,
         document.body
+        )}
+      {orderDetailModal &&
+        createPortal(
+          <OrderFullDetailModal order={orderDetailModal} onClose={() => setOrderDetailModal(null)} />,
+          document.body
         )}
       {emailModalOpen && (
         <div className="newsletter-modal-overlay">
