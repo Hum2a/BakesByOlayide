@@ -8,6 +8,7 @@ const {
   newReviewInboxBcc,
 } = require('../utils/emailNotifyBcc');
 const { logEmailOutboxSafe } = require('../utils/emailOutboxLog');
+const { smtpFailureMessage } = require('../utils/smtpFailureMessage');
 
 function bccSummary(bcc) {
   if (!bcc) return null;
@@ -84,8 +85,9 @@ async function sendOrderConfirmation(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -122,8 +124,9 @@ async function sendEnquiryReply(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -175,6 +178,7 @@ async function sendMarketingEmail(req, res) {
     });
     res.json({ success: true, sent: emails.length });
   } catch (err) {
+    const errMsg = smtpFailureMessage(err);
     await logEmailOutboxSafe({
       ...outboxClient(req),
       channel: 'marketing',
@@ -185,14 +189,14 @@ async function sendMarketingEmail(req, res) {
       bccRecipients: [],
       subject: subject || '',
       html: styledHtml,
-      errorMessage: err.message,
+      errorMessage: errMsg,
       recipientCount: subscriberCount > 0 ? subscriberCount : undefined,
       meta: {
         lists: Array.isArray(lists) ? lists : [],
         bccListRedacted: true,
       },
     });
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -280,6 +284,7 @@ async function sendOrderEnquiry(req, res) {
 
     res.json({ success: true });
   } catch (e) {
+    const errMsg = smtpFailureMessage(e);
     await logEmailOutboxSafe({
       ...outboxClient(req),
       channel: 'orders',
@@ -292,10 +297,10 @@ async function sendOrderEnquiry(req, res) {
       bccSummary: bccSummary(shopBcc),
       subject: shopSubject || 'New order enquiry',
       html: shopHtml,
-      errorMessage: e.message,
+      errorMessage: errMsg,
       meta: { hadCustomerAck: !!(customerEmail && customerHtml) },
     });
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -354,8 +359,9 @@ async function notifyContactEnquiry(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -414,8 +420,9 @@ async function notifyNewReview(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -448,8 +455,9 @@ async function sendTestEmail(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 
@@ -493,8 +501,9 @@ async function sendMarketingTestEmail(req, res) {
     await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'sent' });
     res.json({ success: true });
   } catch (e) {
-    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: e.message });
-    res.status(500).json({ error: e.message });
+    const errMsg = smtpFailureMessage(e);
+    await logEmailOutboxSafe({ ...outboxBase, ...outboxClient(req), status: 'failed', errorMessage: errMsg });
+    res.status(500).json({ error: errMsg });
   }
 }
 

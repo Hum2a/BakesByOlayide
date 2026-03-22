@@ -1,6 +1,7 @@
 const admin = require('firebase-admin');
 const { firestore } = require('../config/firebase');
 const { ordersTransporter, enquiriesTransporter, marketingTransporter } = require('../config/nodemailer');
+const { smtpFailureMessage } = require('../utils/smtpFailureMessage');
 
 function transporterForChannel(channel) {
   switch (String(channel || '').toLowerCase()) {
@@ -157,8 +158,8 @@ async function resendOutboxEmail(req, res) {
     });
     return res.json({ success: true, warnings });
   } catch (e) {
-    const msg = (e && e.message) || String(e);
-    console.error('[resend-outbox-email]', docId, channel, kind, msg);
+    const msg = smtpFailureMessage(e);
+    console.error('[resend-outbox-email]', docId, channel, kind, (e && e.message) || String(e));
     try {
       await ref.update({
         lastResendAt: admin.firestore.FieldValue.serverTimestamp(),
