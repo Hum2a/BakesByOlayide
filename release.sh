@@ -15,6 +15,8 @@ FORCE=false
 show_help() {
   echo "Usage: $0 [OPTIONS]"
   echo "Manage release tags with semantic versioning"
+  echo "Updates package.json version and README **Package version:** on every release;"
+  echo "updates CHANGELOG.md for stable releases (no --name)."
   echo ""
   echo "Options:"
   echo "  --major           Increment major version (vX.0.0)"
@@ -412,8 +414,42 @@ ${removed}"
   echo "$changelog_content"
 }
 
+# Bump "version" in package.json and README.md (semver without leading v)
+update_package_json_version() {
+  [[ -f package.json ]] || return 0
+  export VERSION_SEMVER
+  node <<'NODEJS'
+const fs = require('fs');
+const v = process.env.VERSION_SEMVER;
+const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+p.version = v;
+fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+NODEJS
+}
+
+update_readme_version() {
+  [[ -f README.md ]] || return 0
+  export VERSION_SEMVER
+  node <<'NODEJS'
+const fs = require('fs');
+const v = process.env.VERSION_SEMVER;
+const path = 'README.md';
+let t = fs.readFileSync(path, 'utf8');
+const re = /(\*\*Package version:\*\* `)[^`]+(`)/;
+if (re.test(t)) {
+  fs.writeFileSync(path, t.replace(re, (_, a, b) => a + v + b));
+}
+NODEJS
+}
+
+VERSION_SEMVER=${NEW_TAG#v}
+echo "Updating package.json and README.md to version ${VERSION_SEMVER}..."
+update_package_json_version
+update_readme_version
+
 # Update CHANGELOG.md if this is a release (not a pre-release with --name)
 CHANGELOG_FILE="CHANGELOG.md"
+CHANGELOG_UPDATED=false
 if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
   echo "Updating CHANGELOG.md..."
   
@@ -421,7 +457,7 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
   RELEASE_DATE=$(date -u +"%Y-%m-%d")
   
   # Extract version number from tag (remove 'v' prefix)
-  VERSION_NUMBER=${NEW_TAG#v}
+  VERSION_NUMBER=${VERSION_SEMVER}
   
   # Generate changelog entries from git commits
   echo "Generating changelog entries from git commits since ${LATEST_TAG:-beginning}..."
@@ -526,19 +562,26 @@ if [[ -z "$NAME" && -f "$CHANGELOG_FILE" ]]; then
   
   # Replace the original changelog with the updated one
   mv "$TEMP_CHANGELOG" "$CHANGELOG_FILE"
-  
-  # Stage and commit the changelog
-  git add "$CHANGELOG_FILE"
-  
-  # Check if there are changes to commit
-  if git diff --cached --quiet "$CHANGELOG_FILE"; then
-    echo "No changes to CHANGELOG.md"
+  CHANGELOG_UPDATED=true
+fi
+
+# One commit for CHANGELOG (if any) + package.json + README.md
+[[ "$CHANGELOG_UPDATED" == true ]] && git add "$CHANGELOG_FILE"
+[[ -f package.json ]] && git add package.json
+[[ -f README.md ]] && git add README.md
+
+if ! git diff --cached --quiet; then
+  if [[ "$CHANGELOG_UPDATED" == true ]]; then
+    COMMIT_MSG="chore: update CHANGELOG and bump version for ${NEW_TAG}"
+    echo "Committing CHANGELOG.md, package.json, and README.md for version ${VERSION_SEMVER}..."
   else
-    git commit -m "chore: update CHANGELOG.md for ${NEW_TAG}" >/dev/null 2>&1
-    echo "CHANGELOG.md updated and committed for version ${VERSION_NUMBER}"
-    # Push the changelog commit
-    git push origin HEAD >/dev/null 2>&1 || true
+    COMMIT_MSG="chore: bump version to ${VERSION_SEMVER} (${NEW_TAG})"
+    echo "Committing package.json and README.md for version ${VERSION_SEMVER}..."
   fi
+  git commit -m "$COMMIT_MSG" >/dev/null 2>&1
+  git push origin HEAD >/dev/null 2>&1 || true
+else
+  echo "No file changes to commit (version files and CHANGELOG already match)"
 fi
 
 # Create and push new tag
