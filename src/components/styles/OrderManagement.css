@@ -977,6 +977,35 @@ td.order-actions {
   box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
 }
 
+/* Order email modal — outcome banner (success / uncertain network / hard error) */
+.order-send-email-status {
+  margin-bottom: 10px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  white-space: pre-line;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.order-send-email-status--success {
+  color: #2e7d32;
+  background: #e8f5e9;
+  border-color: #a5d6a7;
+}
+
+.order-send-email-status--uncertain {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.order-send-email-status--error {
+  color: #c62828;
+  background: #ffebee;
+  border-color: #ffcdd2;
+}
+
 /* Status change → remind to email customer (portal to body; self-contained — do not rely on Newsletter CSS) */
 /* Portals mount on document.body — re-define tokens so var(--om-*) always resolves */
 .order-status-change-root {

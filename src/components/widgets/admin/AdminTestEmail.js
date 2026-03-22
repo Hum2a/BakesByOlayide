@@ -6,11 +6,20 @@ import {
   appendUncertaintyToFailureMessage,
   readEmailApiBody,
   emailApiErrorDetail,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
 } from '../../../utils/emailSendMessaging';
 import { TEST_EMAIL_PRESETS, getPresetBodies } from './testEmailPresets';
 import '../../styles/AdminTestEmail.css';
 
 const defaultColors = { subjectColor: '#1a1a1a', bodyColor: '#333333' };
+
+function testEmailStatusTone(status) {
+  if (!status || status === 'Sending…') return 'neutral';
+  if (status.startsWith('Sent ') || status.startsWith('Newsletter API:')) return 'ok';
+  if (isUncertainEmailOutcomeMessage(status)) return 'uncertain';
+  return 'error';
+}
 
 const AdminTestEmail = () => {
   const [presetId, setPresetId] = useState('simple_orders');
@@ -239,8 +248,13 @@ const AdminTestEmail = () => {
         setStatus(`Newsletter API: sent to ${data.sent} subscriber(s).`);
       }
     } catch (err) {
+      const m = err?.message || String(err);
+      const looksLikeFetchLayer =
+        err?.name === 'TypeError' || /failed to fetch|networkerror|load failed|network request failed/i.test(m);
       setStatus(
-        appendUncertaintyToFailureMessage('Failed: ' + (err.message || String(err)))
+        looksLikeFetchLayer
+          ? formatEmailSendNetworkError(err)
+          : appendUncertaintyToFailureMessage('Failed: ' + m)
       );
     } finally {
       setSending(false);
@@ -483,7 +497,7 @@ const AdminTestEmail = () => {
 
       {status && (
         <div
-          className={`admin-test-email-status ${status.startsWith('Failed') ? 'is-error' : 'is-ok'}`}
+          className={`admin-test-email-status admin-test-email-status--${testEmailStatusTone(status)}`}
           role="status"
         >
           {status}

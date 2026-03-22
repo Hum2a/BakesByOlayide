@@ -20,9 +20,10 @@ import {
 import '../../styles/Enquiries.css';
 import { apiUrl } from '../../../config/environment';
 import {
-  appendUncertaintyToFailureMessage,
   readEmailApiBody,
-  emailApiErrorDetail,
+  formatEmailSendHttpFailure,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
 } from '../../../utils/emailSendMessaging';
 
 const MESSAGE_PREVIEW_LEN = 220;
@@ -163,9 +164,9 @@ const Enquiries = () => {
                  <p style="margin-top:2em;">Best regards,<br/>Bakes by Olayide Team</p>`,
         }),
       });
+      const data = await readEmailApiBody(response);
       if (!response.ok) {
-        const errorText = await response.text();
-        setError('Failed to send reply email: ' + errorText);
+        setError(formatEmailSendHttpFailure(data, response));
         return;
       }
 
@@ -180,11 +181,17 @@ const Enquiries = () => {
       await fetchEnquiries(false);
     } catch (err) {
       console.error('Error sending reply:', err);
-      setError(
-        appendUncertaintyToFailureMessage(
-          `Failed to send reply: ${err.message || err}`
-        )
-      );
+      const msg = err?.message || String(err);
+      if (msg === 'Enquiry not found') {
+        setError(msg);
+      } else if (
+        err?.name === 'TypeError' ||
+        /failed to fetch|networkerror|load failed|network request failed/i.test(msg)
+      ) {
+        setError(formatEmailSendNetworkError(err));
+      } else {
+        setError(`Failed to send reply: ${msg}`);
+      }
     } finally {
       setSendingReply(false);
     }
@@ -323,7 +330,7 @@ const Enquiries = () => {
             <div key={i} className="enquiries-skeleton enquiries-skeleton--card" />
           ))}
         </div>
-        <p className="enquiries-loading-text">Loading enquiries…</p>
+        <p className="enquiries-loading-text">Loading enquiriesΓÇª</p>
       </div>
     );
   }
@@ -352,7 +359,7 @@ const Enquiries = () => {
           <h2>Customer Enquiries</h2>
           <p className="enquiries-subtitle">
             {filteredSorted.length} of {enquiries.length} shown
-            {enquiries.length > 0 && filteredSorted.length !== enquiries.length ? ' · filtered' : ''}
+            {enquiries.length > 0 && filteredSorted.length !== enquiries.length ? ' ┬╖ filtered' : ''}
           </p>
         </div>
         <button type="button" className="enquiries-refresh" onClick={fetchEnquiries}>
@@ -362,7 +369,14 @@ const Enquiries = () => {
       </header>
 
       {error && (
-        <div className="enquiries-banner" role="alert">
+        <div
+          className={
+            isUncertainEmailOutcomeMessage(error)
+              ? 'enquiries-banner enquiries-banner--uncertain'
+              : 'enquiries-banner'
+          }
+          role="alert"
+        >
           <span>{error}</span>
           <button type="button" className="enquiries-banner-dismiss" onClick={() => setError(null)}>
             Dismiss
@@ -393,7 +407,7 @@ const Enquiries = () => {
             id="enquiries-search-input"
             className="enquiries-search-input"
             type="search"
-            placeholder="Search name, email, phone, message, subject, or ID…"
+            placeholder="Search name, email, phone, message, subject, or IDΓÇª"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             autoComplete="off"
@@ -444,8 +458,8 @@ const Enquiries = () => {
           <select className="enquiries-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
-            <option value="name-asc">Name A → Z</option>
-            <option value="name-desc">Name Z → A</option>
+            <option value="name-asc">Name A ΓåÆ Z</option>
+            <option value="name-desc">Name Z ΓåÆ A</option>
           </select>
           <button type="button" className="enquiries-link-btn" onClick={clearFilters}>
             Reset filters
@@ -473,7 +487,7 @@ const Enquiries = () => {
           const msg = messageBody(enquiry);
           const longMsg = msg.length > MESSAGE_PREVIEW_LEN;
           const expanded = expandedIds.has(enquiry.id);
-          const showMsg = !longMsg || expanded ? msg : `${msg.slice(0, MESSAGE_PREVIEW_LEN)}…`;
+          const showMsg = !longMsg || expanded ? msg : `${msg.slice(0, MESSAGE_PREVIEW_LEN)}ΓÇª`;
           const ts = getTimestampMs(enquiry);
 
           return (
@@ -632,7 +646,7 @@ const Enquiries = () => {
                       id={`reply-${enquiry.id}`}
                       value={selectedEnquiry === enquiry.id ? replyMessage : ''}
                       onChange={(e) => setReplyMessage(e.target.value)}
-                      placeholder="Write your reply… (Esc to cancel)"
+                      placeholder="Write your replyΓÇª (Esc to cancel)"
                       rows={4}
                     />
                     <div className="reply-form-actions">
@@ -642,7 +656,7 @@ const Enquiries = () => {
                         onClick={() => handleReply(enquiry.id)}
                         disabled={!replyMessage.trim() || sendingReply}
                       >
-                        {sendingReply ? 'Sending…' : 'Send reply'}
+                        {sendingReply ? 'SendingΓÇª' : 'Send reply'}
                       </button>
                       <button
                         type="button"

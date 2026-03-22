@@ -171,16 +171,28 @@
   white-space: pre-line;
 }
 
-.admin-test-email-status.is-ok {
+.admin-test-email-status--ok {
   background: #e8f8f0;
   color: #1e6b3a;
   border: 1px solid #a3e4c1;
 }
 
-.admin-test-email-status.is-error {
+.admin-test-email-status--uncertain {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.admin-test-email-status--error {
   background: #fdecea;
   color: #922b21;
   border: 1px solid #f5b7b1;
+}
+
+.admin-test-email-status--neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
 }
 
 .admin-test-email-aside {

@@ -6,9 +6,10 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { apiUrl } from '../../../config/environment';
 import {
-  appendUncertaintyToFailureMessage,
   readEmailApiBody,
-  emailApiErrorDetail,
+  formatEmailSendHttpFailure,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
 } from '../../../utils/emailSendMessaging';
 import MessageModal from '../../modals/MessageModal';
 
@@ -163,14 +164,10 @@ const NewsletterManagement = () => {
         setSelectedLists([availableLists[0].key]);
         setShowPreview(false);
       } else {
-        setSendStatus(appendUncertaintyToFailureMessage(emailApiErrorDetail(data, response)));
+        setSendStatus(formatEmailSendHttpFailure(data, response));
       }
     } catch (err) {
-      setSendStatus(
-        appendUncertaintyToFailureMessage(
-          `Could not get a clear response (${err.message || 'network error'}).`
-        )
-      );
+      setSendStatus(formatEmailSendNetworkError(err));
     }
     setSending(false);
   };
@@ -385,13 +382,14 @@ const NewsletterManagement = () => {
         </div>
         {sendStatus && (
           <div
-            style={{
-              marginBottom: '1rem',
-              color: sendStatus.startsWith('Email sent to') ? '#388e3c' : '#c62828',
-              whiteSpace: 'pre-line',
-              lineHeight: 1.45,
-              fontSize: '0.95rem',
-            }}
+            className={
+              sendStatus.startsWith('Email sent to')
+                ? 'newsletter-send-status newsletter-send-status--success'
+                : isUncertainEmailOutcomeMessage(sendStatus)
+                  ? 'newsletter-send-status newsletter-send-status--uncertain'
+                  : 'newsletter-send-status newsletter-send-status--error'
+            }
+            role="status"
           >
             {sendStatus}
           </div>

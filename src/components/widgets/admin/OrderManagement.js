@@ -22,9 +22,10 @@ import MessageModal from '../../modals/MessageModal';
 import '../../styles/OrderManagement.css';
 import { apiUrl } from '../../../config/environment';
 import {
-  appendUncertaintyToFailureMessage,
   readEmailApiBody,
-  emailApiErrorDetail,
+  formatEmailSendHttpFailure,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
 } from '../../../utils/emailSendMessaging';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -837,16 +838,10 @@ const OrderManagement = () => {
           setEmailAttachments([]);
         }, 1200);
       } else {
-        setEmailStatus(
-          appendUncertaintyToFailureMessage(emailApiErrorDetail(data, response))
-        );
+        setEmailStatus(formatEmailSendHttpFailure(data, response));
       }
     } catch (err) {
-      setEmailStatus(
-        appendUncertaintyToFailureMessage(
-          `Could not get a clear response from the server (${err.message || 'network error'}).`
-        )
-      );
+      setEmailStatus(formatEmailSendNetworkError(err));
     }
     setSendingEmail(false);
   };
@@ -1598,15 +1593,14 @@ const OrderManagement = () => {
               </div>
               {emailStatus && (
                 <div
-                  style={{
-                    marginBottom: 10,
-                    color: emailStatus.includes('success') || emailStatus.includes('Confirmed by the server')
-                      ? '#388e3c'
-                      : '#e74c3c',
-                    whiteSpace: 'pre-line',
-                    lineHeight: 1.45,
-                    fontSize: '0.95rem',
-                  }}
+                  className={
+                    emailStatus.includes('success') || emailStatus.includes('Confirmed by the server')
+                      ? 'order-send-email-status order-send-email-status--success'
+                      : isUncertainEmailOutcomeMessage(emailStatus)
+                        ? 'order-send-email-status order-send-email-status--uncertain'
+                        : 'order-send-email-status order-send-email-status--error'
+                  }
+                  role="status"
                 >
                   {emailStatus}
                 </div>

@@ -1,4 +1,4 @@
-/* Admin enquiries — teal admin palette + motion (respects prefers-reduced-motion) */
+/* Admin enquiries ΓÇö teal admin palette + motion (respects prefers-reduced-motion) */
 .enquiries-admin {
   --eq-accent: #0d9488;
   --eq-accent-hover: #0f766e;
@@ -182,6 +182,16 @@
   cursor: pointer;
   text-decoration: underline;
   flex-shrink: 0;
+}
+
+.enquiries-banner--uncertain {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.enquiries-banner--uncertain .enquiries-banner-dismiss {
+  color: #b45309;
 }
 
 .enquiries-stats {
