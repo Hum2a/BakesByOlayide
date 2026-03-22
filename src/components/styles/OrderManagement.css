@@ -978,6 +978,18 @@ td.order-actions {
 }
 
 /* Status change → remind to email customer (portal to body; self-contained — do not rely on Newsletter CSS) */
+/* Portals mount on document.body — re-define tokens so var(--om-*) always resolves */
+.order-status-change-root {
+  --om-surface: #ffffff;
+  --om-border: #e2e6ef;
+  --om-text: #1e293b;
+  --om-text-muted: #64748b;
+  --om-text-subtle: #94a3b8;
+  --om-accent: #0d9488;
+  --om-accent-hover: #0f766e;
+  --om-chip: #f1f5f9;
+}
+
 .order-status-change-overlay {
   position: fixed;
   inset: 0;
@@ -1009,7 +1021,7 @@ td.order-actions {
   background: none;
   border: none;
   font-size: 1.35rem;
-  color: var(--om-text-muted);
+  color: var(--om-text-muted, #64748b);
   cursor: pointer;
   line-height: 1;
   padding: 4px;
@@ -1017,8 +1029,8 @@ td.order-actions {
 }
 
 .order-status-change-close:hover:not(:disabled) {
-  color: var(--om-text);
-  background: var(--om-chip);
+  color: var(--om-text, #1e293b);
+  background: var(--om-chip, #f1f5f9);
 }
 
 .order-status-change-close:disabled {
@@ -1031,18 +1043,18 @@ td.order-actions {
   padding-right: 2rem;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--om-text);
+  color: var(--om-text, #1e293b);
 }
 
 .order-status-change-lead {
   margin: 0 0 0.65rem;
   font-size: 0.98rem;
   line-height: 1.5;
-  color: var(--om-text);
+  color: var(--om-text, #1e293b);
 }
 
 .order-status-change-id {
-  color: var(--om-text-muted);
+  color: var(--om-text-muted, #64748b);
   font-weight: 500;
 }
 
@@ -1061,14 +1073,14 @@ td.order-actions {
   margin: 0 0 1.1rem;
   font-size: 0.88rem;
   line-height: 1.5;
-  color: var(--om-text-muted);
+  color: var(--om-text-muted, #64748b);
 }
 
 .order-status-change-template-note {
   display: inline-block;
   margin-top: 0.35rem;
   font-size: 0.85rem;
-  color: var(--om-text-subtle);
+  color: var(--om-text-subtle, #94a3b8);
 }
 
 .order-status-change-no-email {
@@ -1110,38 +1122,39 @@ td.order-actions {
 }
 
 .order-status-change-btn--primary {
-  background: var(--om-accent);
-  color: #fff;
-  border-color: var(--om-accent);
+  background-color: var(--om-accent, #0d9488);
+  color: #ffffff;
+  border: 1px solid var(--om-accent, #0d9488);
   box-shadow: 0 1px 2px rgba(15, 118, 110, 0.25);
 }
 
 .order-status-change-btn--primary:hover:not(:disabled) {
-  background: var(--om-accent-hover);
-  border-color: var(--om-accent-hover);
+  background-color: var(--om-accent-hover, #0f766e);
+  border-color: var(--om-accent-hover, #0f766e);
 }
 
 .order-status-change-btn--ghost {
-  background: var(--om-surface);
-  color: var(--om-text);
-  border-color: var(--om-border);
+  background-color: var(--om-surface, #ffffff);
+  color: var(--om-text, #1e293b);
+  border: 1px solid var(--om-border, #cbd5e1);
 }
 
 .order-status-change-btn--ghost:hover:not(:disabled) {
-  background: var(--om-chip);
-  border-color: var(--om-text-subtle);
+  background-color: var(--om-chip, #f1f5f9);
+  border-color: var(--om-text-subtle, #64748b);
 }
 
 .order-status-change-btn--secondary {
-  background: transparent;
-  color: var(--om-text-muted);
-  border-color: transparent;
+  background-color: #f8fafc;
+  color: var(--om-text-muted, #475569);
+  border: 1px solid var(--om-border, #cbd5e1);
   margin-right: auto;
 }
 
 .order-status-change-btn--secondary:hover:not(:disabled) {
-  color: var(--om-text);
-  background: var(--om-chip);
+  color: var(--om-text, #0f172a);
+  background-color: var(--om-chip, #f1f5f9);
+  border-color: #94a3b8;
 }
 
 @media (max-width: 520px) {
@@ -1156,7 +1169,18 @@ td.order-actions {
   }
 }
 
-/* Full order detail modal (portal) */
+/* Full order detail modal (portal) — same token scope as status modal */
+.order-detail-root {
+  --om-surface: #ffffff;
+  --om-border: #e2e6ef;
+  --om-text: #1e293b;
+  --om-text-muted: #64748b;
+  --om-text-subtle: #94a3b8;
+  --om-accent: #0d9488;
+  --om-accent-hover: #0f766e;
+  --om-chip: #f1f5f9;
+}
+
 .order-detail-overlay {
   position: fixed;
   inset: 0;

@@ -260,7 +260,7 @@ function OrderFullDetailModal({ order, onClose }) {
 
   return (
     <div
-      className="order-detail-overlay"
+      className="order-detail-overlay order-detail-root"
       role="dialog"
       aria-modal="true"
       aria-labelledby="order-detail-title"
@@ -1456,7 +1456,7 @@ const OrderManagement = () => {
       {statusChangeModal &&
         createPortal(
           <div
-            className="order-status-change-overlay"
+            className="order-status-change-overlay order-status-change-root"
             role="dialog"
             aria-modal="true"
             aria-labelledby="order-status-change-title"
