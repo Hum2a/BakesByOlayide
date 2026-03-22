@@ -39,18 +39,15 @@ const AUTO_SCROLL_INTERVAL = 3500;
 
 const SignatureCreations = () => {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState('next');
   const timeoutRef = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
   const nextSlide = () => {
-    setDirection('next');
     setCurrent((prev) => (prev + 1) % cakeData.length);
   };
 
   const prevSlide = () => {
-    setDirection('prev');
     setCurrent((prev) => (prev - 1 + cakeData.length) % cakeData.length);
   };
 
@@ -111,10 +108,7 @@ const SignatureCreations = () => {
           <span
             key={idx}
             className={`homepage-carousel-dot${idx === current ? ' active' : ''}`}
-            onClick={() => {
-              setDirection(idx > current ? 'next' : 'prev');
-              setCurrent(idx);
-            }}
+            onClick={() => setCurrent(idx)}
           />
         ))}
       </div>

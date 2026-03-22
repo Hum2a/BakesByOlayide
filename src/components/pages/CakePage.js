@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import CakeCard from '../cards/CakeCard';
 import CakeModal from '../modals/CakeModal';
 import { FaShoppingCart, FaSearch, FaUser, FaBars, FaTimes } from 'react-icons/fa';
@@ -64,16 +64,13 @@ const FIXED_CATEGORIES = [
 ];
 
 const CakePage = ({ onOpenCart }) => {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory] = useState('All');
   const [selectedCake, setSelectedCake] = useState(null);
-  const [showFilterScroll, setShowFilterScroll] = useState({ left: false, right: true });
   const [cakes, setCakes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const filterContainerRef = useRef(null);
   const { totalItems } = useCart();
   const navigate = useNavigate();
-  const cakeGridRef = useRef(null);
   const [imageError, setImageError] = useState({});
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -112,51 +109,14 @@ const CakePage = ({ onOpenCart }) => {
     return () => unsubscribe();
   }, []);
 
-  // Use fixed categories
-  const categories = ['All', ...FIXED_CATEGORIES.map(category => category.name)];
-
   const filteredCakes = activeCategory === 'All'
     ? cakes
     : cakes.filter(cake => (cake.categories || []).includes(activeCategory));
-
-  const handleCategoryClick = (category) => {
-    setActiveCategory(category);
-  };
 
   const handleAddToCart = (cake) => {
     // Add to cart logic here
     console.log('Added to cart:', cake);
   };
-
-  const scrollFilters = (direction) => {
-    if (filterContainerRef.current) {
-      const scrollAmount = 200;
-      const container = filterContainerRef.current;
-      if (direction === 'left') {
-        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
-
-  const checkScrollButtons = () => {
-    if (filterContainerRef.current) {
-      const container = filterContainerRef.current;
-      const { scrollLeft, scrollWidth, clientWidth } = container;
-      
-      setShowFilterScroll({
-        left: scrollLeft > 0,
-        right: scrollLeft < scrollWidth - clientWidth - 1
-      });
-    }
-  };
-
-  useEffect(() => {
-    checkScrollButtons();
-    window.addEventListener('resize', checkScrollButtons);
-    return () => window.removeEventListener('resize', checkScrollButtons);
-  }, []);
 
   const handleViewCakes = (category) => {
     const categoryPath = category.toLowerCase().replace(/\s+/g, '-');
@@ -299,7 +259,7 @@ const CakePage = ({ onOpenCart }) => {
     </div>
 
     {activeCategory !== 'All' && (
-      <div ref={cakeGridRef} className="cakepage-grid">
+      <div className="cakepage-grid">
         {filteredCakes.map((cake) => (
           <div 
             key={cake.id} 

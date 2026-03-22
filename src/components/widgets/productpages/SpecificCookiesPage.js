@@ -28,7 +28,6 @@ const SpecificCookiesPage = () => {
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -116,11 +115,9 @@ const SpecificCookiesPage = () => {
 
   const images = Array.isArray(cookie.images) && cookie.images.length > 0 ? cookie.images : [cookie.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -243,7 +240,6 @@ const SpecificCookiesPage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />

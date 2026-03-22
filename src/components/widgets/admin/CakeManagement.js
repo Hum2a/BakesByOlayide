@@ -10,7 +10,6 @@ import BentocakeForm from './forms/BentocakeForm';
 import BrowniesForm from './forms/BrowniesForm';
 import CookiesForm from './forms/CookiesForm';
 import RegularForm from './forms/RegularForm';
-import EditForm from './forms/EditForm';
 import { hasStaffAccess } from '../../../utils/staffAccess';
 
 // Fixed categories
@@ -125,34 +124,6 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     checkAdminStatus();
   }, []);
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5);
-    setCakeImages(files);
-  };
-
-  const handleArrayFieldAdd = (field) => {
-    setNewCake({
-      ...newCake,
-      [field]: [...newCake[field], '']
-    });
-  };
-
-  const handleArrayFieldRemove = (field, index) => {
-    setNewCake({
-      ...newCake,
-      [field]: newCake[field].filter((_, i) => i !== index)
-    });
-  };
-
-  const handleArrayFieldChange = (field, index, value) => {
-    const newArray = [...newCake[field]];
-    newArray[index] = value;
-    setNewCake({
-      ...newCake,
-      [field]: newArray
-    });
-  };
-
   const handleAddSize = () => {
     if (selectedCategory === 'Brownies' || selectedCategory === 'Cookies') {
       if (!newSize.size || !newSize.price) return;
@@ -237,32 +208,6 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       }
     }
     setEditingCake(null);
-  };
-
-  const handleAddFilling = () => {
-    setNewCake({
-      ...newCake,
-      fillings: [...newCake.fillings, { name: '', price: '' }]
-    });
-  };
-
-  const handleRemoveFilling = (index) => {
-    setNewCake({
-      ...newCake,
-      fillings: newCake.fillings.filter((_, i) => i !== index)
-    });
-  };
-
-  const handleFillingChange = (index, field, value) => {
-    const newFillings = [...newCake.fillings];
-    newFillings[index] = {
-      ...newFillings[index],
-      [field]: field === 'price' ? parseFloat(value) : value
-    };
-    setNewCake({
-      ...newCake,
-      fillings: newFillings
-    });
   };
 
   const getCleanedCakeData = () => {

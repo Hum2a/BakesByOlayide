@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaTimes, FaStar } from 'react-icons/fa';
 import { db, auth } from '../../firebase/firebase';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import '../styles/ReviewModal.css';
 
 const ReviewModal = ({ isOpen, onClose, item, orderId }) => {

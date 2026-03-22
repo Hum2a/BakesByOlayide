@@ -30,7 +30,6 @@ const SpecificCupcakePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -146,11 +145,9 @@ const SpecificCupcakePage = () => {
 
   const images = Array.isArray(cupcake.images) && cupcake.images.length > 0 ? cupcake.images : [cupcake.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -329,7 +326,6 @@ const SpecificCupcakePage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />

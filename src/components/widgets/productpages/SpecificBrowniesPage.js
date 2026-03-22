@@ -28,7 +28,6 @@ const SpecificBrowniesPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -37,10 +36,6 @@ const SpecificBrowniesPage = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  const sizeSlider = useProductOptionSlider(
-    selectedSizeIdx,
-    Array.isArray(brownie?.sizes) ? brownie.sizes.length : 0
-  );
   const flavourSlider = useProductOptionSlider(
     selectedFlavourIdx,
     Array.isArray(brownie?.flavours) ? brownie.flavours.length : 0
@@ -147,11 +142,9 @@ const SpecificBrowniesPage = () => {
 
   const images = Array.isArray(brownie.images) && brownie.images.length > 0 ? brownie.images : [brownie.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -307,7 +300,6 @@ const SpecificBrowniesPage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />

@@ -14,7 +14,7 @@ import CartModal from '../../modals/CartModal';
 import SearchModal from '../../modals/SearchModal';
 import { auth } from '../../../firebase/firebase';
 import PageTitle from '../../common/PageTitle';
-import CakeModal from '../../modals/CakeModal';
+import { useCart } from '../../../context/CartContext';
 
 const LargeCakesCollection = () => {
   const [largeCakes, setLargeCakes] = useState([]);
@@ -25,7 +25,7 @@ const LargeCakesCollection = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [user, setUser] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [totalItems, setTotalItems] = useState(0);
+  const { totalItems } = useCart();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const navigate = useNavigate();
 

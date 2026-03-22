@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -15,15 +16,25 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// API routes
+// API routes (register before static + SPA fallback)
 app.use('/api', emailRoutes);
 
-// Serve static files (React build)
-app.use(express.static(path.join(__dirname, '../build')));
-
-// Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
+});
+
+const buildDir = path.join(__dirname, '../build');
+const indexHtmlPath = path.join(buildDir, 'index.html');
+
+// Serve built React assets (JS/CSS, /static, etc.)
+app.use(express.static(buildDir));
+
+// SPA: React Router paths (/collections, /home, …) are not files on disk — serve index.html
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  if (req.path.startsWith('/api')) return next();
+  if (!fs.existsSync(indexHtmlPath)) return next();
+  res.sendFile(indexHtmlPath);
 });
 
 module.exports = app; 

@@ -22,14 +22,14 @@ const BentocakeForm = ({ newCake, setNewCake }) => {
         categories: [...prev.categories, 'Bento Cake with Cupcakes']
       }));
     }
-  }, []);
+  }, [newCake.categories, setNewCake]);
 
   // Set default size when component mounts
   useEffect(() => {
     if (!newCake.size) {
       setNewCake(prev => ({ ...prev, size: '6 inch' }));
     }
-  }, []);
+  }, [newCake.size, setNewCake]);
 
   return (
     <>

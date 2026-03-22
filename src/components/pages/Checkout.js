@@ -241,7 +241,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 };
 
 const Checkout = () => {
-  const { cart, totalPrice, clearCart, updateQuantity, removeFromCart, setCart } = useCart();
+  const { cart, totalPrice, clearCart, updateQuantity, setCart } = useCart();
   const navigate = useNavigate();
   const [guestInfo, setGuestInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);

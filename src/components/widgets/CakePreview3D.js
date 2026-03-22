@@ -1,11 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import '../styles/CakePreview3D.css';
 
 function CakeModel({ selections }) {
   const group = useRef();
-  const [hovered, setHovered] = useState(false);
 
   // Rotate the cake slightly
   useFrame((state) => {
@@ -103,25 +102,6 @@ function CakeModel({ selections }) {
     return sizes;
   };
 
-  const createFrostingPattern = (radius, height, segments = 32) => {
-    const vertices = [];
-    const indices = [];
-    
-    for (let i = 0; i < segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
-      const y = height + Math.sin(angle * 4) * 0.05; // Wavy pattern
-      vertices.push(x, y, z);
-    }
-    
-    for (let i = 0; i < segments; i++) {
-      indices.push(i, (i + 1) % segments, segments);
-    }
-    
-    return { vertices, indices };
-  };
-
   const renderCakeTiers = () => {
     const tierSizes = getTierSizes(selections.size);
     const tierHeight = getCakeHeight(selections.size) / tierSizes.length;
@@ -145,7 +125,6 @@ function CakeModel({ selections }) {
       );
 
       // Frosting layer
-      const frostingPattern = createFrostingPattern(size + 0.1, yOffset + tierHeight/2);
       tiers.push(
         <mesh key={`frosting-${index}`} position={[0, yOffset + tierHeight/2, 0]}>
           <cylinderGeometry 
@@ -248,7 +227,7 @@ function CakeModel({ selections }) {
   };
 
   return (
-    <group ref={group} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
+    <group ref={group}>
       {renderCakeTiers()}
       {renderDecorations()}
     </group>

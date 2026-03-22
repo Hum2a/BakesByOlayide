@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
 import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
-import { FaCalendarAlt, FaLock, FaUnlock, FaInfoCircle, FaExclamationTriangle, FaCheck, FaClock } from 'react-icons/fa';
+import { FaCalendarAlt, FaLock, FaUnlock, FaInfoCircle, FaCheck, FaClock } from 'react-icons/fa';
 import '../../styles/BlockedDatesManager.css';
 
 const BlockedDatesManager = () => {
@@ -17,8 +17,6 @@ const BlockedDatesManager = () => {
   const [view, setView] = useState('calendar');
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState([]);
-  const [showTimeSelector, setShowTimeSelector] = useState(false);
-
   const availableTimes = Array.from({ length: 11 }, (_, i) => {
     const hour = i + 9;
     return [`${hour}:00`, `${hour}:30`];
@@ -64,13 +62,6 @@ const BlockedDatesManager = () => {
     );
   };
 
-  const isTimeBlocked = (date, time) => {
-    return blockedDates.some(blocked => 
-      new Date(blocked.date).toDateString() === date.toDateString() &&
-      blocked.blockedTimes?.includes(time)
-    );
-  };
-
   const isDateSelected = (date) => {
     return selectedDates.some(selected => 
       selected.toDateString() === date.toDateString()
@@ -90,7 +81,6 @@ const BlockedDatesManager = () => {
       });
     } else {
       setSelectedDates([date]);
-      setShowTimeSelector(true);
     }
   };
 
@@ -132,7 +122,6 @@ const BlockedDatesManager = () => {
       setSelectedTimes([]);
       setReason('');
       setMultiSelectMode(false);
-      setShowTimeSelector(false);
       setTimeout(() => setSaveStatus(''), 3000);
     } catch (error) {
       console.error('Error blocking dates:', error);
@@ -306,7 +295,6 @@ const BlockedDatesManager = () => {
                 onClick={() => {
                   setView('calendar');
                   setSelectedDates([new Date()]);
-                  setShowTimeSelector(true);
                 }}
               >
                 <FaLock /> Block New Date
@@ -425,7 +413,6 @@ const BlockedDatesManager = () => {
                 setSelectedTimes([]);
                 setReason('');
                 setMultiSelectMode(false);
-                setShowTimeSelector(false);
               }}
             >
               Cancel

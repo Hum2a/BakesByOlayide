@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, query, getDocs, doc, deleteDoc, orderBy, where, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, query, getDocs, doc, deleteDoc, orderBy, addDoc, Timestamp } from 'firebase/firestore';
 import { FaStar, FaTrash, FaSearch, FaPlus } from 'react-icons/fa';
 import '../../styles/ReviewManagement.css';
 
@@ -39,63 +39,10 @@ const ReviewManagement = () => {
     initializeData();
   }, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      fetchReviews();
-    }
-  }, [products]);
-
-  const fetchProducts = async () => {
-    try {
-      const productsRef = collection(db, 'cakes');
-      const productsSnapshot = await getDocs(productsRef);
-      const productsData = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name
-      }));
-      setProducts(productsData);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setError('Failed to load products');
-      throw error;
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      let allReviews = [];
-
-      for (const product of products) {
-        const reviewsRef = collection(db, 'cakes', product.id, 'reviews');
-        const reviewsQuery = query(reviewsRef, orderBy('createdAt', 'desc'));
-        const reviewsSnapshot = await getDocs(reviewsQuery);
-        
-        const productReviews = reviewsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          productId: product.id,
-          productName: product.name,
-          ...doc.data()
-        }));
-        
-        allReviews = [...allReviews, ...productReviews];
-      }
-
-      // Sort reviews based on current sort settings
-      const sortedReviews = sortReviews(allReviews);
-      setReviews(sortedReviews);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      setError('Failed to load reviews');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sortReviews = (reviewsToSort) => {
+  const sortReviews = useCallback((reviewsToSort) => {
     return reviewsToSort.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'date':
           comparison = new Date(b.createdAt) - new Date(a.createdAt);
@@ -112,6 +59,58 @@ const ReviewManagement = () => {
 
       return sortOrder === 'desc' ? comparison : -comparison;
     });
+  }, [sortBy, sortOrder]);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      setLoading(true);
+      let allReviews = [];
+
+      for (const product of products) {
+        const reviewsRef = collection(db, 'cakes', product.id, 'reviews');
+        const reviewsQuery = query(reviewsRef, orderBy('createdAt', 'desc'));
+        const reviewsSnapshot = await getDocs(reviewsQuery);
+
+        const productReviews = reviewsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          productId: product.id,
+          productName: product.name,
+          ...doc.data()
+        }));
+
+        allReviews = [...allReviews, ...productReviews];
+      }
+
+      const sortedReviews = sortReviews(allReviews);
+      setReviews(sortedReviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setError('Failed to load reviews');
+    } finally {
+      setLoading(false);
+    }
+  }, [products, sortReviews]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      fetchReviews();
+    }
+  }, [products, fetchReviews]);
+
+  const fetchProducts = async () => {
+    try {
+      const productsRef = collection(db, 'cakes');
+      const productsSnapshot = await getDocs(productsRef);
+      const productsData = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name
+      }));
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to load products');
+      throw error;
+    }
   };
 
   const handleDeleteReview = async (productId, reviewId) => {
@@ -134,7 +133,6 @@ const ReviewManagement = () => {
         return;
       }
 
-      const selectedProduct = products.find(p => p.id === newReview.productId);
       const reviewsRef = collection(db, 'cakes', newReview.productId, 'reviews');
       
       const [year, month, day] = newReview.date.split('-').map(Number);

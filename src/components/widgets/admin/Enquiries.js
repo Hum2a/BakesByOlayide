@@ -71,7 +71,6 @@ function normalizeStatus(enquiry) {
 const Enquiries = () => {
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [replyMessage, setReplyMessage] = useState('');
@@ -108,7 +107,6 @@ const Enquiries = () => {
   const fetchEnquiries = async (isInitialLoad = false) => {
     try {
       if (isInitialLoad) setLoading(true);
-      else setRefreshing(true);
       setError(null);
       const q = query(collection(db, 'enquiries'), orderBy('timestamp', 'desc'));
       const enquiriesSnapshot = await getDocs(q);
@@ -122,7 +120,6 @@ const Enquiries = () => {
       setError('Failed to load enquiries');
     } finally {
       if (isInitialLoad) setLoading(false);
-      else setRefreshing(false);
     }
   };
 

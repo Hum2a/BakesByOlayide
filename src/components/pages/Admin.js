@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
-import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
@@ -91,19 +91,6 @@ const Admin = () => {
       navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
-    }
-  };
-
-  const toggleUserStatus = async (userId, currentStatus) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        isActive: !currentStatus
-      });
-      await fetchDashboardData();
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      setError('Failed to update user status');
     }
   };
 

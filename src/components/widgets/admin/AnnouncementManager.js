@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../firebase/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ChromePicker } from 'react-color';
@@ -20,11 +20,7 @@ const AnnouncementManager = () => {
   const [showColorPicker, setShowColorPicker] = useState(null);
   const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
 
-  useEffect(() => {
-    fetchAnnouncement();
-  }, []);
-
-  const initializeAnnouncement = async () => {
+  const initializeAnnouncement = useCallback(async () => {
     const defaultAnnouncement = {
       messages: [{ text: '', color: '#3498db' }],
       isActive: false,
@@ -46,13 +42,13 @@ const AnnouncementManager = () => {
       console.error('Error initializing announcement:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const fetchAnnouncement = async () => {
+  const fetchAnnouncement = useCallback(async () => {
     try {
       const docRef = doc(db, 'siteSettings', 'announcement');
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
         const data = docSnap.data();
         // Handle legacy data format
@@ -73,7 +69,11 @@ const AnnouncementManager = () => {
       console.error('Error fetching announcement:', error);
       setLoading(false);
     }
-  };
+  }, [initializeAnnouncement]);
+
+  useEffect(() => {
+    fetchAnnouncement();
+  }, [fetchAnnouncement]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

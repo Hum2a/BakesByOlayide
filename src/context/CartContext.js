@@ -32,7 +32,6 @@ export const CartProvider = ({ children }) => {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [tempCart, setTempCart] = useState(null);
 
   // Function to save cart to both localStorage and Firebase
   const saveCart = async (cartItems, userId) => {

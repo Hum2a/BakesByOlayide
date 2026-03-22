@@ -31,7 +31,6 @@ const SpecificCakePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
   const [user, setUser] = useState(null);
 
   // Header modal states
@@ -40,10 +39,6 @@ const SpecificCakePage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  const sizeSlider = useProductOptionSlider(
-    selectedSizeIdx,
-    Array.isArray(cake?.sizes) ? cake.sizes.length : 0
-  );
   const shapeSlider = useProductOptionSlider(
     selectedShapeIdx,
     Array.isArray(cake?.shapes) ? cake.shapes.length : 0
@@ -155,11 +150,9 @@ const SpecificCakePage = () => {
 
   const images = Array.isArray(cake.images) && cake.images.length > 0 ? cake.images : [cake.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -223,10 +216,6 @@ const SpecificCakePage = () => {
       day: 'numeric'
     });
   };
-
-  const minPrice = Array.isArray(cake.sizes) && cake.sizes.length > 0
-    ? Math.min(...cake.sizes.map(s => s.price))
-    : 0;
 
   const handleAddToCart = () => {
     if (!cake) return;
@@ -347,7 +336,6 @@ const SpecificCakePage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />
@@ -360,7 +348,7 @@ const SpecificCakePage = () => {
             {cake.subtitle && <div className="specific-cake-subtitle">{cake.subtitle}</div>}
             <div className="specific-cake-available-sizes">
               {sizeOptions.length > 0 && (
-                <span>Available in {sizeOptions.map(s => `${s.size}\"`).join(', ')}</span>
+                <span>Available in {sizeOptions.map(s => `${s.size}"`).join(', ')}</span>
               )}
             </div>
             <div className="specific-cake-price-row">

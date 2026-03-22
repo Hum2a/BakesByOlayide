@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
 import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';

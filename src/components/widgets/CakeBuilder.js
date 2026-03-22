@@ -3,7 +3,7 @@ import { useCart } from '../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 import CartModal from '../modals/CartModal';
 import { db } from '../../firebase/firebase';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import CakePreview3D from './CakePreview3D';
 import '../styles/CakeBuilder.css';
 

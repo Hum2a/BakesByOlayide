@@ -31,7 +31,6 @@ const SpecificBentoCakePage = () => {
   const [addOns, setAddOns] = useState([]);
   const [occasion, setOccasion] = useState("");
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -140,11 +139,9 @@ const SpecificBentoCakePage = () => {
 
   const images = Array.isArray(bento.images) && bento.images.length > 0 ? bento.images : [bento.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -308,7 +305,6 @@ const SpecificBentoCakePage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />
