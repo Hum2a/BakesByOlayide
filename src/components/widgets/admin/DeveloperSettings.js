@@ -3,6 +3,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../../firebase/firebase';
 import {
   apiUrl,
+  apiUrlAtBase,
   getApiBaseUrl,
   getRuntimeEnv,
   isLocalRuntime,

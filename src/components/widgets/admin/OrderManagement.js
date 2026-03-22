@@ -16,6 +16,7 @@ import {
   FaSort,
 } from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
+import MessageModal from '../../modals/MessageModal';
 import '../../styles/OrderManagement.css';
 import { apiUrl } from '../../../config/environment';
 import ReactQuill from 'react-quill';
@@ -68,6 +69,7 @@ const OrderManagement = () => {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilters, setStatusFilters] = useState([]);
@@ -236,7 +238,7 @@ const OrderManagement = () => {
       }
       await fetchOrders();
     } catch (error) {
-      alert('Failed to delete order.');
+      setNoticeModal({ open: true, message: 'Failed to delete order.' });
       console.error('Error deleting order:', error);
     }
   };
@@ -1086,6 +1088,13 @@ const OrderManagement = () => {
           </div>
         </div>
       )}
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Error"
+        message={noticeModal.message}
+        variant="error"
+      />
     </div>
   );
 };

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { db } from '../../firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import '../styles/Modal.css';
+import MessageModal from './MessageModal';
 
 const Contact = ({ isOpen, onClose }) => {
+  const [submitErrorOpen, setSubmitErrorOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,13 +45,13 @@ const Contact = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Error storing enquiry:', error);
-      alert('There was an error submitting your enquiry. Please try again.');
+      setSubmitErrorOpen(true);
     }
   };
 
-  if (!isOpen) return null;
-
   return (
+    <>
+    {isOpen && (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content contact-modal" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button>
@@ -142,6 +144,15 @@ const Contact = ({ isOpen, onClose }) => {
         </div>
       </div>
     </div>
+    )}
+    <MessageModal
+      isOpen={submitErrorOpen}
+      onClose={() => setSubmitErrorOpen(false)}
+      title="Couldn't send your message"
+      message="There was an error submitting your enquiry. Please try again."
+      variant="error"
+    />
+    </>
   );
 };
 

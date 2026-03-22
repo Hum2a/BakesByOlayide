@@ -5,6 +5,7 @@ import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { apiUrl } from '../../../config/environment';
+import MessageModal from '../../modals/MessageModal';
 
 const MARKETING_EMAIL =
   process.env.REACT_APP_MARKETING_CONTACT_EMAIL || 'marketing@bakesbyolayide.com';
@@ -38,6 +39,7 @@ const NewsletterManagement = () => {
   const [listManageError, setListManageError] = useState('');
   const [listManageLoading, setListManageLoading] = useState(false);
   const [showListKeyTooltip, setShowListKeyTooltip] = useState(false);
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
 
   const fetchSubscribers = async () => {
     try {
@@ -110,7 +112,7 @@ const NewsletterManagement = () => {
       await deleteDoc(doc(db, 'newsletter', email));
       fetchSubscribers();
     } catch (err) {
-      alert('Failed to delete subscriber.');
+      setNoticeModal({ open: true, message: 'Failed to delete subscriber.' });
     }
   };
 
@@ -119,7 +121,7 @@ const NewsletterManagement = () => {
       await updateDoc(doc(db, 'newsletter', email), { optedIn: !currentStatus });
       fetchSubscribers();
     } catch (err) {
-      alert('Failed to update opt-in status.');
+      setNoticeModal({ open: true, message: 'Failed to update opt-in status.' });
     }
   };
 
@@ -544,6 +546,13 @@ const NewsletterManagement = () => {
           ))}
         </div>
       </div>
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Error"
+        message={noticeModal.message}
+        variant="error"
+      />
     </div>
   );
 };

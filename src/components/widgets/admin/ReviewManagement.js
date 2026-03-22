@@ -3,6 +3,7 @@ import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, doc, deleteDoc, orderBy, addDoc, Timestamp } from 'firebase/firestore';
 import { FaStar, FaTrash, FaSearch, FaPlus } from 'react-icons/fa';
 import '../../styles/ReviewManagement.css';
+import MessageModal from '../../modals/MessageModal';
 
 const ReviewManagement = () => {
   const [reviews, setReviews] = useState([]);
@@ -23,6 +24,7 @@ const ReviewManagement = () => {
     date: new Date().toISOString().split('T')[0],
     time: new Date().toTimeString().slice(0,5)
   });
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
 
   useEffect(() => {
     const initializeData = async () => {
@@ -129,7 +131,7 @@ const ReviewManagement = () => {
     e.preventDefault();
     try {
       if (!newReview.productId || !newReview.userName || !newReview.review) {
-        alert('Please fill in all required fields');
+        setNoticeModal({ open: true, message: 'Please fill in all required fields.' });
         return;
       }
 
@@ -421,6 +423,12 @@ const ReviewManagement = () => {
           ))
         )}
       </div>
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Required fields"
+        message={noticeModal.message}
+      />
     </div>
   );
 };
