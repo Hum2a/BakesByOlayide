@@ -34,18 +34,18 @@
     "zcrmsdk": "^1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:local": "react-scripts start",
-    "start:live-api": "cross-env REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com react-scripts start",
+    "start": "craco start",
+    "start:local": "craco start",
+    "start:live-api": "cross-env REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com craco start",
     "server": "node server.js",
     "server:local": "node server.js",
     "dev": "concurrently \"npm run server:local\" \"npm run start:local\"",
     "dev:local": "concurrently \"npm run server:local\" \"npm run start:local\"",
-    "build": "react-scripts build",
-    "build:live": "react-scripts build",
-    "build:live:debug": "cross-env REACT_APP_ENABLE_CONSOLE_LOGS=true react-scripts build",
-    "build:local": "cross-env REACT_APP_RUNTIME_ENV=local REACT_APP_API_BASE_URL=http://localhost:5000 REACT_APP_ENABLE_CONSOLE_LOGS=true react-scripts build",
-    "test": "react-scripts test",
+    "build": "craco build",
+    "build:live": "craco build",
+    "build:live:debug": "cross-env REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "build:local": "cross-env REACT_APP_RUNTIME_ENV=local REACT_APP_API_BASE_URL=http://localhost:5000 REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -68,6 +68,7 @@
   },
   "proxy": "http://localhost:5000",
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3"
   }
