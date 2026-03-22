@@ -964,3 +964,182 @@ td.order-actions {
   border-color: var(--om-accent-hover);
   box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
 }
+
+/* Status change → remind to email customer (portal to body; self-contained — do not rely on Newsletter CSS) */
+.order-status-change-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.order-status-change-modal {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  padding: 1.5rem 1.5rem 1.35rem;
+  background: var(--om-surface, #fff);
+  border-radius: 14px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--om-border, #e2e8f0);
+}
+
+.order-status-change-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.35rem;
+  color: var(--om-text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.order-status-change-close:hover:not(:disabled) {
+  color: var(--om-text);
+  background: var(--om-chip);
+}
+
+.order-status-change-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.order-status-change-title {
+  margin: 0 0 0.75rem;
+  padding-right: 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--om-text);
+}
+
+.order-status-change-lead {
+  margin: 0 0 0.65rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: var(--om-text);
+}
+
+.order-status-change-id {
+  color: var(--om-text-muted);
+  font-weight: 500;
+}
+
+.order-status-change-hint {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--om-text);
+}
+
+.order-status-change-email-ready {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--om-text-muted);
+}
+
+.order-status-change-template-note {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--om-text-subtle);
+}
+
+.order-status-change-no-email {
+  margin: 0 0 1.1rem;
+  padding: 0.65rem 0.85rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #92400e;
+}
+
+.order-status-change-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.order-status-change-btn {
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.order-status-change-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.order-status-change-btn--primary {
+  background: var(--om-accent);
+  color: #fff;
+  border-color: var(--om-accent);
+  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.25);
+}
+
+.order-status-change-btn--primary:hover:not(:disabled) {
+  background: var(--om-accent-hover);
+  border-color: var(--om-accent-hover);
+}
+
+.order-status-change-btn--ghost {
+  background: var(--om-surface);
+  color: var(--om-text);
+  border-color: var(--om-border);
+}
+
+.order-status-change-btn--ghost:hover:not(:disabled) {
+  background: var(--om-chip);
+  border-color: var(--om-text-subtle);
+}
+
+.order-status-change-btn--secondary {
+  background: transparent;
+  color: var(--om-text-muted);
+  border-color: transparent;
+  margin-right: auto;
+}
+
+.order-status-change-btn--secondary:hover:not(:disabled) {
+  color: var(--om-text);
+  background: var(--om-chip);
+}
+
+@media (max-width: 520px) {
+  .order-status-change-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-status-change-btn--secondary {
+    margin-right: 0;
+    order: 3;
+  }
+}

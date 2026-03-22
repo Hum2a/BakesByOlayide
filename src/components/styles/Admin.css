@@ -513,6 +513,7 @@ td {
   font-size: 0.9rem;
   color: #34495e;
   line-height: 1.45;
+  white-space: pre-line;
 }
 
 .developer-settings-smtp-list {

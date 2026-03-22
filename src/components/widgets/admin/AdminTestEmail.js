@@ -2,6 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
 import { apiUrl } from '../../../config/environment';
+import {
+  appendUncertaintyToFailureMessage,
+  readEmailApiBody,
+  emailApiErrorDetail,
+} from '../../../utils/emailSendMessaging';
 import { TEST_EMAIL_PRESETS, getPresetBodies } from './testEmailPresets';
 import '../../styles/AdminTestEmail.css';
 
@@ -132,8 +137,8 @@ const AdminTestEmail = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ to: to.trim() }),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus('Sent: simple ping (Orders SMTP).');
         return;
       }
@@ -148,8 +153,8 @@ const AdminTestEmail = () => {
           method: 'POST',
           body: formData,
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus(
           cc.trim()
             ? 'Sent order confirmation to recipient with CC.'
@@ -169,8 +174,8 @@ const AdminTestEmail = () => {
             ...(cc.trim() ? { cc: cc.trim() } : {}),
           }),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus('Sent enquiry reply (Enquiries SMTP).');
         return;
       }
@@ -187,8 +192,8 @@ const AdminTestEmail = () => {
             ...(sendCustomerAck && cust ? { customerSubject, customerHtml } : {}),
           }),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus(
           sendCustomerAck && cust
             ? 'Sent shop copy to orders inbox + customer acknowledgement.'
@@ -211,8 +216,8 @@ const AdminTestEmail = () => {
             bodyColor,
           }),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus('Sent marketing test to the address you entered (single recipient).');
         return;
       }
@@ -229,12 +234,14 @@ const AdminTestEmail = () => {
             lists: selectedLists,
           }),
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        const data = await readEmailApiBody(res);
+        if (!res.ok) throw new Error(emailApiErrorDetail(data, res));
         setStatus(`Newsletter API: sent to ${data.sent} subscriber(s).`);
       }
     } catch (err) {
-      setStatus('Failed: ' + (err.message || String(err)));
+      setStatus(
+        appendUncertaintyToFailureMessage('Failed: ' + (err.message || String(err)))
+      );
     } finally {
       setSending(false);
     }

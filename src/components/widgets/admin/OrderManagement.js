@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import {
@@ -19,6 +20,11 @@ import InvoiceModal from './InvoiceModal';
 import MessageModal from '../../modals/MessageModal';
 import '../../styles/OrderManagement.css';
 import { apiUrl } from '../../../config/environment';
+import {
+  appendUncertaintyToFailureMessage,
+  readEmailApiBody,
+  emailApiErrorDetail,
+} from '../../../utils/emailSendMessaging';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -41,6 +47,53 @@ function getOrderCreatedMs(order) {
 function orderTotalNumber(order) {
   const n = Number(order?.total);
   return Number.isFinite(n) ? n : 0;
+}
+
+function orderCustomerEmail(order) {
+  const e = (order?.guestInfo?.email || order?.customerEmail || '').trim();
+  if (!e || e === 'N/A') return '';
+  return e;
+}
+
+function orderHasCustomerEmail(order) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(orderCustomerEmail(order));
+}
+
+function newStatusDisplayLabel(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  const map = {
+    pending: 'Awaiting approval',
+    confirmed: 'Confirmed',
+    ready: 'Ready for pickup',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  };
+  return map[s] || newStatus;
+}
+
+/** Pre-selected template when using “Update & email customer” */
+function emailTypeForStatusChange(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  if (s === 'confirmed') return 'confirmation';
+  if (s === 'ready' || s === 'completed') return 'complete';
+  return 'confirmation';
+}
+
+function statusChangeEmailHint(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  if (s === 'cancelled') {
+    return 'For cancellations, email is especially important. We’ll open a draft based on your confirmation template—edit it before sending.';
+  }
+  if (s === 'confirmed') {
+    return 'A quick confirmation email reassures the customer that their order is approved.';
+  }
+  if (s === 'ready') {
+    return 'Let them know their order is ready for collection or delivery.';
+  }
+  if (s === 'completed') {
+    return 'A short “thank you / order complete” message closes the loop nicely.';
+  }
+  return 'Consider emailing the customer so they know their order has been updated.';
 }
 
 const OrderManagement = () => {
@@ -70,6 +123,8 @@ const OrderManagement = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
+  const [statusChangeModal, setStatusChangeModal] = useState(null);
+  const [statusChangeSaving, setStatusChangeSaving] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilters, setStatusFilters] = useState([]);
@@ -206,11 +261,26 @@ const OrderManagement = () => {
         }
       }
       await fetchOrders(); // Refresh orders after update
+      setError(null);
+      return true;
     } catch (error) {
       console.error('Error updating order status:', error);
       setError('Failed to update order status');
+      return false;
     }
   };
+
+  const requestStatusChange = useCallback((order, newStatus) => {
+    const cur = (order.status || 'pending').toLowerCase();
+    const next = (newStatus || '').toLowerCase();
+    if (cur === next) return;
+    setStatusChangeModal({ order, newStatus });
+  }, []);
+
+  const closeStatusChangeModal = useCallback(() => {
+    if (statusChangeSaving) return;
+    setStatusChangeModal(null);
+  }, [statusChangeSaving]);
 
   const deleteOrder = async (orderId, invoiceRef, userId) => {
     if (!window.confirm('Are you sure you want to delete this order? This cannot be undone.')) return;
@@ -311,11 +381,31 @@ const OrderManagement = () => {
     setInvoiceModalOpen(true);
   };
 
-  const openEmailModal = (order, type) => {
+  const openEmailModal = useCallback((order, type) => {
     setEmailOrder(order);
     setEmailType(type);
     setEmailModalOpen(true);
-  };
+  }, []);
+
+  const applyStatusChange = useCallback(
+    async (openEmailAfter) => {
+      if (!statusChangeModal) return;
+      const { order, newStatus } = statusChangeModal;
+      setStatusChangeSaving(true);
+      try {
+        const ok = await updateOrderStatus(order.id, newStatus, order.invoiceRef);
+        if (!ok) return;
+        setStatusChangeModal(null);
+        if (openEmailAfter) {
+          const type = emailTypeForStatusChange(newStatus);
+          openEmailModal({ ...order, status: newStatus }, type);
+        }
+      } finally {
+        setStatusChangeSaving(false);
+      }
+    },
+    [statusChangeModal, openEmailModal]
+  );
 
   const closeEmailModal = () => {
     setEmailModalOpen(false);
@@ -356,9 +446,9 @@ const OrderManagement = () => {
         method: 'POST',
         body: formData
       });
-      const data = await response.json();
+      const data = await readEmailApiBody(response);
       if (response.ok) {
-        setEmailStatus('Email sent successfully!');
+        setEmailStatus('Email sent successfully! (Confirmed by the server.)');
         setTimeout(() => {
           setEmailModalOpen(false);
           setEmailStatus('');
@@ -366,10 +456,16 @@ const OrderManagement = () => {
           setEmailAttachments([]);
         }, 1200);
       } else {
-        setEmailStatus(data.error || 'Failed to send email.');
+        setEmailStatus(
+          appendUncertaintyToFailureMessage(emailApiErrorDetail(data, response))
+        );
       }
     } catch (err) {
-      setEmailStatus('Failed to send email.');
+      setEmailStatus(
+        appendUncertaintyToFailureMessage(
+          `Could not get a clear response from the server (${err.message || 'network error'}).`
+        )
+      );
     }
     setSendingEmail(false);
   };
@@ -887,7 +983,7 @@ const OrderManagement = () => {
                     <td className="order-actions">
                       <select
                         value={order.status || 'pending'}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value, order.invoiceRef)}
+                        onChange={(e) => requestStatusChange(order, e.target.value)}
                         className="status-select"
                       >
                         <option value="pending">Awaiting approval</option>
@@ -901,7 +997,7 @@ const OrderManagement = () => {
                         <button
                           type="button"
                           className="manual-confirm-btn"
-                          onClick={() => updateOrderStatus(order.id, 'confirmed', order.invoiceRef)}
+                          onClick={() => requestStatusChange(order, 'confirmed')}
                           title="Manually confirm this order and mark invoice as paid"
                         >
                           Confirm Order
@@ -968,6 +1064,99 @@ const OrderManagement = () => {
         onClose={() => setInvoiceModalOpen(false)}
         invoiceUrl={invoiceUrl}
       />
+      {statusChangeModal &&
+        createPortal(
+          <div
+            className="order-status-change-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-status-change-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeStatusChangeModal();
+            }}
+          >
+            <div className="order-status-change-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-btn order-status-change-close"
+              onClick={closeStatusChangeModal}
+              aria-label="Close"
+              disabled={statusChangeSaving}
+            >
+              <FaTimes />
+            </button>
+            <h3 id="order-status-change-title" className="order-status-change-title">
+              Update order status?
+            </h3>
+            <p className="order-status-change-lead">
+              This order will move to{' '}
+              <strong>{newStatusDisplayLabel(statusChangeModal.newStatus)}</strong>
+              {statusChangeModal.order?.id ? (
+                <>
+                  {' '}
+                  <span className="order-status-change-id">
+                    (#{String(statusChangeModal.order.id).slice(-8)})
+                  </span>
+                </>
+              ) : null}
+              .
+            </p>
+            <p className="order-status-change-hint">{statusChangeEmailHint(statusChangeModal.newStatus)}</p>
+            {orderHasCustomerEmail(statusChangeModal.order) ? (
+              <p className="order-status-change-email-ready">
+                Customer email on file: <strong>{orderCustomerEmail(statusChangeModal.order)}</strong>
+                <br />
+                <span className="order-status-change-template-note">
+                  “Update &amp; email customer” opens the{' '}
+                  <strong>
+                    {emailTypeForStatusChange(statusChangeModal.newStatus) === 'complete'
+                      ? 'Order complete / ready'
+                      : 'Order confirmation'}{' '}
+                  </strong>
+                  template — you can edit before sending.
+                </span>
+              </p>
+            ) : (
+              <p className="order-status-change-no-email">
+                No customer email on this order. You can still update the status; use Email actions after adding contact
+                details if needed.
+              </p>
+            )}
+            <div className="order-status-change-actions">
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--secondary"
+                onClick={closeStatusChangeModal}
+                disabled={statusChangeSaving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--ghost"
+                onClick={() => applyStatusChange(false)}
+                disabled={statusChangeSaving}
+              >
+                {statusChangeSaving ? 'Saving…' : 'Update status only'}
+              </button>
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--primary"
+                onClick={() => applyStatusChange(true)}
+                disabled={statusChangeSaving || !orderHasCustomerEmail(statusChangeModal.order)}
+                title={
+                  !orderHasCustomerEmail(statusChangeModal.order)
+                    ? 'Add a customer email to send from this screen'
+                    : undefined
+                }
+              >
+                {statusChangeSaving ? 'Saving…' : 'Update & email customer'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+        )}
       {emailModalOpen && (
         <div className="newsletter-modal-overlay">
           <div className="newsletter-modal" style={{ maxWidth: 540, position: 'relative' }}>
@@ -1013,7 +1202,21 @@ const OrderManagement = () => {
                   </ul>
                 )}
               </div>
-              {emailStatus && <div style={{ marginBottom: 10, color: emailStatus.includes('success') ? '#388e3c' : '#e74c3c' }}>{emailStatus}</div>}
+              {emailStatus && (
+                <div
+                  style={{
+                    marginBottom: 10,
+                    color: emailStatus.includes('success') || emailStatus.includes('Confirmed by the server')
+                      ? '#388e3c'
+                      : '#e74c3c',
+                    whiteSpace: 'pre-line',
+                    lineHeight: 1.45,
+                    fontSize: '0.95rem',
+                  }}
+                >
+                  {emailStatus}
+                </div>
+              )}
               <div style={{ display: 'flex', gap: 12, marginTop: 10, justifyContent: 'flex-end' }}>
                 <button type="submit" className="newsletter-add-btn" disabled={sendingEmail}>{sendingEmail ? 'Sending...' : 'Send Email'}</button>
                 <button type="button" className="newsletter-add-btn" style={{ background: '#eee', color: '#222' }} onClick={closeEmailModal} disabled={sendingEmail}>Cancel</button>

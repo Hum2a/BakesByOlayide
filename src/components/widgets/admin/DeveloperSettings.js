@@ -17,6 +17,50 @@ function envFlag(name) {
   return typeof v === 'string' && v.trim().length > 0;
 }
 
+/**
+ * Turn browser "Failed to fetch" into actionable hints (mixed content, localhost from prod, API down).
+ */
+function explainFetchFailure(requestUrl, error) {
+  const raw = error?.message || String(error);
+  if (typeof window === 'undefined') return raw;
+
+  const isFailedFetch =
+    raw === 'Failed to fetch' ||
+    raw.includes('NetworkError') ||
+    raw.includes('Load failed') ||
+    raw.includes('Network request failed');
+
+  if (!isFailedFetch) return raw;
+
+  const hints = [raw];
+  const pageHttps = window.location.protocol === 'https:';
+  const apiHttp = /^http:\/\//i.test(requestUrl);
+  const apiPointsAtLoopback = /localhost|127\.0\.0\.1/i.test(requestUrl);
+  const pageOnLoopback =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const pageOnPublicHost = !pageOnLoopback;
+
+  if (pageHttps && apiHttp) {
+    hints.push(
+      'Mixed content: this page is HTTPS but the API URL is plain HTTP. Browsers block that. For local dev open the app at http://localhost:3000 (not an https:// preview), or serve the API over HTTPS.'
+    );
+  } else if (apiPointsAtLoopback && pageOnPublicHost) {
+    hints.push(
+      'The API URL points at your own computer (localhost), but you opened Admin from a public/deployed origin. The browser cannot reach your PC’s localhost from here. Set REACT_APP_API_BASE_URL to your live API (e.g. Render) for production builds, or run these checks on your machine at http://localhost:3000.'
+    );
+  } else if (apiPointsAtLoopback && pageOnLoopback) {
+    hints.push(
+      'Nothing answered on that URL—start the API (`npm run server` or `npm run dev`), match PORT to REACT_APP_API_BASE_URL / package.json proxy, and avoid running the React dev app on the same port as the API.'
+    );
+  } else {
+    hints.push(
+      'Possible causes: host sleeping (Render free tier), firewall/VPN/ad-block, strict browser privacy, or CORS if the page origin is not allowed by the API.'
+    );
+  }
+
+  return hints.join('\n\n');
+}
+
 async function pingApiTest(baseLabel, baseOrigin) {
   const url = apiUrlAtBase(baseOrigin, '/api/test');
   const start = performance.now();
@@ -41,7 +85,7 @@ async function pingApiTest(baseLabel, baseOrigin) {
       url,
       ok: false,
       ms,
-      message: e.message || 'Request failed',
+      message: explainFetchFailure(url, e),
     };
   }
 }
@@ -142,7 +186,7 @@ const DeveloperSettings = () => {
         ok: false,
         url: diagUrl,
         ms,
-        message: e.message || 'Could not reach configured API',
+        message: explainFetchFailure(diagUrl, e),
         body: null,
       });
     }
@@ -162,6 +206,28 @@ const DeveloperSettings = () => {
         <strong>configured</strong> API base (see below). Probing local from a deployed site often fails in the
         browser (localhost is your machine, not the server).
       </p>
+
+      {typeof window !== 'undefined' &&
+        window.location.protocol === 'https:' &&
+        /^http:\/\//i.test(configured) && (
+          <div className="developer-settings-alert developer-settings-alert--warn" role="status">
+            <strong>Mixed content risk</strong>: you are on <strong>HTTPS</strong> but the configured API is{' '}
+            <strong>HTTP</strong> (<code>{configured}</code>). Browsers usually block fetches from secure pages to
+            insecure APIs, so every backend check may show “Failed to fetch” even if the server is running. Use{' '}
+            <code>http://localhost:3000</code> for local admin, or put the API behind HTTPS.
+          </div>
+        )}
+
+      {typeof window !== 'undefined' &&
+        !/^localhost$|^127\.0\.0\.1$/i.test(window.location.hostname) &&
+        /localhost|127\.0\.0\.1/i.test(configured) && (
+          <div className="developer-settings-alert developer-settings-alert--warn" role="status">
+            <strong>localhost API from a non-local site</strong>: <code>REACT_APP_API_BASE_URL</code> points at your
+            machine (<code>{configured}</code>), but this page is served from{' '}
+            <code>{window.location.origin}</code>. The browser cannot reach your PC’s localhost. Point the build at
+            your deployed API URL, or open Admin from <code>http://localhost:3000</code> when developing.
+          </div>
+        )}
 
       {process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && window.location.port === '5000' && (
         <div className="developer-settings-alert developer-settings-alert--warn" role="status">

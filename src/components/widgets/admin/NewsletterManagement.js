@@ -5,6 +5,11 @@ import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { apiUrl } from '../../../config/environment';
+import {
+  appendUncertaintyToFailureMessage,
+  readEmailApiBody,
+  emailApiErrorDetail,
+} from '../../../utils/emailSendMessaging';
 import MessageModal from '../../modals/MessageModal';
 
 const MARKETING_EMAIL =
@@ -148,9 +153,9 @@ const NewsletterManagement = () => {
           lists: selectedLists
         }),
       });
-      const data = await response.json();
+      const data = await readEmailApiBody(response);
       if (response.ok) {
-        setSendStatus(`Email sent to ${data.sent} subscribers!`);
+        setSendStatus(`Email sent to ${data.sent} subscribers! (Server confirmed.)`);
         setEmailSubject('');
         setEmailBody('');
         setSubjectColor('#000000');
@@ -158,10 +163,14 @@ const NewsletterManagement = () => {
         setSelectedLists([availableLists[0].key]);
         setShowPreview(false);
       } else {
-        setSendStatus(data.error || 'Failed to send email.');
+        setSendStatus(appendUncertaintyToFailureMessage(emailApiErrorDetail(data, response)));
       }
     } catch (err) {
-      setSendStatus('Failed to send email.');
+      setSendStatus(
+        appendUncertaintyToFailureMessage(
+          `Could not get a clear response (${err.message || 'network error'}).`
+        )
+      );
     }
     setSending(false);
   };
@@ -374,7 +383,19 @@ const NewsletterManagement = () => {
             {sending ? 'Sending...' : 'Send Email'}
           </button>
         </div>
-        {sendStatus && <div style={{ marginBottom: '1rem', color: '#388e3c' }}>{sendStatus}</div>}
+        {sendStatus && (
+          <div
+            style={{
+              marginBottom: '1rem',
+              color: sendStatus.startsWith('Email sent to') ? '#388e3c' : '#c62828',
+              whiteSpace: 'pre-line',
+              lineHeight: 1.45,
+              fontSize: '0.95rem',
+            }}
+          >
+            {sendStatus}
+          </div>
+        )}
         {showPreview && (
           <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 16, background: '#fafafa', marginBottom: 16 }}>
             <h4 style={{ marginTop: 0, color: subjectColor }}>{emailSubject}</h4>

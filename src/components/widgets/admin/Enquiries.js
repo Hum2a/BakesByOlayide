@@ -19,6 +19,11 @@ import {
 } from 'react-icons/fa';
 import '../../styles/Enquiries.css';
 import { apiUrl } from '../../../config/environment';
+import {
+  appendUncertaintyToFailureMessage,
+  readEmailApiBody,
+  emailApiErrorDetail,
+} from '../../../utils/emailSendMessaging';
 
 const MESSAGE_PREVIEW_LEN = 220;
 const STATUS_OPTIONS = [
@@ -175,7 +180,11 @@ const Enquiries = () => {
       await fetchEnquiries(false);
     } catch (err) {
       console.error('Error sending reply:', err);
-      setError('Failed to send reply: ' + (err.message || err));
+      setError(
+        appendUncertaintyToFailureMessage(
+          `Failed to send reply: ${err.message || err}`
+        )
+      );
     } finally {
       setSendingReply(false);
     }
