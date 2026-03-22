@@ -1,7 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const upload = multer(); // memory storage
+const upload = multer({
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 20,
+    fieldSize: 5 * 1024 * 1024,
+  },
+});
 
 const {
   sendOrderConfirmation,

@@ -20,7 +20,6 @@ const InvoiceModal = ({ isOpen, onClose, invoiceUrl: invoiceRef }) => {
         if (typeof invoiceRef === 'string') {
           ref = doc(db, invoiceRef);
         }
-        console.log('InvoiceRef:', ref);
         const invoiceDoc = await getDoc(ref);
         if (invoiceDoc.exists()) {
           setInvoice(invoiceDoc.data());

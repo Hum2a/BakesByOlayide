@@ -113,11 +113,6 @@ const CakePage = ({ onOpenCart }) => {
     ? cakes
     : cakes.filter(cake => (cake.categories || []).includes(activeCategory));
 
-  const handleAddToCart = (cake) => {
-    // Add to cart logic here
-    console.log('Added to cart:', cake);
-  };
-
   const handleViewCakes = (category) => {
     const categoryPath = category.toLowerCase().replace(/\s+/g, '-');
     navigate(`/collections/${categoryPath}`);
@@ -276,7 +271,6 @@ const CakePage = ({ onOpenCart }) => {
       <CakeModal
         cake={selectedCake}
         onClose={() => setSelectedCake(null)}
-        onAddToCart={handleAddToCart}
       />
     )}
 

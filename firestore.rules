@@ -1,5 +1,10 @@
 rules_version = '2';
 
+// SECURITY NOTE: The catch-all rule below allows any signed-in user to read/write all paths except
+// emailOutbox. Tighten this before scaling: define per-collection rules (users, orders, cakes, etc.)
+// so customers cannot read or modify other users' data. Rules alone are not a substitute for validating
+// data in Cloud Functions or trusted backends where needed.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 

@@ -12,6 +12,15 @@ import OptimizedImage from '../../common/OptimizedImage';
 import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
 
+function escapeHtmlForDisplay(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 const SpecificCakePage = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -504,8 +513,8 @@ const SpecificCakePage = () => {
                   'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
                   'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
                 ];
-                // Replace allergen words with bolded spans
-                let formatted = ingredient;
+                // Escape first so admin-entered HTML cannot run; then wrap allergen words.
+                let formatted = escapeHtmlForDisplay(ingredient);
                 allergens.forEach(allergen => {
                   const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
                   formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);
@@ -527,7 +536,7 @@ const SpecificCakePage = () => {
                   'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
                   'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
                 ];
-                let formatted = topping;
+                let formatted = escapeHtmlForDisplay(topping);
                 allergens.forEach(allergen => {
                   const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
                   formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);

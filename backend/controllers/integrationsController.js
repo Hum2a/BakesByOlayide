@@ -27,7 +27,7 @@ async function checkFirestore() {
 }
 
 /**
- * GET /api/integrations/status
+ * GET /api/integrations/status (staff only — requireStaffAuth on route)
  * Verifies Zoho SMTP transporters and Firebase Admin / Firestore (no secrets returned).
  */
 async function getIntegrationsStatus(req, res) {

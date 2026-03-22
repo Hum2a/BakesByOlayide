@@ -233,20 +233,38 @@ const DeveloperSettings = () => {
     const controller = new AbortController();
     const diagTid = setTimeout(() => controller.abort(), diagTimeoutMs);
     try {
-      const res = await fetch(diagUrl, { method: 'GET', signal: controller.signal });
-      const ms = Math.round(performance.now() - start);
-      if (!res.ok) {
-        const text = await res.text();
+      const currentUser = auth.currentUser;
+      const msBase = () => Math.round(performance.now() - start);
+      if (!currentUser) {
         setServerDiag({
           ok: false,
           url: diagUrl,
-          ms,
-          message: `HTTP ${res.status}${text ? `: ${text.slice(0, 200)}` : ''}`,
+          ms: msBase(),
+          message:
+            'Sign in with a staff account to load server diagnostics (the API requires Authorization).',
           body: null,
         });
       } else {
-        const body = await res.json();
-        setServerDiag({ ok: true, url: diagUrl, ms, message: 'Diagnostics loaded', body });
+        const token = await currentUser.getIdToken();
+        const res = await fetch(diagUrl, {
+          method: 'GET',
+          signal: controller.signal,
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const ms = msBase();
+        if (!res.ok) {
+          const text = await res.text();
+          setServerDiag({
+            ok: false,
+            url: diagUrl,
+            ms,
+            message: `HTTP ${res.status}${text ? `: ${text.slice(0, 200)}` : ''}`,
+            body: null,
+          });
+        } else {
+          const body = await res.json();
+          setServerDiag({ ok: true, url: diagUrl, ms, message: 'Diagnostics loaded', body });
+        }
       }
     } catch (e) {
       const ms = Math.round(performance.now() - start);
@@ -417,7 +435,8 @@ const DeveloperSettings = () => {
 
       <h3 className="developer-settings-h3">Configured backend — SMTP &amp; Firebase Admin</h3>
       <p className="developer-settings-note">
-        These checks call <code>{apiUrl('/api/integrations/status')}</code>. They verify Zoho SMTP (three inboxes) and
+        These checks call <code>{apiUrl('/api/integrations/status')}</code> with your staff ID token. They verify Zoho
+        SMTP (three inboxes) and
         server Firestore via Firebase Admin.
       </p>
       <ResultCard
@@ -485,8 +504,6 @@ const DeveloperSettings = () => {
               'REACT_APP_API_BASE_URL',
               'REACT_APP_RUNTIME_ENV',
               'REACT_APP_MARKETING_CONTACT_EMAIL',
-              'REACT_APP_ZOHO_EMAIL',
-              'REACT_APP_ZOHO_EMAIL_PASSWORD',
             ].map((name) => (
               <tr key={name}>
                 <td>
@@ -500,8 +517,8 @@ const DeveloperSettings = () => {
       </div>
       <p className="developer-settings-footnote">
         Production email is sent from the Node API using Zoho SMTP (<code>ZOHO_*</code> in server env — see backend{' '}
-        <code>.env.example</code>). <code>src/utils/emailService.js</code> and <code>REACT_APP_ZOHO_*</code> are not
-        used by the running app. <code>@sendgrid/mail</code> and <code>zcrmsdk</code> are in{' '}
+        <code>.env.example</code>). A legacy client-side SMTP helper was removed; do not put SMTP passwords in{' '}
+        <code>REACT_APP_*</code>. <code>@sendgrid/mail</code> and <code>zcrmsdk</code> are in{' '}
         <code>package.json</code> but not imported in source.
       </p>
     </div>

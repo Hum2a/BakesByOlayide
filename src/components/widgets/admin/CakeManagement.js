@@ -321,7 +321,6 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       // Handle image uploads
       if (cakeImages && cakeImages.length > 0) {
-        console.log('Processing images:', cakeImages.length);
         for (let i = 0; i < cakeImages.length; i++) {
           const img = cakeImages[i];
           if (!img) continue; // Skip if no image
@@ -335,10 +334,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
             }
 
             const storageRef = ref(storage, `cakes/${img.name}_${Date.now()}_${i}`);
-            console.log('Uploading image:', img.name);
             await uploadBytes(storageRef, img);
             const url = await getDownloadURL(storageRef);
-            console.log('Image uploaded successfully:', url);
             imageUrls.push(url);
           } catch (uploadError) {
             console.error('Error uploading image:', uploadError);
@@ -356,11 +353,9 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       // Handle image fields
       if (imageUrls.length > 0) {
-        console.log('Setting images:', imageUrls);
         cleanedCake.image = imageUrls[0];
         cleanedCake.images = imageUrls;
       } else if (editingCake && editingCake.image) {
-        console.log('Using existing images from editing');
         cleanedCake.image = editingCake.image;
         cleanedCake.images = editingCake.images || [editingCake.image];
       } else if (Array.isArray(newCake.images) && newCake.images.filter(Boolean).length > 0) {
@@ -368,20 +363,13 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         const validImages = newCake.images.filter(Boolean);
         cleanedCake.image = validImages[0];
         cleanedCake.images = validImages;
-        console.log('Using images from newCake.images:', validImages);
       } else {
-        console.log('No images found');
         throw new Error('At least one image is required');
       }
 
-      // Log the final cake data
-      console.log('Saving cake with data:', cleanedCake);
-
       if (editingCake) {
-        console.log('Updating existing cake:', editingCake.id);
         await updateDoc(doc(db, 'cakes', editingCake.id), cleanedCake);
       } else {
-        console.log('Creating new cake');
         await addDoc(collection(db, 'cakes'), cleanedCake);
       }
 

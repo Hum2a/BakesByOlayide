@@ -669,12 +669,10 @@ const OrderManagement = () => {
     try {
       // Delete from main orders collection
       await deleteDoc(firestoreDoc(db, 'orders', orderId));
-      console.log('Deleted from main orders collection:', orderId);
       // Delete from user's subcollection if userId exists
       if (userId) {
         try {
           await deleteDoc(firestoreDoc(db, 'users', userId, 'Orders', orderId));
-          console.log('Deleted from user subcollection:', userId, orderId);
         } catch (e) {
           console.error('Error deleting from user subcollection:', e);
         }
@@ -683,7 +681,6 @@ const OrderManagement = () => {
       if (invoiceRef) {
         try {
           await deleteDoc(firestoreDoc(db, invoiceRef));
-          console.log('Deleted invoice:', invoiceRef);
         } catch (e) {
           console.error('Error deleting invoice:', e);
         }

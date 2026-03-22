@@ -31,9 +31,7 @@ const Contact = ({ isOpen, onClose }) => {
         timestamp: new Date(),
         status: 'new'
       });
-      
-      console.log('Enquiry stored with ID:', docRef.id);
-      
+
       // Reset form
       setFormData({
         name: '',
