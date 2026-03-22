@@ -31,4 +31,45 @@ function staffBccFor(envKey, to, ccList = []) {
   return filtered.length ? filtered : undefined;
 }
 
-module.exports = { staffBccFor, parseList };
+function uniqueEmailList(emails) {
+  const seen = new Set();
+  const out = [];
+  for (const e of emails) {
+    const n = normalizeAddr(e);
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    out.push(String(e).trim());
+  }
+  return out;
+}
+
+/**
+ * BCC recipients for the shop copy of a new basket/checkout order (Orders SMTP).
+ * Defaults to bakedbyolayide@gmail.com when EMAIL_NEW_ORDER_NOTIFY_TO is unset.
+ * Set EMAIL_NEW_ORDER_NOTIFY_TO to a comma-separated list to override; set to empty string to disable.
+ */
+function newOrderNotifyBcc(ordersInbox) {
+  const raw = process.env.EMAIL_NEW_ORDER_NOTIFY_TO;
+  let list;
+  if (raw === undefined || raw === null) {
+    list = ['bakedbyolayide@gmail.com'];
+  } else if (String(raw).trim() === '') {
+    list = [];
+  } else {
+    list = parseList(raw);
+  }
+  const blocked = normalizeAddr(ordersInbox);
+  return list.filter((e) => normalizeAddr(e) !== blocked);
+}
+
+/**
+ * Shop enquiry mail: staff BCC env + new-order notify list, deduped.
+ */
+function orderEnquiryShopBcc(ordersInbox) {
+  const staff = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, []) || [];
+  const notify = newOrderNotifyBcc(ordersInbox);
+  const merged = uniqueEmailList([...staff, ...notify]);
+  return merged.length ? merged : undefined;
+}
+
+module.exports = { staffBccFor, parseList, newOrderNotifyBcc, orderEnquiryShopBcc, uniqueEmailList };

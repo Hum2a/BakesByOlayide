@@ -1,6 +1,6 @@
 const { ordersTransporter, enquiriesTransporter, marketingTransporter } = require('../config/nodemailer');
 const { firestore } = require('../config/firebase');
-const { staffBccFor } = require('../utils/emailNotifyBcc');
+const { staffBccFor, orderEnquiryShopBcc } = require('../utils/emailNotifyBcc');
 
 async function sendOrderConfirmation(req, res) {
   // For multipart/form-data, fields are in req.body, files in req.files
@@ -121,7 +121,7 @@ async function sendOrderEnquiry(req, res) {
     return res.status(500).json({ error: 'ZOHO_ORDERS_USER is not configured' });
   }
 
-  const shopBcc = staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', ordersInbox, []);
+  const shopBcc = orderEnquiryShopBcc(ordersInbox);
   const customerBcc =
     customerEmail && customerHtml
       ? staffBccFor('EMAIL_NOTIFY_BCC_ORDERS', customerEmail, [])
