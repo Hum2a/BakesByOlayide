@@ -1,19 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Elements } from '@stripe/react-stripe-js';
-import stripePromise from '../../stripe/config';
-import StripePaymentForm from '../payment/StripePaymentForm';
 import { auth, db } from '../../firebase/firebase';
-import { doc, setDoc, collection, getDocs, query, where, Timestamp, increment, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, query, where, Timestamp, getDoc } from 'firebase/firestore';
 import '../styles/Checkout.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import AuthModal from '../modals/AuthModal';
-import { loadStripe } from '@stripe/stripe-js';
+import {
+  buildShopEnquiryEmail,
+  buildCustomerEnquiryAckEmail,
+  shopEnquirySubject,
+} from '../../utils/orderEnquiryEmail';
+import { apiUrl } from '../../config/environment';
 
-const GuestForm = ({ onSubmit, isLoading }) => (
+const ALLERGY_OPTIONS = [
+  'Gluten',
+  'Nuts',
+  'Tree Nuts',
+  'Milk',
+  'Lupin',
+  'Sulphites',
+  'Eggs',
+  'Soya',
+];
+
+const emptyCustomerDetails = () => ({
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  allergies: [],
+  allergyOther: '',
+  applyAllergiesToAll: false,
+  fruitPreference: '',
+  message: '',
+});
+
+function getCheckoutItemSpecs(item) {
+  const rows = [];
+  if (item.selectedSize) {
+    rows.push({
+      label: 'Size',
+      value: `${item.selectedSize.size}${typeof item.selectedSize.size === 'number' ? '"' : ''}`,
+    });
+  }
+  if (item.batchSize) rows.push({ label: 'Batch size', value: item.batchSize });
+  if (item.selectedShape?.name) rows.push({ label: 'Shape', value: item.selectedShape.name });
+  if (item.decorationStyle) rows.push({ label: 'Decoration', value: item.decorationStyle });
+  if (item.selectedFinish?.name) rows.push({ label: 'Finish', value: item.selectedFinish.name });
+  if (item.occasion) rows.push({ label: 'Occasion', value: item.occasion });
+  if (item.topper) rows.push({ label: 'Topper', value: item.topper });
+  const addonList = item.addons ?? item.addon;
+  if (addonList) {
+    const parts = Array.isArray(addonList)
+      ? addonList.map((a) => (typeof a === 'string' ? a : a?.name)).filter(Boolean)
+      : [String(addonList)];
+    if (parts.length) rows.push({ label: 'Add-ons', value: parts.join(', ') });
+  }
+  return rows;
+}
+
+const GuestForm = ({ onSubmit, isLoading, submitLabel = 'Continue' }) => (
   <form onSubmit={onSubmit} className="guest-form">
     <div className="form-group">
       <label htmlFor="name">Full Name *</label>
@@ -61,12 +110,15 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
+  /** Drives slide-in keyframes when changing month ('next' | 'prev' | null) */
+  const [monthSlide, setMonthSlide] = useState(null);
 
   useEffect(() => {
     const times = [];
-    for (let hour = 9; hour <= 19; hour++) {
-      times.push(`${hour}:00`);
-      if (hour !== 19) times.push(`${hour}:30`);
+    for (let mins = 8 * 60 + 30; mins <= 18 * 60; mins += 30) {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      times.push(`${h}:${m === 0 ? '00' : '30'}`);
     }
     setAvailableTimes(times);
     setLoading(false);
@@ -90,6 +142,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     fetchBlockedDates();
   }, []);
 
+  useEffect(() => {
+    if (!monthSlide) return undefined;
+    const id = setTimeout(() => setMonthSlide(null), 420);
+    return () => clearTimeout(id);
+  }, [displayedMonth, monthSlide]);
+
   const getDatesForMonth = (monthDate) => {
     const year = monthDate.getFullYear();
     const month = monthDate.getMonth();
@@ -107,7 +165,7 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   const isDateDisabled = (date) => {
     const today = new Date();
     const minPickupDate = new Date(today);
-    minPickupDate.setDate(today.getDate() + 5);
+    minPickupDate.setDate(today.getDate() + 14);
     
     // Check if date is before minimum pickup date
     if (date < minPickupDate) return true;
@@ -143,10 +201,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
   };
 
   const goToPrevMonth = () => {
-    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    setMonthSlide('prev');
+    setDisplayedMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
   const goToNextMonth = () => {
-    setDisplayedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    setMonthSlide('next');
+    setDisplayedMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
   const monthName = displayedMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -175,62 +235,125 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
     return weeks;
   };
 
+  const datesByWeek = useMemo(
+    () => formatDatesByWeekMondayStart(availableDates),
+    [availableDates]
+  );
+
+  /** Single flat row-major list so the grid matches the time-slot glider math */
+  const flatCalendarCells = useMemo(() => {
+    const cells = [];
+    datesByWeek.forEach((week) => {
+      week.forEach((d) => cells.push(d));
+    });
+    return cells;
+  }, [datesByWeek]);
+
+  const calSelIndex = useMemo(() => {
+    if (!selectedDate) return -1;
+    return flatCalendarCells.findIndex(
+      (d) => d && d.toDateString() === selectedDate.toDateString()
+    );
+  }, [selectedDate, flatCalendarCells]);
+
+  const calCol = calSelIndex >= 0 ? calSelIndex % 7 : 0;
+  const calRow = calSelIndex >= 0 ? Math.floor(calSelIndex / 7) : 0;
+
+  const timeIndex = useMemo(
+    () => (selectedTime ? availableTimes.indexOf(selectedTime) : -1),
+    [selectedTime, availableTimes]
+  );
+  const timeCol = timeIndex >= 0 ? timeIndex % 4 : 0;
+  const timeRow = timeIndex >= 0 ? Math.floor(timeIndex / 4) : 0;
+
+  const monthKey = `${displayedMonth.getFullYear()}-${displayedMonth.getMonth()}`;
+  const calendarSlideClass =
+    monthSlide === 'next'
+      ? 'calendar-body-slide--next'
+      : monthSlide === 'prev'
+        ? 'calendar-body-slide--prev'
+        : '';
+
   if (loading) {
     return <div className="loading">Loading pickup options...</div>;
   }
 
-  const datesByWeek = formatDatesByWeekMondayStart(availableDates);
-
   return (
-    <div className="pickup-schedule">
-      <h3 className="pickup-schedule-title">Schedule Order</h3>
-      <div className="schedule-grid">
-        {/* Calendar and notice */}
-        <div>
-          <label className="pickup-date-label">Pick-up Date:</label>
-          <div className="pickup-notice">
-            All orders require a minimum of 5 days notice before pick-up.
-          </div>
-          {/* Month navigation */}
+    <div className="pickup-schedule pickup-schedule--narrow">
+      <h3 className="pickup-schedule-title pickup-schedule-title--center">Schedule Order</h3>
+      <div className="schedule-grid schedule-grid--panels">
+        <div className="schedule-panel schedule-panel--calendar">
+          <label className="schedule-panel-label" htmlFor="checkout-calendar-anchor">Pick-up Date</label>
+          <p id="checkout-calendar-anchor" className="schedule-panel-hint">
+            All cake orders require at least 14 days notice for picking.
+          </p>
           <div className="calendar-month-nav">
-            <button type="button" onClick={goToPrevMonth} aria-label="Previous Month">&lt;</button>
+            <button type="button" onClick={goToPrevMonth} aria-label="Previous month">&lsaquo;</button>
             <span className="calendar-month-name">{monthName}</span>
-            <button type="button" onClick={goToNextMonth} aria-label="Next Month">&gt;</button>
+            <button type="button" onClick={goToNextMonth} aria-label="Next month">&rsaquo;</button>
           </div>
-          <div className="weekday-header">
-            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
-              <div key={day} className="weekday-name">{day}</div>
-            ))}
-          </div>
-          <div className="calendar-month">
-            {datesByWeek.map((week, weekIndex) => (
-              <div key={weekIndex} className="calendar-week">
-                {week.map((date, dayIndex) => (
-                  <div
-                    key={dayIndex}
-                    className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
-                    onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
-                  >
-                    {date ? date.getDate() : ''}
-                  </div>
-                ))}
-              </div>
-            ))}
+          <div
+            key={monthKey}
+            className={`calendar-body-slide ${calendarSlideClass}`.trim()}
+          >
+            <div className="weekday-header">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+                <div key={day} className="weekday-name">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div
+              className="calendar-month calendar-month--flat"
+              style={
+                calSelIndex >= 0
+                  ? { '--cal-sel-col': calCol, '--cal-sel-row': calRow }
+                  : undefined
+              }
+            >
+              {calSelIndex >= 0 ? <div className="calendar-selection-glider" aria-hidden="true" /> : null}
+              {flatCalendarCells.map((date, idx) => (
+                <button
+                  key={date ? `d-${date.getTime()}` : `e-${idx}`}
+                  type="button"
+                  disabled={!date || isDateDisabled(date)}
+                  className={`calendar-day${date ? '' : ' empty'}${date && isDateDisabled(date) ? ' disabled' : ''}${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? ' selected' : ''}`}
+                  onClick={() => date && !isDateDisabled(date) && handleDateSelect(date)}
+                >
+                  {date ? date.getDate() : ''}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        {/* Time slots */}
-        <div>
-          <label className="pickup-time-label">Pick-up Time:</label>
-          <div className="clock-grid">
-            {availableTimes.map((time) => (
-              <div
-                key={time}
-                className={`clock-time${selectedTime === time ? ' selected' : ''}${isTimeBlocked(time) ? ' disabled' : ''}`}
-                onClick={() => !isTimeBlocked(time) && handleTimeSelect(time)}
-              >
-                {time}
-              </div>
-            ))}
+        <div className="schedule-panel schedule-panel--time">
+          <label className="schedule-panel-label">Pick-up Time</label>
+          <p className="schedule-panel-hint schedule-panel-hint--time">
+            All orders will be ready the day before they are due. If you require a later pick-up time, please send an email to{' '}
+            <a href="mailto:Enquiries@bakesbyolayide.co.uk">Enquiries@bakesbyolayide.co.uk</a>.
+          </p>
+          <div className="schedule-panel-time-slots">
+            <div
+              className="clock-grid clock-grid--four clock-grid--with-glider"
+              style={
+                timeIndex >= 0
+                  ? { '--time-sel-col': timeCol, '--time-sel-row': timeRow }
+                  : undefined
+              }
+            >
+              {timeIndex >= 0 ? <div className="clock-time-glider" aria-hidden="true" /> : null}
+              {availableTimes.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  disabled={isTimeBlocked(time)}
+                  className={`clock-time${selectedTime === time ? ' selected' : ''}${isTimeBlocked(time) ? ' disabled' : ''}`}
+                  onClick={() => !isTimeBlocked(time) && handleTimeSelect(time)}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -239,10 +362,12 @@ const PickupSchedule = ({ pickupDate, setPickupDate, pickupTime, setPickupTime }
 };
 
 const Checkout = () => {
-  const { cart, totalPrice, clearCart, updateQuantity, removeFromCart, setCart } = useCart();
+  const { cart, totalPrice, clearCart, updateQuantity, setCart } = useCart();
   const navigate = useNavigate();
   const [guestInfo, setGuestInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  /** 'saving' = writing to Firestore; 'ready' = saved, about to redirect (emails run in background) */
+  const [submitPhase, setSubmitPhase] = useState(null);
   const [pickupDate, setPickupDate] = useState('');
   const [pickupTime, setPickupTime] = useState('');
   const [discountCode, setDiscountCode] = useState('');
@@ -252,45 +377,57 @@ const Checkout = () => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [tempCart, setTempCart] = useState(null);
   const [user, setUser] = useState(null);
-  const [userInfoForm, setUserInfoForm] = useState({ name: '', phone: '' });
-  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
-  const [userInfoError, setUserInfoError] = useState('');
+  const [customerDetails, setCustomerDetails] = useState(() => emptyCustomerDetails());
+  const [submitError, setSubmitError] = useState('');
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       setUser(firebaseUser);
-      if (firebaseUser) {
-        // If missing displayName or phoneNumber, show form
-        const needsName = !firebaseUser.displayName || firebaseUser.displayName.trim() === '';
-        const needsPhone = !firebaseUser.phoneNumber || firebaseUser.phoneNumber.trim() === '';
-        if (needsName || needsPhone) {
-          // Try to fetch from Firestore profile doc
-          const fetchProfile = async () => {
-            let name = firebaseUser.displayName || '';
-            let phone = firebaseUser.phoneNumber || '';
-            try {
-              const userDocRef = doc(db, 'users', firebaseUser.uid);
-              const userDocSnap = await getDoc(userDocRef);
-              if (userDocSnap.exists()) {
-                const data = userDocSnap.data();
-                if (data.displayName) name = data.displayName;
-                if (data.phoneNumber) phone = data.phoneNumber;
-              }
-            } catch (e) {}
-            setUserInfoForm({ name, phone });
-            setShowUserInfoForm(!name.trim() || !phone.trim());
-          };
-          fetchProfile();
-        } else {
-          setShowUserInfoForm(false);
-        }
-      } else {
-        setShowUserInfoForm(false);
-      }
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) return undefined;
+    let cancelled = false;
+    (async () => {
+      let firstName = '';
+      let lastName = '';
+      let phone = '';
+      const dn = user.displayName?.trim();
+      if (dn) {
+        const bits = dn.split(/\s+/);
+        firstName = bits[0] || '';
+        lastName = bits.slice(1).join(' ') || '';
+      }
+      try {
+        const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          if (data.displayName?.trim()) {
+            const bits = data.displayName.trim().split(/\s+/);
+            firstName = bits[0] || firstName;
+            lastName = bits.slice(1).join(' ') || lastName;
+          }
+          if (data.phoneNumber) phone = String(data.phoneNumber);
+        }
+      } catch (e) {
+        /* ignore */
+      }
+      if (!cancelled) {
+        setCustomerDetails((prev) => ({
+          ...prev,
+          firstName: firstName || prev.firstName,
+          lastName: lastName || prev.lastName,
+          email: user.email || prev.email,
+          phone: phone || prev.phone,
+        }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid, user?.email, user?.displayName]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -442,8 +579,8 @@ const Checkout = () => {
   if (cart.length === 0) {
     return (
       <div className="checkout-empty">
-        <h2>Your cart is empty</h2>
-        <p>Please add some items to your cart before proceeding to checkout.</p>
+        <h2>Your basket is empty</h2>
+        <p>Add some items from the shop before sending an order enquiry.</p>
         <button onClick={() => navigate('/collections')} className="return-to-shop">
           Return to Shop
         </button>
@@ -454,256 +591,330 @@ const Checkout = () => {
   const handleGuestSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    setGuestInfo({
-      name: formData.get('name'),
-      email: formData.get('email'),
-      phone: formData.get('phone')
+    const nameRaw = (formData.get('name') || '').toString().trim();
+    const bits = nameRaw.split(/\s+/).filter(Boolean);
+    const firstName = bits[0] || '';
+    const lastName = bits.slice(1).join(' ') || '';
+    const email = (formData.get('email') || '').toString();
+    const phone = (formData.get('phone') || '').toString();
+    setGuestInfo({ name: nameRaw, email, phone });
+    setCustomerDetails((prev) => ({
+      ...prev,
+      firstName,
+      lastName,
+      email,
+      phone,
+    }));
+  };
+
+  const buildCustomerPayload = () => {
+    const firstName = customerDetails.firstName.trim();
+    const lastName = customerDetails.lastName.trim();
+    const name = [firstName, lastName].filter(Boolean).join(' ') || customerDetails.email.trim();
+    return {
+      name,
+      firstName,
+      lastName,
+      email: customerDetails.email.trim(),
+      phone: customerDetails.phone.trim(),
+      allergies: [...customerDetails.allergies],
+      allergyOther: customerDetails.allergyOther.trim(),
+      applyAllergiesToAllItems: customerDetails.applyAllergiesToAll,
+      fruitPreference: customerDetails.fruitPreference.trim(),
+    };
+  };
+
+  const toggleAllergy = (key) => {
+    if (key === 'None') {
+      setCustomerDetails((prev) => ({ ...prev, allergies: ['None'], allergyOther: '' }));
+      return;
+    }
+    if (key === 'Other') {
+      setCustomerDetails((prev) => {
+        const withoutNone = (prev.allergies || []).filter((a) => a !== 'None');
+        const has = withoutNone.includes('Other');
+        const allergies = has ? withoutNone.filter((a) => a !== 'Other') : [...withoutNone, 'Other'];
+        return { ...prev, allergies };
+      });
+      return;
+    }
+    setCustomerDetails((prev) => {
+      let next = (prev.allergies || []).filter((a) => a !== 'None');
+      if (next.includes(key)) next = next.filter((a) => a !== key);
+      else next = [...next, key];
+      return { ...prev, allergies: next };
     });
   };
 
-  const handleStripeCheckout = async () => {
+  const handleSubmitEnquiry = async () => {
+    setSubmitError('');
+    if (!pickupDate || !pickupTime) {
+      setSubmitError('Please choose a pick-up date and time before submitting your order request.');
+      return;
+    }
+
     try {
       setIsLoading(true);
 
-      // 1. Generate a new order ID in the format ORD-{timestamp}-{randomString}
       const randomString = Math.random().toString(36).substring(2, 10);
       const orderId = `ORD-${Date.now()}-${randomString}`;
 
-      // 2. Prepare order data
       const userId = user ? user.uid : null;
       const userEmail = user ? user.email : null;
-      // Format pickupDate as YYYY-MM-DD only
+
       let formattedPickupDate = pickupDate;
       if (pickupDate) {
         try {
           const dateObj = new Date(pickupDate);
           formattedPickupDate = dateObj.toISOString().slice(0, 10);
-        } catch (e) {}
-      }
-      // Always populate guestInfo: for logged-in users, use their info from Firestore; for guests, use guestInfo from form
-      let customerInfo = guestInfo;
-      if (user && !guestInfo) {
-        // Fetch from Firestore profile doc
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const data = userDocSnap.data();
-            customerInfo = {
-              name: data.displayName || '',
-              email: user.email || '',
-              phone: data.phoneNumber || '',
-            };
-          } else {
-            customerInfo = {
-              name: '',
-              email: user.email || '',
-              phone: '',
-            };
-          }
         } catch (e) {
-          customerInfo = {
-            name: '',
-            email: user.email || '',
-            phone: '',
-          };
+          /* keep as-is */
         }
       }
-      const orderData = {
+
+      const customerInfo = buildCustomerPayload();
+      if (
+        !customerInfo.firstName ||
+        !customerInfo.lastName ||
+        !customerInfo.email ||
+        !customerInfo.phone
+      ) {
+        setSubmitError(
+          'Please complete your details below: first name, last name, email, and phone number are required.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      const enquiryNotes = customerDetails.message.trim() || null;
+      const discountAmount = calculateDiscountAmount();
+      const emailPayload = {
         orderId,
         items: cart,
-        total: totalPrice,
+        subtotal: totalPrice,
+        total: finalPrice,
+        appliedDiscount: appliedDiscount
+          ? {
+              code: appliedDiscount.code,
+              description: appliedDiscount.description,
+              amount: appliedDiscount.amount,
+              percentage: appliedDiscount.percentage,
+            }
+          : null,
         guestInfo: customerInfo,
         pickupDate: formattedPickupDate,
         pickupTime,
+        enquiryNotes,
+      };
+
+      const invoiceId = orderId;
+      const invoiceRefPath = `invoices/${invoiceId}`;
+
+      const orderData = {
+        orderId,
+        items: cart,
+        subtotal: totalPrice,
+        total: finalPrice,
+        discountAmount,
+        appliedDiscount: emailPayload.appliedDiscount,
+        guestInfo: customerInfo,
+        pickupDate: formattedPickupDate,
+        pickupTime,
+        enquiryNotes,
+        paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         status: 'pending',
+        invoiceRef: invoiceRefPath,
+        enquiryEmailStatus: 'pending',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
 
-      // 3. Prepare invoice data
-      const invoiceId = orderId; // Use the same ID for easy lookup
       const invoiceData = {
         invoiceId,
         orderId,
         items: cart.map(item => ({ ...item, total: item.price * item.quantity })),
-        amount: totalPrice,
+        amount: finalPrice,
         status: 'unpaid',
+        paymentMethod: 'in_person',
         createdAt: Timestamp.now(),
         customerEmail: customerInfo?.email || '',
         ...(userId && { userId }),
         ...(userEmail && { userEmail }),
       };
 
-      // 4. Save order and invoice to Firestore
-      await setDoc(doc(db, 'orders', orderId), orderData);
-      await setDoc(doc(db, 'invoices', invoiceId), invoiceData);
-      // Read back the invoice document to confirm
-      try {
-        const invoiceDocRef = doc(db, 'invoices', invoiceId);
-        const writtenInvoice = await getDoc(invoiceDocRef);
-        if (writtenInvoice.exists()) {
-          console.log('Invoice found after write:', writtenInvoice.data());
-        } else {
-          console.error('Invoice NOT found after write!');
-        }
-      } catch (err) {
-        console.error('Error reading back invoice after write:', err);
-      }
-      // Add invoiceRef to the order document
-      await setDoc(doc(db, 'orders', orderId), { invoiceRef: `invoices/${invoiceId}` }, { merge: true });
-      // 4b. If user is logged in, also save the exact same orderData (with invoiceRef merged) to /users/{uid}/Orders/{orderId}
-      if (user) {
-        const mergedOrderData = { ...orderData, invoiceRef: `invoices/${invoiceId}` };
-        console.log('Saving order to user subcollection for user:', user);
-        try {
-          const orderDocRef = doc(db, 'users', user.uid, 'Orders', orderId);
-          await setDoc(orderDocRef, mergedOrderData);
-          console.log('Order successfully written to user subcollection!');
-          // Read back the document to confirm
-          const writtenDoc = await getDoc(orderDocRef);
-          if (writtenDoc.exists()) {
-            console.log('Order found after write:', writtenDoc.data());
-          } else {
-            console.error('Order NOT found after write!');
-          }
-        } catch (err) {
-          console.error('Error writing order to user subcollection:', err);
-        }
-      }
+      setSubmitPhase('saving');
 
-      // 5. Call backend to create Stripe session, passing orderId
-      const response = await fetch('https://bakesbyolayide-server.onrender.com/api/create-checkout-session', {
+      const persistTasks = [
+        setDoc(doc(db, 'orders', orderId), orderData),
+        setDoc(doc(db, 'invoices', invoiceId), invoiceData),
+      ];
+      if (user) {
+        persistTasks.push(
+          setDoc(doc(db, 'users', user.uid, 'Orders', orderId), orderData).catch((err) => {
+            console.error('Error writing order to user subcollection:', err);
+          })
+        );
+      }
+      await Promise.all(persistTasks);
+
+      const shopHtml = buildShopEnquiryEmail(emailPayload);
+      const customerHtml = buildCustomerEnquiryAckEmail(emailPayload);
+      const mailBody = JSON.stringify({
+        shopSubject: shopEnquirySubject(emailPayload),
+        shopHtml,
+        customerEmail: customerInfo?.email || '',
+        customerSubject: `We received your order request — ${orderId}`,
+        customerHtml,
+        clientSource: 'checkout',
+      });
+
+      setSubmitPhase('ready');
+
+      const cartSnapshot = cart.map((i) => ({ ...i }));
+      clearCart();
+      setCustomerDetails(emptyCustomerDetails());
+
+      void fetch(apiUrl('/api/send-order-enquiry'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart,
+        body: mailBody,
+        keepalive: true,
+      })
+        .then(async (mailRes) => {
+          if (!mailRes.ok) {
+            const errText = await mailRes.text();
+            console.error('Order enquiry email failed:', errText);
+            try {
+              await setDoc(
+                doc(db, 'orders', orderId),
+                { enquiryEmailStatus: 'failed', enquiryEmailFailedAt: Timestamp.now() },
+                { merge: true }
+              );
+            } catch (e) {
+              console.error('Could not record email failure on order:', e);
+            }
+            return;
+          }
+          try {
+            await setDoc(
+              doc(db, 'orders', orderId),
+              { enquiryEmailStatus: 'sent', enquiryEmailSentAt: Timestamp.now() },
+              { merge: true }
+            );
+          } catch (e) {
+            console.error('Could not record email success on order:', e);
+          }
+        })
+        .catch((err) => {
+          console.error('Order enquiry email request failed:', err);
+          setDoc(
+            doc(db, 'orders', orderId),
+            { enquiryEmailStatus: 'failed', enquiryEmailFailedAt: Timestamp.now() },
+            { merge: true }
+          ).catch(() => {});
+        });
+
+      await new Promise((r) => setTimeout(r, 400));
+
+      navigate('/order-confirmation', {
+        state: {
+          orderId,
+          items: cartSnapshot,
+          total: finalPrice,
           guestInfo: customerInfo,
-          pickupDate,
+          pickupDate: formattedPickupDate,
           pickupTime,
-          orderId, // Pass orderId to backend
-        }),
+          emailInBackground: true,
+        },
       });
-      const { sessionId, error } = await response.json();
-      if (error) throw new Error(error);
-      const stripe = await stripePromise;
-      await stripe.redirectToCheckout({ sessionId });
     } catch (err) {
-      alert('Error redirecting to Stripe: ' + err.message);
+      console.error(err);
+      setSubmitError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  // Handler for updating user info (name/phone)
-  const handleUserInfoChange = (e) => {
-    const { name, value } = e.target;
-    setUserInfoForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUserInfoSubmit = async (e) => {
-    e.preventDefault();
-    setUserInfoError('');
-    const { name, phone } = userInfoForm;
-    if (!name.trim() || !phone.trim()) {
-      setUserInfoError('Please enter your full name and phone number.');
-      return;
-    }
-    try {
-      // Only update Firestore user doc with name, phone, and email
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, { displayName: name, phoneNumber: phone, email: user.email }, { merge: true });
-      }
-      setShowUserInfoForm(false);
-    } catch (err) {
-      setUserInfoError('Failed to update profile. Please try again.');
+      setSubmitPhase(null);
     }
   };
 
   return (
     <div className="checkout-container">
-      <PageTitle title="Checkout" />
+      <PageTitle title="Basket" />
       <Header user={user} />
       <div className="checkout-content">
         <div className="order-summary">
-          <h2>Order Summary</h2>
+          <h2 className="order-summary-heading">Order Summary</h2>
           <div className="checkout-items">
-            {cart.map((item) => (
-              <div key={item.id} className="checkout-item">
-                {/* Left: Image */}
-                <div className="checkout-item-image">
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} />
-                  ) : null}
-                </div>
-                {/* Price in top right */}
-                <div className="checkout-item-price-absolute">
-                  £{item.price.toFixed(2)}
-                </div>
-                {/* Right: Details */}
-                <div className="checkout-item-details">
-                  <div className="checkout-item-attributes">
-                    <h3>{item.name}</h3>
-                    {item.selectedSize && (
-                      <div><span className="checkout-attr-label">Size:</span> {item.selectedSize.size}{typeof item.selectedSize.size === 'number' ? '"' : ''}</div>
-                    )}
-                    {item.batchSize && (
-                      <div><span className="checkout-attr-label">Batch Size:</span> {item.batchSize}</div>
-                    )}
-                    {item.selectedShape && (
-                      <div><span className="checkout-attr-label">Shape:</span> {item.selectedShape.name}</div>
-                    )}
-                    {item.decorationStyle && (
-                      <div><span className="checkout-attr-label">Decoration Style:</span> {item.decorationStyle}</div>
-                    )}
-                    {item.selectedFinish && (
-                      <div><span className="checkout-attr-label">Finish:</span> {item.selectedFinish.name}</div>
-                    )}
-                    {item.occasion && (
-                      <div><span className="checkout-attr-label">Occasion:</span> {item.occasion}</div>
-                    )}
-                    {item.topper && (
-                      <div><span className="checkout-attr-label">Topper:</span> {item.topper}</div>
-                    )}
-                    {item.addon && (
-                      <div><span className="checkout-attr-label">Add ons:</span> {Array.isArray(item.addon) ? item.addon.join(', ') : item.addon}</div>
-                    )}
-                    {item.notes && (
-                      <div className="checkout-additional-notes"><span className="checkout-attr-label">Additional Notes:</span> <span className="checkout-notes-text">{item.notes}</span></div>
-                    )}
+            {cart.map((item) => {
+              const specs = getCheckoutItemSpecs(item);
+              return (
+                <div key={item.id} className="checkout-item checkout-item--figma">
+                  <div
+                    className={`checkout-item-thumb${item.image ? '' : ' checkout-item-thumb--placeholder'}`}
+                  >
+                    {item.image ? <img src={item.image} alt="" /> : null}
                   </div>
-                  <div className="checkout-item-meta">
-                    {item.designInspiration && (
-                      <div className="checkout-design-inspiration"><span className="checkout-attr-label">Design Inspirations:</span><br />{item.designInspiration}</div>
-                    )}
+                  <div className="checkout-item-body">
+                    <h3 className="checkout-item-title">{item.name}</h3>
+                    {specs.length > 0 ? (
+                      <div className="checkout-spec-grid">
+                        {specs.map((row) => (
+                          <div key={row.label} className="checkout-spec-pair">
+                            <span className="checkout-spec-k">{row.label}</span>
+                            <span className="checkout-spec-v">{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                </div>
-                {/* Actions in bottom right */}
-                <div className="checkout-item-actions">
-                  <Link to={`/change/${item.id}`} className="checkout-change-link">Change</Link>
-                  <div className="checkout-item-quantity-controls">
-                    <span className="checkout-quantity-label">Quantity:</span>
-                    <button 
-                      className="checkout-quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <span className="checkout-quantity">{item.quantity}</span>
-                    <button 
-                      className="checkout-quantity-btn"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
+                  <div className="checkout-item-inspiration">
+                    {item.designInspiration ? (
+                      <div className="checkout-inspiration-block">
+                        <span className="checkout-inspiration-heading">Design inspiration</span>
+                        <p className="checkout-inspiration-text">{item.designInspiration}</p>
+                      </div>
+                    ) : null}
+                    {item.notes ? (
+                      <div className="checkout-inspiration-block">
+                        <span className="checkout-inspiration-heading">Additional notes</span>
+                        <p className="checkout-inspiration-text">{item.notes}</p>
+                      </div>
+                    ) : null}
+                    {!item.designInspiration && !item.notes ? (
+                      <span className="checkout-inspiration-empty">—</span>
+                    ) : null}
+                  </div>
+                  <div className="checkout-item-aside">
+                    <div className="checkout-item-price-tag">£{item.price.toFixed(2)}</div>
+                    <Link to={`/change/${item.id}`} className="checkout-change-link checkout-change-link--accent">
+                      Change
+                    </Link>
+                    <div className="checkout-item-quantity-controls">
+                      <span className="checkout-quantity-label">Quantity</span>
+                      <div className="checkout-qty-stepper">
+                        <button
+                          type="button"
+                          className="checkout-quantity-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <span className="checkout-quantity">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="checkout-quantity-btn"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {/* Show pickup date and time if selected */}
           {(pickupDate || pickupTime) && (
@@ -778,8 +989,8 @@ const Checkout = () => {
             </div>
 
             <div className="total-row grand-total">
-              <span>Total</span>
-              <span>${finalPrice.toFixed(2)}</span>
+              <span>Total (pay in person)</span>
+              <span>£{finalPrice.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -796,75 +1007,252 @@ const Checkout = () => {
               <div className="guest-option">
                 <h3>Continue as Guest</h3>
                 <p>You can place your order without creating an account.</p>
-                <GuestForm onSubmit={handleGuestSubmit} isLoading={isLoading} />
+                <GuestForm onSubmit={handleGuestSubmit} isLoading={isLoading} submitLabel="Continue" />
               </div>
             </div>
           </div>
         ) : (
-          <div>
-            {/* For logged-in users, show info form if needed */}
-            {user && showUserInfoForm ? (
-              <form className="user-info-form" onSubmit={handleUserInfoSubmit} style={{ marginBottom: '2rem', background: '#f9f9f9', padding: '1.5rem', borderRadius: 8 }}>
-                <h3>Enter Your Details</h3>
-                <div className="form-group">
-                  <label htmlFor="user-fullname">Full Name *</label>
-                  <input
-                    type="text"
-                    id="user-fullname"
-                    name="name"
-                    value={userInfoForm.name}
-                    onChange={handleUserInfoChange}
-                    required
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="user-phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    id="user-phone"
-                    name="phone"
-                    value={userInfoForm.phone}
-                    onChange={handleUserInfoChange}
-                    required
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-                {userInfoError && <div className="discount-error">{userInfoError}</div>}
-                <button type="submit" className="continue-button">Save Details</button>
-              </form>
-            ) : null}
-            {/* Show summary for guests or logged-in users with info */}
-            {guestInfo && (
-              <div className="guest-info-summary">
-                <h3>Order Information</h3>
-                <p>Name: {guestInfo.name}</p>
-                <p>Email: {guestInfo.email}</p>
-                <p>Phone: {guestInfo.phone}</p>
-                <button 
-                  onClick={() => setGuestInfo(null)} 
-                  className="edit-info-button"
-                >
-                  Edit Information
+          <div className="checkout-after-auth">
+            {guestInfo ? (
+              <div className="guest-info-summary guest-info-summary--compact">
+                <span>
+                  Continuing as <strong>{guestInfo.name}</strong> ({guestInfo.email})
+                </span>
+                <button type="button" onClick={() => setGuestInfo(null)} className="edit-info-button">
+                  Switch account
                 </button>
               </div>
-            )}
+            ) : null}
             <PickupSchedule
               pickupDate={pickupDate}
               setPickupDate={setPickupDate}
               pickupTime={pickupTime}
               setPickupTime={setPickupTime}
             />
+            <p className="checkout-payment-notice">
+              No online payment — we will contact you by email or phone to confirm your order and arrange payment in
+              person (card or cash as agreed).
+            </p>
+
+            <div className="checkout-customer-narrow">
+            <section className="checkout-customer-section" aria-labelledby="checkout-customer-heading">
+              <h2 id="checkout-customer-heading" className="checkout-customer-title">
+                Customer Details
+              </h2>
+              <div className="checkout-customer-names">
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-first">First name*</label>
+                  <input
+                    id="cd-first"
+                    type="text"
+                    autoComplete="given-name"
+                    className="checkout-customer-input"
+                    placeholder="Jane"
+                    value={customerDetails.firstName}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, firstName: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-last">Last name*</label>
+                  <input
+                    id="cd-last"
+                    type="text"
+                    autoComplete="family-name"
+                    className="checkout-customer-input"
+                    placeholder="Smith"
+                    value={customerDetails.lastName}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, lastName: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="checkout-customer-names">
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-email">Email address*</label>
+                  <input
+                    id="cd-email"
+                    type="email"
+                    autoComplete="email"
+                    className="checkout-customer-input"
+                    placeholder="email@example.co.uk"
+                    value={customerDetails.email}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, email: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="checkout-customer-field">
+                  <label htmlFor="cd-phone">Phone number*</label>
+                  <div className="checkout-phone-row">
+                    <span className="checkout-phone-prefix" aria-hidden="true">
+                      🇬🇧 +44
+                    </span>
+                    <input
+                      id="cd-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      className="checkout-customer-input checkout-customer-input--phone"
+                      placeholder="7000 012345"
+                      value={customerDetails.phone}
+                      onChange={(e) =>
+                        setCustomerDetails((p) => ({ ...p, phone: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="checkout-allergy-heading">
+                <p className="checkout-allergy-section-label">Allergens or Dietary Preferences*</p>
+                <p className="checkout-allergy-item-label">Item 1:</p>
+              </div>
+              <div className="checkout-allergy-grid">
+                {ALLERGY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className={`checkout-allergy-chip${
+                      customerDetails.allergies.includes(opt) ? ' is-selected' : ''
+                    }`}
+                    onClick={() => toggleAllergy(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={`checkout-allergy-chip checkout-allergy-chip--wide${
+                    customerDetails.allergies.includes('None') ? ' is-selected' : ''
+                  }`}
+                  onClick={() => toggleAllergy('None')}
+                >
+                  None
+                </button>
+                <button
+                  type="button"
+                  className={`checkout-allergy-chip checkout-allergy-chip--wide${
+                    customerDetails.allergies.includes('Other') ? ' is-selected' : ''
+                  }`}
+                  onClick={() => toggleAllergy('Other')}
+                >
+                  Other
+                </button>
+              </div>
+              {customerDetails.allergies.includes('Other') ? (
+                <div className="checkout-customer-field checkout-customer-field--full">
+                  <label htmlFor="cd-allergy-other">Other (please specify)</label>
+                  <input
+                    id="cd-allergy-other"
+                    type="text"
+                    className="checkout-customer-input"
+                    placeholder="Please specify"
+                    value={customerDetails.allergyOther}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, allergyOther: e.target.value }))
+                    }
+                  />
+                </div>
+              ) : null}
+
+              <div className="checkout-fruit-row">
+                <div className="checkout-customer-field checkout-customer-field--grow">
+                  <label htmlFor="cd-fruit">Fruit preference (optional)</label>
+                  <input
+                    id="cd-fruit"
+                    type="text"
+                    className="checkout-customer-input"
+                    placeholder="Other"
+                    value={customerDetails.fruitPreference}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({ ...p, fruitPreference: e.target.value }))
+                    }
+                  />
+                </div>
+                <label className="checkout-apply-all">
+                  <input
+                    type="checkbox"
+                    checked={customerDetails.applyAllergiesToAll}
+                    onChange={(e) =>
+                      setCustomerDetails((p) => ({
+                        ...p,
+                        applyAllergiesToAll: e.target.checked,
+                      }))
+                    }
+                  />
+                  <span>Apply to all items</span>
+                </label>
+              </div>
+
+              <div className="checkout-customer-field checkout-customer-field--full">
+                <label htmlFor="cd-message">Additional Notes</label>
+                <textarea
+                  id="cd-message"
+                  className="checkout-customer-textarea"
+                  rows={5}
+                  placeholder="Enter your message"
+                  maxLength={2000}
+                  value={customerDetails.message}
+                  onChange={(e) =>
+                    setCustomerDetails((p) => ({ ...p, message: e.target.value }))
+                  }
+                />
+              </div>
+            </section>
+
+            {submitError ? (
+              <div className="checkout-submit-error" role="alert">
+                {submitError}
+              </div>
+            ) : null}
             <button
-              className="checkout-stripe-btn"
-              onClick={handleStripeCheckout}
-              disabled={isLoading || (user && showUserInfoForm)}
+              type="button"
+              className="checkout-enquire-btn"
+              onClick={handleSubmitEnquiry}
+              disabled={isLoading}
             >
-              {isLoading ? 'Redirecting to Stripe...' : 'Pay with Card (Stripe Checkout)'}
+              {isLoading
+                ? submitPhase === 'ready'
+                  ? 'Finishing up…'
+                  : 'Saving your order…'
+                : 'Enquire with Us'}
             </button>
+            </div>
           </div>
         )}
       </div>
+      {submitPhase && (
+        <div className="checkout-submit-overlay" role="status" aria-live="polite" aria-busy="true">
+          <div className="checkout-submit-progress-card">
+            <div className="checkout-submit-spinner-wrap" aria-hidden>
+              {submitPhase === 'ready' ? (
+                <span className="checkout-submit-check">✓</span>
+              ) : (
+                <div className="checkout-submit-spinner" />
+              )}
+            </div>
+            <h2 id="checkout-submit-progress-title" className="checkout-submit-progress-title">
+              {submitPhase === 'ready' ? 'Order saved' : 'Placing your order'}
+            </h2>
+            <ol className="checkout-submit-steps">
+              <li className={submitPhase === 'saving' ? 'is-active' : 'is-done'}>
+                <span className="checkout-submit-step-marker" aria-hidden />
+                <span>Saving your order and invoice</span>
+              </li>
+              <li className={submitPhase === 'ready' ? 'is-active' : ''}>
+                <span className="checkout-submit-step-marker" aria-hidden />
+                <span>
+                  Sending confirmation emails
+                  <span className="checkout-submit-step-note"> (runs in the background — you won’t wait on the mail server)</span>
+                </span>
+              </li>
+            </ol>
+          </div>
+        </div>
+      )}
       <Footer />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>

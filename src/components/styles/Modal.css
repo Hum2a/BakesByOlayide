@@ -405,4 +405,50 @@
   .submit-button {
     padding: 0.8rem 1.5rem;
   }
+}
+
+/* Simple notice / error dialog (replaces window.alert) */
+.message-modal-overlay.modal-overlay {
+  z-index: 1100;
+}
+
+.modal-content.message-modal {
+  max-width: 420px;
+  width: 92%;
+  max-height: none;
+}
+
+.message-modal-header {
+  padding: 1.75rem 2.5rem 0.5rem;
+}
+
+.message-modal-header h2 {
+  font-size: 1.5rem;
+}
+
+.message-modal--error .message-modal-header h2 {
+  color: #c0392b;
+}
+
+.message-modal-body {
+  padding: 0.5rem 2rem 1.25rem;
+}
+
+.message-modal-text {
+  margin: 0;
+  color: #444;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.message-modal-footer {
+  padding: 0 2rem 1.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.message-modal-ok {
+  width: auto;
+  min-width: 120px;
+  margin-top: 0;
 } 

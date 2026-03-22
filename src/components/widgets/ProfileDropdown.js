@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory, FaUserShield, FaEdit } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory, FaUserShield, FaEdit, FaUserCircle } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import '../styles/ProfileDropdown.css';
+import { hasStaffAccess } from '../../utils/staffAccess';
 
 const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
   const [user, setUser] = useState(null);
@@ -24,7 +25,7 @@ const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setIsAdmin((userData.isAdmin || userData.isDeveloper) || false);
+            setIsAdmin(hasStaffAccess(userData));
           }
         } catch (error) {
           console.error('Error checking admin status:', error);
@@ -160,6 +161,15 @@ const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
       </div>
 
       <div className="profile-dropdown-menu">
+        <button
+          className="dropdown-item"
+          onClick={() => {
+            navigate('/account');
+            onClose();
+          }}
+        >
+          <FaUserCircle /> My Account
+        </button>
         <button className="dropdown-item" onClick={() => onModalOpen('profile')}>
           <FaUser /> My Profile
         </button>

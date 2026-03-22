@@ -22,7 +22,7 @@ const CookiesForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, 
         categories: [...prev.categories, 'Cookies']
       }));
     }
-  }, []);
+  }, [newCake.categories, setNewCake]);
 
   return (
     <>

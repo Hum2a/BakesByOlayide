@@ -6,40 +6,41 @@ import {
   FaPalette, 
   FaLanguage, 
   FaCreditCard, 
-  FaTruck, 
-  FaMapMarkerAlt 
+  FaTruck
 } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
-import { doc, getDoc, setDoc, collection, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { deleteUser, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import '../styles/SettingsModal.css';
 
+const getDefaultSettings = () => ({
+  notifications: {
+    notifications: true,
+    emailNotifications: true,
+    marketingEmails: false,
+    orderUpdates: true,
+    deliveryUpdates: true
+  },
+  appearance: {
+    theme: 'light'
+  },
+  language: {
+    language: 'en'
+  },
+  payment: {
+    defaultPaymentMethod: 'card',
+    savedCards: []
+  },
+  delivery: {
+    defaultDeliveryAddress: null,
+    savedAddresses: []
+  }
+});
+
 const SettingsModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({
-    notifications: {
-      notifications: true,
-      emailNotifications: true,
-      marketingEmails: false,
-      orderUpdates: true,
-      deliveryUpdates: true
-    },
-    appearance: {
-      theme: 'light'
-    },
-    language: {
-      language: 'en'
-    },
-    payment: {
-      defaultPaymentMethod: 'card',
-      savedCards: []
-    },
-    delivery: {
-      defaultDeliveryAddress: null,
-      savedAddresses: []
-    }
-  });
+  const [settings, setSettings] = useState(getDefaultSettings);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
@@ -79,7 +80,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
       if (auth.currentUser) {
         try {
           const categories = ['notifications', 'appearance', 'language', 'payment', 'delivery'];
-          const newSettings = { ...settings };
+          const newSettings = getDefaultSettings();
 
           for (const category of categories) {
             const settingDoc = await getDoc(doc(db, 'users', auth.currentUser.uid, 'Settings', category));

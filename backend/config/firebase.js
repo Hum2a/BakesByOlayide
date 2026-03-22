@@ -14,6 +14,12 @@ const serviceAccount = {
   client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL
 };
 
+if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY) {
+  console.warn(
+    '[firebase-admin] FIREBASE_PROJECT_ID or FIREBASE_PRIVATE_KEY is missing. Email outbox logging and other Firestore use will fail until .env is loaded (repo root and/or backend/.env — see server.js).'
+  );
+}
+
 // Initialize Firebase Admin
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

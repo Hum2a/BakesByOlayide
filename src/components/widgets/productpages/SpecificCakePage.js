@@ -9,6 +9,17 @@ import ProfileDropdown from '../../widgets/ProfileDropdown';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
 import OptimizedImage from '../../common/OptimizedImage';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
+import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
+
+function escapeHtmlForDisplay(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 const SpecificCakePage = () => {
   const { id } = useParams();
@@ -29,7 +40,6 @@ const SpecificCakePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
   const [user, setUser] = useState(null);
 
   // Header modal states
@@ -37,6 +47,15 @@ const SpecificCakePage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const shapeSlider = useProductOptionSlider(
+    selectedShapeIdx,
+    Array.isArray(cake?.shapes) ? cake.shapes.length : 0
+  );
+  const finishSlider = useProductOptionSlider(
+    selectedFinishIdx,
+    Array.isArray(cake?.finishes) ? cake.finishes.length : 0
+  );
 
   // Auth state listener
   useEffect(() => {
@@ -140,11 +159,9 @@ const SpecificCakePage = () => {
 
   const images = Array.isArray(cake.images) && cake.images.length > 0 ? cake.images : [cake.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -209,10 +226,6 @@ const SpecificCakePage = () => {
     });
   };
 
-  const minPrice = Array.isArray(cake.sizes) && cake.sizes.length > 0
-    ? Math.min(...cake.sizes.map(s => s.price))
-    : 0;
-
   const handleAddToCart = () => {
     if (!cake) return;
 
@@ -269,7 +282,7 @@ const SpecificCakePage = () => {
           <span>Successfully added to cart!</span>
         </div>
       )}
-      <div className="specific-cake-container">
+      <div className="specific-cake-container specific-cake-container--enter">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
             // Determine if this is the last crumb
@@ -332,7 +345,6 @@ const SpecificCakePage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />
@@ -345,7 +357,7 @@ const SpecificCakePage = () => {
             {cake.subtitle && <div className="specific-cake-subtitle">{cake.subtitle}</div>}
             <div className="specific-cake-available-sizes">
               {sizeOptions.length > 0 && (
-                <span>Available in {sizeOptions.map(s => `${s.size}\"`).join(', ')}</span>
+                <span>Available in {sizeOptions.map(s => `${s.size}"`).join(', ')}</span>
               )}
             </div>
             <div className="specific-cake-price-row">
@@ -372,10 +384,16 @@ const SpecificCakePage = () => {
               {shapeOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <span className="specific-cake-selector-label">Shape:</span>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={shapeSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={shapeSlider.sliderStyle} aria-hidden />
                     {shapeOptions.map((shape, idx) => (
                       <button
                         key={idx}
+                        ref={shapeSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn${selectedShapeIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedShapeIdx(idx)}
                       >
@@ -388,10 +406,16 @@ const SpecificCakePage = () => {
               {finishOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <span className="specific-cake-selector-label">Finish:</span>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={finishSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={finishSlider.sliderStyle} aria-hidden />
                     {finishOptions.map((finish, idx) => (
                       <button
                         key={idx}
+                        ref={finishSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn${selectedFinishIdx === idx ? ' selected' : ''}`}
                         onClick={() => setSelectedFinishIdx(idx)}
                       >
@@ -402,39 +426,44 @@ const SpecificCakePage = () => {
                 </div>
               )}
               <div className="specific-cake-selector-group">
-                <span className="specific-cake-selector-label">Occasion:</span>
-                <select
-                  className="specific-cake-dropdown"
+                <label className="specific-cake-selector-label" htmlFor="cake-occasion-select">
+                  Occasion:
+                </label>
+                <AnimatedProductSelect
+                  id="cake-occasion-select"
                   value={occasion}
-                  onChange={e => setOccasion(e.target.value)}
-                >
-                  <option value="">Choose</option>
-                  <option value="Birthday">Birthday</option>
-                  <option value="Wedding">Wedding</option>
-                  <option value="Anniversary">Anniversary</option>
-                  <option value="Baby Shower">Baby Shower</option>
-                  <option value="Other">Other</option>
-                </select>
+                  onChange={setOccasion}
+                  options={[
+                    { value: '', label: 'Choose' },
+                    { value: 'Birthday', label: 'Birthday' },
+                    { value: 'Wedding', label: 'Wedding' },
+                    { value: 'Anniversary', label: 'Anniversary' },
+                    { value: 'Baby Shower', label: 'Baby Shower' },
+                    { value: 'Other', label: 'Other' },
+                  ]}
+                />
               </div>
               {cake.toppers && cake.toppers.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Topper</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cake-topper-select">
+                    Topper
+                  </label>
+                  <AnimatedProductSelect
+                    id="cake-topper-select"
                     value={topper}
-                    onChange={e => {
-                      const selectedTopper = cake.toppers.find(t => t.name === e.target.value);
-                      setTopper(e.target.value);
+                    onChange={(v) => {
+                      const selectedTopper = cake.toppers.find(t => t.name === v);
+                      setTopper(v);
                       setTopperPrice(selectedTopper ? selectedTopper.price : 0);
                     }}
-                  >
-                    <option value="">No topper</option>
-                    {cake.toppers.map((topperOption, idx) => (
-                      <option key={idx} value={topperOption.name}>
-                        {topperOption.name} (+£{Number(topperOption.price).toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'No topper' },
+                      ...cake.toppers.map((topperOption) => ({
+                        value: topperOption.name,
+                        label: `${topperOption.name} (+£${Number(topperOption.price).toFixed(2)})`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {addOns && addOns.length > 0 && (
@@ -484,8 +513,8 @@ const SpecificCakePage = () => {
                   'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
                   'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
                 ];
-                // Replace allergen words with bolded spans
-                let formatted = ingredient;
+                // Escape first so admin-entered HTML cannot run; then wrap allergen words.
+                let formatted = escapeHtmlForDisplay(ingredient);
                 allergens.forEach(allergen => {
                   const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
                   formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);
@@ -507,7 +536,7 @@ const SpecificCakePage = () => {
                   'milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 
                   'wheat', 'soy', 'sesame', 'gluten', 'nuts', 'dairy'
                 ];
-                let formatted = topping;
+                let formatted = escapeHtmlForDisplay(topping);
                 allergens.forEach(allergen => {
                   const regex = new RegExp(`\\b${allergen}\\b`, 'gi');
                   formatted = formatted.replace(regex, match => `<span class='allergen'>${match}</span>`);

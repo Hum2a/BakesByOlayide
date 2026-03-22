@@ -11,7 +11,7 @@ const CartModal = ({ onClose }) => {
 
   const handleCheckout = () => {
     onClose();
-    navigate('/checkout');
+    navigate('/basket');
   };
 
   const handleRemoveItem = (itemId) => {
@@ -62,7 +62,6 @@ const CartModal = ({ onClose }) => {
                     {item.selectedShape && (
                       <div className="cart-item-option">Shape: {item.selectedShape.name}</div>
                     )}
-                    {(() => { console.log('CartModal item:', item); return null; })()}
                     {item.notes && (
                       <div className="cart-item-notes">Notes: {item.notes}</div>
                     )}
@@ -105,14 +104,14 @@ const CartModal = ({ onClose }) => {
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>Quoted on basket page</span>
               </div>
               <div className="summary-row total">
                 <span>Total</span>
                 <span>£{totalPrice.toFixed(2)}</span>
               </div>
               <button className="checkout-btn" onClick={handleCheckout}>
-                Proceed to Checkout
+                Go to basket
               </button>
               <button className="continue-shopping" onClick={onClose}>
                 Continue Shopping

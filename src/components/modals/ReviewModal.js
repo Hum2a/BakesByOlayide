@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FaTimes, FaStar } from 'react-icons/fa';
 import { db, auth } from '../../firebase/firebase';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
+import { apiUrl } from '../../config/environment';
 import '../styles/ReviewModal.css';
 
 const ReviewModal = ({ isOpen, onClose, item, orderId }) => {
@@ -38,6 +39,22 @@ const ReviewModal = ({ isOpen, onClose, item, orderId }) => {
       // Add review to the cake's reviews collection
       const reviewRef = collection(db, 'cakes', item.id, 'reviews');
       await addDoc(reviewRef, reviewData);
+
+      void fetch(apiUrl('/api/notify-new-review'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: item.id,
+          itemName: item.name,
+          userName: reviewData.userName,
+          rating: reviewData.rating,
+          reviewText: reviewData.review,
+          orderId: orderId || undefined,
+          source: 'customer',
+          clientSource: 'customer_review_modal',
+        }),
+        keepalive: true,
+      }).catch(() => {});
 
       // Update the cake's average rating
       // You might want to use a Cloud Function for this in production

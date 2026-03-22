@@ -72,10 +72,29 @@
   line-height: 1.7;
   max-width: 1200px;
   margin: 0 auto;
+  text-align: left;
 }
 
 .faq-text p {
   margin-bottom: 1.5rem;
+}
+
+.faq-block {
+  margin-bottom: 2rem;
+}
+
+.faq-block:last-child {
+  margin-bottom: 0;
+}
+
+.faq-question {
+  font-family: 'Old Standard TT', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #111;
+  margin: 0 0 1rem 0;
+  text-align: left;
 }
 
 .faq-link {

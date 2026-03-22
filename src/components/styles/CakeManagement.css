@@ -7,9 +7,167 @@
 
 .cakemanagement-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
   margin-bottom: 2rem;
+}
+
+.cakemanagement-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+.cakemanagement-header-top h2 {
+  margin: 0;
+}
+
+.cakemanagement-results-count {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #5c6b7a;
+}
+
+.cakemanagement-results-count strong {
+  color: #2c3e50;
+}
+
+.cakemanagement-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cakemanagement-filters-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.85rem 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.cakemanagement-filter-search {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: min(100%, 220px);
+}
+
+.cakemanagement-filter-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f8c9a;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.cakemanagement-filter-search-input {
+  width: 100%;
+  padding: 0.65rem 0.75rem 0.65rem 2.35rem;
+  border: 1.5px solid #e0e4e8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cakemanagement-filter-search-input:focus {
+  outline: none;
+  border-color: #f3c307;
+  box-shadow: 0 0 0 2px rgba(243, 195, 7, 0.2);
+}
+
+.cakemanagement-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.cakemanagement-filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #5c6b7a;
+}
+
+.cakemanagement-filter-group select {
+  padding: 0.55rem 0.75rem;
+  min-width: 8.5rem;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1.5px solid #e0e4e8;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #2c3e50;
+  cursor: pointer;
+}
+
+.cakemanagement-filter-group select:focus {
+  outline: none;
+  border-color: #f3c307;
+  box-shadow: 0 0 0 2px rgba(243, 195, 7, 0.2);
+}
+
+.cakemanagement-clear-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  margin-left: auto;
+  border: 1.5px solid #d0d5db;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.cakemanagement-clear-filters-btn:hover:not(:disabled) {
+  background: #fff8e6;
+  border-color: #f3c307;
+}
+
+.cakemanagement-clear-filters-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cakemanagement-clear-filters-btn.inline {
+  margin-left: 0;
+  margin-top: 0.75rem;
+}
+
+.cakemanagement-empty-filters {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px dashed #d0d5db;
+}
+
+.cakemanagement-empty-filters p {
+  margin: 0 0 0.5rem;
+  color: #5c6b7a;
+  font-size: 1rem;
 }
 
 .cakemanagement-add-btn {

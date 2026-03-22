@@ -1,11 +1,481 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { db } from '../../../firebase/firebase';
 import { collection, query, getDocs, orderBy, doc as firestoreDoc, updateDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { FaCalendar, FaUser, FaClock, FaBox, FaTruck, FaTimes, FaFileInvoice, FaEnvelope, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import {
+  FaCalendar,
+  FaUser,
+  FaClock,
+  FaBox,
+  FaTruck,
+  FaTimes,
+  FaFileInvoice,
+  FaEnvelope,
+  FaChevronDown,
+  FaChevronUp,
+  FaSearch,
+  FaSort,
+  FaClipboardList,
+} from 'react-icons/fa';
 import InvoiceModal from './InvoiceModal';
+import MessageModal from '../../modals/MessageModal';
 import '../../styles/OrderManagement.css';
+import { apiUrl } from '../../../config/environment';
+import {
+  readEmailApiBody,
+  formatEmailSendHttpFailure,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
+} from '../../../utils/emailSendMessaging';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'pending', label: 'Awaiting approval' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'ready', label: 'Ready' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'paid', label: 'Paid (legacy)' },
+  { value: 'unpaid', label: 'Unpaid' },
+  { value: 'incomplete', label: 'Incomplete' },
+];
+
+function getOrderCreatedMs(order) {
+  if (!order?.createdAt?.toDate) return 0;
+  return order.createdAt.toDate().getTime();
+}
+
+function orderTotalNumber(order) {
+  const n = Number(order?.total);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function orderCustomerEmail(order) {
+  const e = (order?.guestInfo?.email || order?.customerEmail || '').trim();
+  if (!e || e === 'N/A') return '';
+  return e;
+}
+
+function orderHasCustomerEmail(order) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(orderCustomerEmail(order));
+}
+
+function newStatusDisplayLabel(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  const map = {
+    pending: 'Awaiting approval',
+    confirmed: 'Confirmed',
+    ready: 'Ready for pickup',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  };
+  return map[s] || newStatus;
+}
+
+/** Pre-selected template when using “Update & email customer” */
+function emailTypeForStatusChange(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  if (s === 'confirmed') return 'confirmation';
+  if (s === 'ready' || s === 'completed') return 'complete';
+  return 'confirmation';
+}
+
+function statusChangeEmailHint(newStatus) {
+  const s = (newStatus || '').toLowerCase();
+  if (s === 'cancelled') {
+    return 'For cancellations, email is especially important. We’ll open a draft based on your confirmation template—edit it before sending.';
+  }
+  if (s === 'confirmed') {
+    return 'A quick confirmation email reassures the customer that their order is approved.';
+  }
+  if (s === 'ready') {
+    return 'Let them know their order is ready for collection or delivery.';
+  }
+  if (s === 'completed') {
+    return 'A short “thank you / order complete” message closes the loop nicely.';
+  }
+  return 'Consider emailing the customer so they know their order has been updated.';
+}
+
+function formatAnyTimestamp(ts) {
+  if (ts == null || ts === '') return '—';
+  try {
+    if (typeof ts.toDate === 'function') return ts.toDate().toLocaleString();
+    if (ts instanceof Date) return ts.toLocaleString();
+    if (typeof ts.seconds === 'number') return new Date(ts.seconds * 1000).toLocaleString();
+  } catch (_) {
+    /* ignore */
+  }
+  if (typeof ts === 'string' || typeof ts === 'number') {
+    const d = new Date(ts);
+    if (!Number.isNaN(d.getTime())) return d.toLocaleString();
+  }
+  return String(ts);
+}
+
+function getOrderItemSpecRows(item) {
+  const rows = [];
+  if (!item || typeof item !== 'object') return rows;
+  if (item.selectedSize) {
+    rows.push({
+      label: 'Size',
+      value: `${item.selectedSize.size}${typeof item.selectedSize.size === 'number' ? '"' : ''}`,
+    });
+  }
+  if (item.batchSize) rows.push({ label: 'Batch size', value: item.batchSize });
+  if (item.selectedShape?.name) rows.push({ label: 'Shape', value: item.selectedShape.name });
+  if (item.decorationStyle) rows.push({ label: 'Decoration', value: item.decorationStyle });
+  if (item.selectedFinish?.name) rows.push({ label: 'Finish', value: item.selectedFinish.name });
+  if (item.occasion) rows.push({ label: 'Occasion', value: item.occasion });
+  if (item.topper) rows.push({ label: 'Topper', value: item.topper });
+  const addonList = item.addons ?? item.addon;
+  if (addonList) {
+    const parts = Array.isArray(addonList)
+      ? addonList.map((a) => (typeof a === 'string' ? a : a?.name)).filter(Boolean)
+      : [String(addonList)];
+    if (parts.length) rows.push({ label: 'Add-ons', value: parts.join(', ') });
+  }
+  return rows;
+}
+
+const ORDER_DETAIL_MAIN_KEYS = new Set([
+  'id',
+  'orderId',
+  'items',
+  'status',
+  'paymentMethod',
+  'createdAt',
+  'updatedAt',
+  'subtotal',
+  'total',
+  'discountAmount',
+  'appliedDiscount',
+  'guestInfo',
+  'pickupDate',
+  'pickupTime',
+  'enquiryNotes',
+  'invoiceRef',
+  'enquiryEmailStatus',
+  'enquiryEmailSentAt',
+  'enquiryEmailFailedAt',
+  'userId',
+  'userEmail',
+  'customerName',
+  'customerEmail',
+]);
+
+const ITEM_DETAIL_USED_KEYS = new Set([
+  'name',
+  'quantity',
+  'price',
+  'total',
+  'selectedSize',
+  'batchSize',
+  'selectedShape',
+  'decorationStyle',
+  'selectedFinish',
+  'occasion',
+  'topper',
+  'addons',
+  'addon',
+]);
+
+function formatScalarForDetail(value, depth = 0) {
+  if (value == null) return '—';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '—';
+    if (value.every((v) => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) {
+      return value.join(', ');
+    }
+    if (depth < 4) {
+      return (
+        <ul className="order-detail-nested-list">
+          {value.map((v, i) => (
+            <li key={i}>
+              {typeof v === 'object' && v !== null ? (
+                <pre className="order-detail-inline-pre">{JSON.stringify(v, null, 2)}</pre>
+              ) : (
+                String(v)
+              )}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'object') {
+    if (typeof value.toDate === 'function') return formatAnyTimestamp(value);
+    if (depth < 3) {
+      const entries = Object.entries(value);
+      if (entries.length === 0) return '—';
+      return (
+        <dl className="order-detail-subdl">
+          {entries.map(([k, v]) => (
+            <React.Fragment key={k}>
+              <dt>{k}</dt>
+              <dd>{formatScalarForDetail(v, depth + 1)}</dd>
+            </React.Fragment>
+          ))}
+        </dl>
+      );
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
+function orderToJsonString(order) {
+  try {
+    return JSON.stringify(
+      order,
+      (_k, v) => {
+        if (v && typeof v.toDate === 'function') {
+          try {
+            return v.toDate().toISOString();
+          } catch {
+            return null;
+          }
+        }
+        if (v instanceof Date) return v.toISOString();
+        return v;
+      },
+      2
+    );
+  } catch {
+    return 'Could not serialize order to JSON.';
+  }
+}
+
+function OrderFullDetailModal({ order, onClose }) {
+  if (!order) return null;
+  const gi = order.guestInfo && typeof order.guestInfo === 'object' ? order.guestInfo : null;
+  const discount = order.appliedDiscount;
+  const extraOrderKeys = Object.keys(order).filter((k) => !ORDER_DETAIL_MAIN_KEYS.has(k));
+
+  return (
+    <div
+      className="order-detail-overlay order-detail-root"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="order-detail-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="order-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="modal-close-btn order-detail-close" onClick={onClose} aria-label="Close">
+          <FaTimes />
+        </button>
+        <h3 id="order-detail-title" className="order-detail-title">
+          Full order detail
+        </h3>
+        <p className="order-detail-lead">
+          Document ID: <code className="order-detail-code">{order.id}</code>
+          {order.orderId && order.orderId !== order.id && (
+            <>
+              {' · '}
+              Order ref: <code className="order-detail-code">{order.orderId}</code>
+            </>
+          )}
+        </p>
+
+        <div className="order-detail-scroll">
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Summary</h4>
+            <dl className="order-detail-dl">
+              <dt>Status</dt>
+              <dd>{order.status ?? '—'}</dd>
+              <dt>Payment method</dt>
+              <dd>{order.paymentMethod ?? '—'}</dd>
+              <dt>Invoice ref</dt>
+              <dd>{order.invoiceRef ? <code className="order-detail-code">{order.invoiceRef}</code> : '—'}</dd>
+              <dt>Created</dt>
+              <dd>{formatAnyTimestamp(order.createdAt)}</dd>
+              <dt>Updated</dt>
+              <dd>{formatAnyTimestamp(order.updatedAt)}</dd>
+              <dt>Enquiry email</dt>
+              <dd>{order.enquiryEmailStatus ?? '—'}</dd>
+              {order.enquiryEmailSentAt && (
+                <>
+                  <dt>Email sent at</dt>
+                  <dd>{formatAnyTimestamp(order.enquiryEmailSentAt)}</dd>
+                </>
+              )}
+              {order.enquiryEmailFailedAt && (
+                <>
+                  <dt>Email failed at</dt>
+                  <dd>{formatAnyTimestamp(order.enquiryEmailFailedAt)}</dd>
+                </>
+              )}
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Customer &amp; account</h4>
+            <dl className="order-detail-dl">
+              <dt>Display name (resolved)</dt>
+              <dd>{order.customerName || '—'}</dd>
+              <dt>Email (resolved)</dt>
+              <dd>{order.customerEmail || '—'}</dd>
+              <dt>User ID</dt>
+              <dd>{order.userId ? <code className="order-detail-code">{order.userId}</code> : '—'}</dd>
+              <dt>Account email</dt>
+              <dd>{order.userEmail || '—'}</dd>
+            </dl>
+            {gi ? (
+              <>
+                <p className="order-detail-subheading">Guest / checkout payload</p>
+                <dl className="order-detail-dl">
+                  {Object.entries(gi).map(([k, v]) => (
+                    <React.Fragment key={k}>
+                      <dt>{k}</dt>
+                      <dd>{formatScalarForDetail(v)}</dd>
+                    </React.Fragment>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p className="order-detail-muted">No guestInfo object on this order.</p>
+            )}
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Pickup &amp; notes</h4>
+            <dl className="order-detail-dl">
+              <dt>Pickup date</dt>
+              <dd>{order.pickupDate ?? '—'}</dd>
+              <dt>Pickup time</dt>
+              <dd>{order.pickupTime ?? '—'}</dd>
+              <dt>Customer message / notes</dt>
+              <dd className="order-detail-pre-wrap">{order.enquiryNotes?.trim() ? order.enquiryNotes : '—'}</dd>
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Totals</h4>
+            <dl className="order-detail-dl">
+              <dt>Subtotal</dt>
+              <dd>{order.subtotal != null ? `£${Number(order.subtotal).toFixed(2)}` : '—'}</dd>
+              <dt>Discount amount</dt>
+              <dd>{order.discountAmount != null ? `£${Number(order.discountAmount).toFixed(2)}` : '—'}</dd>
+              <dt>Applied discount</dt>
+              <dd>
+                {discount && typeof discount === 'object' ? (
+                  <dl className="order-detail-subdl order-detail-subdl--inline">
+                    {Object.entries(discount).map(([k, v]) => (
+                      <React.Fragment key={k}>
+                        <dt>{k}</dt>
+                        <dd>{formatScalarForDetail(v)}</dd>
+                      </React.Fragment>
+                    ))}
+                  </dl>
+                ) : (
+                  '—'
+                )}
+              </dd>
+              <dt>Total</dt>
+              <dd>
+                <strong>{order.total != null ? `£${Number(order.total).toFixed(2)}` : '—'}</strong>
+              </dd>
+            </dl>
+          </section>
+
+          <section className="order-detail-section">
+            <h4 className="order-detail-section-title">Line items</h4>
+            {(order.items || []).length === 0 ? (
+              <p className="order-detail-muted">No items.</p>
+            ) : (
+              <ul className="order-detail-item-list">
+                {(order.items || []).map((item, index) => {
+                  const qty = Number(item?.quantity) || 0;
+                  const price = Number(item?.price);
+                  const lineTotal =
+                    item?.total != null
+                      ? Number(item.total)
+                      : Number.isFinite(price) && qty
+                        ? price * qty
+                        : null;
+                  const specRows = getOrderItemSpecRows(item);
+                  const extraEntries = Object.entries(item || {}).filter(([k]) => !ITEM_DETAIL_USED_KEYS.has(k));
+
+                  return (
+                    <li key={index} className="order-detail-item-card">
+                      <div className="order-detail-item-head">
+                        <span className="order-detail-item-name">{item?.name ?? '(unnamed)'}</span>
+                        <span className="order-detail-item-meta">
+                          ×{qty || '—'}
+                          {Number.isFinite(price) && ` @ £${price.toFixed(2)}`}
+                          {lineTotal != null && Number.isFinite(lineTotal) && (
+                            <span className="order-detail-item-line-total"> · Line £{lineTotal.toFixed(2)}</span>
+                          )}
+                        </span>
+                      </div>
+                      {specRows.length > 0 && (
+                        <dl className="order-detail-dl order-detail-dl--compact">
+                          {specRows.map((row) => (
+                            <React.Fragment key={row.label}>
+                              <dt>{row.label}</dt>
+                              <dd>{row.value}</dd>
+                            </React.Fragment>
+                          ))}
+                        </dl>
+                      )}
+                      {extraEntries.length > 0 && (
+                        <>
+                          <p className="order-detail-subheading">Other fields on this line</p>
+                          <dl className="order-detail-dl order-detail-dl--compact">
+                            {extraEntries.map(([k, v]) => (
+                              <React.Fragment key={k}>
+                                <dt>{k}</dt>
+                                <dd>{formatScalarForDetail(v)}</dd>
+                              </React.Fragment>
+                            ))}
+                          </dl>
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          {extraOrderKeys.length > 0 && (
+            <section className="order-detail-section">
+              <h4 className="order-detail-section-title">Additional fields on document</h4>
+              <dl className="order-detail-dl">
+                {extraOrderKeys.map((k) => (
+                  <React.Fragment key={k}>
+                    <dt>{k}</dt>
+                    <dd>{formatScalarForDetail(order[k])}</dd>
+                  </React.Fragment>
+                ))}
+              </dl>
+            </section>
+          )}
+
+          <details className="order-detail-raw-details">
+            <summary>Complete raw record (JSON)</summary>
+            <pre className="order-detail-raw-json">{orderToJsonString(order)}</pre>
+          </details>
+        </div>
+
+        <div className="order-detail-footer">
+          <button type="button" className="order-detail-done-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -33,6 +503,21 @@ const OrderManagement = () => {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
+  const [statusChangeModal, setStatusChangeModal] = useState(null);
+  const [statusChangeSaving, setStatusChangeSaving] = useState(false);
+  const [orderDetailModal, setOrderDetailModal] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilters, setStatusFilters] = useState([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [minTotal, setMinTotal] = useState('');
+  const [maxTotal, setMaxTotal] = useState('');
+  const [invoiceFilter, setInvoiceFilter] = useState('all');
+  const [accountFilter, setAccountFilter] = useState('all');
+  const [sortKey, setSortKey] = useState('createdAt');
+  const [sortDir, setSortDir] = useState('desc');
 
   useEffect(() => {
     fetchOrders();
@@ -125,6 +610,11 @@ const OrderManagement = () => {
           }
         }
         
+        orderData.customerName =
+          orderData.customerName || orderData.guestInfo?.name || orderData.guestInfo?.displayName;
+        orderData.customerEmail =
+          orderData.customerEmail || orderData.guestInfo?.email;
+
         return orderData;
       }));
       
@@ -153,23 +643,36 @@ const OrderManagement = () => {
         }
       }
       await fetchOrders(); // Refresh orders after update
+      setError(null);
+      return true;
     } catch (error) {
       console.error('Error updating order status:', error);
       setError('Failed to update order status');
+      return false;
     }
   };
+
+  const requestStatusChange = useCallback((order, newStatus) => {
+    const cur = (order.status || 'pending').toLowerCase();
+    const next = (newStatus || '').toLowerCase();
+    if (cur === next) return;
+    setStatusChangeModal({ order, newStatus });
+  }, []);
+
+  const closeStatusChangeModal = useCallback(() => {
+    if (statusChangeSaving) return;
+    setStatusChangeModal(null);
+  }, [statusChangeSaving]);
 
   const deleteOrder = async (orderId, invoiceRef, userId) => {
     if (!window.confirm('Are you sure you want to delete this order? This cannot be undone.')) return;
     try {
       // Delete from main orders collection
       await deleteDoc(firestoreDoc(db, 'orders', orderId));
-      console.log('Deleted from main orders collection:', orderId);
       // Delete from user's subcollection if userId exists
       if (userId) {
         try {
           await deleteDoc(firestoreDoc(db, 'users', userId, 'Orders', orderId));
-          console.log('Deleted from user subcollection:', userId, orderId);
         } catch (e) {
           console.error('Error deleting from user subcollection:', e);
         }
@@ -178,14 +681,13 @@ const OrderManagement = () => {
       if (invoiceRef) {
         try {
           await deleteDoc(firestoreDoc(db, invoiceRef));
-          console.log('Deleted invoice:', invoiceRef);
         } catch (e) {
           console.error('Error deleting invoice:', e);
         }
       }
       await fetchOrders();
     } catch (error) {
-      alert('Failed to delete order.');
+      setNoticeModal({ open: true, message: 'Failed to delete order.' });
       console.error('Error deleting order:', error);
     }
   };
@@ -208,6 +710,18 @@ const OrderManagement = () => {
 
   const getStatusInfo = (status) => {
     switch (status?.toLowerCase()) {
+      case 'pending':
+        return {
+          icon: <FaClock />,
+          class: 'status-pending',
+          label: 'Awaiting approval',
+        };
+      case 'paid':
+        return {
+          icon: <FaBox />,
+          class: 'status-confirmed',
+          label: 'Paid (legacy)',
+        };
       case 'confirmed':
         return {
           icon: <FaBox />,
@@ -246,11 +760,31 @@ const OrderManagement = () => {
     setInvoiceModalOpen(true);
   };
 
-  const openEmailModal = (order, type) => {
+  const openEmailModal = useCallback((order, type) => {
     setEmailOrder(order);
     setEmailType(type);
     setEmailModalOpen(true);
-  };
+  }, []);
+
+  const applyStatusChange = useCallback(
+    async (openEmailAfter) => {
+      if (!statusChangeModal) return;
+      const { order, newStatus } = statusChangeModal;
+      setStatusChangeSaving(true);
+      try {
+        const ok = await updateOrderStatus(order.id, newStatus, order.invoiceRef);
+        if (!ok) return;
+        setStatusChangeModal(null);
+        if (openEmailAfter) {
+          const type = emailTypeForStatusChange(newStatus);
+          openEmailModal({ ...order, status: newStatus }, type);
+        }
+      } finally {
+        setStatusChangeSaving(false);
+      }
+    },
+    [statusChangeModal, openEmailModal]
+  );
 
   const closeEmailModal = () => {
     setEmailModalOpen(false);
@@ -271,7 +805,8 @@ const OrderManagement = () => {
   };
 
   const handleSendOrderEmail = async () => {
-    if (!emailOrder?.customerEmail) {
+    const recipient = emailOrder?.guestInfo?.email || emailOrder?.customerEmail;
+    if (!recipient) {
       setEmailStatus('No customer email found.');
       return;
     }
@@ -279,20 +814,21 @@ const OrderManagement = () => {
     setEmailStatus('Sending...');
     try {
       const formData = new FormData();
-      formData.append('to', emailOrder.customerEmail);
+      formData.append('to', recipient);
       formData.append('subject', emailSubject);
       formData.append('html', emailBody);
+      formData.append('clientSource', 'admin_orders');
       if (emailCC) formData.append('cc', emailCC);
       emailAttachments.forEach((file, idx) => {
         formData.append('attachments', file);
       });
-      const response = await fetch('/api/send-order-confirmation', {
+      const response = await fetch(apiUrl('/api/send-order-confirmation'), {
         method: 'POST',
         body: formData
       });
-      const data = await response.json();
+      const data = await readEmailApiBody(response);
       if (response.ok) {
-        setEmailStatus('Email sent successfully!');
+        setEmailStatus('Email sent successfully! (Confirmed by the server.)');
         setTimeout(() => {
           setEmailModalOpen(false);
           setEmailStatus('');
@@ -300,10 +836,10 @@ const OrderManagement = () => {
           setEmailAttachments([]);
         }, 1200);
       } else {
-        setEmailStatus(data.error || 'Failed to send email.');
+        setEmailStatus(formatEmailSendHttpFailure(data, response));
       }
     } catch (err) {
-      setEmailStatus('Failed to send email.');
+      setEmailStatus(formatEmailSendNetworkError(err));
     }
     setSendingEmail(false);
   };
@@ -336,8 +872,8 @@ const OrderManagement = () => {
   function fillTemplate(str, order) {
     if (!str) return '';
     return str
-      .replace(/\{customerName\}/g, order.customerName || 'Customer')
-      .replace(/\{orderId\}/g, order.id || '');
+      .replace(/\{customerName\}/g, order.customerName || order.guestInfo?.name || 'Customer')
+      .replace(/\{orderId\}/g, order.id || order.orderId || '');
   }
 
   const handleDeleteClick = (order) => {
@@ -356,6 +892,174 @@ const OrderManagement = () => {
     setDeleteModalOpen(false);
     setOrderToDelete(null);
   };
+
+  const toggleStatusFilter = useCallback((value) => {
+    setStatusFilters((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  }, []);
+
+  const clearAllFilters = useCallback(() => {
+    setSearchQuery('');
+    setStatusFilters([]);
+    setDateFrom('');
+    setDateTo('');
+    setMinTotal('');
+    setMaxTotal('');
+    setInvoiceFilter('all');
+    setAccountFilter('all');
+    setSortKey('createdAt');
+    setSortDir('desc');
+  }, []);
+
+  const setDatePreset = useCallback((preset) => {
+    const end = new Date();
+    const start = new Date();
+    if (preset === 'today') {
+      /* start already today */
+    } else if (preset === 'week') {
+      start.setDate(end.getDate() - 6);
+    } else if (preset === 'month') {
+      start.setDate(1);
+    } else if (preset === 'clear') {
+      setDateFrom('');
+      setDateTo('');
+      return;
+    }
+    const toYmd = (d) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    setDateFrom(toYmd(start));
+    setDateTo(toYmd(end));
+  }, []);
+
+  const defaultSortDir = useCallback((key) => {
+    if (key === 'createdAt' || key === 'total') return 'desc';
+    return 'asc';
+  }, []);
+
+  const toggleSort = useCallback(
+    (key) => {
+      if (sortKey === key) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setSortKey(key);
+        setSortDir(defaultSortDir(key));
+      }
+    },
+    [sortKey, defaultSortDir]
+  );
+
+  const filteredSortedOrders = useMemo(() => {
+    let list = [...orders];
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((order) => {
+        const name = (order.customerName || '').toLowerCase();
+        const email = (order.customerEmail || '').toLowerCase();
+        const id = (order.id || '').toLowerCase();
+        const shortId = id.slice(-8);
+        const uid = (order.userId || '').toLowerCase();
+        const itemsStr = (order.items || [])
+          .map((i) => `${i?.name || ''} ${i?.quantity || ''}`.toLowerCase())
+          .join(' ');
+        return (
+          id.includes(q) ||
+          shortId.includes(q) ||
+          name.includes(q) ||
+          email.includes(q) ||
+          uid.includes(q) ||
+          itemsStr.includes(q)
+        );
+      });
+    }
+
+    if (statusFilters.length > 0) {
+      list = list.filter((order) =>
+        statusFilters.includes((order.status || 'pending').toLowerCase())
+      );
+    }
+
+    if (dateFrom) {
+      const fromMs = new Date(`${dateFrom}T00:00:00`).getTime();
+      list = list.filter((order) => getOrderCreatedMs(order) >= fromMs);
+    }
+    if (dateTo) {
+      const toMs = new Date(`${dateTo}T23:59:59.999`).getTime();
+      list = list.filter((order) => getOrderCreatedMs(order) <= toMs);
+    }
+
+    const minN = minTotal === '' ? null : Number(minTotal);
+    const maxN = maxTotal === '' ? null : Number(maxTotal);
+    if (minN !== null && !Number.isNaN(minN)) {
+      list = list.filter((order) => orderTotalNumber(order) >= minN);
+    }
+    if (maxN !== null && !Number.isNaN(maxN)) {
+      list = list.filter((order) => orderTotalNumber(order) <= maxN);
+    }
+
+    if (invoiceFilter === 'yes') {
+      list = list.filter((order) => Boolean(order.invoiceRef));
+    } else if (invoiceFilter === 'no') {
+      list = list.filter((order) => !order.invoiceRef);
+    }
+
+    if (accountFilter === 'guest') {
+      list = list.filter((order) => !order.userId);
+    } else if (accountFilter === 'registered') {
+      list = list.filter((order) => Boolean(order.userId));
+    }
+
+    list.sort((a, b) => {
+      let cmp = 0;
+      switch (sortKey) {
+        case 'createdAt':
+          cmp = getOrderCreatedMs(a) - getOrderCreatedMs(b);
+          break;
+        case 'total':
+          cmp = orderTotalNumber(a) - orderTotalNumber(b);
+          break;
+        case 'customer':
+          cmp = (a.customerName || '').localeCompare(b.customerName || '', undefined, {
+            sensitivity: 'base',
+          });
+          break;
+        case 'id':
+          cmp = (a.id || '').localeCompare(b.id || '');
+          break;
+        case 'status':
+          cmp = (a.status || '').localeCompare(b.status || '', undefined, { sensitivity: 'base' });
+          break;
+        default:
+          break;
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+
+    return list;
+  }, [
+    orders,
+    searchQuery,
+    statusFilters,
+    dateFrom,
+    dateTo,
+    minTotal,
+    maxTotal,
+    invoiceFilter,
+    accountFilter,
+    sortKey,
+    sortDir,
+  ]);
+
+  const sortIndicator = (key) =>
+    sortKey === key ? (
+      <span className="sort-indicator" aria-hidden>
+        {sortDir === 'asc' ? <FaChevronUp /> : <FaChevronDown />}
+      </span>
+    ) : null;
 
   if (loading) {
     return (
@@ -378,28 +1082,219 @@ const OrderManagement = () => {
   return (
     <div className="order-management">
       <div className="order-management-header">
-        <h2>Order Management</h2>
-        <button onClick={fetchOrders} className="refresh-button">
+        <div className="order-management-title-block">
+          <h2>Order Management</h2>
+          <p className="order-management-subtitle">
+            {filteredSortedOrders.length} of {orders.length} orders
+            {orders.length > 0 && filteredSortedOrders.length !== orders.length ? ' (filtered)' : ''}
+          </p>
+        </div>
+        <button type="button" onClick={fetchOrders} className="refresh-button">
           Refresh Orders
         </button>
+      </div>
+
+      <div className="orders-toolbar">
+        <div className="orders-search-row">
+          <label className="orders-search-label" htmlFor="orders-search-input">
+            <FaSearch className="orders-search-icon" aria-hidden />
+            <span className="sr-only">Search orders</span>
+          </label>
+          <input
+            id="orders-search-input"
+            className="orders-search-input"
+            type="search"
+            placeholder="Search by order ID, customer, email, user ID, or product name…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="orders-filters-grid">
+          <div className="orders-filter-group orders-filter-group--status">
+            <span className="orders-filter-label">Status</span>
+            <div className="orders-status-chips" role="group" aria-label="Filter by status">
+              {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`orders-chip ${statusFilters.includes(value) ? 'orders-chip--active' : ''}`}
+                  onClick={() => toggleStatusFilter(value)}
+                  aria-pressed={statusFilters.includes(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="orders-filter-hint">Select none to show all statuses.</p>
+          </div>
+
+          <div className="orders-filter-group">
+            <span className="orders-filter-label">Placed on</span>
+            <div className="orders-date-presets">
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('today')}>
+                Today
+              </button>
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('week')}>
+                Last 7 days
+              </button>
+              <button type="button" className="orders-preset-btn" onClick={() => setDatePreset('month')}>
+                This month
+              </button>
+              <button type="button" className="orders-preset-btn orders-preset-btn--ghost" onClick={() => setDatePreset('clear')}>
+                Clear dates
+              </button>
+            </div>
+            <div className="orders-date-inputs">
+              <label className="orders-field">
+                <span className="orders-field-label">From</span>
+                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+              </label>
+              <label className="orders-field">
+                <span className="orders-field-label">To</span>
+                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+              </label>
+            </div>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--compact">
+            <span className="orders-filter-label">Total (£)</span>
+            <div className="orders-range-row">
+              <label className="orders-field">
+                <span className="orders-field-label">Min</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                  value={minTotal}
+                  onChange={(e) => setMinTotal(e.target.value)}
+                />
+              </label>
+              <label className="orders-field">
+                <span className="orders-field-label">Max</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Any"
+                  value={maxTotal}
+                  onChange={(e) => setMaxTotal(e.target.value)}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--compact">
+            <label className="orders-field orders-field--select">
+              <span className="orders-filter-label">Invoice</span>
+              <select value={invoiceFilter} onChange={(e) => setInvoiceFilter(e.target.value)}>
+                <option value="all">All orders</option>
+                <option value="yes">Has invoice</option>
+                <option value="no">No invoice</option>
+              </select>
+            </label>
+            <label className="orders-field orders-field--select">
+              <span className="orders-filter-label">Account</span>
+              <select value={accountFilter} onChange={(e) => setAccountFilter(e.target.value)}>
+                <option value="all">All customers</option>
+                <option value="registered">Registered</option>
+                <option value="guest">Guest checkout</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="orders-filter-group orders-filter-group--sort">
+            <span className="orders-filter-label orders-filter-label--inline">
+              <FaSort className="orders-sort-label-icon" aria-hidden />
+              Quick sort
+            </span>
+            <select
+              className="orders-sort-select"
+              value={`${sortKey}:${sortDir}`}
+              onChange={(e) => {
+                const [k, d] = e.target.value.split(':');
+                setSortKey(k);
+                setSortDir(d);
+              }}
+            >
+              <option value="createdAt:desc">Newest first</option>
+              <option value="createdAt:asc">Oldest first</option>
+              <option value="total:desc">Total: high → low</option>
+              <option value="total:asc">Total: low → high</option>
+              <option value="customer:asc">Customer A → Z</option>
+              <option value="customer:desc">Customer Z → A</option>
+              <option value="status:asc">Status A → Z</option>
+              <option value="status:desc">Status Z → A</option>
+              <option value="id:asc">Order ID (ascending)</option>
+              <option value="id:desc">Order ID (descending)</option>
+            </select>
+            <button type="button" className="orders-clear-filters" onClick={clearAllFilters}>
+              Reset filters &amp; sort
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="orders-table-container">
         <table className="orders-table">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Date</th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('id')}>
+                  Order ID {sortIndicator('id')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('customer')}>
+                  Customer {sortIndicator('customer')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('createdAt')}>
+                  Date {sortIndicator('createdAt')}
+                </button>
+              </th>
               <th>Items</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Invoice</th>
-              <th>Actions</th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('total')}>
+                  Total {sortIndicator('total')}
+                </button>
+              </th>
+              <th>
+                <button type="button" className="sortable-th" onClick={() => toggleSort('status')}>
+                  Status {sortIndicator('status')}
+                </button>
+              </th>
+              <th className="orders-th-invoice" scope="col">
+                Invoice
+              </th>
+              <th className="orders-th-actions" scope="col">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => {
+            {filteredSortedOrders.length === 0 && (
+              <tr>
+                <td colSpan={8} className="orders-empty-cell">
+                  <div className="orders-empty">
+                    <p>
+                      {orders.length === 0
+                        ? 'No orders yet.'
+                        : 'No orders match your filters.'}
+                    </p>
+                    {orders.length > 0 && (
+                      <button type="button" className="orders-clear-filters orders-clear-filters--inline" onClick={clearAllFilters}>
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            )}
+            {filteredSortedOrders.map(order => {
               const formattedDate = formatDate(order.createdAt);
               const statusInfo = getStatusInfo(order.status);
               const isExpanded = expandedOrderId === order.id;
@@ -416,12 +1311,11 @@ const OrderManagement = () => {
                         {order.customerName || 'Unknown Customer'}
                       </div>
                       <div className="customer-email">{order.customerEmail || 'N/A'}</div>
-                      {/* Show userId and userEmail if available */}
                       {order.userId && (
-                        <div className="customer-userid" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User ID: {order.userId}</div>
+                        <div className="customer-meta">User ID: {order.userId}</div>
                       )}
                       {order.userEmail && order.userEmail !== order.customerEmail && (
-                        <div className="customer-useremail" style={{ color: '#bbb', fontSize: '0.8em', marginLeft: '1.5rem' }}>User Email: {order.userEmail}</div>
+                        <div className="customer-meta">Account email: {order.userEmail}</div>
                       )}
                     </td>
                     <td className="order-date">
@@ -432,14 +1326,14 @@ const OrderManagement = () => {
                       <div className="time">{formattedDate.time}</div>
                     </td>
                     <td className="order-items">
-                      {order.items.map((item, index) => (
+                      {(order.items || []).map((item, index) => (
                         <div key={index} className="order-item-mini">
                           <span className="item-name">{item.name}</span>
                           <span className="item-quantity">×{item.quantity}</span>
                         </div>
                       ))}
                     </td>
-                    <td className="order-total">£{order.total.toFixed(2)}</td>
+                    <td className="order-total">£{orderTotalNumber(order).toFixed(2)}</td>
                     <td className="order-status">
                       <span className={`status-badge ${statusInfo.class}`}>
                         {statusInfo.icon}
@@ -457,15 +1351,16 @@ const OrderManagement = () => {
                           <FaFileInvoice style={{ marginRight: '0.4em' }} />View Invoice
                         </button>
                       ) : (
-                        <span style={{ color: '#bbb' }}>N/A</span>
+                        <span className="orders-na">—</span>
                       )}
                     </td>
                     <td className="order-actions">
                       <select
-                        value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value, order.invoiceRef)}
+                        value={order.status || 'pending'}
+                        onChange={(e) => requestStatusChange(order, e.target.value)}
                         className="status-select"
                       >
+                        <option value="pending">Awaiting approval</option>
                         <option value="confirmed">Confirm</option>
                         <option value="ready">Ready for Pickup</option>
                         <option value="completed">Complete</option>
@@ -474,28 +1369,33 @@ const OrderManagement = () => {
                       {/* Manual confirm button for incomplete/unpaid/pending orders */}
                       {['pending', 'unpaid', 'incomplete'].includes((order.status || '').toLowerCase()) && (
                         <button
+                          type="button"
                           className="manual-confirm-btn"
-                          style={{ marginTop: 8, background: '#f3c307', color: '#111', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
-                          onClick={() => updateOrderStatus(order.id, 'confirmed', order.invoiceRef)}
+                          onClick={() => requestStatusChange(order, 'confirmed')}
                           title="Manually confirm this order and mark invoice as paid"
                         >
                           Confirm Order
                         </button>
                       )}
-                      {/* Expand Email Actions */}
                       <button
+                        type="button"
+                        className="view-full-order-btn"
+                        onClick={() => setOrderDetailModal(order)}
+                        title="View every field on this order"
+                      >
+                        <FaClipboardList /> Full order
+                      </button>
+                      <button
+                        type="button"
                         className="expand-email-btn"
-                        style={{ marginTop: 8, background: '#ffe066', color: '#222', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
                         onClick={() => toggleExpandRow(order.id)}
                         title={isExpanded ? 'Hide Email Actions' : 'Show Email Actions'}
-                        type="button"
                       >
                         <FaEnvelope /> Email {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
                       </button>
-                      {/* Delete order button */}
                       <button
+                        type="button"
                         className="delete-order-btn"
-                        style={{ marginTop: 8, background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1rem', fontWeight: 600, cursor: 'pointer' }}
                         onClick={() => handleDeleteClick(order)}
                         title="Delete this order and its invoice"
                       >
@@ -505,32 +1405,29 @@ const OrderManagement = () => {
                   </tr>
                   {isExpanded && (
                     <tr className="email-actions-row">
-                      <td colSpan={8} style={{ background: '#fffbe6', padding: '1.2em 2em' }}>
-                        <div style={{ display: 'flex', gap: '1.2em', flexWrap: 'wrap' }}>
+                      <td colSpan={8} className="email-actions-cell">
+                        <div className="email-actions-inner">
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#3498db', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--primary"
                             onClick={() => openEmailModal(order, 'confirmation')}
                             title="Send Order Confirmation Email"
-                            type="button"
                           >
                             <FaEnvelope /> Confirmation
                           </button>
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#27ae60', color: '#fff', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--success"
                             onClick={() => openEmailModal(order, 'complete')}
                             title="Send Order Complete Email"
-                            type="button"
                           >
                             <FaEnvelope /> Complete
                           </button>
                           <button
-                            className="send-email-btn"
-                            style={{ background: '#f3c307', color: '#111', border: 'none', borderRadius: 6, padding: '0.4rem 1.2rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            type="button"
+                            className="send-email-btn send-email-btn--muted"
                             onClick={() => openEmailModal(order, 'delivery')}
                             title="Send Delivery Email"
-                            type="button"
                           >
                             <FaEnvelope /> Delivery
                           </button>
@@ -549,6 +1446,104 @@ const OrderManagement = () => {
         onClose={() => setInvoiceModalOpen(false)}
         invoiceUrl={invoiceUrl}
       />
+      {statusChangeModal &&
+        createPortal(
+          <div
+            className="order-status-change-overlay order-status-change-root"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-status-change-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeStatusChangeModal();
+            }}
+          >
+            <div className="order-status-change-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-btn order-status-change-close"
+              onClick={closeStatusChangeModal}
+              aria-label="Close"
+              disabled={statusChangeSaving}
+            >
+              <FaTimes />
+            </button>
+            <h3 id="order-status-change-title" className="order-status-change-title">
+              Update order status?
+            </h3>
+            <p className="order-status-change-lead">
+              This order will move to{' '}
+              <strong>{newStatusDisplayLabel(statusChangeModal.newStatus)}</strong>
+              {statusChangeModal.order?.id ? (
+                <>
+                  {' '}
+                  <span className="order-status-change-id">
+                    (#{String(statusChangeModal.order.id).slice(-8)})
+                  </span>
+                </>
+              ) : null}
+              .
+            </p>
+            <p className="order-status-change-hint">{statusChangeEmailHint(statusChangeModal.newStatus)}</p>
+            {orderHasCustomerEmail(statusChangeModal.order) ? (
+              <p className="order-status-change-email-ready">
+                Customer email on file: <strong>{orderCustomerEmail(statusChangeModal.order)}</strong>
+                <br />
+                <span className="order-status-change-template-note">
+                  “Update &amp; email customer” opens the{' '}
+                  <strong>
+                    {emailTypeForStatusChange(statusChangeModal.newStatus) === 'complete'
+                      ? 'Order complete / ready'
+                      : 'Order confirmation'}{' '}
+                  </strong>
+                  template — you can edit before sending.
+                </span>
+              </p>
+            ) : (
+              <p className="order-status-change-no-email">
+                No customer email on this order. You can still update the status; use Email actions after adding contact
+                details if needed.
+              </p>
+            )}
+            <div className="order-status-change-actions">
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--secondary"
+                onClick={closeStatusChangeModal}
+                disabled={statusChangeSaving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--ghost"
+                onClick={() => applyStatusChange(false)}
+                disabled={statusChangeSaving}
+              >
+                {statusChangeSaving ? 'Saving…' : 'Update status only'}
+              </button>
+              <button
+                type="button"
+                className="order-status-change-btn order-status-change-btn--primary"
+                onClick={() => applyStatusChange(true)}
+                disabled={statusChangeSaving || !orderHasCustomerEmail(statusChangeModal.order)}
+                title={
+                  !orderHasCustomerEmail(statusChangeModal.order)
+                    ? 'Add a customer email to send from this screen'
+                    : undefined
+                }
+              >
+                {statusChangeSaving ? 'Saving…' : 'Update & email customer'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+        )}
+      {orderDetailModal &&
+        createPortal(
+          <OrderFullDetailModal order={orderDetailModal} onClose={() => setOrderDetailModal(null)} />,
+          document.body
+        )}
       {emailModalOpen && (
         <div className="newsletter-modal-overlay">
           <div className="newsletter-modal" style={{ maxWidth: 540, position: 'relative' }}>
@@ -566,7 +1561,7 @@ const OrderManagement = () => {
             <form onSubmit={e => { e.preventDefault(); handleSendOrderEmail(); }}>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontWeight: 600 }}>To:</label>
-                <input type="email" value={emailOrder?.customerEmail || ''} disabled className="newsletter-add-input" style={{ width: '100%', marginTop: 4 }} />
+                <input type="email" value={emailOrder?.guestInfo?.email || emailOrder?.customerEmail || ''} disabled className="newsletter-add-input" style={{ width: '100%', marginTop: 4 }} />
               </div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontWeight: 600 }}>CC:</label>
@@ -594,7 +1589,20 @@ const OrderManagement = () => {
                   </ul>
                 )}
               </div>
-              {emailStatus && <div style={{ marginBottom: 10, color: emailStatus.includes('success') ? '#388e3c' : '#e74c3c' }}>{emailStatus}</div>}
+              {emailStatus && (
+                <div
+                  className={
+                    emailStatus.includes('success') || emailStatus.includes('Confirmed by the server')
+                      ? 'order-send-email-status order-send-email-status--success'
+                      : isUncertainEmailOutcomeMessage(emailStatus)
+                        ? 'order-send-email-status order-send-email-status--uncertain'
+                        : 'order-send-email-status order-send-email-status--error'
+                  }
+                  role="status"
+                >
+                  {emailStatus}
+                </div>
+              )}
               <div style={{ display: 'flex', gap: 12, marginTop: 10, justifyContent: 'flex-end' }}>
                 <button type="submit" className="newsletter-add-btn" disabled={sendingEmail}>{sendingEmail ? 'Sending...' : 'Send Email'}</button>
                 <button type="button" className="newsletter-add-btn" style={{ background: '#eee', color: '#222' }} onClick={closeEmailModal} disabled={sendingEmail}>Cancel</button>
@@ -603,8 +1611,8 @@ const OrderManagement = () => {
           </div>
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        <button className="newsletter-add-btn" style={{ background: '#ffe066', color: '#222' }} onClick={openManageTemplates}>
+      <div className="order-mgmt-footer">
+        <button type="button" className="order-mgmt-templates-btn" onClick={openManageTemplates}>
           Manage Email Templates
         </button>
       </div>
@@ -669,6 +1677,13 @@ const OrderManagement = () => {
           </div>
         </div>
       )}
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Error"
+        message={noticeModal.message}
+        variant="error"
+      />
     </div>
   );
 };

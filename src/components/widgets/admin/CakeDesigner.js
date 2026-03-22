@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase/firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import '../../styles/CakeDesigner.css';
 
 const CakeDesigner = () => {
@@ -323,7 +323,7 @@ const CakeDesigner = () => {
               <button
                 onClick={handleAddOption}
                 className="cakedesigner-add-btn"
-                disabled={!newOption.name && !(category === 'sizes' && newOption.size && newOption.unit) || editingCategory !== category}
+                disabled={(!newOption.name && !(category === 'sizes' && newOption.size && newOption.unit)) || editingCategory !== category}
               >
                 Add Option
               </button>

@@ -7,6 +7,7 @@ import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 
 const SpecificCookiesPage = () => {
   const { id } = useParams();
@@ -27,7 +28,6 @@ const SpecificCookiesPage = () => {
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -115,11 +115,9 @@ const SpecificCookiesPage = () => {
 
   const images = Array.isArray(cookie.images) && cookie.images.length > 0 ? cookie.images : [cookie.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -242,7 +240,6 @@ const SpecificCookiesPage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />
@@ -310,23 +307,25 @@ const SpecificCookiesPage = () => {
               </div>
               {cookie.decorationStyles && cookie.decorationStyles.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Decoration Style</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="cookie-decoration-select">
+                    Decoration Style
+                  </label>
+                  <AnimatedProductSelect
+                    id="cookie-decoration-select"
                     value={decorationStyle}
-                    onChange={(e) => {
-                      const selected = cookie.decorationStyles.find(t => t.name === e.target.value);
-                      setDecorationStyle(e.target.value);
+                    onChange={(v) => {
+                      const selected = cookie.decorationStyles.find(t => t.name === v);
+                      setDecorationStyle(v);
                       setDecorationStylePrice(selected ? Number(selected.price) : 0);
                     }}
-                  >
-                    <option value="">Choose a style</option>
-                    {cookie.decorationStyles.map((style, idx) => (
-                      <option key={idx} value={style.name}>
-                        {style.name} {style.price ? `(+£${Number(style.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'Choose a style' },
+                      ...cookie.decorationStyles.map((style) => ({
+                        value: style.name,
+                        label: `${style.name}${style.price ? ` (+£${Number(style.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               {cookie.addOns && cookie.addOns.length > 0 && (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../../firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { apiUrl } from '../../config/environment';
 import '../styles/ContactUs.css';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
@@ -32,6 +33,15 @@ const ContactUs = () => {
     setLoading(true);
     setError(null);
     try {
+      const notifyPayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.inquiry,
+        clientSource: 'contact_page',
+      };
       await addDoc(collection(db, 'enquiries'), {
         ...formData,
         name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -39,6 +49,12 @@ const ContactUs = () => {
         timestamp: new Date(),
         status: 'new'
       });
+      void fetch(apiUrl('/api/notify-contact-enquiry'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notifyPayload),
+        keepalive: true,
+      }).catch(() => {});
       setSubmitted(true);
       setFormData({
         firstName: '',
@@ -61,6 +77,9 @@ const ContactUs = () => {
       <Header />
       <div className="contactus-header">
         <h1>Contact Us</h1>
+        <p className="contactus-intro">
+          For custom flavours, large orders requiring deliveries or simple enquiries, please fill in this form. Please allow two working days for a response.
+        </p>
       </div>
       <div className="contactus-content contactus-content-centered">
         <div className="contactus-form-section contactus-form-centered">
@@ -131,7 +150,7 @@ const ContactUs = () => {
                 />
               </div>
               <div className="contactus-form-group">
-                <label htmlFor="inquiry">Inquiry</label>
+                <label htmlFor="inquiry">Enquiry</label>
                 <textarea
                   id="inquiry"
                   name="inquiry"

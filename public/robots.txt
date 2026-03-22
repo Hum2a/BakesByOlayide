@@ -5,6 +5,7 @@ User-agent: *
 
 # Disallow sensitive or non-public pages
 Disallow: /admin
+Disallow: /basket
 Disallow: /checkout
 Disallow: /basket
 Disallow: /order-confirmation

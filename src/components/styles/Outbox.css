@@ -1,0 +1,287 @@
+.outbox-panel {
+  max-width: 1200px;
+}
+
+.outbox-panel h2 {
+  color: #2c3e50;
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+}
+
+.outbox-lead {
+  color: #555;
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+}
+
+.outbox-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.outbox-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.outbox-toolbar button:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.outbox-toolbar button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.outbox-filter {
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #ccd;
+  min-width: 160px;
+  font-size: 0.9rem;
+}
+
+.outbox-table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.outbox-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.outbox-table th,
+.outbox-table td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.outbox-table th {
+  background: #f8f9fb;
+  color: #2c3e50;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.outbox-table tr:hover td {
+  background: #fafbfc;
+}
+
+.outbox-kind {
+  white-space: nowrap;
+  color: #444;
+}
+
+.outbox-source {
+  max-width: 160px;
+  color: #444;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.outbox-subject {
+  max-width: 280px;
+  word-break: break-word;
+}
+
+.outbox-to {
+  max-width: 200px;
+  word-break: break-all;
+  color: #333;
+}
+
+.outbox-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.outbox-status--sent {
+  background: #e8f6ef;
+  color: #1e8449;
+}
+
+.outbox-status--failed {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.outbox-expand-btn {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.outbox-expand-btn:hover {
+  color: #2980b9;
+}
+
+.outbox-detail {
+  background: #f8f9fb;
+  padding: 1rem;
+  border-top: 1px solid #e5e8ec;
+}
+
+.outbox-detail-meta {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.outbox-detail-meta strong {
+  color: #2c3e50;
+}
+
+.outbox-html-frame {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.outbox-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+}
+
+.outbox-empty,
+.outbox-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+.outbox-msg {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.outbox-msg--err {
+  background: #fdecea;
+  color: #922b21;
+}
+
+.outbox-msg--ok {
+  background: #e8f6ef;
+  color: #1e5630;
+}
+
+.outbox-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.outbox-badge--browser {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.outbox-badge--api {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.outbox-trigger {
+  max-width: 170px;
+}
+
+.outbox-trigger-detail {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #555;
+}
+
+.outbox-actions-cell {
+  white-space: nowrap;
+}
+
+.outbox-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.outbox-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccd;
+  background: #fff;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: #2c3e50;
+}
+
+.outbox-icon-btn:hover:not(:disabled) {
+  background: #f0f4f8;
+}
+
+.outbox-icon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.outbox-icon-btn--primary {
+  border-color: #3498db;
+  color: #2980b9;
+}
+
+.outbox-icon-btn--danger {
+  border-color: #e74c3c;
+  color: #c0392b;
+}
+
+.outbox-muted {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.outbox-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  background: #fffbeb;
+  border-radius: 6px;
+  border: 1px solid #f5e6c8;
+}

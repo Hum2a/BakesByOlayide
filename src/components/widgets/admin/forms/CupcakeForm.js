@@ -22,7 +22,7 @@ const CupcakeForm = ({ newCake, setNewCake, newSize, setNewSize, handleAddSize, 
         categories: [...prev.categories, 'Cupcakes']
       }));
     }
-  }, []);
+  }, [newCake.categories, setNewCake]);
 
   return (
     <>

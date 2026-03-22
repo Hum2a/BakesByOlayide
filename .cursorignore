@@ -1,0 +1,6 @@
+﻿# Large / generated folders — keep Cursor indexing fast
+node_modules/
+dist/
+build/
+.next/
+out/

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, query, getDocs, doc, deleteDoc, orderBy, where, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, query, getDocs, doc, deleteDoc, orderBy, addDoc, Timestamp } from 'firebase/firestore';
 import { FaStar, FaTrash, FaSearch, FaPlus } from 'react-icons/fa';
+import { apiUrl } from '../../../config/environment';
 import '../../styles/ReviewManagement.css';
+import MessageModal from '../../modals/MessageModal';
 
 const ReviewManagement = () => {
   const [reviews, setReviews] = useState([]);
@@ -23,6 +25,7 @@ const ReviewManagement = () => {
     date: new Date().toISOString().split('T')[0],
     time: new Date().toTimeString().slice(0,5)
   });
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
 
   useEffect(() => {
     const initializeData = async () => {
@@ -39,63 +42,10 @@ const ReviewManagement = () => {
     initializeData();
   }, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      fetchReviews();
-    }
-  }, [products]);
-
-  const fetchProducts = async () => {
-    try {
-      const productsRef = collection(db, 'cakes');
-      const productsSnapshot = await getDocs(productsRef);
-      const productsData = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name
-      }));
-      setProducts(productsData);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setError('Failed to load products');
-      throw error;
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      let allReviews = [];
-
-      for (const product of products) {
-        const reviewsRef = collection(db, 'cakes', product.id, 'reviews');
-        const reviewsQuery = query(reviewsRef, orderBy('createdAt', 'desc'));
-        const reviewsSnapshot = await getDocs(reviewsQuery);
-        
-        const productReviews = reviewsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          productId: product.id,
-          productName: product.name,
-          ...doc.data()
-        }));
-        
-        allReviews = [...allReviews, ...productReviews];
-      }
-
-      // Sort reviews based on current sort settings
-      const sortedReviews = sortReviews(allReviews);
-      setReviews(sortedReviews);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      setError('Failed to load reviews');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sortReviews = (reviewsToSort) => {
+  const sortReviews = useCallback((reviewsToSort) => {
     return reviewsToSort.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'date':
           comparison = new Date(b.createdAt) - new Date(a.createdAt);
@@ -112,6 +62,58 @@ const ReviewManagement = () => {
 
       return sortOrder === 'desc' ? comparison : -comparison;
     });
+  }, [sortBy, sortOrder]);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      setLoading(true);
+      let allReviews = [];
+
+      for (const product of products) {
+        const reviewsRef = collection(db, 'cakes', product.id, 'reviews');
+        const reviewsQuery = query(reviewsRef, orderBy('createdAt', 'desc'));
+        const reviewsSnapshot = await getDocs(reviewsQuery);
+
+        const productReviews = reviewsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          productId: product.id,
+          productName: product.name,
+          ...doc.data()
+        }));
+
+        allReviews = [...allReviews, ...productReviews];
+      }
+
+      const sortedReviews = sortReviews(allReviews);
+      setReviews(sortedReviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setError('Failed to load reviews');
+    } finally {
+      setLoading(false);
+    }
+  }, [products, sortReviews]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      fetchReviews();
+    }
+  }, [products, fetchReviews]);
+
+  const fetchProducts = async () => {
+    try {
+      const productsRef = collection(db, 'cakes');
+      const productsSnapshot = await getDocs(productsRef);
+      const productsData = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name
+      }));
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to load products');
+      throw error;
+    }
   };
 
   const handleDeleteReview = async (productId, reviewId) => {
@@ -130,11 +132,10 @@ const ReviewManagement = () => {
     e.preventDefault();
     try {
       if (!newReview.productId || !newReview.userName || !newReview.review) {
-        alert('Please fill in all required fields');
+        setNoticeModal({ open: true, message: 'Please fill in all required fields.' });
         return;
       }
 
-      const selectedProduct = products.find(p => p.id === newReview.productId);
       const reviewsRef = collection(db, 'cakes', newReview.productId, 'reviews');
       
       const [year, month, day] = newReview.date.split('-').map(Number);
@@ -148,6 +149,23 @@ const ReviewManagement = () => {
         verifiedPurchase: newReview.verifiedPurchase,
         createdAt: Timestamp.fromDate(reviewDate)
       });
+
+      const productName =
+        products.find((p) => p.id === newReview.productId)?.name || newReview.productId;
+      void fetch(apiUrl('/api/notify-new-review'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: newReview.productId,
+          itemName: productName,
+          userName: newReview.userName,
+          rating: newReview.rating,
+          reviewText: newReview.review,
+          source: 'admin',
+          clientSource: 'admin_reviews',
+        }),
+        keepalive: true,
+      }).catch(() => {});
 
       setNewReview({
         productId: '',
@@ -423,6 +441,12 @@ const ReviewManagement = () => {
           ))
         )}
       </div>
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Required fields"
+        message={noticeModal.message}
+      />
     </div>
   );
 };

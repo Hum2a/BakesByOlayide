@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../../firebase/firebase';
-import { collection, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
-import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt } from 'react-icons/fa';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { FaUsers, FaShoppingCart, FaBirthdayCake, FaChartLine, FaCog, FaSignOutAlt, FaHome, FaPalette, FaEnvelope, FaTag, FaComments, FaBullhorn, FaCalendarAlt, FaCode, FaPaperPlane } from 'react-icons/fa';
 import CakeManagement from '../widgets/admin/CakeManagement';
 import CakeDesigner from '../widgets/admin/CakeDesigner';
 import OrderManagement from '../widgets/admin/OrderManagement';
@@ -14,8 +14,12 @@ import NewsletterManagement from '../widgets/admin/NewsletterManagement';
 import AnnouncementManager from '../widgets/admin/AnnouncementManager';
 import BlockedDatesManager from '../widgets/admin/BlockedDatesManager';
 import PageTitle from '../common/PageTitle';
-import AdminTestEmail from '../widgets/admin/AdminTestEmail';
+import DeveloperSettings from '../widgets/admin/DeveloperSettings';
+import OutboxManagement from '../widgets/admin/OutboxManagement';
+import { hasStaffAccess } from '../../utils/staffAccess';
 import '../styles/Admin.css';
+
+const AdminTestEmail = lazy(() => import('../widgets/admin/AdminTestEmail'));
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -42,7 +46,7 @@ const Admin = () => {
         }
 
         const userData = userDoc.data();
-        if (!userData.isAdmin && !userData.isDeveloper) {
+        if (!hasStaffAccess(userData)) {
           navigate('/');
           return;
         }
@@ -90,19 +94,6 @@ const Admin = () => {
       navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
-    }
-  };
-
-  const toggleUserStatus = async (userId, currentStatus) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        isActive: !currentStatus
-      });
-      await fetchDashboardData();
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      setError('Failed to update user status');
     }
   };
 
@@ -205,16 +196,28 @@ const Admin = () => {
             <FaEnvelope /> Newsletter
           </button>
           <button
+            className={`nav-item ${activeTab === 'outbox' ? 'active' : ''}`}
+            onClick={() => setActiveTab('outbox')}
+          >
+            <FaPaperPlane /> Outbox
+          </button>
+          <button
             className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
             <FaCog /> Settings
           </button>
           <button
+            className={`nav-item ${activeTab === 'developer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('developer')}
+          >
+            <FaCode /> Developer settings
+          </button>
+          <button
             className={`nav-item ${activeTab === 'test-email' ? 'active' : ''}`}
             onClick={() => setActiveTab('test-email')}
           >
-            <FaEnvelope /> Test Email
+            <FaEnvelope /> Test emails
           </button>
         </nav>
         <button className="sign-out-btn" onClick={handleSignOut}>
@@ -271,6 +274,8 @@ const Admin = () => {
 
         {activeTab === 'newsletter' && <NewsletterManagement />}
 
+        {activeTab === 'outbox' && <OutboxManagement />}
+
         {activeTab === 'settings' && (
           <div className="settings-section">
             <h2>Admin Settings</h2>
@@ -294,7 +299,15 @@ const Admin = () => {
           </div>
         )}
 
-        {activeTab === 'test-email' && <AdminTestEmail />}
+        {activeTab === 'developer' && <DeveloperSettings />}
+
+        {activeTab === 'test-email' && (
+          <Suspense
+            fallback={<div className="admin-test-email-suspense-fallback">Loading test email tools…</div>}
+          >
+            <AdminTestEmail />
+          </Suspense>
+        )}
       </div>
     </div>
   );

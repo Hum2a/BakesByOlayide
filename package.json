@@ -8,8 +8,6 @@
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
     "@sendgrid/mail": "^8.1.5",
-    "@stripe/react-stripe-js": "^3.6.0",
-    "@stripe/stripe-js": "^7.0.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -31,17 +29,24 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.5.0",
     "react-scripts": "5.0.1",
-    "stripe": "^18.0.0",
     "three": "^0.161.0",
     "web-vitals": "^2.1.4",
     "zcrmsdk": "^1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env PORT=3000 craco start",
+    "start:local": "cross-env PORT=3000 craco start",
+    "start:live-api": "cross-env PORT=3000 REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com craco start",
     "server": "node server.js",
-    "dev": "concurrently \"npm run server\" \"npm run start\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "server:local": "node server.js",
+    "free-port-5000": "npx --yes kill-port 5000",
+    "dev": "concurrently \"npm run server:local\" \"npm run start:local\"",
+    "dev:local": "concurrently \"npm run server:local\" \"npm run start:local\"",
+    "build": "craco build",
+    "build:live": "craco build",
+    "build:live:debug": "cross-env REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "build:local": "cross-env REACT_APP_RUNTIME_ENV=local REACT_APP_API_BASE_URL=http://localhost:5000 REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -64,6 +69,8 @@
   },
   "proxy": "http://localhost:5000",
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@craco/craco": "^7.1.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3"
   }
 }

@@ -1,10 +1,33 @@
 rules_version = '2';
 
+// SECURITY NOTE: The catch-all rule below allows any signed-in user to read/write all paths except
+// emailOutbox. Tighten this before scaling: define per-collection rules (users, orders, cakes, etc.)
+// so customers cannot read or modify other users' data. Rules alone are not a substitute for validating
+// data in Cloud Functions or trusted backends where needed.
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow all authenticated users to read and write everything
+
+    function isStaff() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isDeveloper', false) == true
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'developer'
+        );
+    }
+
+    // Server-only writes (Admin SDK). Staff read for admin Outbox UI.
+    match /emailOutbox/{entryId} {
+      allow read: if isStaff();
+      allow delete: if isStaff();
+      allow create, update: if false;
+    }
+
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && !document.matches('emailOutbox/**');
     }
   }
-} 
+}

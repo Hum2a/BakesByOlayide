@@ -1,0 +1,216 @@
+/* Loaded only with AdminTestEmail.js so bundlers always attach styles to this feature. */
+
+.admin-test-email {
+  max-width: 720px;
+}
+
+.admin-test-email h2 {
+  color: #2c3e50;
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.admin-test-email-lead {
+  color: #5d6d7e;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+}
+
+.admin-test-email-lead code {
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.admin-test-email-stale-banner {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #664d03;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.admin-test-email-stale-banner code {
+  font-size: 0.9em;
+}
+
+.admin-test-email-form {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.35rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-test-email-field {
+  margin-bottom: 1.1rem;
+}
+
+.admin-test-email-field label,
+.admin-test-email-label-text {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.35rem;
+}
+
+.admin-test-email-field input[type='email'],
+.admin-test-email-field input[type='text'],
+.admin-test-email-field select,
+.admin-test-email-field textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #dce0e4;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.admin-test-email-field textarea {
+  font-family: inherit;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.admin-test-email-field--inline {
+  display: inline-block;
+  margin-right: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-test-email-field--inline input[type='color'] {
+  width: 3rem;
+  height: 2rem;
+  padding: 0.15rem;
+  border-radius: 6px;
+  border: 1px solid #dce0e4;
+  vertical-align: middle;
+}
+
+.admin-test-email-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: #7f8c8d;
+  line-height: 1.45;
+}
+
+.admin-test-email-hint code {
+  font-size: 0.9em;
+}
+
+.admin-test-email-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #34495e;
+  cursor: pointer;
+}
+
+.admin-test-email-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.admin-test-email-lists {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+
+.admin-test-email-lists li {
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.admin-test-email-lists label {
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.admin-test-email-actions {
+  margin-top: 1.25rem;
+}
+
+.admin-test-email-submit {
+  padding: 0.65rem 1.35rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-test-email-submit:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.admin-test-email-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.admin-test-email-status {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.admin-test-email-status--ok {
+  background: #e8f8f0;
+  color: #1e6b3a;
+  border: 1px solid #a3e4c1;
+}
+
+.admin-test-email-status--uncertain {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.admin-test-email-status--error {
+  background: #fdecea;
+  color: #922b21;
+  border: 1px solid #f5b7b1;
+}
+
+.admin-test-email-status--neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-test-email-aside {
+  background: #f8f9fb;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #5d6d7e;
+}
+
+.admin-test-email-aside h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.admin-test-email-aside p {
+  margin: 0;
+}

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { db, storage, auth } from '../../../firebase/firebase';
 import { collection, doc, updateDoc, addDoc, deleteDoc, getDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaCopy } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaCopy, FaSearch, FaUndo } from 'react-icons/fa';
 import '../../styles/CakeManagement.css';
 import ConfirmModal from './ConfirmModal';
 import CupcakeForm from './forms/CupcakeForm';
@@ -10,7 +10,7 @@ import BentocakeForm from './forms/BentocakeForm';
 import BrowniesForm from './forms/BrowniesForm';
 import CookiesForm from './forms/CookiesForm';
 import RegularForm from './forms/RegularForm';
-import EditForm from './forms/EditForm';
+import { hasStaffAccess } from '../../../utils/staffAccess';
 
 // Fixed categories
 const FIXED_CATEGORIES = [
@@ -38,7 +38,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [cakeImages, setCakeImages] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  /** null = permission check in progress; true/false after Firestore read */
+  const [cakeMgmtAccess, setCakeMgmtAccess] = useState(null);
   const [debugInfo, setDebugInfo] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [imageWarningModal, setImageWarningModal] = useState({ open: false, message: '' });
@@ -88,6 +89,11 @@ const CakeManagement = ({ cakes, onUpdate }) => {
   const [confirmModal, setConfirmModal] = useState({ open: false, cakeId: null, imageUrl: null });
 
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
+  const [featuredFilter, setFeaturedFilter] = useState('all');
+  const [seasonalFilter, setSeasonalFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name-asc');
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -97,51 +103,26 @@ const CakeManagement = ({ cakes, onUpdate }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            const isAdminUser = userData.isAdmin || userData.isDeveloper;
-            setIsAdmin(isAdminUser);
-            setDebugInfo(`User ${user.uid} is ${isAdminUser ? 'admin' : 'not admin'}`);
+            const allowed = hasStaffAccess(userData);
+            setCakeMgmtAccess(allowed);
+            setDebugInfo(`User ${user.uid} cake admin access: ${allowed ? 'granted' : 'denied'}`);
           } else {
+            setCakeMgmtAccess(false);
             setDebugInfo(`User document not found for ${user.uid}`);
           }
         } catch (error) {
           console.error('Error checking admin status:', error);
           setError('Failed to verify admin status');
+          setCakeMgmtAccess(false);
           setDebugInfo(`Error checking admin status: ${error.message}`);
         }
       } else {
+        setCakeMgmtAccess(false);
         setDebugInfo('No authenticated user');
       }
     };
     checkAdminStatus();
   }, []);
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5);
-    setCakeImages(files);
-  };
-
-  const handleArrayFieldAdd = (field) => {
-    setNewCake({
-      ...newCake,
-      [field]: [...newCake[field], '']
-    });
-  };
-
-  const handleArrayFieldRemove = (field, index) => {
-    setNewCake({
-      ...newCake,
-      [field]: newCake[field].filter((_, i) => i !== index)
-    });
-  };
-
-  const handleArrayFieldChange = (field, index, value) => {
-    const newArray = [...newCake[field]];
-    newArray[index] = value;
-    setNewCake({
-      ...newCake,
-      [field]: newArray
-    });
-  };
 
   const handleAddSize = () => {
     if (selectedCategory === 'Brownies' || selectedCategory === 'Cookies') {
@@ -227,32 +208,6 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       }
     }
     setEditingCake(null);
-  };
-
-  const handleAddFilling = () => {
-    setNewCake({
-      ...newCake,
-      fillings: [...newCake.fillings, { name: '', price: '' }]
-    });
-  };
-
-  const handleRemoveFilling = (index) => {
-    setNewCake({
-      ...newCake,
-      fillings: newCake.fillings.filter((_, i) => i !== index)
-    });
-  };
-
-  const handleFillingChange = (index, field, value) => {
-    const newFillings = [...newCake.fillings];
-    newFillings[index] = {
-      ...newFillings[index],
-      [field]: field === 'price' ? parseFloat(value) : value
-    };
-    setNewCake({
-      ...newCake,
-      fillings: newFillings
-    });
   };
 
   const getCleanedCakeData = () => {
@@ -360,13 +315,12 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       }
 
       const userData = userDoc.data();
-      if (!userData.isAdmin && !userData.isDeveloper) {
+      if (!hasStaffAccess(userData)) {
         throw new Error('User does not have permission to manage cakes');
       }
 
       // Handle image uploads
       if (cakeImages && cakeImages.length > 0) {
-        console.log('Processing images:', cakeImages.length);
         for (let i = 0; i < cakeImages.length; i++) {
           const img = cakeImages[i];
           if (!img) continue; // Skip if no image
@@ -380,10 +334,8 @@ const CakeManagement = ({ cakes, onUpdate }) => {
             }
 
             const storageRef = ref(storage, `cakes/${img.name}_${Date.now()}_${i}`);
-            console.log('Uploading image:', img.name);
             await uploadBytes(storageRef, img);
             const url = await getDownloadURL(storageRef);
-            console.log('Image uploaded successfully:', url);
             imageUrls.push(url);
           } catch (uploadError) {
             console.error('Error uploading image:', uploadError);
@@ -401,11 +353,9 @@ const CakeManagement = ({ cakes, onUpdate }) => {
 
       // Handle image fields
       if (imageUrls.length > 0) {
-        console.log('Setting images:', imageUrls);
         cleanedCake.image = imageUrls[0];
         cleanedCake.images = imageUrls;
       } else if (editingCake && editingCake.image) {
-        console.log('Using existing images from editing');
         cleanedCake.image = editingCake.image;
         cleanedCake.images = editingCake.images || [editingCake.image];
       } else if (Array.isArray(newCake.images) && newCake.images.filter(Boolean).length > 0) {
@@ -413,20 +363,13 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         const validImages = newCake.images.filter(Boolean);
         cleanedCake.image = validImages[0];
         cleanedCake.images = validImages;
-        console.log('Using images from newCake.images:', validImages);
       } else {
-        console.log('No images found');
         throw new Error('At least one image is required');
       }
 
-      // Log the final cake data
-      console.log('Saving cake with data:', cleanedCake);
-
       if (editingCake) {
-        console.log('Updating existing cake:', editingCake.id);
         await updateDoc(doc(db, 'cakes', editingCake.id), cleanedCake);
       } else {
-        console.log('Creating new cake');
         await addDoc(collection(db, 'cakes'), cleanedCake);
       }
 
@@ -703,15 +646,125 @@ const CakeManagement = ({ cakes, onUpdate }) => {
     }
   };
 
-  // Get all unique categories from cakes, filtering out falsy values
-  const allCategories = Array.from(new Set((cakes || []).flatMap(cake => cake.categories || []).filter(Boolean)));
+  const categoryOptions = useMemo(() => {
+    const fromData = Array.from(
+      new Set((cakes || []).flatMap(cake => cake.categories || []).filter(Boolean))
+    );
+    const merged = new Set([...FIXED_CATEGORIES, ...fromData, 'Regular Cakes']);
+    return Array.from(merged).sort((a, b) => a.localeCompare(b));
+  }, [cakes]);
 
-  // Filter cakes by selected category
-  const filteredCakes = categoryFilter === 'All'
-    ? cakes
-    : (cakes || []).filter(cake => (cake.categories || []).includes(categoryFilter));
+  const filteredCakes = useMemo(() => {
+    const searchBlob = (cake) => {
+      const sizeBits = (Array.isArray(cake.sizes) ? cake.sizes : []).flatMap(s => [
+        s.size,
+        s.servingSize,
+        s.price != null ? String(s.price) : '',
+      ]);
+      const parts = [
+        cake.name,
+        cake.description,
+        ...(cake.categories || []),
+        cake.id,
+        ...(cake.flavours || []),
+        ...(Array.isArray(cake.ingredients) ? cake.ingredients : []),
+        ...(cake.occasions || []),
+        ...(cake.customizationOptions || []),
+        ...sizeBits,
+      ];
+      return parts.filter(Boolean).join(' ').toLowerCase();
+    };
 
-  if (!isAdmin) {
+    let list = [...(cakes || [])];
+
+    if (categoryFilter !== 'All') {
+      list = list.filter(cake => (cake.categories || []).includes(categoryFilter));
+    }
+
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter(cake => searchBlob(cake).includes(q));
+    }
+
+    if (availabilityFilter === 'available') {
+      list = list.filter(c => c.isAvailable !== false);
+    } else if (availabilityFilter === 'unavailable') {
+      list = list.filter(c => c.isAvailable === false);
+    }
+
+    if (featuredFilter === 'featured') {
+      list = list.filter(c => c.featured);
+    } else if (featuredFilter === 'not-featured') {
+      list = list.filter(c => !c.featured);
+    }
+
+    if (seasonalFilter === 'seasonal') {
+      list = list.filter(c => c.isSeasonal);
+    } else if (seasonalFilter === 'not-seasonal') {
+      list = list.filter(c => !c.isSeasonal);
+    }
+
+    const sorted = [...list];
+    switch (sortBy) {
+      case 'name-desc':
+        sorted.sort((a, b) => (b.name || '').localeCompare(a.name || '', undefined, { sensitivity: 'base' }));
+        break;
+      case 'updated-desc':
+        sorted.sort((a, b) => {
+          const ta = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const tb = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return tb - ta;
+        });
+        break;
+      case 'created-desc':
+        sorted.sort((a, b) => {
+          const ta = new Date(a.createdAt || 0).getTime();
+          const tb = new Date(b.createdAt || 0).getTime();
+          return tb - ta;
+        });
+        break;
+      case 'name-asc':
+      default:
+        sorted.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
+        break;
+    }
+
+    return sorted;
+  }, [
+    cakes,
+    categoryFilter,
+    searchQuery,
+    availabilityFilter,
+    featuredFilter,
+    seasonalFilter,
+    sortBy,
+  ]);
+
+  const totalCakeCount = (cakes || []).length;
+  const hasActiveFilters =
+    categoryFilter !== 'All' ||
+    searchQuery.trim() !== '' ||
+    availabilityFilter !== 'all' ||
+    featuredFilter !== 'all' ||
+    seasonalFilter !== 'all' ||
+    sortBy !== 'name-asc';
+
+  const clearAllFilters = () => {
+    setCategoryFilter('All');
+    setSearchQuery('');
+    setAvailabilityFilter('all');
+    setFeaturedFilter('all');
+    setSeasonalFilter('all');
+    setSortBy('name-asc');
+  };
+
+  if (cakeMgmtAccess === null) {
+    return (
+      <div className="cakemanagement-loading"></div>
+    );
+  }
+
+  if (!cakeMgmtAccess) {
     return (
       <div className="cakemanagement-error">
         You do not have permission to manage cakes.
@@ -733,17 +786,107 @@ const CakeManagement = ({ cakes, onUpdate }) => {
         </div>
       )}
       <div className="cakemanagement-header">
-        <h2>Cake Management</h2>
-        {/* Category Filter UI */}
-        <div className="cakemanagement-category-filter">
-          <label>Filter by Category: </label>
-          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-            <option value="All">All</option>
-            {allCategories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+        <div className="cakemanagement-header-top">
+          <h2>Cake Management</h2>
+          <p className="cakemanagement-results-count" aria-live="polite">
+            Showing <strong>{filteredCakes.length}</strong> of <strong>{totalCakeCount}</strong> cakes
+            {hasActiveFilters && filteredCakes.length !== totalCakeCount && ' (filtered)'}
+          </p>
         </div>
+
+        <div className="cakemanagement-filters-toolbar" role="search">
+          <div className="cakemanagement-filter-search">
+            <label htmlFor="cakemanagement-search" className="cakemanagement-sr-only">Search cakes</label>
+            <FaSearch className="cakemanagement-filter-search-icon" aria-hidden />
+            <input
+              id="cakemanagement-search"
+              type="search"
+              className="cakemanagement-filter-search-input"
+              placeholder="Search name, description, categories, ID, flavours…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+
+          <div className="cakemanagement-filter-group">
+            <label htmlFor="cakemanagement-filter-category">Category</label>
+            <select
+              id="cakemanagement-filter-category"
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+            >
+              <option value="All">All categories</option>
+              {categoryOptions.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="cakemanagement-filter-group">
+            <label htmlFor="cakemanagement-filter-availability">Availability</label>
+            <select
+              id="cakemanagement-filter-availability"
+              value={availabilityFilter}
+              onChange={e => setAvailabilityFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="available">Available only</option>
+              <option value="unavailable">Unavailable only</option>
+            </select>
+          </div>
+
+          <div className="cakemanagement-filter-group">
+            <label htmlFor="cakemanagement-filter-featured">Featured</label>
+            <select
+              id="cakemanagement-filter-featured"
+              value={featuredFilter}
+              onChange={e => setFeaturedFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="featured">Featured</option>
+              <option value="not-featured">Not featured</option>
+            </select>
+          </div>
+
+          <div className="cakemanagement-filter-group">
+            <label htmlFor="cakemanagement-filter-seasonal">Seasonal</label>
+            <select
+              id="cakemanagement-filter-seasonal"
+              value={seasonalFilter}
+              onChange={e => setSeasonalFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="seasonal">Seasonal</option>
+              <option value="not-seasonal">Not seasonal</option>
+            </select>
+          </div>
+
+          <div className="cakemanagement-filter-group">
+            <label htmlFor="cakemanagement-filter-sort">Sort</label>
+            <select
+              id="cakemanagement-filter-sort"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+            >
+              <option value="name-asc">Name (A–Z)</option>
+              <option value="name-desc">Name (Z–A)</option>
+              <option value="updated-desc">Recently updated</option>
+              <option value="created-desc">Recently created</option>
+            </select>
+          </div>
+
+          <button
+            type="button"
+            className="cakemanagement-clear-filters-btn"
+            onClick={clearAllFilters}
+            disabled={!hasActiveFilters}
+            title="Reset search and filters"
+          >
+            <FaUndo aria-hidden /> Clear filters
+          </button>
+        </div>
+
         <div className="cakemanagement-tabs">
           {CATEGORY_TABS.map(tab => (
             <button
@@ -994,6 +1137,14 @@ const CakeManagement = ({ cakes, onUpdate }) => {
       )}
 
       <div className="cakemanagement-grid">
+        {totalCakeCount > 0 && filteredCakes.length === 0 && (
+          <div className="cakemanagement-empty-filters" role="status">
+            <p>No cakes match your search or filters.</p>
+            <button type="button" className="cakemanagement-clear-filters-btn inline" onClick={clearAllFilters}>
+              Clear filters
+            </button>
+          </div>
+        )}
         {Array.isArray(filteredCakes) ? filteredCakes.map((cake) => (
           <div key={cake.id} className="cakemanagement-card">
             <div className="cakemanagement-card-image">

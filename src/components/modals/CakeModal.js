@@ -13,7 +13,7 @@ const CakeModal = ({ cake, onClose, onAddToCart, allCakes = [], categories = [] 
   const [selectedSizeIdx, setSelectedSizeIdx] = useState(0);
   const [selectedShapeIdx, setSelectedShapeIdx] = useState(0);
   const [selectedFinishIdx, setSelectedFinishIdx] = useState(0);
-  const [notes, setNotes] = useState('');
+  const [notes] = useState('');
   const [occasion, setOccasion] = useState('');
   const [addon, setAddon] = useState('');
 

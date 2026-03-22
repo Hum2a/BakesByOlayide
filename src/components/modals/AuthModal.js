@@ -4,7 +4,6 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup,
-  signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../../firebase/firebase';

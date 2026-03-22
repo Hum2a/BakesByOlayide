@@ -7,6 +7,8 @@ import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import { FaStar, FaStarHalf, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import '../../styles/SpecificCakePage.css';
+import { useProductOptionSlider } from '../../../hooks/useProductOptionSlider';
+import AnimatedProductSelect from '../../common/AnimatedProductSelect';
 
 const SpecificBrowniesPage = () => {
   const { id } = useParams();
@@ -26,7 +28,6 @@ const SpecificBrowniesPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [addOns, setAddOns] = useState([]);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState(null);
 
   // Header modal states
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,6 +35,11 @@ const SpecificBrowniesPage = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
+
+  const flavourSlider = useProductOptionSlider(
+    selectedFlavourIdx,
+    Array.isArray(brownie?.flavours) ? brownie.flavours.length : 0
+  );
 
   // Auth state listener
   useEffect(() => {
@@ -136,11 +142,9 @@ const SpecificBrowniesPage = () => {
 
   const images = Array.isArray(brownie.images) && brownie.images.length > 0 ? brownie.images : [brownie.image];
   const handlePrevImage = () => {
-    setSwipeDirection('left');
     setCurrentImageIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
   const handleNextImage = () => {
-    setSwipeDirection('right');
     setCurrentImageIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -245,7 +249,7 @@ const SpecificBrowniesPage = () => {
           <span>Successfully added to cart!</span>
         </div>
       )}
-      <div className="specific-cake-container">
+      <div className="specific-cake-container specific-cake-container--enter">
         <nav className="specific-cake-breadcrumbs">
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
@@ -296,7 +300,6 @@ const SpecificBrowniesPage = () => {
                     key={idx}
                     className={`listing-carousel-dot${idx === currentImageIdx ? ' active' : ''}`}
                     onClick={() => {
-                      setSwipeDirection(idx > currentImageIdx ? 'right' : 'left');
                       setCurrentImageIdx(idx);
                     }}
                   />
@@ -330,10 +333,16 @@ const SpecificBrowniesPage = () => {
               {Array.isArray(flavourOptions) && flavourOptions.length > 0 && (
                 <div className="specific-cake-selector-group">
                   <label className="specific-cake-selector-label">Flavour</label>
-                  <div className="specific-cake-selector-options">
+                  <div
+                    ref={flavourSlider.trackRef}
+                    className="specific-cake-selector-options specific-cake-selector-options--slider"
+                  >
+                    <div className="specific-cake-option-slider" style={flavourSlider.sliderStyle} aria-hidden />
                     {flavourOptions.map((flavour, idx) => (
                       <button
                         key={idx}
+                        ref={flavourSlider.assignBtnRef(idx)}
+                        type="button"
                         className={`specific-cake-selector-btn ${selectedFlavourIdx === idx ? 'selected' : ''}`}
                         onClick={() => setSelectedFlavourIdx(idx)}
                       >
@@ -364,23 +373,25 @@ const SpecificBrowniesPage = () => {
               </div>
               {brownie.decorationStyles && brownie.decorationStyles.length > 0 && (
                 <div className="specific-cake-selector-group">
-                  <label className="specific-cake-selector-label">Decoration Style</label>
-                  <select
-                    className="specific-cake-dropdown"
+                  <label className="specific-cake-selector-label" htmlFor="brownie-decoration-select">
+                    Decoration Style
+                  </label>
+                  <AnimatedProductSelect
+                    id="brownie-decoration-select"
                     value={decorationStyle}
-                    onChange={(e) => {
-                      const selected = brownie.decorationStyles.find(t => t.name === e.target.value);
-                      setDecorationStyle(e.target.value);
+                    onChange={(v) => {
+                      const selected = brownie.decorationStyles.find(t => t.name === v);
+                      setDecorationStyle(v);
                       setDecorationStylePrice(selected ? Number(selected.price) : 0);
                     }}
-                  >
-                    <option value="">Choose a style</option>
-                    {brownie.decorationStyles.map((style, idx) => (
-                      <option key={idx} value={style.name}>
-                        {style.name} {style.price ? `(+£${Number(style.price).toFixed(2)})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: '', label: 'Choose a style' },
+                      ...brownie.decorationStyles.map((style) => ({
+                        value: style.name,
+                        label: `${style.name}${style.price ? ` (+£${Number(style.price).toFixed(2)})` : ''}`,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
               <div className="specific-cake-selector-group">

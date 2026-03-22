@@ -13,6 +13,7 @@ import SettingsModal from '../../modals/SettingsModal';
 import CartModal from '../../modals/CartModal';
 import SearchModal from '../../modals/SearchModal';
 import PageTitle from '../../common/PageTitle';
+import { useCart } from '../../../context/CartContext';
 
 const CupcakeCollectionPage = () => {
   const [cupcakes, setCupcakes] = useState([]);
@@ -23,7 +24,7 @@ const CupcakeCollectionPage = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [user, setUser] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [totalItems, setTotalItems] = useState(0);
+  const { totalItems } = useCart();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const navigate = useNavigate();
 

@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebase/firebase';
-import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
 import '../../styles/NewsletterManagement.css';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiUrl } from '../../../config/environment';
+import {
+  readEmailApiBody,
+  formatEmailSendHttpFailure,
+  formatEmailSendNetworkError,
+  isUncertainEmailOutcomeMessage,
+} from '../../../utils/emailSendMessaging';
+import MessageModal from '../../modals/MessageModal';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
-const MARKETING_EMAIL = process.env.ZOHO_MARKETING_USER || 'marketing@bakesbyolayide.com';
+const MARKETING_EMAIL =
+  process.env.REACT_APP_MARKETING_CONTACT_EMAIL || 'marketing@bakesbyolayide.com';
 
 const NewsletterManagement = () => {
   const [subscribers, setSubscribers] = useState([]);
@@ -37,6 +45,7 @@ const NewsletterManagement = () => {
   const [listManageError, setListManageError] = useState('');
   const [listManageLoading, setListManageLoading] = useState(false);
   const [showListKeyTooltip, setShowListKeyTooltip] = useState(false);
+  const [noticeModal, setNoticeModal] = useState({ open: false, message: '' });
 
   const fetchSubscribers = async () => {
     try {
@@ -109,7 +118,7 @@ const NewsletterManagement = () => {
       await deleteDoc(doc(db, 'newsletter', email));
       fetchSubscribers();
     } catch (err) {
-      alert('Failed to delete subscriber.');
+      setNoticeModal({ open: true, message: 'Failed to delete subscriber.' });
     }
   };
 
@@ -118,7 +127,7 @@ const NewsletterManagement = () => {
       await updateDoc(doc(db, 'newsletter', email), { optedIn: !currentStatus });
       fetchSubscribers();
     } catch (err) {
-      alert('Failed to update opt-in status.');
+      setNoticeModal({ open: true, message: 'Failed to update opt-in status.' });
     }
   };
 
@@ -134,7 +143,7 @@ const NewsletterManagement = () => {
     setSending(true);
     setSendStatus('Sending...');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/send-marketing-email`, {
+      const response = await fetch(apiUrl('/api/send-marketing-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -142,12 +151,13 @@ const NewsletterManagement = () => {
           html: emailBody,
           subjectColor,
           bodyColor,
-          lists: selectedLists
+          lists: selectedLists,
+          clientSource: 'admin_newsletter',
         }),
       });
-      const data = await response.json();
+      const data = await readEmailApiBody(response);
       if (response.ok) {
-        setSendStatus(`Email sent to ${data.sent} subscribers!`);
+        setSendStatus(`Email sent to ${data.sent} subscribers! (Server confirmed.)`);
         setEmailSubject('');
         setEmailBody('');
         setSubjectColor('#000000');
@@ -155,10 +165,10 @@ const NewsletterManagement = () => {
         setSelectedLists([availableLists[0].key]);
         setShowPreview(false);
       } else {
-        setSendStatus(data.error || 'Failed to send email.');
+        setSendStatus(formatEmailSendHttpFailure(data, response));
       }
     } catch (err) {
-      setSendStatus('Failed to send email.');
+      setSendStatus(formatEmailSendNetworkError(err));
     }
     setSending(false);
   };
@@ -371,7 +381,20 @@ const NewsletterManagement = () => {
             {sending ? 'Sending...' : 'Send Email'}
           </button>
         </div>
-        {sendStatus && <div style={{ marginBottom: '1rem', color: '#388e3c' }}>{sendStatus}</div>}
+        {sendStatus && (
+          <div
+            className={
+              sendStatus.startsWith('Email sent to')
+                ? 'newsletter-send-status newsletter-send-status--success'
+                : isUncertainEmailOutcomeMessage(sendStatus)
+                  ? 'newsletter-send-status newsletter-send-status--uncertain'
+                  : 'newsletter-send-status newsletter-send-status--error'
+            }
+            role="status"
+          >
+            {sendStatus}
+          </div>
+        )}
         {showPreview && (
           <div style={{ border: '1px solid #eee', borderRadius: 6, padding: 16, background: '#fafafa', marginBottom: 16 }}>
             <h4 style={{ marginTop: 0, color: subjectColor }}>{emailSubject}</h4>
@@ -543,6 +566,13 @@ const NewsletterManagement = () => {
           ))}
         </div>
       </div>
+      <MessageModal
+        isOpen={noticeModal.open}
+        onClose={() => setNoticeModal({ open: false, message: '' })}
+        title="Error"
+        message={noticeModal.message}
+        variant="error"
+      />
     </div>
   );
 };

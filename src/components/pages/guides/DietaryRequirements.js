@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '../../common/Header';
 import Footer from '../../common/Footer';
 import PageTitle from '../../common/PageTitle';
@@ -6,12 +6,12 @@ import '../../styles/DietaryRequirements.css';
 
 const DietaryRequirements = () => {
   // Dummy state for header logic (replace with actual logic if needed)
-  const [user, setUser] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [user] = useState(null);
+  const [isScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [activeModal, setActiveModal] = useState(null);
+  const [, setIsAuthOpen] = useState(false);
+  const [, setActiveModal] = useState(null);
 
   // Dummy handlers (replace with actual logic if needed)
   const handleMobileMenuClick = () => setIsMobileMenuOpen(!isMobileMenuOpen);

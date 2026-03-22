@@ -150,6 +150,9 @@ const Header = ({
                 <li><a href="/guides" onClick={() => setIsMobileNavOpen(false)}>Guides</a></li>
                 <li><a href="/about" onClick={() => setIsMobileNavOpen(false)}>About Us</a></li>
                 <li><a href="/contact" onClick={() => setIsMobileNavOpen(false)}>Contact Us</a></li>
+                {user && (
+                  <li><a href="/account" onClick={() => setIsMobileNavOpen(false)}>Account</a></li>
+                )}
               </ul>
             </div>
           )}
