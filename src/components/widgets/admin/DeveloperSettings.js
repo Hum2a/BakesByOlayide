@@ -107,6 +107,73 @@ async function pingApiTest(baseLabel, baseOrigin, { timeoutMs } = {}) {
   }
 }
 
+/**
+ * /api/test on the current browser origin — Cloudflare Pages Functions, Wrangler `pages dev`, or any
+ * stack that serves API and SPA from the same host. Independent of REACT_APP_API_BASE_URL.
+ */
+async function pingCloudflareSameOrigin({ timeoutMs = 25000 } = {}) {
+  if (typeof window === 'undefined') return null;
+  const path = '/api/test';
+  const url = `${window.location.origin}${path}`;
+  const start = performance.now();
+  const controller = new AbortController();
+  const tid = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try {
+    const res = await fetch(path, { method: 'GET', signal: controller.signal });
+    const ms = Math.round(performance.now() - start);
+    if (!res.ok) {
+      return {
+        label: 'Backend (Cloudflare / same-origin API)',
+        url,
+        ok: false,
+        ms,
+        message: `HTTP ${res.status} — this origin’s /api route did not return success.`,
+      };
+    }
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    if (!ct.includes('application/json')) {
+      await res.text().catch(() => {});
+      return {
+        label: 'Backend (Cloudflare / same-origin API)',
+        url,
+        ok: false,
+        ms,
+        message:
+          'Response was not JSON — usually the static host returned index.html (no Worker on /api). Use `npm run pages:dev` locally or deploy with Cloudflare Pages Functions; `serve -s build` alone has no API.',
+      };
+    }
+    const data = await res.json().catch(() => ({}));
+    return {
+      label: 'Backend (Cloudflare / same-origin API)',
+      url,
+      ok: true,
+      ms,
+      message:
+        `${data.message || 'OK'} · /api on this host (Pages Functions, Wrangler, or same-origin Node)`,
+    };
+  } catch (e) {
+    const ms = Math.round(performance.now() - start);
+    if (e?.name === 'AbortError') {
+      return {
+        label: 'Backend (Cloudflare / same-origin API)',
+        url,
+        ok: false,
+        ms,
+        message: `Timed out after ${timeoutMs}ms — nothing answered at ${url}.`,
+      };
+    }
+    return {
+      label: 'Backend (Cloudflare / same-origin API)',
+      url,
+      ok: false,
+      ms,
+      message: explainFetchFailure(url, e),
+    };
+  } finally {
+    if (tid) clearTimeout(tid);
+  }
+}
+
 /** CRA only: hits /api/test on the dev server origin so package.json "proxy" forwards to Node. */
 async function pingRelativeDevProxy() {
   if (typeof window === 'undefined') return null;
@@ -185,6 +252,7 @@ const DeveloperSettings = () => {
   const [firebaseClient, setFirebaseClient] = useState(null);
   const [serverDiag, setServerDiag] = useState(null);
   const [devProxyPing, setDevProxyPing] = useState(null);
+  const [cloudflarePing, setCloudflarePing] = useState(null);
   const [lastRun, setLastRun] = useState(null);
 
   const runChecks = useCallback(async () => {
@@ -192,6 +260,7 @@ const DeveloperSettings = () => {
     setLastRun(new Date().toISOString());
     setServerDiag(null);
     setDevProxyPing(null);
+    setCloudflarePing(null);
 
     const configuredBase = getApiBaseUrl();
     const localTasks = [];
@@ -214,11 +283,13 @@ const DeveloperSettings = () => {
 
     const devProxyPromise =
       process.env.NODE_ENV === 'development' ? pingRelativeDevProxy() : Promise.resolve(null);
+    const cloudflarePromise = pingCloudflareSameOrigin({ timeoutMs: 25000 });
 
-    const [fb, live, devProxy, ...locals] = await Promise.all([
+    const [fb, live, devProxy, cfPing, ...locals] = await Promise.all([
       checkFirebaseClient(),
       pingApiTest('Backend (live / Render)', LIVE_API_ORIGIN, { timeoutMs: 120000 }),
       devProxyPromise,
+      cloudflarePromise,
       ...localTasks,
     ]);
 
@@ -226,6 +297,7 @@ const DeveloperSettings = () => {
     setLocalPings(locals);
     setLivePing(live);
     setDevProxyPing(devProxy);
+    setCloudflarePing(cfPing);
 
     const diagUrl = apiUrl('/api/integrations/status');
     const diagTimeoutMs = /onrender\.com/i.test(diagUrl) ? 120000 : 25000;
@@ -336,13 +408,21 @@ const DeveloperSettings = () => {
       )}
 
       <aside className="developer-settings-help">
-        <h4 className="developer-settings-help-title">What the Node backend is for</h4>
+        <h4 className="developer-settings-help-title">What the server API is for</h4>
         <p>
           The React app uses the <strong>Firebase client SDK</strong> for sign-in and almost all database access.
-          The <strong>Express server</strong> is still required for things browsers cannot do safely: sending mail via{' '}
-          <strong>Zoho SMTP</strong> (order confirmations, enquiry replies, newsletters, checkout enquiries) and using{' '}
-          <strong>Firebase Admin</strong> on the server for the marketing email flow. Without the API running locally,
-          those features fail even though Firebase looks “fine” in the checks above.
+          The <strong>HTTP API</strong> (Express locally, or <strong>Cloudflare Pages Functions</strong> in production)
+          handles mail and privileged server work: <strong>Zoho SMTP</strong> (Node) or <strong>ZeptoMail HTTPS</strong>{' '}
+          (Cloudflare), plus server-side Firestore / admin checks. Without that API on the URL your build targets, those
+          features fail even though Firebase client checks look “fine”.
+        </p>
+        <h4 className="developer-settings-help-title">Cloudflare (Pages + Workers)</h4>
+        <p>
+          Production builds with <code>REACT_APP_API_RELATIVE=1</code> call <code>/api</code> on the <strong>same host</strong>{' '}
+          as the site. Locally use <code>npm run pages:dev</code> (Wrangler + <code>.dev.vars</code>); plain{' '}
+          <code>serve -s build</code> has no worker, so the “Cloudflare / same-origin” check fails. Deploy with{' '}
+          <code>npm run pages:deploy</code> or Git-connected Pages; set env vars in the dashboard (see{' '}
+          <code>CLOUDFLARE.md</code> / <code>backend/.env.example</code>).
         </p>
         <h4 className="developer-settings-help-title">Local setup</h4>
         <ul>
@@ -408,6 +488,15 @@ const DeveloperSettings = () => {
             message={devProxyPing.message}
           />
         )}
+        {cloudflarePing && (
+          <ResultCard
+            title={cloudflarePing.label}
+            ok={cloudflarePing.ok}
+            url={cloudflarePing.url}
+            ms={cloudflarePing.ms}
+            message={cloudflarePing.message}
+          />
+        )}
         {localPings.map((lp, idx) => (
           <ResultCard
             key={`${lp.url}-${idx}`}
@@ -435,11 +524,12 @@ const DeveloperSettings = () => {
         />
       </div>
 
-      <h3 className="developer-settings-h3">Configured backend — SMTP &amp; Firebase Admin</h3>
+      <h3 className="developer-settings-h3">Configured backend — email &amp; server Firestore</h3>
       <p className="developer-settings-note">
-        These checks call <code>{apiUrl('/api/integrations/status')}</code> with your staff ID token. They verify Zoho
-        SMTP (three inboxes) and
-        server Firestore via Firebase Admin.
+        These checks call <code>{apiUrl('/api/integrations/status')}</code> with your staff ID token. On{' '}
+        <strong>Node</strong> they exercise Zoho SMTP (three inboxes) and Firebase Admin; on{' '}
+        <strong>Cloudflare</strong> the same route reports ZeptoMail and Firestore (REST). Match{' '}
+        <code>FIREBASE_PROJECT_ID</code> to the client Firebase project or verification returns 401.
       </p>
       <ResultCard
         title="Server diagnostics"
@@ -518,10 +608,10 @@ const DeveloperSettings = () => {
         </table>
       </div>
       <p className="developer-settings-footnote">
-        Production email is sent from the Node API using Zoho SMTP (<code>ZOHO_*</code> in server env — see backend{' '}
-        <code>.env.example</code>). A legacy client-side SMTP helper was removed; do not put SMTP passwords in{' '}
-        <code>REACT_APP_*</code>. <code>@sendgrid/mail</code> and <code>zcrmsdk</code> are in{' '}
-        <code>package.json</code> but not imported in source.
+        Production email: <strong>Node</strong> uses Zoho SMTP (<code>ZOHO_*</code> in server env);{' '}
+        <strong>Cloudflare</strong> uses ZeptoMail (<code>ZEPTOMAIL_TOKEN</code>) with <code>ZOHO_*_USER</code> as From
+        addresses. Do not put SMTP passwords or API tokens in <code>REACT_APP_*</code>.{' '}
+        <code>@sendgrid/mail</code> and <code>zcrmsdk</code> are in <code>package.json</code> but not imported in source.
       </p>
     </div>
   );
