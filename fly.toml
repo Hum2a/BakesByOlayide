@@ -1,4 +1,7 @@
-# Fly.io — deploy: install CLI https://fly.io/docs/hands-on/install-flyctl/
+# Fly.io — billing: new accounts get a short trial, then pay-as-you-go (often ~$5+/mo for a small always-on app).
+# See https://fly.io/docs/about/free-trial/ and https://fly.io/pricing
+#
+# Deploy: install CLI https://fly.io/docs/hands-on/install-flyctl/
 #   fly auth login
 #   fly launch --no-deploy   # pick region, edit `app` name if taken, then:
 #   fly secrets set ZOHO_SMTP_HOST=smtp.zoho.com ZOHO_SMTP_PORT=587 ...
@@ -20,7 +23,7 @@ primary_region = "lhr"
   min_machines_running = 0
   processes = ["app"]
 
-# Use 512mb if you see restarts/OOM; free allowance is often 256mb per machine.
+# Raise to 512mb in fly.toml if the machine OOM-restarts (billable RAM).
 [[vm]]
   memory = "256mb"
   cpu_kind = "shared"
