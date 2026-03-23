@@ -1,0 +1,8 @@
+# Cloudflare Pages — see CLOUDFLARE.md
+name = "bakesbyolayide"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "build"
+
+# Non-secret defaults (override in dashboard per environment)
+[vars]
+# CORS_ORIGINS = "https://preview-xxx.pages.dev"

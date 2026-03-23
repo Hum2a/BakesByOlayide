@@ -1,0 +1,20 @@
+# Wrangler Pages local: copy to .dev.vars in this directory (repo root). Do not commit .dev.vars.
+# https://developers.cloudflare.com/pages/functions/wrangler-configuration/#local-development-with-wrangler
+
+FIREBASE_PROJECT_ID=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
+ZEPTOMAIL_TOKEN=
+
+ZOHO_ORDERS_USER=
+ZOHO_ENQUIRIES_USER=
+ZOHO_MARKETING_USER=
+
+EMAIL_NEW_ORDER_NOTIFY_TO=
+EMAIL_NEW_CONTACT_ENQUIRY_NOTIFY_TO=
+EMAIL_NEW_REVIEW_NOTIFY_TO=
+EMAIL_NOTIFY_BCC_ORDERS=
+EMAIL_NOTIFY_BCC_ENQUIRIES=
+
+# Optional: comma-separated extra CORS origins
+# CORS_ORIGINS=

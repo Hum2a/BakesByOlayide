@@ -17,6 +17,7 @@
     "express": "^5.1.0",
     "firebase": "^11.6.0",
     "firebase-admin": "^13.4.0",
+    "jose": "^5.9.6",
     "multer": "^2.0.1",
     "node-fetch": "^2.7.0",
     "nodemailer": "^7.0.3",
@@ -46,6 +47,10 @@
     "build:live": "craco build",
     "build:live:debug": "cross-env REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
     "build:local": "cross-env REACT_APP_RUNTIME_ENV=local REACT_APP_API_BASE_URL=http://localhost:5000 REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "build:pages": "cross-env REACT_APP_RUNTIME_ENV=live REACT_APP_API_RELATIVE=1 craco build",
+    "pages:dev": "npm run build:pages && wrangler pages dev build",
+    "pages:deploy": "npm run build:pages && wrangler pages deploy build",
+    "typecheck:functions": "tsc -p functions/tsconfig.json --noEmit",
     "deploy:fly": "fly deploy",
     "test": "craco test",
     "eject": "react-scripts eject"
@@ -55,6 +60,9 @@
       "react-app",
       "react-app/jest"
     ]
+  },
+  "overrides": {
+    "typescript": "^5.7.2"
   },
   "browserslist": {
     "production": [
@@ -70,8 +78,11 @@
   },
   "proxy": "http://localhost:5000",
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
     "@craco/craco": "^7.1.0",
     "concurrently": "^9.1.2",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.99.0"
   }
 }
