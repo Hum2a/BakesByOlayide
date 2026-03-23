@@ -385,7 +385,9 @@ const DeveloperSettings = () => {
         <ResultCard
           title="Configured API base (this build)"
           ok={null}
-          message={`Runtime: ${runtime} · ${configured}`}
+          message={`Runtime: ${runtime} · ${
+            configured || '(same origin — relative /api URLs)'
+          }`}
         />
       </div>
 

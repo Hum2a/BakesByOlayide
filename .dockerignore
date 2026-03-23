@@ -1,0 +1,15 @@
+node_modules
+build
+.git
+.github
+*.md
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+.cursor
+mcps
+terminals
+coverage
+.DS_Store

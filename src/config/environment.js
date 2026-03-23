@@ -7,6 +7,8 @@
  *
  * Override with REACT_APP_API_BASE_URL and/or REACT_APP_RUNTIME_ENV=local|live
  *
+ * Fly.io / same-origin deploy: set REACT_APP_API_RELATIVE=1 at build time so /api/* hits the host that served the SPA.
+ *
  * If the Express server uses PORT=5001 (or anything other than 5000), set e.g.
  * REACT_APP_API_BASE_URL=http://localhost:5001 and restart the dev server. Also set
  * package.json "proxy" to the same origin if you rely on CRA’s /api proxy.
@@ -39,6 +41,8 @@ export const isLiveRuntime = runtimeEnv === 'live';
  * Backend origin (no trailing slash). Uses REACT_APP_API_BASE_URL when set; otherwise maps from runtime env.
  */
 export function getApiBaseUrl() {
+  const rel = (process.env.REACT_APP_API_RELATIVE || '').toLowerCase().trim();
+  if (rel === 'true' || rel === '1') return '';
   const fromEnv = normalizeBaseUrl(process.env.REACT_APP_API_BASE_URL);
   if (fromEnv) return fromEnv;
   return isLiveRuntime ? LIVE_API_DEFAULT : LOCAL_API_DEFAULT;
@@ -50,6 +54,7 @@ export function getApiBaseUrl() {
 export function apiUrl(path) {
   const base = getApiBaseUrl();
   const p = path.startsWith('/') ? path : `/${path}`;
+  if (!base) return p;
   return `${base}${p}`;
 }
 
@@ -57,6 +62,7 @@ export function apiUrl(path) {
 export function apiUrlAtBase(baseOrigin, path) {
   const base = normalizeBaseUrl(baseOrigin);
   const p = path.startsWith('/') ? path : `/${path}`;
+  if (!base) return p;
   return `${base}${p}`;
 }
 

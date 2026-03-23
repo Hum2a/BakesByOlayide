@@ -36,6 +36,6 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, '0.0.0.0', () => {
   const env = process.env.NODE_ENV || 'undefined';
   console.log(
-    `[bakesbyolayide] API listening on 0.0.0.0:${PORT} (NODE_ENV=${env}) — ${env === 'production' ? 'see Render Logs / HTTP_LOG' : `http://localhost:${PORT}`}`
+    `[bakesbyolayide] API listening on 0.0.0.0:${PORT} (NODE_ENV=${env}) — ${env === 'production' ? 'host logs / HTTP_LOG' : `http://localhost:${PORT}`}`
   );
 }); 

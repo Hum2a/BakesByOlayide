@@ -1,0 +1,27 @@
+# Fly.io — deploy: install CLI https://fly.io/docs/hands-on/install-flyctl/
+#   fly auth login
+#   fly launch --no-deploy   # pick region, edit `app` name if taken, then:
+#   fly secrets set ZOHO_SMTP_HOST=smtp.zoho.com ZOHO_SMTP_PORT=587 ...
+#   fly deploy
+#
+# Replace `app` with a unique name (globally unique on fly.dev).
+
+app = "bakesbyolayide-api"
+primary_region = "lhr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+# Use 512mb if you see restarts/OOM; free allowance is often 256mb per machine.
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -46,6 +46,7 @@
     "build:live": "craco build",
     "build:live:debug": "cross-env REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
     "build:local": "cross-env REACT_APP_RUNTIME_ENV=local REACT_APP_API_BASE_URL=http://localhost:5000 REACT_APP_ENABLE_CONSOLE_LOGS=true craco build",
+    "deploy:fly": "fly deploy",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
