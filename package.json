@@ -50,6 +50,8 @@
     "build:pages": "cross-env REACT_APP_RUNTIME_ENV=live REACT_APP_API_RELATIVE=1 craco build",
     "pages:dev": "npm run build:pages && wrangler pages dev build",
     "pages:deploy": "npm run build:pages && wrangler pages deploy build",
+    "pages:secrets:push": "wrangler pages secret bulk .dev.vars",
+    "pages:secrets:list": "wrangler pages secret list",
     "typecheck:functions": "tsc -p functions/tsconfig.json --noEmit",
     "deploy:fly": "fly deploy",
     "test": "craco test",

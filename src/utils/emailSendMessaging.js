@@ -1,6 +1,6 @@
 /**
  * Copy for when the UI reports failure but mail may still have been sent (timeouts, proxy 502/504, etc.).
- * All transactional email is sent from the Node API—never directly from the browser.
+ * Transactional email is sent from your API (Node + Zoho SMTP, or Cloudflare Pages Functions + ZeptoMail)—never directly from the browser.
  */
 
 /** First line of network / gateway-timeout style failures — used for styling + detection (see isUncertainEmailOutcomeMessage). */
@@ -8,7 +8,7 @@ export const UNCERTAIN_EMAIL_OUTCOME_SNIPPET =
   'IMPORTANT: This is often a false alarm. The email may already have been sent successfully.';
 
 export const EMAIL_SEND_UNCERTAINTY_NOTE =
-  'Emails are sent by your server (Zoho SMTP), not by this browser tab. If you see an error here but the message still shows up, the connection often drops after the provider accepts the mail—especially on slow networks or free hosting. Check Zoho Sent and the recipient’s inbox before sending again.';
+  'Emails are sent by your server API (Zoho SMTP on Node, or ZeptoMail on Cloudflare), not by this browser tab. If you see an error here but the message still shows up, the connection often drops after the provider accepts the mail—especially on slow networks or free hosting. Check your provider’s sent folder and the recipient’s inbox before sending again.';
 
 export const EMAIL_SEND_UNCERTAINTY_NOTE_SHORT =
   'If mail still arrived, the server may have sent it before the response failed—check Sent / inbox before resending.';

@@ -32,6 +32,37 @@
 5. Add **environment variables** (Production + Preview): Firebase service-account fields used by the worker (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`), **`ZEPTOMAIL_TOKEN`**, Zoho **From** addresses (`ZOHO_*_USER`), notify/BCC vars, and optional `CORS_ORIGINS`. See `backend/.env.example` (Cloudflare section).
 6. Or use CLI: `npm run pages:deploy` (requires `wrangler login`).
 
+### `.dev.vars` vs production (why test email says `ZOHO_ORDERS_USER is not configured`)
+
+- **`.dev.vars`** is loaded only when you run **`npm run pages:dev`**. It is **not** sent to Cloudflare when you **`pages:deploy`**.
+- The live site only sees variables you set in the **dashboard** (Pages → your project → **Settings → Variables and Secrets**) or via **Wrangler secrets** below.
+- Errors like **`ZOHO_ORDERS_USER is not configured`** on `*.pages.dev` mean that key is **missing in Production** for that project—not that ZeptoMail is wrong. Set at least `ZOHO_ORDERS_USER` (and `ZEPTOMAIL_TOKEN`, Firebase fields, etc.) in Production.
+
+### Push local `.dev.vars` to Pages (same keys as `pages:dev`)
+
+Wrangler can bulk-upload a **`.dev.vars`** file (`KEY=value` lines, `#` comments allowed) into the **Pages project’s secrets** (same runtime your Functions use—there is no separate Worker to configure in this repo).
+
+```bash
+npx wrangler login
+npm run pages:secrets:push
+```
+
+This runs **`wrangler pages secret bulk .dev.vars`**. Requirements:
+
+- A real **`.dev.vars`** at the **repo root** (copy from `.dev.vars.example`; keep it **gitignored**).
+- The **`name`** in **`wrangler.toml`** must match your **Cloudflare Pages project name**. If Wrangler asks for a project, run explicitly:  
+  `wrangler pages secret bulk .dev.vars --project-name bakesbyolayide` (use your actual project slug).
+
+List what Cloudflare has stored:
+
+```bash
+npm run pages:secrets:list
+```
+
+**Non-secrets** you are happy to commit: optional **`[vars]`** in **`wrangler.toml`** (see [Pages Functions config](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)). Do **not** put tokens or private keys there.
+
+**Preview deployments:** Production vs Preview variables are managed in the dashboard; if preview builds need the API too, add the same keys under **Preview** (or duplicate secrets if your dashboard offers per-environment secrets).
+
 ## Files added
 
 - `wrangler.toml` — Pages output dir + compatibility date

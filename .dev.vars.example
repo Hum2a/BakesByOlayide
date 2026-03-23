@@ -1,4 +1,6 @@
-# Wrangler Pages local: copy to .dev.vars in this directory (repo root). Do not commit .dev.vars.
+# Wrangler Pages: copy to .dev.vars in this directory (repo root). Do not commit .dev.vars.
+# Local: used by `npm run pages:dev`.
+# Production: same file can be pushed to Cloudflare with `npm run pages:secrets:push` (after `wrangler login`).
 # https://developers.cloudflare.com/pages/functions/wrangler-configuration/#local-development-with-wrangler
 
 FIREBASE_PROJECT_ID=
