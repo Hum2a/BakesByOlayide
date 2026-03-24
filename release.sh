@@ -275,9 +275,10 @@ generate_changelog_from_commits() {
     local type=""
     local description=""
     
-    # Try to match conventional commit format
-    if [[ "$commit_msg" =~ ^([a-z]+)(\([^)]+\))?[[:space:]]*: ]]; then
-      type="${BASH_REMATCH[1]}"
+    # Try to match conventional commit format.
+    # Use grep -E instead of bash =~ to avoid parser quirks across bash builds on Windows.
+    if echo "$commit_msg" | grep -Eq '^[a-z]+(\([^)]+\))?[[:space:]]*:'; then
+      type=$(echo "$commit_msg" | sed -E 's/^([a-z]+)(\([^)]+\))?[[:space:]]*:.*/\1/')
       # Remove the type and scope prefix, trim whitespace
       description=$(echo "$commit_msg" | sed -E 's/^[a-z]+(\([^)]+\))?[[:space:]]*:[[:space:]]*//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     else
