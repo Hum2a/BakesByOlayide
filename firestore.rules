@@ -234,7 +234,6 @@ service cloud.firestore {
           'socialMedia',
           'lastLogin',
           'updatedAt',
-          'settings',
           'orders',
           'cart',
           'wishlist'
@@ -254,12 +253,6 @@ service cloud.firestore {
         allow read: if self(uid) || isStaff();
         allow create, update: if self(uid) || isStaff();
         allow delete: if isStaff();
-      }
-
-      match /Settings/{settingId} {
-        allow read: if self(uid) || isStaff();
-        allow create, update: if self(uid) || isStaff();
-        allow delete: if self(uid) || isStaff();
       }
 
       // Legacy cart path: /users/{uid}/cart/items

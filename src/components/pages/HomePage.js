@@ -6,7 +6,6 @@ import AuthModal from '../modals/AuthModal';
 import ProfileDropdown from '../widgets/ProfileDropdown';
 import ProfileModal from '../modals/ProfileModal';
 import OrderHistoryModal from '../modals/OrderHistoryModal';
-import SettingsModal from '../modals/SettingsModal';
 import CartModal from '../modals/CartModal';
 import SignatureCreations from '../widgets/SignatureCreations';
 import HomepageGuides from '../widgets/HomepageGuides';
@@ -127,9 +126,6 @@ const HomePage = () => {
       )}
       {activeModal === 'cart' && (
         <CartModal isOpen={true} onClose={() => setActiveModal(null)} />
-      )}
-      {activeModal === 'settings' && (
-        <SettingsModal isOpen={true} onClose={() => setActiveModal(null)} />
       )}
     </div>
   );

@@ -8,7 +8,6 @@ import ProfileModal from '../modals/ProfileModal';
 import CartModal from '../modals/CartModal';
 import ProfileDropdown from '../widgets/ProfileDropdown';
 import OrderHistoryModal from '../modals/OrderHistoryModal';
-import SettingsModal from '../modals/SettingsModal';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase/firebase';
 
@@ -30,7 +29,6 @@ const Header = ({
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
@@ -56,10 +54,6 @@ const Header = ({
         break;
       case 'cart':
         setIsCartOpen(true);
-        setIsProfileDropdownOpen(false);
-        break;
-      case 'settings':
-        setIsSettingsOpen(true);
         setIsProfileDropdownOpen(false);
         break;
       case 'auth':
@@ -169,7 +163,6 @@ const Header = ({
       )}
       {isProfileModalOpen && <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />}
       {isOrdersOpen && <OrderHistoryModal isOpen={isOrdersOpen} onClose={() => setIsOrdersOpen(false)} />}
-      {isSettingsOpen && <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
       {isCartOpen && <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
     </>
   );

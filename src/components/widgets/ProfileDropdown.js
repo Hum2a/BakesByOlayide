@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaUser, FaSignOutAlt, FaCog, FaShoppingCart, FaHistory, FaUserShield, FaEdit, FaUserCircle } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaShoppingCart, FaHistory, FaUserShield, FaEdit, FaUserCircle } from 'react-icons/fa';
 import { auth, db } from '../../firebase/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
@@ -178,9 +178,6 @@ const ProfileDropdown = ({ isOpen, onClose, onModalOpen }) => {
         </button>
         <button className="dropdown-item" onClick={() => onModalOpen('cart')}>
           <FaShoppingCart /> My Cart
-        </button>
-        <button className="dropdown-item" onClick={() => onModalOpen('settings')}>
-          <FaCog /> Settings
         </button>
         {isAdmin && (
           <button className="dropdown-item admin" onClick={handleAdminClick}>

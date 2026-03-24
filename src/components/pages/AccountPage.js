@@ -6,7 +6,6 @@ import {
   FaHome,
   FaQuestionCircle,
   FaSignOutAlt,
-  FaCog,
   FaCalendarAlt,
   FaEnvelope,
   FaPhone,
@@ -27,7 +26,6 @@ import Header from '../common/Header';
 import Footer from '../common/Footer';
 import PageTitle from '../common/PageTitle';
 import AuthModal from '../modals/AuthModal';
-import SettingsModal from '../modals/SettingsModal';
 import ReviewModal from '../modals/ReviewModal';
 import '../styles/AccountPage.css';
 import {
@@ -56,7 +54,6 @@ const AccountPage = () => {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileForm, setProfileForm] = useState({
@@ -357,9 +354,6 @@ const AccountPage = () => {
               ))}
             </nav>
             <div className="account-sidebar-actions">
-              <button type="button" className="account-sidebar-link" onClick={() => setSettingsOpen(true)}>
-                <FaCog aria-hidden /> Settings &amp; security
-              </button>
               <button type="button" className="account-sidebar-link account-sidebar-link--muted" onClick={handleSignOut}>
                 <FaSignOutAlt aria-hidden /> Sign out
               </button>
@@ -508,7 +502,7 @@ const AccountPage = () => {
                     <label className="account-field account-field--full">
                       <span className="account-field-label">Email</span>
                       <input type="email" value={user.email || ''} disabled className="account-input-disabled" />
-                      <span className="account-field-hint">Email is tied to your sign-in. Change it in Settings if needed.</span>
+                      <span className="account-field-hint">Email is tied to your sign-in and cannot be changed here.</span>
                     </label>
                     <label className="account-field account-field--full">
                       <span className="account-field-label">Bio (optional)</span>
@@ -744,7 +738,6 @@ const AccountPage = () => {
         </div>
       </main>
       <Footer />
-      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       {reviewItem && (
         <ReviewModal
           isOpen

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-24T12:54:00.052Z",
+  "generatedAt": "2026-03-24T13:08:54.171Z",
   "projectId": "bakesbyolayide",
   "options": {
     "sampleDocsPerCollection": 20,
@@ -10,72 +10,37 @@
     {
       "path": "Discount Codes",
       "id": "Discount Codes",
-      "sampleDocCount": 2,
+      "sampleDocCount": 1,
       "sampledFields": {
         "code": {
-          "string": 2
-        },
-        "description": {
-          "string": 2
+          "string": 1
         },
         "percentage": {
-          "number": 2
-        },
-        "minPurchase": {
-          "number": 2
+          "number": 1
         },
         "maxDiscount": {
-          "number": 1,
           "null": 1
         },
         "expiryDate": {
-          "null": 1,
           "string": 1
         },
         "isActive": {
-          "boolean": 2
+          "boolean": 1
         },
         "createdAt": {
-          "string": 2
+          "string": 1
+        },
+        "description": {
+          "string": 1
+        },
+        "minPurchase": {
+          "number": 1
         },
         "updatedAt": {
-          "string": 2
+          "string": 1
         }
       },
       "sampledDocs": [
-        {
-          "id": "KrBMLSxcOXozLh6artiA",
-          "fieldCount": 9,
-          "shape": {
-            "code": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "percentage": {
-              "type": "number"
-            },
-            "minPurchase": {
-              "type": "number"
-            },
-            "maxDiscount": {
-              "type": "number"
-            },
-            "expiryDate": {
-              "type": "null"
-            },
-            "isActive": {
-              "type": "boolean"
-            },
-            "createdAt": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string"
-            }
-          }
-        },
         {
           "id": "xejXSYH7UopbPGVUiV4g",
           "fieldCount": 9,
@@ -7854,37 +7819,28 @@
     {
       "path": "invoices",
       "id": "invoices",
-      "sampleDocCount": 5,
+      "sampleDocCount": 4,
       "sampledFields": {
         "invoiceId": {
-          "string": 5
+          "string": 4
         },
         "orderId": {
-          "string": 5
+          "string": 4
         },
         "items": {
-          "array": 5
+          "array": 4
         },
         "amount": {
-          "number": 5
+          "number": 4
         },
         "status": {
-          "string": 5
+          "string": 4
         },
         "createdAt": {
-          "timestamp": 5
+          "timestamp": 4
         },
         "customerEmail": {
-          "string": 5
-        },
-        "paymentMethod": {
-          "string": 1
-        },
-        "userId": {
-          "string": 1
-        },
-        "userEmail": {
-          "string": 1
+          "string": 4
         }
       },
       "sampledDocs": [
@@ -8200,94 +8156,6 @@
               "type": "timestamp"
             },
             "customerEmail": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "id": "ORD-1774356409379-6jaqb91x",
-          "fieldCount": 10,
-          "shape": {
-            "invoiceId": {
-              "type": "string"
-            },
-            "orderId": {
-              "type": "string"
-            },
-            "items": {
-              "type": "array",
-              "sampleItemShapes": [
-                {
-                  "type": "map",
-                  "fields": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "cupcakeId": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "image": {
-                      "type": "string"
-                    },
-                    "price": {
-                      "type": "number"
-                    },
-                    "quantity": {
-                      "type": "number"
-                    },
-                    "selectedSize": {
-                      "type": "map"
-                    },
-                    "topper": {
-                      "type": "string"
-                    },
-                    "topperPrice": {
-                      "type": "number"
-                    },
-                    "occasion": {
-                      "type": "string"
-                    },
-                    "addons": {
-                      "type": "array"
-                    },
-                    "addonPrices": {
-                      "type": "array"
-                    },
-                    "decorationStyle": {
-                      "type": "string"
-                    },
-                    "notes": {
-                      "type": "string"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  }
-                }
-              ]
-            },
-            "amount": {
-              "type": "number"
-            },
-            "status": {
-              "type": "string"
-            },
-            "paymentMethod": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "timestamp"
-            },
-            "customerEmail": {
-              "type": "string"
-            },
-            "userId": {
-              "type": "string"
-            },
-            "userEmail": {
               "type": "string"
             }
           }
@@ -8352,61 +8220,34 @@
     {
       "path": "orders",
       "id": "orders",
-      "sampleDocCount": 5,
+      "sampleDocCount": 4,
       "sampledFields": {
         "orderId": {
-          "string": 5
+          "string": 4
         },
         "items": {
-          "array": 5
+          "array": 4
         },
         "total": {
-          "number": 5
+          "number": 4
         },
         "guestInfo": {
-          "map": 5
+          "map": 4
         },
         "pickupDate": {
-          "string": 5
+          "string": 4
         },
         "pickupTime": {
-          "string": 5
+          "string": 4
         },
         "createdAt": {
-          "timestamp": 5
+          "timestamp": 4
         },
         "status": {
-          "string": 5
+          "string": 4
         },
         "invoiceRef": {
-          "string": 5
-        },
-        "subtotal": {
-          "number": 1
-        },
-        "discountAmount": {
-          "number": 1
-        },
-        "appliedDiscount": {
-          "null": 1
-        },
-        "enquiryNotes": {
-          "null": 1
-        },
-        "paymentMethod": {
-          "string": 1
-        },
-        "userId": {
-          "string": 1
-        },
-        "userEmail": {
-          "string": 1
-        },
-        "enquiryEmailSentAt": {
-          "timestamp": 1
-        },
-        "enquiryEmailStatus": {
-          "string": 1
+          "string": 4
         }
       },
       "sampledDocs": [
@@ -8778,149 +8619,6 @@
               "type": "string"
             },
             "invoiceRef": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "id": "ORD-1774356409379-6jaqb91x",
-          "fieldCount": 18,
-          "shape": {
-            "orderId": {
-              "type": "string"
-            },
-            "items": {
-              "type": "array",
-              "sampleItemShapes": [
-                {
-                  "type": "map",
-                  "fields": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "cupcakeId": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "image": {
-                      "type": "string"
-                    },
-                    "price": {
-                      "type": "number"
-                    },
-                    "quantity": {
-                      "type": "number"
-                    },
-                    "selectedSize": {
-                      "type": "map"
-                    },
-                    "topper": {
-                      "type": "string"
-                    },
-                    "topperPrice": {
-                      "type": "number"
-                    },
-                    "occasion": {
-                      "type": "string"
-                    },
-                    "addons": {
-                      "type": "array"
-                    },
-                    "addonPrices": {
-                      "type": "array"
-                    },
-                    "decorationStyle": {
-                      "type": "string"
-                    },
-                    "notes": {
-                      "type": "string"
-                    }
-                  }
-                }
-              ]
-            },
-            "subtotal": {
-              "type": "number"
-            },
-            "total": {
-              "type": "number"
-            },
-            "discountAmount": {
-              "type": "number"
-            },
-            "appliedDiscount": {
-              "type": "null"
-            },
-            "guestInfo": {
-              "type": "map",
-              "fields": {
-                "name": {
-                  "type": "string"
-                },
-                "firstName": {
-                  "type": "string"
-                },
-                "lastName": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                },
-                "phone": {
-                  "type": "string"
-                },
-                "allergies": {
-                  "type": "array",
-                  "sampleItemShapes": [
-                    {
-                      "type": "string"
-                    }
-                  ]
-                },
-                "allergyOther": {
-                  "type": "string"
-                },
-                "applyAllergiesToAllItems": {
-                  "type": "boolean"
-                },
-                "fruitPreference": {
-                  "type": "string"
-                }
-              }
-            },
-            "pickupDate": {
-              "type": "string"
-            },
-            "pickupTime": {
-              "type": "string"
-            },
-            "enquiryNotes": {
-              "type": "null"
-            },
-            "paymentMethod": {
-              "type": "string"
-            },
-            "createdAt": {
-              "type": "timestamp"
-            },
-            "status": {
-              "type": "string"
-            },
-            "invoiceRef": {
-              "type": "string"
-            },
-            "userId": {
-              "type": "string"
-            },
-            "userEmail": {
-              "type": "string"
-            },
-            "enquiryEmailSentAt": {
-              "type": "timestamp"
-            },
-            "enquiryEmailStatus": {
               "type": "string"
             }
           }
@@ -9603,207 +9301,6 @@
         }
       ],
       "subcollections": [
-        {
-          "path": "users/aS91EstOMPg7j6i3pwOeQs9EKeF3/Orders",
-          "id": "Orders",
-          "sampleDocCount": 1,
-          "sampledFields": {
-            "orderId": {
-              "string": 1
-            },
-            "items": {
-              "array": 1
-            },
-            "subtotal": {
-              "number": 1
-            },
-            "total": {
-              "number": 1
-            },
-            "discountAmount": {
-              "number": 1
-            },
-            "appliedDiscount": {
-              "null": 1
-            },
-            "guestInfo": {
-              "map": 1
-            },
-            "pickupDate": {
-              "string": 1
-            },
-            "pickupTime": {
-              "string": 1
-            },
-            "enquiryNotes": {
-              "null": 1
-            },
-            "paymentMethod": {
-              "string": 1
-            },
-            "createdAt": {
-              "timestamp": 1
-            },
-            "status": {
-              "string": 1
-            },
-            "invoiceRef": {
-              "string": 1
-            },
-            "enquiryEmailStatus": {
-              "string": 1
-            },
-            "userId": {
-              "string": 1
-            },
-            "userEmail": {
-              "string": 1
-            }
-          },
-          "sampledDocs": [
-            {
-              "id": "ORD-1774356409379-6jaqb91x",
-              "fieldCount": 17,
-              "shape": {
-                "orderId": {
-                  "type": "string"
-                },
-                "items": {
-                  "type": "array",
-                  "sampleItemShapes": [
-                    {
-                      "type": "map",
-                      "fields": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "cupcakeId": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "image": {
-                          "type": "string"
-                        },
-                        "price": {
-                          "type": "number"
-                        },
-                        "quantity": {
-                          "type": "number"
-                        },
-                        "selectedSize": {
-                          "type": "map"
-                        },
-                        "topper": {
-                          "type": "string"
-                        },
-                        "topperPrice": {
-                          "type": "number"
-                        },
-                        "occasion": {
-                          "type": "string"
-                        },
-                        "addons": {
-                          "type": "array"
-                        },
-                        "addonPrices": {
-                          "type": "array"
-                        },
-                        "decorationStyle": {
-                          "type": "string"
-                        },
-                        "notes": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  ]
-                },
-                "subtotal": {
-                  "type": "number"
-                },
-                "total": {
-                  "type": "number"
-                },
-                "discountAmount": {
-                  "type": "number"
-                },
-                "appliedDiscount": {
-                  "type": "null"
-                },
-                "guestInfo": {
-                  "type": "map",
-                  "fields": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "firstName": {
-                      "type": "string"
-                    },
-                    "lastName": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string"
-                    },
-                    "phone": {
-                      "type": "string"
-                    },
-                    "allergies": {
-                      "type": "array",
-                      "sampleItemShapes": [
-                        {
-                          "type": "string"
-                        }
-                      ]
-                    },
-                    "allergyOther": {
-                      "type": "string"
-                    },
-                    "applyAllergiesToAllItems": {
-                      "type": "boolean"
-                    },
-                    "fruitPreference": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "pickupDate": {
-                  "type": "string"
-                },
-                "pickupTime": {
-                  "type": "string"
-                },
-                "enquiryNotes": {
-                  "type": "null"
-                },
-                "paymentMethod": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "type": "timestamp"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "invoiceRef": {
-                  "type": "string"
-                },
-                "enquiryEmailStatus": {
-                  "type": "string"
-                },
-                "userId": {
-                  "type": "string"
-                },
-                "userEmail": {
-                  "type": "string"
-                }
-              }
-            }
-          ],
-          "subcollections": []
-        },
         {
           "path": "users/aS91EstOMPg7j6i3pwOeQs9EKeF3/Settings",
           "id": "Settings",

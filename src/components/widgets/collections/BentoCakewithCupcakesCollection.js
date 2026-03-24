@@ -11,7 +11,6 @@ import AuthModal from '../../modals/AuthModal';
 import ProfileDropdown from '../../widgets/ProfileDropdown';
 import ProfileModal from '../../modals/ProfileModal';
 import OrderHistoryModal from '../../modals/OrderHistoryModal';
-import SettingsModal from '../../modals/SettingsModal';
 import CartModal from '../../modals/CartModal';
 import SearchModal from '../../modals/SearchModal';
 import HolidayModal from '../../modals/HolidayModal';
@@ -236,7 +235,6 @@ const BentoCakewithCupcakesCollection = () => {
       {isAuthOpen && <AuthModal onClose={() => setIsAuthOpen(false)} />}
       {activeModal === 'profile' && <ProfileModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'orders' && <OrderHistoryModal onClose={() => setActiveModal(null)} />}
-      {activeModal === 'settings' && <SettingsModal onClose={() => setActiveModal(null)} />}
       {isCartOpen && <CartModal onClose={() => setIsCartOpen(false)} />}
       <div className="cupcake-breadcrumbs">
         <a href="/collections" className="cupcake-breadcrumb-link">Collections</a> / <span className="cupcake-breadcrumb">Bento Cake with Cupcakes</span>
