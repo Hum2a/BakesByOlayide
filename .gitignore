@@ -34,6 +34,9 @@
 .env.test
 .env.production
 
+# Wrangler Pages local secrets (see .dev.vars.example)
+.dev.vars
+
 # IDE and Editor files
 .idea/
 .vscode/

@@ -1,6 +1,6 @@
 /**
- * Presets for Admin → Test Email. Each maps to a real API route and Zoho SMTP account on the server.
- * (There is no separate “Developers” transporter in code — only Orders, Enquiries, Marketing.)
+ * Presets for Admin → Test Email. Each maps to a real API route and the orders/enquiries/marketing channel.
+ * Node: Zoho SMTP. Cloudflare: ZeptoMail + ZOHO_*_USER as From.
  */
 
 export const TEST_EMAIL_PRESETS = [
