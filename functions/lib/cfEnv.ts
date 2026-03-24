@@ -4,6 +4,8 @@ export interface CfEnv {
   FIREBASE_CLIENT_EMAIL: string;
   FIREBASE_PRIVATE_KEY: string;
   ZEPTOMAIL_TOKEN: string;
+  /** Optional override, e.g. https://api.zeptomail.eu */
+  ZEPTOMAIL_API_BASE?: string;
   ZOHO_ORDERS_USER?: string;
   ZOHO_ENQUIRIES_USER?: string;
   ZOHO_MARKETING_USER?: string;

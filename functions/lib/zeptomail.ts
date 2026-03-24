@@ -26,6 +26,8 @@ function toRecipients(addresses: string[] | undefined, defaultName = '') {
 export async function sendZeptoMail(env: CfEnv, input: ZeptoMailInput): Promise<void> {
   const token = env.ZEPTOMAIL_TOKEN?.trim();
   if (!token) throw new Error('ZEPTOMAIL_TOKEN is not configured');
+  const apiBase = (env.ZEPTOMAIL_API_BASE || 'https://api.zeptomail.eu').replace(/\/+$/, '');
+  const url = `${apiBase}/v1.1/email`;
 
   const body: Record<string, unknown> = {
     from: { address: input.from.address, name: input.from.name },
@@ -52,7 +54,7 @@ export async function sendZeptoMail(env: CfEnv, input: ZeptoMailInput): Promise<
     }));
   }
 
-  const res = await fetch('https://api.zeptomail.com/v1.1/email', {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

@@ -65,5 +65,14 @@ export function appendUncertaintyToFailureMessage(baseMessage) {
   if (!b) return EMAIL_SEND_UNCERTAINTY_NOTE;
   if (b.includes('before trying again')) return b;
   if (b.includes(UNCERTAIN_EMAIL_OUTCOME_SNIPPET)) return b;
+  // Do not show "might still be sent" guidance for definitive failures
+  // such as auth/credentials/config/validation errors.
+  if (
+    /zeptomail\s+401|tm_4001|invalid api token|access denied|unauthorized|forbidden|not configured|missing\s+[a-z_]+/i.test(
+      b
+    )
+  ) {
+    return b;
+  }
   return `${b}\n\n${EMAIL_SEND_UNCERTAINTY_NOTE}`;
 }
