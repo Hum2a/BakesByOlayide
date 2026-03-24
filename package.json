@@ -52,6 +52,7 @@
     "pages:deploy": "npm run build:pages && wrangler pages deploy build",
     "pages:secrets:push": "wrangler pages secret bulk .dev.vars",
     "pages:secrets:list": "wrangler pages secret list",
+    "firestore:schema:dump": "node scripts/dump-firestore-schema.js",
     "typecheck:functions": "tsc -p functions/tsconfig.json --noEmit",
     "deploy:fly": "fly deploy",
     "test": "craco test",

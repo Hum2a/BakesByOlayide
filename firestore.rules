@@ -1,33 +1,284 @@
 rules_version = '2';
 
-// SECURITY NOTE: The catch-all rule below allows any signed-in user to read/write all paths except
-// emailOutbox. Tighten this before scaling: define per-collection rules (users, orders, cakes, etc.)
-// so customers cannot read or modify other users' data. Rules alone are not a substitute for validating
-// data in Cloud Functions or trusted backends where needed.
-
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function self(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function currentUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
 
     function isStaff() {
-      return request.auth != null
+      return signedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isDeveloper', false) == true
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin'
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'developer'
+          currentUserDoc().get('isAdmin', false) == true ||
+          currentUserDoc().get('isDeveloper', false) == true ||
+          currentUserDoc().get('role', '') == 'admin' ||
+          currentUserDoc().get('role', '') == 'developer'
         );
     }
 
-    // Server-only writes (Admin SDK). Staff read for admin Outbox UI.
-    match /emailOutbox/{entryId} {
-      allow read: if isStaff();
+    function isDeveloper() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          currentUserDoc().get('isDeveloper', false) == true ||
+          currentUserDoc().get('role', '') == 'developer'
+        );
+    }
+
+    function notTooLongString(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function validEmail(v) {
+      return v is string && v.size() > 3 && v.size() <= 254;
+    }
+
+    function noProtectedRoleMutation() {
+      return !request.resource.data
+        .diff(resource.data)
+        .changedKeys()
+        .hasAny(['isAdmin', 'isDeveloper', 'role']);
+    }
+
+    function protectedRoleDefaultsOnCreate() {
+      return (
+          !('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false
+        ) && (
+          !('isDeveloper' in request.resource.data) || request.resource.data.isDeveloper == false
+        ) && (
+          !('role' in request.resource.data) || request.resource.data.role == 'user'
+        );
+    }
+
+    function validEnquiryCreate() {
+      return request.resource.data.keys().hasAll(['email', 'timestamp', 'status']) &&
+        request.resource.data.timestamp is timestamp &&
+        request.resource.data.status is string &&
+        validEmail(request.resource.data.email) &&
+        (
+          // ContactUs page shape
+          request.resource.data.keys().hasAll(['firstName', 'lastName', 'subject', 'inquiry']) ||
+          // Legacy modal shape
+          request.resource.data.keys().hasAll(['name', 'message', 'occasion'])
+        );
+    }
+
+    function validNewsletterWrite(emailId) {
+      return request.resource.data.keys().hasAll(['email', 'optedIn']) &&
+        validEmail(request.resource.data.email) &&
+        request.resource.data.email == emailId &&
+        request.resource.data.optedIn is bool &&
+        (!('lists' in request.resource.data) || request.resource.data.lists is list) &&
+        (!('subscribedAt' in request.resource.data) || request.resource.data.subscribedAt is timestamp);
+    }
+
+    function validUserCartWrite() {
+      return request.resource.data.keys().hasOnly(['items']) &&
+        request.resource.data.items is list;
+    }
+
+    function validOrderWrite() {
+      return request.resource.data.keys().hasAll([
+        'orderId', 'items', 'total', 'guestInfo', 'pickupDate', 'pickupTime', 'status'
+      ]) &&
+      request.resource.data.orderId is string &&
+      request.resource.data.items is list &&
+      request.resource.data.total is number &&
+      request.resource.data.guestInfo is map &&
+      request.resource.data.pickupDate is string &&
+      request.resource.data.pickupTime is string &&
+      request.resource.data.status is string;
+    }
+
+    function validInvoiceWrite() {
+      return request.resource.data.keys().hasAll([
+        'orderId', 'items', 'amount', 'status', 'createdAt', 'customerEmail'
+      ]) &&
+      request.resource.data.orderId is string &&
+      request.resource.data.items is list &&
+      request.resource.data.amount is number &&
+      request.resource.data.status is string &&
+      request.resource.data.createdAt is timestamp &&
+      validEmail(request.resource.data.customerEmail);
+    }
+
+    // ---------- Public storefront reads ----------
+    match /cakes/{cakeId} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+
+      match /reviews/{reviewId} {
+        allow read: if true;
+        // Customer reviews require auth and must bind to caller uid.
+        allow create: if (
+            signedIn() &&
+            request.resource.data.keys().hasAll(['rating', 'review', 'createdAt']) &&
+            request.resource.data.rating is number &&
+            request.resource.data.review is string &&
+            notTooLongString(request.resource.data.review, 5000) &&
+            request.resource.data.createdAt is string &&
+            request.resource.data.userId == request.auth.uid
+          ) || isStaff();
+        allow update, delete: if isStaff();
+      }
+    }
+
+    match /categories/{id} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    match /cakeOptions/{id} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    match /blockedDates/{id} {
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    match /siteSettings/{id} {
+      // Announcement is publicly consumed by storefront.
+      allow read: if true;
+      allow create, update, delete: if isStaff();
+    }
+
+    // Collection name contains a space, so use a wildcard matcher.
+    match /{topCollection}/{id} {
+      // Needed for guest checkout discount validation.
+      allow read: if topCollection == 'Discount Codes';
+      allow create, update, delete: if topCollection == 'Discount Codes' && isStaff();
+    }
+
+    // ---------- Customer writable public flows ----------
+    match /enquiries/{id} {
+      allow create: if validEnquiryCreate();
+      allow read, update, delete: if isStaff();
+    }
+
+    match /newsletter/{emailId} {
+      allow create, update: if validNewsletterWrite(emailId);
+      allow read, delete: if isStaff();
+    }
+
+    // ---------- Orders / invoices ----------
+    match /orders/{orderId} {
+      // Guest and signed-in checkout can create.
+      allow create: if validOrderWrite();
+      // Staff full access; users can read/update their own documents only.
+      allow read: if isStaff() || (signedIn() && resource.data.get('userId', '') == request.auth.uid);
+      allow update: if isStaff() || (
+        signedIn() &&
+        resource.data.get('userId', '') == request.auth.uid &&
+        request.resource.data.get('userId', '') == request.auth.uid &&
+        validOrderWrite()
+      );
       allow delete: if isStaff();
+    }
+
+    match /invoices/{invoiceId} {
+      allow create: if validInvoiceWrite();
+      allow read: if isStaff() || (signedIn() && resource.data.get('userId', '') == request.auth.uid);
+      allow update: if isStaff();
+      allow delete: if isStaff();
+    }
+
+    // ---------- Server/admin only ----------
+    match /config/{id} {
+      allow read, create, update, delete: if isStaff();
+    }
+
+    match /emailOutbox/{entryId} {
+      allow read, delete: if isStaff();
       allow create, update: if false;
     }
 
+    // ---------- User profile + subcollections ----------
+    match /users/{uid} {
+      allow read: if self(uid) || isStaff();
+
+      // Signup/profile bootstrap: owner can create own user doc, but cannot self-elevate.
+      allow create: if self(uid) &&
+        protectedRoleDefaultsOnCreate() &&
+        request.resource.data.keys().hasAll(['email']) &&
+        validEmail(request.resource.data.email);
+
+      // Developer can edit any field. Others cannot mutate role flags.
+      allow update: if (
+        isDeveloper()
+      ) || (
+        isStaff() && noProtectedRoleMutation()
+      ) || (
+        self(uid) &&
+        noProtectedRoleMutation() &&
+        request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'displayName',
+          'email',
+          'phone',
+          'phoneNumber',
+          'photoURL',
+          'profilePicture',
+          'bio',
+          'location',
+          'website',
+          'socialMedia',
+          'lastLogin',
+          'updatedAt',
+          'settings',
+          'orders',
+          'cart',
+          'wishlist'
+        ])
+      );
+
+      // Self-delete account path.
+      allow delete: if self(uid) || isDeveloper();
+
+      match /Orders/{orderId} {
+        allow read: if self(uid) || isStaff();
+        allow create, update: if self(uid) || isStaff();
+        allow delete: if isStaff();
+      }
+
+      match /Invoices/{invoiceId} {
+        allow read: if self(uid) || isStaff();
+        allow create, update: if self(uid) || isStaff();
+        allow delete: if isStaff();
+      }
+
+      match /Settings/{settingId} {
+        allow read: if self(uid) || isStaff();
+        allow create, update: if self(uid) || isStaff();
+        allow delete: if self(uid) || isStaff();
+      }
+
+      // Legacy cart path: /users/{uid}/cart/items
+      match /cart/{docId} {
+        allow read: if self(uid) || isStaff();
+        allow create, update: if (self(uid) && validUserCartWrite()) || isStaff();
+        allow delete: if self(uid) || isStaff();
+      }
+    }
+
+    match /userCarts/{uid} {
+      allow read: if self(uid) || isStaff();
+      allow create, update: if (self(uid) && validUserCartWrite()) || isStaff();
+      allow delete: if self(uid) || isStaff();
+    }
+
+    // Default deny.
     match /{document=**} {
-      allow read, write: if request.auth != null && !document.matches('emailOutbox/**');
+      allow read, write: if false;
     }
   }
 }

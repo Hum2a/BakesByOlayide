@@ -70,3 +70,19 @@ npm run pages:secrets:list
 - `public/_redirects` — SPA fallback on Pages
 
 Express + `Dockerfile` / `fly.toml` remain for optional non-Cloudflare deploys.
+
+## Export exact Firestore schema (recommended before final rules lock-down)
+
+Use the included schema dumper (Admin SDK) to inventory **real** collections + subcollections + sampled field types from your live project:
+
+```bash
+npm run firestore:schema:dump
+```
+
+Optional tuning:
+
+```bash
+node scripts/dump-firestore-schema.js --output=firestore-schema.prod.json --sample=50 --depth=4 --shapeDepth=3
+```
+
+The script auto-loads `.env` and `backend/.env` for Firebase Admin credentials and writes a JSON snapshot. Use that output to drive a strict allowlist in `firestore.rules` without guessing collection structure.
