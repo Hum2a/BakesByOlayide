@@ -1,0 +1,16 @@
+---
+description: Required workflow for database-impacting code changes
+alwaysApply: true
+---
+
+# Database Change Governance
+
+When a change touches Firestore reads/writes, API handlers that persist data, or user role/permissions logic:
+
+1. **Map impact first**: list affected collections, subcollections, and fields.
+2. **Rules parity required**: update `firestore.rules` in the same task when access needs change.
+3. **Schema parity required**: update `firestore-schema.snapshot.json` (or regenerate via `npm run firestore:schema:dump`) when structure/field shape changes.
+4. **No silent privilege changes**: explicitly call out auth/authorization changes in the final summary.
+5. **Block risky completion**: do not mark done if DB behavior changed but rules/schema were not reviewed.
+
+For any ambiguity, choose the safer default (deny write/escalation) and document the trade-off.

@@ -1,0 +1,19 @@
+---
+description: Firestore security standards and anti-escalation requirements
+globs: firestore.rules
+alwaysApply: false
+---
+
+# Firestore Security Standards
+
+- Default-deny posture: end with a deny-all fallback.
+- Keep explicit collection/subcollection rules; avoid broad catch-all allows.
+- Enforce ownership checks (`request.auth.uid == uid`) for user-scoped docs.
+- Keep admin/staff/developer helpers centralized and reused.
+- Protect privilege fields on `users/*`:
+  - non-developers must not change `isAdmin`, `isDeveloper`, or `role`.
+- Validate write shape for public/guest writable paths:
+  - required keys present, unexpected keys rejected, basic type checks applied.
+- Treat role elevation and admin collection writes as high risk; require explicit rationale.
+
+If a collection name contains special characters/spaces, use safe wildcard matching with explicit name checks.

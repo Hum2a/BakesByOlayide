@@ -1,0 +1,18 @@
+---
+description: Role and permission guardrails for user/admin features
+globs: "{src/components/widgets/admin/**/*.js,src/components/pages/Admin.js,functions/**/*.ts,backend/**/*.js,firestore.rules}"
+alwaysApply: false
+---
+
+# Role & Permission Guardrails
+
+- Never trust client-side role checks alone; enforce server/rules authorization.
+- Any feature that reads/writes admin collections must require staff auth.
+- Any feature that changes user role/admin flags must be developer-only.
+- Avoid exposing sensitive operational data to non-staff users.
+- For new admin endpoints/routes, require:
+  - auth token validation,
+  - role check,
+  - least-privilege collection access.
+
+Before finishing, verify that UI checks and backend/rules checks agree.

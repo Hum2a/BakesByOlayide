@@ -1,0 +1,20 @@
+---
+description: Keep Firestore schema snapshot in sync with code and rules
+globs: "{firestore.rules,firestore-schema.snapshot.json,scripts/dump-firestore-schema.js,src/**/*.{js,ts,tsx},functions/**/*.ts,backend/**/*.js}"
+alwaysApply: false
+---
+
+# Firestore Schema Sync
+
+When changing DB models, field names, document paths, or collection usage:
+
+1. Regenerate schema snapshot:
+   - `npm run firestore:schema:dump`
+2. Review diff in `firestore-schema.snapshot.json`:
+   - New/removed collections
+   - New/removed fields
+   - Type changes
+3. Verify `firestore.rules` still match real usage and deny unintended access.
+4. Mention schema/rules updates in the completion summary.
+
+If the snapshot cannot be regenerated (env/auth issue), explicitly state that as a blocker and do not assume schema correctness.
