@@ -18,11 +18,13 @@ import DeveloperSettings from '../widgets/admin/DeveloperSettings';
 import OutboxManagement from '../widgets/admin/OutboxManagement';
 import { hasStaffAccess } from '../../utils/staffAccess';
 import '../styles/Admin.css';
+import packageMetadata from '../../../package.json';
 
 const AdminTestEmail = lazy(() => import('../widgets/admin/AdminTestEmail'));
 
 const Admin = () => {
   const navigate = useNavigate();
+  const appVersion = packageMetadata.version || 'unknown';
   const [activeTab, setActiveTab] = useState('dashboard');
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -223,6 +225,7 @@ const Admin = () => {
         <button className="sign-out-btn" onClick={handleSignOut}>
           <FaSignOutAlt /> Sign Out
         </button>
+        <p className="admin-version">Version {appVersion}</p>
       </div>
 
       <div className="admin-content">
