@@ -18,9 +18,9 @@ import {
   FaLeaf,
   FaBalanceScale,
 } from 'react-icons/fa';
-import { signOut } from 'firebase/auth';
+import { signOut, deleteUser } from 'firebase/auth';
 import { auth, db } from '../../firebase/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { collection, query, getDocs, orderBy, where } from 'firebase/firestore';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
@@ -66,6 +66,7 @@ const AccountPage = () => {
   const [profileEditing, setProfileEditing] = useState(false);
   const [profileMessage, setProfileMessage] = useState(null);
   const [profileError, setProfileError] = useState(null);
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -266,6 +267,49 @@ const AccountPage = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!auth.currentUser || deleteInProgress) return;
+
+    const confirmDelete = window.confirm(
+      'Delete account permanently?\n\nThis removes your account profile and personal app data. Orders and enquiries will be kept.'
+    );
+    if (!confirmDelete) return;
+
+    const typed = window.prompt('Type DELETE to confirm permanent account deletion:');
+    if (typed !== 'DELETE') {
+      setProfileError('Account deletion cancelled. Confirmation text did not match.');
+      return;
+    }
+
+    setDeleteInProgress(true);
+    setProfileError(null);
+    setProfileMessage(null);
+
+    const currentUser = auth.currentUser;
+    const uid = currentUser.uid;
+
+    try {
+      // Remove personal profile/cart data under the user while intentionally preserving Orders.
+      const legacyCartSnap = await getDocs(collection(db, 'users', uid, 'cart'));
+      await Promise.all(legacyCartSnap.docs.map((d) => deleteDoc(d.ref)));
+
+      await deleteDoc(doc(db, 'userCarts', uid)).catch(() => {});
+      await deleteDoc(doc(db, 'users', uid)).catch(() => {});
+
+      await deleteUser(currentUser);
+      navigate('/home');
+    } catch (err) {
+      console.error(err);
+      if (err?.code === 'auth/requires-recent-login') {
+        setProfileError('For security, please sign out, sign back in, then try deleting your account again.');
+      } else {
+        setProfileError('Could not delete account right now. Please try again.');
+      }
+    } finally {
+      setDeleteInProgress(false);
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="account-page">
@@ -356,6 +400,14 @@ const AccountPage = () => {
             <div className="account-sidebar-actions">
               <button type="button" className="account-sidebar-link account-sidebar-link--muted" onClick={handleSignOut}>
                 <FaSignOutAlt aria-hidden /> Sign out
+              </button>
+              <button
+                type="button"
+                className="account-sidebar-link account-sidebar-link--muted"
+                onClick={handleDeleteAccount}
+                disabled={deleteInProgress}
+              >
+                <FaSignOutAlt aria-hidden /> {deleteInProgress ? 'Deleting account…' : 'Delete account'}
               </button>
             </div>
           </aside>
