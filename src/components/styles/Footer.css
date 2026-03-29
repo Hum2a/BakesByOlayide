@@ -9,9 +9,10 @@
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: flex-start;
-  gap: 2.5rem;
+  gap: 2rem;
 }
 .footer-brand-social {
   flex: 1 1 220px;
@@ -51,8 +52,9 @@
 .footer-links-grid {
   flex: 3 1 600px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
 }
 .footer-links-col {
   display: flex;
@@ -79,16 +81,18 @@
 .footer-logo-image {
   max-width: 216px;
 }
-@media (max-width: 900px) {
-  .footer-content {
-    flex-direction: column;
+@media (min-width: 901px) {
+  html:not(.layout-narrow) .footer-content {
+    flex-direction: row;
+    justify-content: space-between;
     align-items: flex-start;
-    gap: 2rem;
+    gap: 2.5rem;
   }
-  .footer-links-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    width: 100%;
+
+  html:not(.layout-narrow) .footer-links-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    width: auto;
   }
 }
 @media (max-width: 600px) {

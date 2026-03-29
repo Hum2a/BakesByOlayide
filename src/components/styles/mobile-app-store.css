@@ -442,6 +442,430 @@
   }
 }
 
+
+/* Duplicated for html.layout-narrow when viewport width lies (Opera GX, etc.) */
+html.layout-narrow {
+  --mobile-app-canvas: #f2f2f7;
+      --mobile-app-surface: #ffffff;
+      --mobile-app-radius: 16px;
+      --mobile-app-radius-sm: 12px;
+      --mobile-app-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --mobile-app-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+      --mobile-app-cart: #f3c307;
+      --mobile-app-cart-text: #111;
+  }
+
+html.layout-narrow .mobile-app-root {
+  background: var(--mobile-app-canvas);
+      min-height: 100vh;
+      text-align: left;
+  }
+
+html.layout-narrow .mobile-store-cart-label {
+  display: inline;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-left: 0.35rem;
+      white-space: nowrap;
+  }
+
+html.layout-narrow .homepage-header {
+  position: sticky;
+      top: 0;
+      z-index: 1100;
+      height: auto;
+      min-height: 56px;
+      padding: 0;
+      padding-top: env(safe-area-inset-top);
+      background: #0a0a0a !important;
+      box-shadow: var(--mobile-app-shadow-card);
+  }
+
+html.layout-narrow .homepage-nav {
+  display: grid !important;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      align-items: center !important;
+      justify-items: stretch;
+      height: 56px;
+      min-height: 56px;
+      padding: 0 max(0.75rem, env(safe-area-inset-left)) 0 max(0.75rem, env(safe-area-inset-right)) !important;
+      gap: 0.35rem;
+  }
+
+html.layout-narrow .mobile-menu-toggle {
+  grid-column: 1;
+      grid-row: 1;
+      justify-self: start;
+  }
+
+html.layout-narrow .homepage-logo {
+  grid-column: 2;
+      grid-row: 1;
+      margin-bottom: 0 !important;
+      justify-content: center;
+      justify-self: center;
+      min-width: 0;
+  }
+
+html.layout-narrow .homepage-nav-icons {
+  grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      margin-top: 0 !important;
+      flex-shrink: 0;
+      gap: 0.35rem !important;
+      height: auto !important;
+      display: flex;
+      align-items: center;
+  }
+
+html.layout-narrow .homepage-logo-image {
+  height: 44px;
+  }
+
+html.layout-narrow .mobile-menu-toggle {
+  color: #fff !important;
+      flex-shrink: 0;
+  }
+
+html.layout-narrow .homepage-header.scrolled .mobile-menu-toggle {
+  color: #fff !important;
+  }
+
+html.layout-narrow .nav-icon-link:not(.mobile-store-header-cart) {
+  min-width: 44px;
+      min-height: 44px;
+      border-radius: 12px;
+      color: #fff;
+  }
+
+html.layout-narrow .auth-nav-button.profile-button {
+  width: 44px;
+      height: 44px;
+      border-radius: 12px;
+  }
+
+html.layout-narrow .homepage-nav-icons .auth-nav-button:not(.profile-button) {
+  width: auto !important;
+      min-height: 44px;
+      padding: 0.45rem 0.75rem !important;
+      border-radius: 12px !important;
+      margin: 0 !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: #fff !important;
+  }
+
+html.layout-narrow .mobile-store-header-cart {
+  position: relative;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      flex-direction: row;
+      gap: 0.15rem;
+      min-width: auto !important;
+      min-height: 44px !important;
+      padding: 0.45rem 0.85rem 0.45rem 0.65rem !important;
+      border-radius: 999px !important;
+      background: var(--mobile-app-cart) !important;
+      color: var(--mobile-app-cart-text) !important;
+      box-shadow: 0 2px 8px rgba(243, 195, 7, 0.35);
+      margin: 0 !important;
+  }
+
+html.layout-narrow .mobile-store-header-cart svg {
+  flex-shrink: 0;
+      stroke: currentColor;
+      width: 22px;
+      height: 22px;
+  }
+
+html.layout-narrow .mobile-store-header-cart:hover,
+html.layout-narrow .mobile-store-header-cart:active {
+  background: #ffd54a !important;
+      color: #111 !important;
+  }
+
+html.layout-narrow .mobile-store-header-cart .cart-badge {
+  position: static !important;
+      margin-left: 0.2rem;
+      background: #111 !important;
+      color: var(--mobile-app-cart) !important;
+      min-width: 22px !important;
+      height: 22px !important;
+      font-size: 0.75rem !important;
+      font-weight: 700;
+      border-radius: 999px !important;
+      animation: none;
+  }
+
+html.layout-narrow .mobile-store-header-cart .cart-badge:empty {
+  display: none;
+  }
+
+html.layout-narrow .cakepage-hero-nav {
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+      padding-right: max(0.5rem, env(safe-area-inset-right));
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 0 0 var(--mobile-app-radius-sm) var(--mobile-app-radius-sm);
+  }
+
+html.layout-narrow .cakepage-cart-button {
+  display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      min-width: auto !important;
+      min-height: 44px !important;
+      padding: 0.4rem 0.85rem 0.4rem 0.65rem !important;
+      border-radius: 999px !important;
+      background: var(--mobile-app-cart) !important;
+      color: var(--mobile-app-cart-text) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      font-size: 1.1rem !important;
+  }
+
+html.layout-narrow .cakepage-cart-button:hover {
+  background: #ffd54a !important;
+      color: #111 !important;
+  }
+
+html.layout-narrow .cakepage-cart-button .cart-count {
+  position: static !important;
+      top: auto !important;
+      right: auto !important;
+      background: #111 !important;
+      color: var(--mobile-app-cart) !important;
+      min-width: 22px;
+      height: 22px;
+      width: auto;
+      padding: 0 6px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+  }
+
+html.layout-narrow .cakepage-container {
+  background: var(--mobile-app-canvas);
+  }
+
+html.layout-narrow .cupcake-collection-container {
+  background: var(--mobile-app-canvas);
+  }
+
+html.layout-narrow .cakepage-collections-list {
+  gap: 1rem;
+      padding: 0 0.25rem 1.5rem;
+  }
+
+html.layout-narrow .cakepage-collections-list > h1 {
+  font-size: 1.5rem !important;
+      padding: 0.75rem 0.5rem 0.25rem;
+      margin-bottom: 0.5rem !important;
+  }
+
+html.layout-narrow .cakepage-collection-row,
+html.layout-narrow .cakepage-collection-row.reverse {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      box-shadow: var(--mobile-app-shadow-card);
+      padding: 1rem !important;
+      gap: 1rem !important;
+  }
+
+html.layout-narrow .cakepage-viewcakes-btn {
+  width: 100%;
+      max-width: 100%;
+      padding: 0.85rem 1rem !important;
+      border-radius: 12px !important;
+      font-weight: 600;
+  }
+
+html.layout-narrow .cupcake-collection-container .cupcake-section,
+html.layout-narrow .cupcake-collection-container .cupcake-breadcrumbs {
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+html.layout-narrow .cupcake-standard-card,
+html.layout-narrow .cupcake-flavour-card {
+  border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+  }
+
+html.layout-narrow .homepage-container .homepage-about-preview {
+  background: var(--mobile-app-canvas);
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+  }
+
+html.layout-narrow .homepage-about-content {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      padding: 1.5rem 1.25rem !important;
+      box-shadow: var(--mobile-app-shadow-card);
+      margin: 0 0.75rem;
+  }
+
+html.layout-narrow .homepage-footer {
+  border-radius: var(--mobile-app-radius) var(--mobile-app-radius) 0 0;
+      margin-top: 1rem;
+  }
+
+html.layout-narrow .guides-page-container {
+  background: var(--mobile-app-canvas);
+      min-height: 100vh;
+  }
+
+html.layout-narrow .guides-page-container .guides-page-content {
+  padding-bottom: 2rem;
+  }
+
+html.layout-narrow .faq-root {
+  background: var(--mobile-app-canvas);
+      min-height: 100vh;
+  }
+
+html.layout-narrow .guides-page-container .guide-card {
+  border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+      overflow: hidden;
+  }
+
+html.layout-narrow .account-page {
+  background: var(--mobile-app-canvas) !important;
+  }
+
+html.layout-narrow .account-hero-card,
+html.layout-narrow .account-stat-card,
+html.layout-narrow .account-quick-card,
+html.layout-narrow .account-order-card,
+html.layout-narrow .account-help-card {
+  border-radius: var(--mobile-app-radius) !important;
+  }
+
+html.layout-narrow .checkout-container {
+  background: var(--mobile-app-canvas) !important;
+  }
+
+html.layout-narrow .checkout-container .checkout-content {
+  border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+      margin: 0 0.25rem;
+  }
+
+html.layout-narrow .checkout {
+  background: transparent;
+  }
+
+html.layout-narrow .aboutus-page-container {
+  background: var(--mobile-app-canvas);
+  }
+
+html.layout-narrow .DietaryRequirements-outer-container,
+html.layout-narrow .pricing-guide-outer {
+  background: var(--mobile-app-canvas) !important;
+  }
+
+html.layout-narrow .sizing-guide-page-container,
+html.layout-narrow .special-occasion-page-container {
+  background: var(--mobile-app-canvas);
+  }
+
+html.layout-narrow .aboutus-main .aboutus-content,
+html.layout-narrow .aboutus-side .aboutus-contact {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      box-shadow: var(--mobile-app-shadow-card);
+      padding: 1.25rem !important;
+  }
+
+html.layout-narrow .contactus-form-centered {
+  border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+  }
+
+html.layout-narrow .faq-content {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      margin: 0 0.5rem 1.5rem;
+      padding: 1.25rem !important;
+      box-shadow: var(--mobile-app-shadow-card);
+  }
+
+html.layout-narrow .terms-content {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      margin: 0 0.5rem 2rem;
+      padding: 1.25rem !important;
+      box-shadow: var(--mobile-app-shadow-card);
+  }
+
+html.layout-narrow .DietaryRequirements-main .DietaryRequirements-content,
+html.layout-narrow .DietaryRequirements-main .DietaryRequirements-related-guides {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      padding: 1.25rem !important;
+      box-shadow: var(--mobile-app-shadow-card);
+      margin-bottom: 1rem;
+  }
+
+html.layout-narrow .pricing-guide-container {
+  background: var(--mobile-app-surface) !important;
+      border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+  }
+
+html.layout-narrow .sizing-guide-content,
+html.layout-narrow .special-occasion-content {
+  box-shadow: var(--mobile-app-shadow-card) !important;
+      border-radius: var(--mobile-app-radius) !important;
+  }
+
+html.layout-narrow .specific-cake-container {
+  background: var(--mobile-app-canvas);
+      border-radius: 0;
+  }
+
+html.layout-narrow .specific-cake-details {
+  background: var(--mobile-app-surface);
+      border-radius: var(--mobile-app-radius);
+      padding: 1.25rem !important;
+      margin-top: 0.75rem;
+      box-shadow: var(--mobile-app-shadow-card);
+  }
+
+html.layout-narrow .listing-carousel-container {
+  border-radius: var(--mobile-app-radius);
+      overflow: hidden;
+      box-shadow: var(--mobile-app-shadow-card);
+  }
+
+html.layout-narrow .order-confirmation {
+  background: var(--mobile-app-canvas) !important;
+  }
+
+html.layout-narrow .confirmation-container {
+  border-radius: var(--mobile-app-radius) !important;
+      box-shadow: var(--mobile-app-shadow-card) !important;
+  }
+
+html.layout-narrow .terms-root {
+  background: var(--mobile-app-canvas);
+      min-height: 100vh;
+  }
+
+html.layout-narrow .contactus-page {
+  background: var(--mobile-app-canvas);
+  }
+
+html.layout-narrow .signature-creations-section {
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+
 @media (max-width: 900px) and (min-width: 769px) {
   .mobile-store-header-cart {
     padding: 0.4rem 0.75rem !important;

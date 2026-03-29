@@ -154,15 +154,3 @@ html.layout-narrow .cakepage-hero-nav {
   }
 }
 
-/* Footer: same as Footer.css @900 when @media is wrong but layout-narrow is set */
-html.layout-narrow .footer-content {
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 2rem !important;
-}
-
-html.layout-narrow .footer-links-grid {
-  grid-template-columns: 1fr !important;
-  gap: 1.5rem !important;
-  width: 100% !important;
-}

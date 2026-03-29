@@ -8,13 +8,13 @@
 
 .aboutus-main {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 2.5rem;
   max-width: 1200px;
   margin: 40px auto 0 auto;
-  padding: 0 1rem 3rem 1rem;
+  padding: 1.5rem 0.5rem 2rem 0.5rem;
   width: 100%;
 }
 
@@ -24,7 +24,7 @@
   color: #111;
   font-size: 1.08rem;
   line-height: 1.7;
-  padding: 1rem 2rem 2rem 0;
+  padding: 1.5rem 0 0.5rem 0;
   text-align: left;
 }
 
@@ -44,14 +44,15 @@
   flex: 1.2;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 2rem;
+  width: 100%;
 }
 
 .aboutus-image-wrapper {
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .aboutus-image {
@@ -121,22 +122,24 @@
   background: #222;
 }
 
-/* Responsive styles */
-@media (max-width: 900px) {
-  .aboutus-main {
-    flex-direction: column;
-    gap: 2.5rem;
-    padding: 1.5rem 0.5rem 2rem 0.5rem;
+@media (min-width: 901px) {
+  html:not(.layout-narrow) .aboutus-main {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0 1rem 3rem 1rem;
   }
-  .aboutus-content {
-    padding: 1.5rem 0 0.5rem 0;
+
+  html:not(.layout-narrow) .aboutus-content {
+    padding: 1rem 2rem 2rem 0;
   }
-  .aboutus-side {
-    width: 100%;
-    align-items: stretch;
+
+  html:not(.layout-narrow) .aboutus-side {
+    width: auto;
+    align-items: center;
   }
-  .aboutus-image-wrapper {
-    justify-content: flex-start;
+
+  html:not(.layout-narrow) .aboutus-image-wrapper {
+    justify-content: center;
   }
 }
 

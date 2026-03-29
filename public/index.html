@@ -6,6 +6,29 @@
     <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no" />
+    <!-- Sets layout-narrow before bundled CSS so mobile-first + html:not(.layout-narrow) desktop rules behave; keep logic aligned with src/bootstrap/layoutViewportClass.js -->
+    <script>
+      (function () {
+        try {
+          var bp = 900;
+          var root = document.documentElement;
+          var narrow = false;
+          try {
+            narrow = window.matchMedia('(max-width: ' + bp + 'px)').matches;
+          } catch (e) {}
+          var parts = [];
+          if (window.visualViewport && window.visualViewport.width > 0) parts.push(window.visualViewport.width);
+          if (window.innerWidth > 0) parts.push(window.innerWidth);
+          if (root.clientWidth > 0) parts.push(root.clientWidth);
+          if (parts.length) {
+            var wMin = parts[0];
+            for (var i = 1; i < parts.length; i++) if (parts[i] < wMin) wMin = parts[i];
+            narrow = narrow || wMin <= bp;
+          }
+          if (narrow) root.classList.add('layout-narrow');
+        } catch (e) {}
+      })();
+    </script>
     <meta name="theme-color" content="#e67e22" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta

@@ -46,8 +46,9 @@
 
 .contactus-content-centered {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
   margin: 0 auto;
   flex: 1 0 auto;
@@ -55,11 +56,11 @@
 
 .contactus-form-centered {
   margin: 0 auto;
-  width: 66.67%; /* 2/3 of page width */
+  width: 90%;
   background: #fff;
   border-radius: 0;
   box-shadow: none;
-  padding: 2.5rem 2rem 2.5rem 2rem;
+  padding: 2rem 1rem;
   position: relative;
   overflow: visible;
   border: none;
@@ -75,8 +76,8 @@
 
 .contactus-form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
 }
 
 .contactus-form-group {
@@ -182,18 +183,20 @@
   display: none !important;
 }
 
-@media (max-width: 900px) {
-  .contactus-content-centered {
-    flex-direction: column;
-    align-items: stretch;
+@media (min-width: 901px) {
+  html:not(.layout-narrow) .contactus-content-centered {
+    flex-direction: row;
+    align-items: flex-start;
   }
-  .contactus-form-centered {
-    width: 90%;
-    padding: 2rem 1rem;
+
+  html:not(.layout-narrow) .contactus-form-centered {
+    width: 66.67%;
+    padding: 2.5rem 2rem 2.5rem 2rem;
   }
-  .contactus-form-row {
-    grid-template-columns: 1fr;
-    gap: 0.8rem;
+
+  html:not(.layout-narrow) .contactus-form-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
   }
 }
 

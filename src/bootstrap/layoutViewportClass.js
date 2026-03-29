@@ -1,10 +1,10 @@
 /**
- * Toggles html.layout-narrow for mobile layout (see viewport-narrow.css).
+ * Toggles html.layout-narrow (see viewport-narrow.css, mobile-first sheets, and
+ * public/index.html inline script — keep breakpoint + width logic in sync).
  *
- * Opera GX / some DevTools device modes report window.innerWidth as the FULL browser
- * width while visualViewport.width and documentElement.clientWidth match the emulated
- * device. Using Math.max() on those values wrongly picked the desktop width — fixed
- * by using Math.min() of positive readings OR matchMedia (same as CSS).
+ * Opera GX / some DevTools modes report window.innerWidth as the full window width
+ * while visualViewport / clientWidth match the emulated device; use Math.min of
+ * positive readings and matchMedia(max-width).
  */
 const BREAKPOINT = 900;
 
