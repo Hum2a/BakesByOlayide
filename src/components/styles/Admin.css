@@ -612,6 +612,9 @@ td {
 
   .admin-container {
     flex-direction: column;
+    padding-left: max(0, env(safe-area-inset-left));
+    padding-right: max(0, env(safe-area-inset-right));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 
   .stats-grid {
@@ -637,4 +640,4 @@ td {
   .developer-settings-grid {
     grid-template-columns: 1fr;
   }
-} 
+}

@@ -21,7 +21,7 @@
   justify-content: space-between;
   width: 100%;
   margin: 0 auto;
-  padding: 0 2.5rem;
+  padding: 0 1rem;
   height: 100%;
 }
 
@@ -57,7 +57,7 @@
 }
 
 .main-nav-links {
-  display: flex;
+  display: none !important;
   justify-content: center;
   align-items: center;
   gap: 2.5rem;
@@ -142,7 +142,7 @@
 
 /* Mobile Menu Styles */
 .mobile-menu-toggle {
-  display: none;
+  display: block;
   background: none;
   border: none;
   color: #fff;
@@ -211,16 +211,18 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive Design */
-@media (max-width: 900px) {
-  .homepage-nav {
-    padding: 0 1rem;
+/* Desktop nav: only when truly wide AND JS did not lock narrow layout */
+@media (min-width: 901px) {
+  html:not(.layout-narrow) .homepage-nav {
+    padding: 0 2.5rem;
   }
-  .main-nav-links {
-    display: none !important;
+
+  html:not(.layout-narrow) .main-nav-links {
+    display: flex !important;
   }
-  .mobile-menu-toggle {
-    display: block;
+
+  html:not(.layout-narrow) .mobile-menu-toggle {
+    display: none;
   }
 }
 

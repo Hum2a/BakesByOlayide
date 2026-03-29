@@ -26,7 +26,7 @@ const Contact = ({ isOpen, onClose }) => {
     e.preventDefault();
     try {
       // Add the enquiry to Firestore
-      const docRef = await addDoc(collection(db, 'enquiries'), {
+      await addDoc(collection(db, 'enquiries'), {
         ...formData,
         timestamp: new Date(),
         status: 'new'

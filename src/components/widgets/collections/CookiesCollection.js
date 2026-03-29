@@ -137,6 +137,7 @@ const CookiesCollection = () => {
             )}
             <button className="cakepage-cart-button" onClick={() => setIsCartOpen(true)} aria-label="View Cart">
               <FaShoppingCart />
+              <span className="mobile-store-cart-label">Bag</span>
               {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
             </button>
           </div>
@@ -158,6 +159,7 @@ const CookiesCollection = () => {
               <li>
                 <button className="cakepage-cart-button" onClick={() => { setIsMobileNavOpen(false); setIsCartOpen(true); }} aria-label="View Cart">
                   <FaShoppingCart />
+                  <span className="mobile-store-cart-label">Bag</span>
                 </button>
               </li>
             </ul>

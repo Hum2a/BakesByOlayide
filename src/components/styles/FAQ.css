@@ -129,4 +129,16 @@
   .faq-text {
     font-size: 1rem;
   }
-} 
+}
+
+/* Mobile layout (≤768px) */
+@media (max-width: 768px) {
+  .faq-content {
+    padding-left: max(0.7rem, env(safe-area-inset-left));
+    padding-right: max(0.7rem, env(safe-area-inset-right));
+  }
+
+  .faq-question {
+    font-size: 1.05rem;
+  }
+}

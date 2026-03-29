@@ -1295,4 +1295,14 @@
   pointer-events: auto !important;
   z-index: 2 !important;
   transform: none !important;
-} 
+}
+
+/* Mobile layout (≤768px): product PDP safe area (all Specific* product pages share this sheet) */
+@media (max-width: 768px) {
+  .specific-cake-container {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+}

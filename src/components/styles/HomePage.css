@@ -488,3 +488,15 @@
     border-radius: 0 !important;
   }
 }
+
+/* Mobile: fixed hero background is heavy on iOS and can crop oddly */
+@media (max-width: 768px) {
+  .homepage-hero {
+    background-attachment: scroll;
+  }
+
+  .homepage-container {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}

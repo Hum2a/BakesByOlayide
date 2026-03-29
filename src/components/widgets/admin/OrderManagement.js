@@ -519,9 +519,80 @@ const OrderManagement = () => {
   const [sortKey, setSortKey] = useState('createdAt');
   const [sortDir, setSortDir] = useState('desc');
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const ordersRef = collection(db, 'orders');
+      const q = query(ordersRef, orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+
+      const ordersData = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const orderData = { id: doc.id, ...doc.data() };
+
+          if (orderData.userId) {
+            try {
+              const userDoc = await getDoc(firestoreDoc(db, 'users', orderData.userId));
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                orderData.customerName = userData.displayName;
+                orderData.customerEmail = userData.email;
+              }
+            } catch (error) {
+              console.error('Error fetching user data:', error);
+              orderData.customerName = 'Unknown Customer';
+              orderData.customerEmail = 'N/A';
+            }
+          }
+
+          orderData.customerName =
+            orderData.customerName || orderData.guestInfo?.name || orderData.guestInfo?.displayName;
+          orderData.customerEmail =
+            orderData.customerEmail || orderData.guestInfo?.email;
+
+          return orderData;
+        })
+      );
+
+      setOrders(ordersData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError('Failed to load orders');
+      setLoading(false);
+    }
+  }, []);
+
+  const updateOrderStatus = useCallback(
+    async (orderId, newStatus, invoiceRef) => {
+      try {
+        const orderRef = firestoreDoc(db, 'orders', orderId);
+        await updateDoc(orderRef, {
+          status: newStatus,
+          updatedAt: new Date(),
+        });
+        if (newStatus === 'confirmed' && invoiceRef) {
+          try {
+            await setDoc(firestoreDoc(db, invoiceRef), { status: 'paid' }, { merge: true });
+          } catch (e) {
+            /* ignore */
+          }
+        }
+        await fetchOrders();
+        setError(null);
+        return true;
+      } catch (error) {
+        console.error('Error updating order status:', error);
+        setError('Failed to update order status');
+        return false;
+      }
+    },
+    [fetchOrders]
+  );
+
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   useEffect(() => {
     if (emailModalOpen && emailOrder && emailType) {
@@ -583,74 +654,6 @@ const OrderManagement = () => {
       setTemplateStatus('');
     }
   }, [manageTemplatesOpen, selectedTemplateType, templates]);
-
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const ordersRef = collection(db, 'orders');
-      const q = query(ordersRef, orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      
-      const ordersData = await Promise.all(querySnapshot.docs.map(async (doc) => {
-        const orderData = { id: doc.id, ...doc.data() };
-        
-        // Fetch user data if userId exists
-        if (orderData.userId) {
-          try {
-            const userDoc = await getDoc(firestoreDoc(db, 'users', orderData.userId));
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-              orderData.customerName = userData.displayName;
-              orderData.customerEmail = userData.email;
-            }
-          } catch (error) {
-            console.error('Error fetching user data:', error);
-            orderData.customerName = 'Unknown Customer';
-            orderData.customerEmail = 'N/A';
-          }
-        }
-        
-        orderData.customerName =
-          orderData.customerName || orderData.guestInfo?.name || orderData.guestInfo?.displayName;
-        orderData.customerEmail =
-          orderData.customerEmail || orderData.guestInfo?.email;
-
-        return orderData;
-      }));
-      
-      setOrders(ordersData);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError('Failed to load orders');
-      setLoading(false);
-    }
-  };
-
-  const updateOrderStatus = async (orderId, newStatus, invoiceRef) => {
-    try {
-      const orderRef = firestoreDoc(db, 'orders', orderId);
-      await updateDoc(orderRef, {
-        status: newStatus,
-        updatedAt: new Date()
-      });
-      // If confirming, also update invoice status to paid
-      if (newStatus === 'confirmed' && invoiceRef) {
-        try {
-          await setDoc(firestoreDoc(db, invoiceRef), { status: 'paid' }, { merge: true });
-        } catch (e) {
-          // ignore
-        }
-      }
-      await fetchOrders(); // Refresh orders after update
-      setError(null);
-      return true;
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      setError('Failed to update order status');
-      return false;
-    }
-  };
 
   const requestStatusChange = useCallback((order, newStatus) => {
     const cur = (order.status || 'pending').toLowerCase();
@@ -783,7 +786,7 @@ const OrderManagement = () => {
         setStatusChangeSaving(false);
       }
     },
-    [statusChangeModal, openEmailModal]
+    [statusChangeModal, openEmailModal, updateOrderStatus]
   );
 
   const closeEmailModal = () => {

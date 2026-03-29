@@ -41,6 +41,7 @@ const SizingGuide = () => {
           </div>
           <h2>Portion Guide</h2>
           <p>We have this useful table for how many portions of cake each size and cut yields.</p>
+          <div className="sizing-guide-table-scroll">
           <table className="sizing-guide-table">
             <thead>
               <tr>
@@ -72,6 +73,7 @@ const SizingGuide = () => {
               </tr>
             </tbody>
           </table>
+          </div>
         </section>
       </main>
       <Footer />

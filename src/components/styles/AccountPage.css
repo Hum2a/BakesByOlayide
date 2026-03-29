@@ -1603,3 +1603,12 @@
     transform: none !important;
   }
 }
+
+/* Mobile layout (≤768px): safe-area insets for notched devices */
+@media (max-width: 768px) {
+  .account-page {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}

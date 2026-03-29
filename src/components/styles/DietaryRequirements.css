@@ -156,4 +156,28 @@
   .DietaryRequirements-guides-grid {
     grid-template-columns: 1fr;
   }
-} 
+}
+
+/* Mobile layout (≤768px) — desktop styles unchanged above */
+@media (max-width: 768px) {
+  .DietaryRequirements-main {
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .DietaryRequirements-title {
+    font-size: clamp(1.75rem, 6vw, 2.25rem);
+    letter-spacing: -0.02em;
+  }
+
+  .DietaryRequirements-subtitle {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .DietaryRequirements-guide-card img {
+    height: 220px;
+  }
+}
