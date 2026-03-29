@@ -12,7 +12,7 @@ const PricingGuide = () => (
       {/* Cupcakes */}
       <section className="pricing-section">
         <h2>Cupcakes</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Flavour</th>
@@ -41,13 +41,13 @@ const PricingGuide = () => (
             <tr><td>Forest Fruits</td><td>£4.00</td><td>£15.00</td><td>£20.00</td><td>£35.00</td></tr>
             <tr><td>WC and Raspberry</td><td>£4.00</td><td>£15.00</td><td>£20.00</td><td>£35.00</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       {/* Miniatures */}
       <section className="pricing-section">
         <h2>Miniatures</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Flavour</th>
@@ -64,14 +64,14 @@ const PricingGuide = () => (
             <tr><td>Carrot Cake</td><td>£1.50</td><td></td><td></td><td></td></tr>
             <tr><td>Oreo</td><td>£1.50</td><td></td><td></td><td></td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       {/* Large Cakes */}
       <section className="pricing-section">
         <h2>Large Cakes</h2>
         <div className="pricing-note">Starting Prices (shape doesn't change pricing)</div>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Flavour Base</th>
@@ -91,7 +91,7 @@ const PricingGuide = () => (
             <tr><td>Gingerbread</td><td>£75</td><td>£90</td><td>£125</td></tr>
             <tr><td>Custom</td><td>£85</td><td>£100</td><td>£130</td></tr>
           </tbody>
-        </table>
+        </table></div>
         <div className="pricing-note">
           All cakes are priced assuming the buttercream accompanying it is vanilla American buttercream. Those with Asterisks are priced as if with Cream Cheese Buttercream.<br/>
           All prices are inclusive of a generic birthday cake topper, cake board and a box.
@@ -101,7 +101,7 @@ const PricingGuide = () => (
       {/* Add Ons - Icings */}
       <section className="pricing-section">
         <h2>Add Ons: Icings</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Icing Type</th>
@@ -120,7 +120,7 @@ const PricingGuide = () => (
             <tr><td>Salted Caramel Buttercream</td><td>£4</td><td>£7</td><td>£12</td></tr>
             <tr><td>Meringue Buttercream</td><td>£8</td><td>£12</td><td>£20</td></tr>
           </tbody>
-        </table>
+        </table></div>
         <div className="pricing-note">
           For cakes that use multiple Icings (only available in cakes 8" or larger), charge half the second amount. This does not apply for multi-tier cakes.
         </div>
@@ -129,7 +129,7 @@ const PricingGuide = () => (
       {/* Add Ons - Fillings */}
       <section className="pricing-section">
         <h2>Add Ons: Fillings</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Filling Type</th>
@@ -150,7 +150,7 @@ const PricingGuide = () => (
             <tr><td>Stewed Apple</td><td>£5</td><td>£9</td><td>£15</td></tr>
             <tr><td>Fresh Fruit</td><td>£8</td><td>£12</td><td>£20</td></tr>
           </tbody>
-        </table>
+        </table></div>
         <div className="pricing-note">
           For cakes that use multiple Icings (only available in cakes 8" or larger), charge half the second amount. This does not apply for multi-tier cakes.
         </div>
@@ -159,7 +159,7 @@ const PricingGuide = () => (
       {/* Add Ons - Toppings */}
       <section className="pricing-section">
         <h2>Add Ons: Toppings</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Topping Type</th>
@@ -176,13 +176,13 @@ const PricingGuide = () => (
             <tr><td>Macarons</td><td>£7</td><td>£11</td><td>£17</td></tr>
             <tr><td>Fresh Fruit</td><td>£8</td><td>£12</td><td>£20</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       {/* Cake Toppers */}
       <section className="pricing-section">
         <h2>Cake Toppers</h2>
-        <table className="pricing-table">
+        <div className="pricing-table-scroll"><table className="pricing-table">
           <thead>
             <tr>
               <th>Cake Topper</th>
@@ -205,7 +205,7 @@ const PricingGuide = () => (
             <tr><td>Custom A</td><td>Acrylic</td><td>£10</td></tr>
             <tr><td>Custom B</td><td>Paper</td><td>£7</td></tr>
           </tbody>
-        </table>
+        </table></div>
         <div className="pricing-note">
           This does not include wedding cake toppers.
         </div>

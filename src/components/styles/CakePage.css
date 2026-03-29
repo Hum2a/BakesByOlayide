@@ -564,17 +564,13 @@
 
 @media (max-width: 600px) {
   .cakepage-container {
-    padding: 0.5rem 0.2rem 1rem 0.2rem;
-    max-width: 100vw;
-    width: 100vw;
+    padding: 0.5rem 0.75rem 1rem 0.75rem;
+    max-width: 100%;
+    width: 100%;
     overflow-x: hidden;
+    box-sizing: border-box;
   }
-  .cakepage-hero {
-    min-height: 80px;
-    height: auto;
-    max-height: none;
-    padding: 0;
-  }
+  /* Hero height / image sizing is defined in the later mobile block to avoid conflicts */
   .cakepage-hero-nav {
     flex-direction: column;
     align-items: center;
@@ -606,20 +602,6 @@
     margin: 0.5rem 0 0 0;
     justify-content: center;
   }
-  .cakepage-hero-bgimg-wrap {
-    height: 90px;
-    min-height: 60px;
-  }
-  .cakepage-hero-bgimg {
-    height: 90px;
-    min-height: 60px;
-    width: 100vw;
-    object-fit: cover;
-  }
-  .cakepage-hero-title {
-    font-size: 1.1rem;
-    padding: 0.2rem 0.5rem;
-  }
   .cakepage-collections-list {
     gap: 1rem;
     margin: 1.2rem auto 2rem auto;
@@ -647,9 +629,13 @@
   .cakepage-collection-image,
   .cakepage-collection-no-image {
     width: 100%;
-    height: 90px;
-    max-width: 100vw;
-    border-radius: 6px;
+    max-width: 100%;
+    height: auto;
+    min-height: 200px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 10px;
   }
   .cakepage-viewcakes-btn {
     font-size: 1rem;
@@ -703,7 +689,8 @@
 
 .cakepage-hero {
   position: relative;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   min-height: 340px;
   height: 50vw;
   background: #222;
@@ -774,7 +761,8 @@
 }
 
 .cakepage-hero-bgimg-wrap {
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   height: 100%;
   position: relative;
   display: flex;
@@ -782,10 +770,11 @@
   justify-content: center;
 }
 .cakepage-hero-bgimg {
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   height: 50vw;
   object-fit: cover;
-  object-position: center;
+  object-position: center 28%;
   filter: brightness(0.82);
   position: absolute;
   top: 0;
@@ -827,29 +816,8 @@
   .cakepage-hero-title {
     font-size: 2rem;
   }
-}
-@media (max-width: 600px) {
-  .cakepage-hero {
-    min-height: 120px;
-    height: 60vw;
-    max-height: 180px;
-  }
-  .cakepage-hero-logo {
-    top: 0.7rem;
-    left: 0.7rem;
-    height: 28px;
-    width: auto;
-  }
-  .cakepage-hero-nav {
-    top: 0.7rem;
-    gap: 0.7rem;
-  }
   .cakepage-hero-bgimg {
-    height: 60vw;
-    max-height: 180px;
-  }
-  .cakepage-hero-title {
-    font-size: 1.2rem;
+    object-position: center 26%;
   }
 }
 
@@ -969,8 +937,12 @@
   .cakepage-collection-image,
   .cakepage-collection-no-image {
     width: 100%;
-    height: 160px;
-    max-width: 100vw;
+    max-width: 100%;
+    height: auto;
+    min-height: 200px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
   }
   .cakepage-collection-info h2 {
     font-size: 1.8rem;
@@ -995,8 +967,12 @@
   .cakepage-collection-image,
   .cakepage-collection-no-image {
     width: 100%;
-    height: 160px;
-    max-width: 100vw;
+    max-width: 100%;
+    height: auto;
+    min-height: 200px;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
   }
 }
 
@@ -1227,23 +1203,27 @@
 }
 
 @media (max-width: 600px) {
+  /* Single mobile hero definition — tall enough to show subject, no 100vw crop bugs */
   .cakepage-hero {
-    min-height: 180px;
-    height: 220px;
-    max-height: none;
+    min-height: 260px;
+    height: 42vw;
+    max-height: min(300px, 50vh);
     padding: 0;
     position: relative;
   }
   .cakepage-hero-bgimg-wrap {
-    height: 180px;
-    min-height: 120px;
+    flex: 1 1 0;
+    min-height: 200px;
     position: relative;
   }
   .cakepage-hero-bgimg {
-    height: 180px;
-    min-height: 120px;
-    width: 100vw;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    object-position: center 22%;
+    filter: brightness(0.9);
   }
   .cakepage-hero-overlay-content {
     top: 55%;
@@ -1258,9 +1238,18 @@
     display: block;
   }
   .cakepage-hero-title {
-    font-size: 1.3rem;
-    padding: 0.2rem 0.5rem;
+    font-size: 1.35rem;
+    padding: 0.35rem 0.75rem;
     margin-top: 0.5rem;
     text-align: center;
+  }
+}
+
+/* Mobile layout (≤768px): collections hub — safe horizontal padding */
+@media (max-width: 768px) {
+  .cakepage-container {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 }

@@ -29,4 +29,28 @@
   line-height: 1.6;
   margin-bottom: 15px;
   color: #555;
-} 
+}
+
+/* Mobile layout (≤768px) — desktop styles unchanged above */
+@media (max-width: 768px) {
+  .special-occasion-main {
+    padding: 12px max(12px, env(safe-area-inset-left)) 20px max(12px, env(safe-area-inset-right));
+  }
+
+  .special-occasion-content {
+    padding: 18px 16px;
+    border-radius: 6px;
+  }
+
+  .special-occasion-content h1 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+
+  .special-occasion-content p {
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+}

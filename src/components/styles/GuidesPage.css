@@ -454,3 +454,19 @@
     object-position: center 70%; /* Added object-position for consistency */
   }
 }
+
+/* Mobile layout (≤768px): notch-safe horizontal padding */
+@media (max-width: 768px) {
+  .guides-page-content {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .guide-read-btn,
+  .guide-read-btn-left {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}

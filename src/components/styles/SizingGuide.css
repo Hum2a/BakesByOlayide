@@ -86,4 +86,57 @@
 
 .sizing-guide-table tr:last-child td {
   border-bottom: none;
-} 
+}
+
+.sizing-guide-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile layout (≤768px) — desktop styles unchanged above */
+@media (max-width: 768px) {
+  .sizing-guide-main {
+    padding: 12px max(12px, env(safe-area-inset-left)) 24px max(12px, env(safe-area-inset-right));
+  }
+
+  .sizing-guide-content {
+    padding: 16px 14px;
+    border-radius: 6px;
+  }
+
+  .sizing-guide-content h1 {
+    font-size: 1.45rem;
+    line-height: 1.25;
+  }
+
+  .sizing-guide-content h2 {
+    font-size: 1.15rem;
+  }
+
+  .sizing-guide-cuts {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .sizing-guide-cut {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .sizing-guide-table-scroll {
+    margin-left: -4px;
+    margin-right: -4px;
+    padding-bottom: 4px;
+  }
+
+  .sizing-guide-table {
+    min-width: 280px;
+    font-size: 0.9rem;
+  }
+
+  .sizing-guide-table th,
+  .sizing-guide-table td {
+    padding: 10px 8px;
+  }
+}

@@ -1,0 +1,168 @@
+/**
+ * Collections hub + range headers: same rules as mobile-app-store @media (max-width:900px)
+ * but gated on html.layout-narrow so layout is correct on first paint when @media is late.
+ * Import this file last in the entry so these beat earlier sheets.
+ */
+
+html.layout-narrow .cakepage-nav-links,
+html.layout-narrow .cakepage-nav-icons {
+  display: none !important;
+}
+
+html.layout-narrow .cakepage-mobile-menu-toggle {
+  display: block !important;
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.2rem;
+  z-index: 3;
+  cursor: pointer;
+}
+
+html.layout-narrow .cakepage-hero-nav {
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0 0 12px 12px;
+}
+
+html.layout-narrow .cakepage-cart-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: auto !important;
+  min-height: 44px !important;
+  padding: 0.4rem 0.85rem 0.4rem 0.65rem !important;
+  border-radius: 999px !important;
+  background: #f3c307 !important;
+  color: #111 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-size: 1.1rem !important;
+}
+
+html.layout-narrow .cakepage-cart-button:hover {
+  background: #ffd54a !important;
+  color: #111 !important;
+}
+
+html.layout-narrow .cakepage-cart-button .cart-count {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  background: #111 !important;
+  color: #f3c307 !important;
+  min-width: 22px;
+  height: 22px;
+  width: auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+html.layout-narrow .cakepage-container {
+  background: #f2f2f7;
+}
+
+html.layout-narrow .cakepage-collections-list {
+  gap: 1rem;
+  padding: 0 0.25rem 1.5rem;
+}
+
+html.layout-narrow .cakepage-collections-list > h1 {
+  font-size: 1.5rem !important;
+  padding: 0.75rem 0.5rem 0.25rem;
+  margin-bottom: 0.5rem !important;
+}
+
+html.layout-narrow .cakepage-collection-row,
+html.layout-narrow .cakepage-collection-row.reverse {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  padding: 1rem !important;
+  gap: 1rem !important;
+}
+
+html.layout-narrow .cakepage-viewcakes-btn {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.85rem 1rem !important;
+  border-radius: 12px !important;
+  font-weight: 600;
+}
+
+html.layout-narrow .cakepage-hero,
+html.layout-narrow .cakepage-hero-bgimg-wrap,
+html.layout-narrow .cakepage-hero-bgimg {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Hero band: mirrors CakePage ≤600px intent without waiting on nested @media */
+html.layout-narrow .cakepage-hero {
+  min-height: 260px;
+  height: 42vw;
+  max-height: min(300px, 50vh);
+  padding: 0;
+  position: relative;
+}
+
+html.layout-narrow .cakepage-hero-bgimg-wrap {
+  flex: 1 1 0;
+  min-height: 200px;
+  position: relative;
+}
+
+html.layout-narrow .cakepage-hero-bgimg {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  filter: brightness(0.9);
+}
+
+html.layout-narrow .cakepage-hero-title {
+  font-size: 1.35rem;
+  padding: 0.35rem 0.75rem;
+}
+
+html.layout-narrow .cupcake-collection-container {
+  background: #f2f2f7;
+}
+
+html.layout-narrow .cakepage-hero-nav {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (max-width: 768px) {
+  html.layout-narrow .cakepage-hero-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+}
+
+/* Footer: same as Footer.css @900 when @media is wrong but layout-narrow is set */
+html.layout-narrow .footer-content {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2rem !important;
+}
+
+html.layout-narrow .footer-links-grid {
+  grid-template-columns: 1fr !important;
+  gap: 1.5rem !important;
+  width: 100% !important;
+}

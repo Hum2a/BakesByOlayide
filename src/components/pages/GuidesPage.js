@@ -87,6 +87,7 @@ const GuidesPage = () => {
             )}
             <button className="cakepage-cart-button" onClick={() => handleModalOpen('cart')} aria-label="View Cart">
               <FaShoppingCart />
+              <span className="mobile-store-cart-label">Bag</span>
               {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
             </button>
           </div>
@@ -108,6 +109,7 @@ const GuidesPage = () => {
               <li>
                 <button className="cakepage-cart-button" onClick={() => { setIsMobileNavOpen(false); handleModalOpen('cart'); }} aria-label="View Cart">
                   <FaShoppingCart />
+                  <span className="mobile-store-cart-label">Bag</span>
                 </button>
               </li>
             </ul>

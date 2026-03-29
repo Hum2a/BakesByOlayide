@@ -157,4 +157,12 @@
     flex-direction: column;
     gap: 0.5rem;
   }
-} 
+}
+
+/* Mobile layout (≤768px) */
+@media (max-width: 768px) {
+  .aboutus-main {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+}

@@ -7,7 +7,7 @@ import './App.css';
 function App() {
   return (
     <CartProvider>
-      <div className="App">
+      <div className="App mobile-app-root">
         <AnnouncementBanner />
         <AppRouter />
       </div>

@@ -217,5 +217,12 @@
 @media (max-width: 768px) {
   .contactus-page {
     padding-top: 70px;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-} 
+
+  .contactus-form-centered {
+    max-width: 100%;
+  }
+}

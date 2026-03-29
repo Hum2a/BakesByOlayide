@@ -2305,4 +2305,15 @@
     --cal-cell-w: 2.45rem;
     --cal-cell-h: 2.45rem;
   }
+
+  .checkout-container {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .checkout {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
 }

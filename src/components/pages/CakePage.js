@@ -191,6 +191,7 @@ const CakePage = ({ onOpenCart }) => {
           )}
           <button className="cakepage-cart-button" onClick={onOpenCart} aria-label="View Cart">
             <FaShoppingCart />
+            <span className="mobile-store-cart-label">Bag</span>
             {totalItems > 0 && <span className={`cart-count${totalItems ? ' cart-count-animate' : ''}`}>{totalItems}</span>}
           </button>
         </div>
@@ -212,6 +213,7 @@ const CakePage = ({ onOpenCart }) => {
             <li>
               <button className="cakepage-cart-button" onClick={() => { setIsMobileNavOpen(false); onOpenCart(); }} aria-label="View Cart">
                 <FaShoppingCart />
+                <span className="mobile-store-cart-label">Bag</span>
               </button>
             </li>
           </ul>
