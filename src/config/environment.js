@@ -2,19 +2,20 @@
  * Single place for runtime / API targets (Create React App inlines REACT_APP_* at build time).
  *
  * Defaults (no .env needed):
- * - Development (npm start): local API at http://localhost:5000
- * - Production build (npm run build): live API at Render URL
+ * - Development (npm start): local API at http://localhost:5000 (CRA proxy)
+ * - Production: use `npm run build:pages` (REACT_APP_API_RELATIVE=1) for Cloudflare Pages + Functions
  *
  * Override with REACT_APP_API_BASE_URL and/or REACT_APP_RUNTIME_ENV=local|live
  *
- * Fly.io / same-origin deploy: set REACT_APP_API_RELATIVE=1 at build time so /api/* hits the host that served the SPA.
+ * Cloudflare Pages: `build:pages` sets REACT_APP_API_RELATIVE=1 so /api/* hits Pages Functions on the same host.
  *
  * If the Express server uses PORT=5001 (or anything other than 5000), set e.g.
  * REACT_APP_API_BASE_URL=http://localhost:5001 and restart the dev server. Also set
  * package.json "proxy" to the same origin if you rely on CRA’s /api proxy.
  */
 
-export const LIVE_API_ORIGIN = 'https://bakesbyolayide-server.onrender.com';
+/** Optional separate API host for split deploys. Empty = use same-origin /api (Cloudflare `build:pages`). */
+export const LIVE_API_ORIGIN = '';
 export const LOCAL_API_ORIGIN = 'http://localhost:5000';
 
 const LIVE_API_DEFAULT = LIVE_API_ORIGIN;

@@ -46,7 +46,7 @@ function explainFetchFailure(requestUrl, error) {
     );
   } else if (apiPointsAtLoopback && pageOnPublicHost) {
     hints.push(
-      'The API URL points at your own computer (localhost), but you opened Admin from a public/deployed origin. The browser cannot reach your PC’s localhost from here. Set REACT_APP_API_BASE_URL to your live API (e.g. Render) for production builds, or run these checks on your machine at http://localhost:3000.'
+      'The API URL points at your own computer (localhost), but you opened Admin from a public/deployed origin. The browser cannot reach your PC’s localhost from here. Use a production build with REACT_APP_API_RELATIVE=1 (Cloudflare) or set REACT_APP_API_BASE_URL to your deployed API, or run these checks at http://localhost:3000.'
     );
   } else if (apiPointsAtLoopback && pageOnLoopback) {
     hints.push(
@@ -54,7 +54,7 @@ function explainFetchFailure(requestUrl, error) {
     );
   } else {
     hints.push(
-      'Possible causes: host sleeping (Render free tier), firewall/VPN/ad-block, strict browser privacy, or CORS if the page origin is not allowed by the API.'
+      'Possible causes: cold start / slow host, firewall/VPN/ad-block, strict browser privacy, or CORS if the page origin is not allowed by the API.'
     );
   }
 
@@ -84,15 +84,12 @@ async function pingApiTest(baseLabel, baseOrigin, { timeoutMs } = {}) {
   } catch (e) {
     const ms = Math.round(performance.now() - start);
     if (e?.name === 'AbortError') {
-      const isRender = /onrender\.com/i.test(url);
       return {
         label: baseLabel,
         url,
         ok: false,
         ms,
-        message: isRender
-          ? `Timed out after ${timeoutMs}ms — Render free tier often sleeps; open ${url} in a new tab to wake the service, wait until you see JSON, then run checks again.`
-          : `Timed out after ${timeoutMs}ms — nothing responded in time.`,
+        message: `Timed out after ${timeoutMs}ms — open ${url} in a new tab to confirm the API responds, then retry.`,
       };
     }
     return {
@@ -285,9 +282,14 @@ const DeveloperSettings = () => {
       process.env.NODE_ENV === 'development' ? pingRelativeDevProxy() : Promise.resolve(null);
     const cloudflarePromise = pingCloudflareSameOrigin({ timeoutMs: 25000 });
 
+    const livePingPromise =
+      normalizeBaseUrl(LIVE_API_ORIGIN) !== ''
+        ? pingApiTest('Backend (separate API host)', LIVE_API_ORIGIN, { timeoutMs: 120000 })
+        : Promise.resolve(null);
+
     const [fb, live, devProxy, cfPing, ...locals] = await Promise.all([
       checkFirebaseClient(),
-      pingApiTest('Backend (live / Render)', LIVE_API_ORIGIN, { timeoutMs: 120000 }),
+      livePingPromise,
       devProxyPromise,
       cloudflarePromise,
       ...localTasks,
@@ -300,7 +302,7 @@ const DeveloperSettings = () => {
     setCloudflarePing(cfPing);
 
     const diagUrl = apiUrl('/api/integrations/status');
-    const diagTimeoutMs = /onrender\.com/i.test(diagUrl) ? 120000 : 25000;
+    const diagTimeoutMs = 60000;
     const start = performance.now();
     const controller = new AbortController();
     const diagTid = setTimeout(() => controller.abort(), diagTimeoutMs);
@@ -346,11 +348,7 @@ const DeveloperSettings = () => {
         url: diagUrl,
         ms,
         message: aborted
-          ? `Timed out after ${diagTimeoutMs}ms — ${
-              /onrender\.com/i.test(diagUrl)
-                ? 'Render may be sleeping; open the URL in a new tab, wait for JSON, retry.'
-                : 'API did not respond — is npm run server running on the expected PORT?'
-            }`
+          ? `Timed out after ${diagTimeoutMs}ms — open the diagnostics URL in a new tab or confirm npm run server / Cloudflare Functions is up.`
           : explainFetchFailure(diagUrl, e),
         body: null,
       });
@@ -363,7 +361,8 @@ const DeveloperSettings = () => {
 
   const configured = getApiBaseUrl();
   const runtime = getRuntimeEnv();
-  const matchesLive = configured.includes('onrender.com') || configured === LIVE_API_ORIGIN;
+  const matchesLive =
+    normalizeBaseUrl(LIVE_API_ORIGIN) !== '' && normalizeBaseUrl(configured) === normalizeBaseUrl(LIVE_API_ORIGIN);
 
   return (
     <div className="developer-settings">
@@ -445,12 +444,11 @@ const DeveloperSettings = () => {
             <code>npm run dev</code> again.
           </li>
         </ul>
-        <h4 className="developer-settings-help-title">Live (Render) “Failed to fetch”</h4>
+        <h4 className="developer-settings-help-title">Deployed site “Failed to fetch”</h4>
         <p>
-          Free/sleeping hosts can take a long time to wake; if it still fails, the service may be down or your network
-          is blocking the request. Open the Render URL in a new tab—if the site does not load, the check will not
-          either. Use <code>http://localhost:3000</code> not <code>127.0.0.1</code> unless CORS includes it (this
-          project now allows both).
+          Cold starts, DNS, or your network can block API calls. Open the failing URL in a new tab. On Cloudflare,
+          confirm Pages Functions env vars match <code>CLOUDFLARE.md</code>. Use <code>http://localhost:3000</code> for
+          local admin unless CORS allows your origin.
         </p>
       </aside>
 
@@ -511,17 +509,19 @@ const DeveloperSettings = () => {
             }
           />
         ))}
-        <ResultCard
-          title={livePing?.label || 'Backend (live)'}
-          ok={livePing?.ok}
-          url={livePing?.url}
-          ms={livePing?.ms}
-          message={
-            livePing?.ok
-              ? `${livePing.message}${matchesLive ? ' · matches configured base' : ''}`
-              : livePing?.message
-          }
-        />
+        {livePing && (
+          <ResultCard
+            title={livePing.label || 'Backend (separate host)'}
+            ok={livePing.ok}
+            url={livePing.url}
+            ms={livePing.ms}
+            message={
+              livePing.ok
+                ? `${livePing.message}${matchesLive ? ' · matches configured base' : ''}`
+                : livePing.message
+            }
+          />
+        )}
       </div>
 
       <h3 className="developer-settings-h3">Configured backend — email &amp; server Firestore</h3>

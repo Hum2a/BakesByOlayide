@@ -1,7 +1,7 @@
 const app = require('./app');
 
 /**
- * Production (Render, etc.): host sets PORT — must use it.
+ * Production (if you run Node on a host): that host sets PORT — must use it.
  * Local dev: prefer API_PORT so you can set PORT=3000 in .env for tooling without moving the API.
  * Otherwise PORT (e.g. 5000 in backend/.env) or default 5000.
  */
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'production') {
   ];
   for (const [u, p, label] of smtpChecks) {
     if (!process.env[u]?.trim() || !process.env[p]?.trim()) {
-      console.warn(`[bakesbyolayide] SMTP not configured for ${label}: set ${u} and ${p} on the host (e.g. Render).`);
+      console.warn(`[bakesbyolayide] SMTP not configured for ${label}: set ${u} and ${p} in the environment.`);
     }
   }
 }

@@ -243,25 +243,19 @@ node server.js
 npm run dev
 ```
 
-### Production Setup
+### Production (Cloudflare Pages)
+
+Production deploys use **Cloudflare Pages** + **Pages Functions** (`functions/`). See **[CLOUDFLARE.md](CLOUDFLARE.md)** for build commands, secrets, and custom domains.
 
 ```bash
-# Build for production
-npm run build
+# Production build (same-origin /api for Pages Functions)
+npm run build:pages
 
-# Start production server
-npm run start:prod
+# Deploy (after wrangler login)
+npm run pages:deploy
 ```
 
-### Docker Setup
-
-```bash
-# Build Docker image
-docker build -t bakery .
-
-# Run container
-docker run -p 3000:3000 bakery
-```
+Local full-stack dev is still `npm run dev` (Express + React).
 
 ## 🔧 Configuration
 
@@ -336,8 +330,8 @@ backend/
 ### Environment Variables & Service Account
 
 - Place your `.env` file in the project root (never in `backend/`).
-- For Firebase Admin SDK:
-  - In production (e.g., Render), set `GOOGLE_APPLICATION_CREDENTIALS` to the absolute path of your service account JSON.
+- For Firebase Admin SDK (local Node only):
+  - In production on **Cloudflare**, use the env vars in `backend/.env.example` (Cloudflare section), not a JSON path on disk.
   - In local development, leave `GOOGLE_APPLICATION_CREDENTIALS` unset and place your service account JSON in the repo (ignored by git). The backend will automatically use the local file if the env variable is not set or the file does not exist.
 - Example fallback logic (see `backend/config/firebase.js`):
   ```js
@@ -394,7 +388,7 @@ npm test -- path/to/test.js
 
 - [API Documentation](docs/api.md)
 - [Component Documentation](docs/components.md)
-- [Deployment Guide](docs/deployment.md)
+- [Deployment (Cloudflare)](CLOUDFLARE.md)
 - [Contributing Guide](CONTRIBUTING.md)
 
 ## 🤝 Contributing

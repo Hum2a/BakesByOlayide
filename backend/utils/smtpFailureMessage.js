@@ -1,12 +1,12 @@
 /**
- * Render (RENDER=true) free web services block outbound TCP to SMTP ports 25, 465, 587.
- * Nodemailer then fails with "Connection timeout" after ~60s — not a Zoho misconfiguration.
+ * Some hosts set RENDER=true and block outbound SMTP (25, 465, 587); Nodemailer then times out.
+ * Optional hint when RENDER=true — production mail on Cloudflare uses ZeptoMail HTTPS instead.
  * @see https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports
  */
 const RENDER_SMTP_BLOCK_DOC =
   'https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports';
 
-const RENDER_HINT = ` Render free tier blocks outbound SMTP (ports 25, 465, 587), so connections to Zoho time out. Fix: upgrade this service to a paid Render instance, or send mail over HTTPS (SendGrid, Resend, Mailgun, etc.). ${RENDER_SMTP_BLOCK_DOC}`;
+const RENDER_HINT = ` This environment may block outbound SMTP (ports 25, 465, 587), so connections to Zoho time out. Use a host that allows SMTP, or send mail over HTTPS (e.g. ZeptoMail on Cloudflare). ${RENDER_SMTP_BLOCK_DOC}`;
 
 function looksLikeSmtpConnectFailure(message) {
   if (!message || typeof message !== 'string') return false;

@@ -117,7 +117,7 @@ async function resendOutboxEmail(req, res) {
   const missingEnv = missingSmtpEnvForChannel(channel);
   if (missingEnv) {
     return res.status(500).json({
-      error: `SMTP is not configured on this server (${missingEnv}). Add them in Render (or host) env and redeploy.`,
+      error: `SMTP is not configured on this server (${missingEnv}). Add them to the host environment (or use Cloudflare + ZeptoMail in production).`,
     });
   }
 

@@ -37,7 +37,7 @@
   "scripts": {
     "start": "cross-env PORT=3000 craco start",
     "start:local": "cross-env PORT=3000 craco start",
-    "start:live-api": "cross-env PORT=3000 REACT_APP_RUNTIME_ENV=live REACT_APP_API_BASE_URL=https://bakesbyolayide-server.onrender.com craco start",
+    "start:live-api": "cross-env PORT=3000 REACT_APP_RUNTIME_ENV=live craco start",
     "server": "node server.js",
     "server:local": "node server.js",
     "free-port-5000": "npx --yes kill-port 5000",
@@ -55,7 +55,6 @@
     "firestore:schema:dump": "node scripts/dump-firestore-schema.js",
     "css:sync-layout-narrow-mobile-store": "node scripts/duplicate-layout-narrow-mobile-store.mjs",
     "typecheck:functions": "tsc -p functions/tsconfig.json --noEmit",
-    "deploy:fly": "fly deploy",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
